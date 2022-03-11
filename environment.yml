@@ -1,0 +1,29 @@
+name: luxai2022
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.8
+  - numpy
+  - matplotlib
+  - dill
+  - pandas
+  - seaborn
+  - scipy
+  - jupyterlab
+  - pip
+  - ipdb
+  - cython
+  - scikit-learn
+  - tqdm
+  - yaml
+  - ipywidgets
+  - black
+  - isort
+
+  - gym=0.19
+
+  - pip:
+    - stable-baselines3
+    - pettingzoo
+    
