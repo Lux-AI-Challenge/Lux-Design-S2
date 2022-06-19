@@ -35,13 +35,14 @@ def raw_env():
 class parallel_env(ParallelEnv):
     metadata = {'render.modes': ['human', 'html'], "name": "luxai2022_v0"}
 
-    def __init__(self,
-    
+    def __init__(
+        self,
         max_episode_length=1000
     ):
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
         self.max_episode_length = max_episode_length
+        self.seed_rng: np.random.RandomState = None
 
     # this cache ensures that same space object is returned for the same agent
     # allows action space seeding to work as expected
@@ -74,7 +75,7 @@ class parallel_env(ParallelEnv):
         '''
         pass
 
-    def reset(self):
+    def reset(self, seed=None):
         '''
         Reset needs to initialize the `agents` attribute and must set up the
         environment so that render(), and step() can be called without issues.
@@ -84,6 +85,8 @@ class parallel_env(ParallelEnv):
 
         Returns the observations for each agent
         '''
+        self.seed_rng = np.random.RandomState(seed=seed)
+        self.seed = seed
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         observations = {agent: 0 for agent in self.agents}
