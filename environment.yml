@@ -26,4 +26,6 @@ dependencies:
   - pip:
     - stable-baselines3
     - pettingzoo
+    - omegaconf
+    - termcolor
     

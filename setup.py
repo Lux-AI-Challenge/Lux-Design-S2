@@ -12,6 +12,6 @@ setup(
     license = "MIT",
     keywords = "reinforcement-learning machine-learning ai",
     url = "http://packages.python.org/paper-rl",
-    packages=['paper_rl', 'tests'],
+    packages=['luxai2022', 'tests'],
     long_description=read('README.md'),
 )

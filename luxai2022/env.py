@@ -3,7 +3,10 @@ from gym import spaces
 import numpy as np 
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from pettingzoo.utils import parallel_to_aec
+from luxai2022.config import EnvConfig
+from luxai2022.spaces.act_space import get_act_space
+
+from luxai2022.spaces.obs_space import get_obs_space
 
 def env():
     '''
@@ -27,14 +30,14 @@ def raw_env():
     To support the AEC API, the raw_env() function just uses the from_parallel
     function to convert from a ParallelEnv to an AEC env
     '''
-    env = parallel_env()
+    env = LuxAI2022()
     # env = parallel_to_aec(env)
     return env
 
 
-class parallel_env(ParallelEnv):
+class LuxAI2022(ParallelEnv):
     metadata = {'render.modes': ['human', 'html'], "name": "luxai2022_v0"}
-
+    config = EnvConfig()
     def __init__(
         self,
         max_episode_length=1000
@@ -44,17 +47,22 @@ class parallel_env(ParallelEnv):
         self.max_episode_length = max_episode_length
         self.seed_rng: np.random.RandomState = None
 
+        self.units = dict()
+        for agent in range(self.possible_agents):
+            self.units[agent] = []
+
     # this cache ensures that same space object is returned for the same agent
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
         # Gym spaces are defined and documented here: https://gym.openai.com/docs/#spaces
-        # TODO
-        return spaces.Box(low=0, high=10, shape=(10,), dtype=np.float32)
+        return get_obs_space(config=self.config, agent=agent)
+       
+        
 
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return spaces.Dict(unit_0=spaces.Discrete(8))
+        return get_act_space(self, config=self.config, agent=agent)
 
     def render(self, mode="human"):
         '''
