@@ -11,11 +11,11 @@ class UnitType(Enum):
     LIGHT = 'Light'
     HEAVY = 'Heavy'
 class Unit():
-    def __init__(self, team: Team, unit_type: str) -> None:
+    def __init__(self, team: Team, unit_type: str, unit_id: str) -> None:
         self.unit_type = unit_type
         self.team_id = team.team_id
         self.team = team
-
+        self.unit_id = unit_id
         self.pos = Position(np.zeros(2, dtype=int))
 
     def __str__(self) -> str:

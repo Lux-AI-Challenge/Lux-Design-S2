@@ -1,5 +1,5 @@
 import functools
-from gym import spaces
+from typing import Dict, List
 import numpy as np 
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
@@ -7,6 +7,7 @@ from luxai2022.config import EnvConfig
 from luxai2022.spaces.act_space import get_act_space
 
 from luxai2022.spaces.obs_space import get_obs_space
+from luxai2022.unit import Unit
 
 def env():
     '''
@@ -47,7 +48,7 @@ class LuxAI2022(ParallelEnv):
         self.max_episode_length = max_episode_length
         self.seed_rng: np.random.RandomState = None
 
-        self.units = dict()
+        self.units: Dict[int, List[Unit]] = dict()
         for agent in range(self.possible_agents):
             self.units[agent] = []
 
