@@ -10,10 +10,18 @@ def convert_dict_to_ns(x):
 
 
 @dataclass
+class UnitConfig:
+    METAL_COST: int = 100
+    POWER_COST: int = 500
+    CARGO_SPACE: int = 1000
+    BATTERY_CAPACITY: int = 1500
+
+
+@dataclass
 class EnvConfig:
     ### Variable parameters that don't affect game logic much ###
-    max_episode_length = 1000
-    map_size = 64
+    max_episode_length: int = 1000
+    map_size: int = 64
 
     ### Constants ###
 
@@ -26,8 +34,12 @@ class EnvConfig:
 
     #### Units ####
     ROBOTS = dict(
-        LIGHT=dict(METAL_COST=10, POWER_COST=50, CARGO_SPACE=100),
-        HEAVY=dict(METAL_COST=100, POWER_COST=500, CARGO_SPACE=1000),
+        LIGHT=UnitConfig(
+            METAL_COST=10, POWER_COST=50, CARGO_SPACE=100, BATTERY_CAPACITY=50
+        ),
+        HEAVY=UnitConfig(
+            METAL_COST=100, POWER_COST=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500
+        ),
     )
 
     #### Map Generation ####
