@@ -11,6 +11,7 @@ from luxai2022.spaces.obs_space import get_obs_space
 from luxai2022.state import State
 from luxai2022.team import FactionTypes, Team
 from luxai2022.unit import Unit, UnitType
+from luxai2022.utils.utils import is_day
 
 
 def env():
@@ -105,6 +106,7 @@ class LuxAI2022(ParallelEnv):
         self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0)
         for agent in range(len(self.possible_agents)):
             self.state.units[agent] = []
+            self.state.factories[agent] = []
         observations = {agent: 0 for agent in self.agents}
         return observations
     def step(self, actions):
@@ -130,6 +132,29 @@ class LuxAI2022(ParallelEnv):
             for k, a in actions.items():
                 print(k, a, self.state.teams)
                 self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=a["faction"])
+            # TODO return the initial obs, skip all the other parts in this list
+        
+        # TODO Transfer resources/power
+        
+        # TODO Resource Pickup
+
+        # TODO digging and self destruct
+
+        # TODO execute movement and recharge/wait actions, then resolve collisions
+        
+        # TODO - grow lichen
+        
+        # TODO - robot building with factories
+
+        # resources refining
+        for i in range(len(self.agents)):
+            for factory in self.state.factories[i]:
+                factory.refine_step(self.env_cfg)
+        # power gain
+        if is_day(self.env_cfg, self.env_steps):
+            for i in range(len(self.agents)):
+                for u in self.state.units[i]:
+                    u.power = u.power + self.env_cfg.ROBOTS[u.unit_type].CHARGE
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -139,7 +164,7 @@ class LuxAI2022(ParallelEnv):
         env_done = self.env_steps >= self.max_episode_length
         dones = {agent: env_done for agent in self.agents}
 
-        # current observation is just the other player's most recent action
+        # generate observations
         observations = {}
         for k in self.agents:
             observations[k] = 0

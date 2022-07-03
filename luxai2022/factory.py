@@ -1,0 +1,26 @@
+import numpy as np
+from luxai2022.config import EnvConfig
+from luxai2022.map.position import Position
+from luxai2022.team import Team
+from luxai2022.unit import UnitCargo
+
+
+class Factory:
+    def __init__(self, team: Team, unit_id: str) -> None:
+        self.team_id = team.team_id
+        self.team = team
+        self.unit_id = unit_id
+        self.pos = Position(np.zeros(2, dtype=int))
+        self.power = 0
+        self.cargo = UnitCargo()
+
+    def refine_step(self, config: EnvConfig):
+        consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
+        consumed_ore = min(self.cargo.metal, config.FACTORY_PROCESSING_RATE_METAL)
+
+        self.cargo.ice -= consumed_ice
+        self.cargo.ore -= consumed_ore
+        
+        # TODO - are we rounding or doing floats or anything?
+        self.cargo.water += consumed_ice / config.ICE_WATER_RATIO
+        self.cargo.metal += consumed_ore / config.ORE_METAL_RATIO

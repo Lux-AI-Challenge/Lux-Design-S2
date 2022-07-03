@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
@@ -11,17 +12,23 @@ from luxai2022.team import FactionTypes, Team
 class UnitType(Enum):
     LIGHT = "Light"
     HEAVY = "Heavy"
-    FACTORY = "Factory"
     
-
+@dataclass
+class UnitCargo:
+    ice: int = 0
+    ore: int = 0
+    water: int = 0
+    metal: int = 0
 
 class Unit:
-    def __init__(self, team: Team, unit_type: str, unit_id: str) -> None:
+    def __init__(self, team: Team, unit_type: UnitType, unit_id: str) -> None:
         self.unit_type = unit_type
         self.team_id = team.team_id
         self.team = team
         self.unit_id = unit_id
         self.pos = Position(np.zeros(2, dtype=int))
+        self.power = 0
+        self.cargo = UnitCargo()
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_type} at {self.pos}"

@@ -27,22 +27,26 @@ class EnvConfig:
     # you can only ever transfer in/out 1000 as this is the max cargo space.
     max_transfer_amount = 10000 
     MAX_FACTORIES = 5
+    CYCLE_LENGTH = 50
+    DAY_LENGTH = 30
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True
 
     #### Factores ####
     FACTORY_PROCESSING_RATE_WATER: int = 50
+    ICE_WATER_RATIO: int = 10
     FACTORY_PROCESSING_RATE_METAL: int = 50
+    ORE_METAL_RATIO: int = 10
 
 
     #### Units ####
     ROBOTS = dict(
         LIGHT=UnitConfig(
-            METAL_COST=10, POWER_COST=50, CARGO_SPACE=100, BATTERY_CAPACITY=50
+            METAL_COST=10, POWER_COST=50, CARGO_SPACE=100, BATTERY_CAPACITY=50, CHARGE=1
         ),
         HEAVY=UnitConfig(
-            METAL_COST=100, POWER_COST=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500
+            METAL_COST=100, POWER_COST=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500, CHARGE=10
         ),
     )
 
