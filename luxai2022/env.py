@@ -6,8 +6,9 @@ from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 
 from luxai2022.config import EnvConfig
-from luxai2022.spaces.act_space import get_act_space
+from luxai2022.spaces.act_space import get_act_space, get_act_space_init
 from luxai2022.spaces.obs_space import get_obs_space
+from luxai2022.state import State
 from luxai2022.team import FactionTypes, Team
 from luxai2022.unit import Unit, UnitType
 
@@ -29,33 +30,34 @@ def env():
     return env
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
-    config = EnvConfig()
+    
 
     def __init__(self, max_episode_length=1000):
         # TODO - allow user to override env configs
+        default_config = EnvConfig()
+        self.env_cfg = default_config
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(
             zip(self.possible_agents, list(range(len(self.possible_agents))))
         )
         self.max_episode_length = max_episode_length
+
+        self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1)
+
         self.seed_rng: np.random.RandomState = None
-
-        self.teams: Dict[str, Team] = dict()
-
-        self.units: Dict[int, List[Unit]] = dict()
-        for agent in range(len(self.possible_agents)):
-            self.units[agent] = []
 
     # this cache ensures that same space object is returned for the same agent
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
         # Gym spaces are defined and documented here: https://gym.openai.com/docs/#spaces
-        return get_obs_space(config=self.config, agent=agent)
+        return get_obs_space(config=self.env_cfg, agent=agent)
 
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return get_act_space(self.units, config=self.config, agent=agent)
+        if self.env_steps == 0:
+            return get_act_space_init(config=self.env_cfg, agent=agent)
+        return get_act_space(self.state.units, config=self.env_cfg, agent=agent)
 
     def render(self, mode="human"):
         """
@@ -76,6 +78,16 @@ class LuxAI2022(ParallelEnv):
         """
         pass
 
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state: State):
+        self.state = state
+        self.env_steps = state.env_steps
+        self.seed_rng = state.seed_rng
+        self.seed = state.seed
+        # TODO - throw warning if setting state from a different configuration than initialized with
+        self.env_cfg = state.env_cfg
     def reset(self, seed=None):
         """
         Reset needs to initialize the `agents` attribute and must set up the
@@ -86,10 +98,13 @@ class LuxAI2022(ParallelEnv):
 
         Returns the observations for each agent
         """
-        self.seed_rng = np.random.RandomState(seed=seed)
-        self.seed = seed
+        seed_rng = np.random.RandomState(seed=seed)
         self.agents = self.possible_agents[:]
         self.env_steps = 0
+        self.seed = seed
+        self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0)
+        for agent in range(len(self.possible_agents)):
+            self.state.units[agent] = []
         observations = {agent: 0 for agent in self.agents}
         return observations
     def step(self, actions):
@@ -109,10 +124,12 @@ class LuxAI2022(ParallelEnv):
         # TODO - format actions
 
         # Turn 1 logic, handle # TODO Bidding
-        # handle initialization
+        
         if self.env_steps == 0:
-            for k, a in actions:
-                self.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=a["meta"])
+            # handle initialization
+            for k, a in actions.items():
+                print(k, a, self.state.teams)
+                self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=a["faction"])
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -149,12 +166,12 @@ def raw_env() -> LuxAI2022:
     # env = parallel_to_aec(env)
     return env
 if __name__ == "__main__":
-    env = LuxAI2022()
+    env: LuxAI2022 = LuxAI2022()
     o = env.reset()
     u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
-    env.units[1].append(u)
+    env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
     print("obs", o)
-    o, r, d, _ = env.step({"player_0": 1, "player_1": 1})
+    o, r, d, _ = env.step({"player_0": dict(faction="MotherMars"), "player_1": dict(faction="AlphaStrike")})
     print(o, r, d)
     import ipdb;ipdb.set_trace()

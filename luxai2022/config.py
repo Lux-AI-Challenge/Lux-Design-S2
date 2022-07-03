@@ -26,6 +26,7 @@ class EnvConfig:
     ### Constants ###
     # you can only ever transfer in/out 1000 as this is the max cargo space.
     max_transfer_amount = 10000 
+    MAX_FACTORIES = 5
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True

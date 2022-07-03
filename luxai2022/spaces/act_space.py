@@ -19,6 +19,15 @@ class FactionString(gym.Space):
     def contains(self, x):
         return type(x) is "str" and x in self.valid_factions
 
+
+def get_act_space_init(config: EnvConfig, agent: int = 0):
+    # Get action space for turn 0 initialization
+    # TODO add bidding
+    act_space = dict()
+    act_space["faction"] = FactionString()
+    act_space["spawns"] = spaces.Box(low=0, high=config.map_size, shape=(config.MAX_FACTORIES, 2), dtype=int)
+    return spaces.Dict(act_space)
+
 def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
     act_space = dict()
 
@@ -45,10 +54,6 @@ def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
         act_space[u.unit_id] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount])
-
-    # decide on a faction. We will only use what you select on the first turn
-    act_space["faction"] = FactionString()
-
-    # TODO add bidding
+    
 
     return spaces.Dict(act_space)
