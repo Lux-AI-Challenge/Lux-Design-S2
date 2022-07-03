@@ -8,7 +8,8 @@ from pettingzoo.utils import wrappers
 from luxai2022.config import EnvConfig
 from luxai2022.spaces.act_space import get_act_space
 from luxai2022.spaces.obs_space import get_obs_space
-from luxai2022.unit import Unit
+from luxai2022.team import FactionTypes, Team
+from luxai2022.unit import Unit, UnitType
 
 
 def env():
@@ -26,23 +27,12 @@ def env():
     # Strongly recommended
     env = wrappers.OrderEnforcingWrapper(env)
     return env
-
-
-def raw_env():
-    """
-    To support the AEC API, the raw_env() function just uses the from_parallel
-    function to convert from a ParallelEnv to an AEC env
-    """
-    env = LuxAI2022()
-    # env = parallel_to_aec(env)
-    return env
-
-
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
     config = EnvConfig()
 
     def __init__(self, max_episode_length=1000):
+        # TODO - allow user to override env configs
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(
             zip(self.possible_agents, list(range(len(self.possible_agents))))
@@ -50,8 +40,10 @@ class LuxAI2022(ParallelEnv):
         self.max_episode_length = max_episode_length
         self.seed_rng: np.random.RandomState = None
 
+        self.teams: Dict[str, Team] = dict()
+
         self.units: Dict[int, List[Unit]] = dict()
-        for agent in range(self.possible_agents):
+        for agent in range(len(self.possible_agents)):
             self.units[agent] = []
 
     # this cache ensures that same space object is returned for the same agent
@@ -63,7 +55,7 @@ class LuxAI2022(ParallelEnv):
 
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return get_act_space(self, config=self.config, agent=agent)
+        return get_act_space(self.units, config=self.config, agent=agent)
 
     def render(self, mode="human"):
         """
@@ -100,7 +92,6 @@ class LuxAI2022(ParallelEnv):
         self.env_steps = 0
         observations = {agent: 0 for agent in self.agents}
         return observations
-
     def step(self, actions):
         """
         step(action) takes in an action for each agent and should return the
@@ -114,6 +105,14 @@ class LuxAI2022(ParallelEnv):
         if not actions:
             self.agents = []
             return {}, {}, {}, {}
+
+        # TODO - format actions
+
+        # Turn 1 logic, handle # TODO Bidding
+        # handle initialization
+        if self.env_steps == 0:
+            for k, a in actions:
+                self.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=a["meta"])
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -136,11 +135,26 @@ class LuxAI2022(ParallelEnv):
 
         return observations, rewards, dones, infos
 
+    ### Game Logic ###
+    def add_unit(self):
+        u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
 
+
+def raw_env() -> LuxAI2022:
+    """
+    To support the AEC API, the raw_env() function just uses the from_parallel
+    function to convert from a ParallelEnv to an AEC env
+    """
+    env = LuxAI2022()
+    # env = parallel_to_aec(env)
+    return env
 if __name__ == "__main__":
-    env = raw_env()
+    env = LuxAI2022()
     o = env.reset()
+    u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
+    env.units[1].append(u)
     # observation, reward, done, info = env.last()
     print("obs", o)
     o, r, d, _ = env.step({"player_0": 1, "player_1": 1})
     print(o, r, d)
+    import ipdb;ipdb.set_trace()

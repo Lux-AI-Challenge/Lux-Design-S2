@@ -11,6 +11,8 @@ from luxai2022.team import FactionTypes, Team
 class UnitType(Enum):
     LIGHT = "Light"
     HEAVY = "Heavy"
+    FACTORY = "Factory"
+    
 
 
 class Unit:
@@ -26,6 +28,12 @@ class Unit:
         if TERM_COLORS:
             return colored(out, self.team.faction.value.color)
         return out
+    def is_mobile(self) -> bool:
+        return self.unit_type.value != UnitType.FACTORY
+    # def move(self, ) -> str:
+    #     if self.is_mobile:
+    #     else:
+    #         raise TypeError("Unit is not a mobile unit")
 
 
 if __name__ == "__main__":

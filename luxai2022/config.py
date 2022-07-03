@@ -24,6 +24,8 @@ class EnvConfig:
     map_size: int = 64
 
     ### Constants ###
+    # you can only ever transfer in/out 1000 as this is the max cargo space.
+    max_transfer_amount = 10000 
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True
@@ -31,6 +33,7 @@ class EnvConfig:
     #### Factores ####
     FACTORY_PROCESSING_RATE_WATER: int = 50
     FACTORY_PROCESSING_RATE_METAL: int = 50
+
 
     #### Units ####
     ROBOTS = dict(
