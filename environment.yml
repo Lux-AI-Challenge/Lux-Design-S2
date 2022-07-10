@@ -28,4 +28,4 @@ dependencies:
     - pettingzoo
     - omegaconf
     - termcolor
-    
+    - opensimplex
