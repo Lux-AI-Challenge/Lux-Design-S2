@@ -2,8 +2,7 @@ import numpy as np
 from scipy.ndimage import convolve, maximum_filter
 from scipy.fft import dctn, idctn
 from visualize import viz
-
-
+from symnoise import SymmetricNoise, symmetrize
 
 class GameMap(object):
     def __init__(self, rubble, ice, ore):
@@ -11,18 +10,6 @@ class GameMap(object):
         self.ice = ice
         self.ore = ore
         self.width, self.height = len(rubble[0]), len(rubble)
-
-def symmetrize(x, symmetry="vertical"):
-    # Makes it match symmetry, in place.
-    height, width = x.shape
-    if symmetry == "horizontal":
-        x[height//2:] = x[(height-1)//2::-1]
-    elif symmetry == "vertical":
-        x[:, width//2:] = x[:, (width-1)//2::-1]
-    elif symmetry == "rotational":
-        x[height//2:, :] = x[(height-1)//2::-1, ::-1]
-        if height % 2:
-            x[height//2, width//2:] = x[height//2, (width-1)//2::-1]
 
 def cave(width, height, symmetry="vertical"):
     r = np.random.randint(4, size=(height, width))
@@ -34,11 +21,11 @@ def cave(width, height, symmetry="vertical"):
 
     r = 1-r
     r += maximum_filter(r, size=5)
-    
+
     rubble = np.random.randint(50, 100, size=r.shape)
     rubble[r==1] //= 10
     rubble[r==0] = 0
-    
+
     symmetrize(rubble, symmetry)
 
     return GameMap(rubble, r*50, r*50)
@@ -51,7 +38,7 @@ def circle(x, y, r):
     dist = r2 # Distance squared from center of circle.
     while True:
         points.append(c)
-        
+
         # Find which quadrant we are in.
         if c[0] >= x and c[1] >= y:
             dx, dy = 1, -1
@@ -75,27 +62,21 @@ def circle(x, y, r):
         if c == (x+r, y):
             break
     return points
-    
+
 
 def craters(width, height, symmetry="vertical"):
-    min_craters = max(1, width*height // 1500)
-    max_craters = max(2, width*height // 750)
+    min_craters = max(2, width*height // 1000)
+    max_craters = max(3, width*height // 500)
     craters = np.random.randint(min_craters, max_craters+1)
 
     rubble = np.zeros((height, width))
     circles = []
     while craters > 0:
         x, y = np.random.randint(width), np.random.randint(height)
-        if symmetry == "vertical":
-            if x >= width // 2:
-                continue
-        else:
-            if y >= height // 2:
-                continue
         r = np.random.randint(3, min(width, height)//4)
         if any((c[0] - x)**2 + (c[1] - y)**2 < (c[2]+r)**2 for c in circles):
             continue
-        
+
         circles.append((x, y, r))
         craters -= 1
 
@@ -107,9 +88,9 @@ def craters(width, height, symmetry="vertical"):
     symmetrize(rubble, symmetry)
 
     return GameMap(rubble, rubble, rubble)
-    
-        
-    
+
+
+
 
 def island(width, height, symmetry="vertical"):
     r = np.random.randint(4, size=(height, width))
@@ -123,7 +104,7 @@ def island(width, height, symmetry="vertical"):
 
     rubble = np.random.randint(50, 100, size=r.shape)
     rubble[r==0] //= 20
-    
+
     symmetrize(rubble, symmetry)
 
     return GameMap(rubble, r*100, r*100)
@@ -155,41 +136,33 @@ def solve_poisson(f):
 
 def mountain(width, height, symmetry="vertical"):
     f = np.zeros((height, width))
-    
+
     # Sprinkle a few mountains on the map.
-    min_mountains = max(1, width*height//1000)
-    max_mountains = max(3, width*height//500)
+    min_mountains = max(2, width*height//750)
+    max_mountains = max(4, width*height//375)
     mountains = np.random.randint(min_mountains, max_mountains+1)
     while mountains > 0:
         x, y = np.random.randint(width), np.random.randint(height)
-        if symmetry == "vertical":
-            if x >= width // 2:
-                continue
-        else:
-            if y >= height // 2:
-                continue
         f[y][x] -= 1
         mountains -= 1
-        
+
     symmetrize(f, symmetry)
     rubble = solve_poisson(f)
+    rubble *= 1 + SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=3)
     rubble -= np.amin(rubble)
     rubble /= np.amax(rubble)
-    rubble **= 2
-    rubble = np.floor(100 * rubble)
+    rubble = np.floor(100 / np.max(rubble) * rubble)
     return GameMap(rubble, rubble, rubble)
 
 def random_map():
-    width = height = np.random.randint(16, 64)
+    width = height = np.random.randint(32, 64)
     map_type = np.random.choice(["cave", "craters", "island", "mountain"])
-    if map_type == "craters": # rotational doesn't work so well for craters.
-        symmetry = np.random.choice(["horizontal", "vertical"])
-    else:
-        symmetry = np.random.choice(["horizontal", "vertical", "rotional"])
+    symmetry = np.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
+    map_type = "mountain"
     return eval(map_type)(width, height, symmetry)
-    
+
 
 if __name__ == "__main__":
     game_map = random_map()
     viz(game_map)
-    
+    input()
