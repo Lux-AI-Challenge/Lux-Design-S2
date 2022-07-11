@@ -4,6 +4,13 @@ from scipy.fft import dctn, idctn
 from visualize import viz
 from symnoise import SymmetricNoise, symmetrize
 
+# TODO:
+# - (Sub)classes > 4 different functions.
+# - Seeding
+# - Pass in a SymmetricNoise class to the various generators and only use that one
+#       (creating SymmetricNoise takes awhile (3ms), so if you don't care about maps
+#        all having the same noise, you can generate them much faster)
+
 class GameMap(object):
     def __init__(self, rubble, ice, ore):
         self.rubble = rubble
@@ -12,7 +19,8 @@ class GameMap(object):
         self.width, self.height = len(rubble[0]), len(rubble)
 
 def cave(width, height, symmetry="vertical"):
-    r = np.random.randint(4, size=(height, width))
+    # Build the cave system
+    r = np.random.randint(6, size=(height, width))
     r[r >= 1] = 1
     symmetrize(r, symmetry)
 
@@ -20,72 +28,37 @@ def cave(width, height, symmetry="vertical"):
         r = convolve(r, [[1]*3]*3, mode="constant", cval=0) // 6
 
     r = 1-r
-    r += maximum_filter(r, size=5)
+    r += maximum_filter(r, size=4)
 
-    rubble = np.random.randint(50, 100, size=r.shape)
-    rubble[r==1] //= 10
-    rubble[r==0] = 0
+    # Make it a little noisy
+    rubble = SymmetricNoise(symmetry=symmetry, width=width, height=height)() * 50 + 50
+    rubble = np.floor(rubble + 0.5)
+    rubble[r==1] //= 5
+    rubble[r==0] //= 20
 
     symmetrize(rubble, symmetry)
 
     return GameMap(rubble, r*50, r*50)
 
-def circle(x, y, r):
-    # The points that form a closed circle around (x, y) of radius r.
-    points = []
-    c = (x+r, y) # Current point on circumference.
-    r2 = r**2
-    dist = r2 # Distance squared from center of circle.
-    while True:
-        points.append(c)
-
-        # Find which quadrant we are in.
-        if c[0] >= x and c[1] >= y:
-            dx, dy = 1, -1
-        elif c[0] >= x:
-            dx, dy = -1, -1
-        elif c[1] >= y:
-            dx, dy = 1, 1
-        else:
-            dx, dy = -1, 1
-
-        distx = dist + 1 + 2*dx*(c[0]-x)
-        disty = dist + 1 + 2*dy*(c[1]-y)
-
-        if abs(distx - r2) < abs(disty - r2):
-            c = (c[0] + dx, c[1])
-            dist = distx
-        else:
-            c = (c[0], c[1] + dy)
-            dist = disty
-
-        if c == (x+r, y):
-            break
-    return points
-
-
 def craters(width, height, symmetry="vertical"):
     min_craters = max(2, width*height // 1000)
-    max_craters = max(3, width*height // 500)
+    max_craters = max(4, width*height // 500)
     craters = np.random.randint(min_craters, max_craters+1)
 
     rubble = np.zeros((height, width))
+    xx, yy = np.mgrid[:width, :height]
+    noise = SymmetricNoise(symmetry=symmetry, width=width, height=height)
+    crater_noise = noise(frequency=10) * 0.5 + 0.75
     circles = []
-    while craters > 0:
+    for i in range(craters):
         x, y = np.random.randint(width), np.random.randint(height)
         r = np.random.randint(3, min(width, height)//4)
-        if any((c[0] - x)**2 + (c[1] - y)**2 < (c[2]+r)**2 for c in circles):
-            continue
+        c = (xx - x) **2 + (yy - y)**2
+        rubble[c.T * crater_noise < r**2] += 1
 
-        circles.append((x, y, r))
-        craters -= 1
-
-    for c in circles:
-        points = circle(*c)
-        for x, y in points:
-            if 0<= x < width and 0 <= y < height:
-                rubble[y, x] = 100
+    rubble = rubble.astype(float)
     symmetrize(rubble, symmetry)
+    rubble = (np.minimum(rubble, 1) * 90 + 10) * noise(frequency=3)
 
     return GameMap(rubble, rubble, rubble)
 
@@ -93,21 +66,33 @@ def craters(width, height, symmetry="vertical"):
 
 
 def island(width, height, symmetry="vertical"):
+    # TODO: Use a faster algorithm for island.
+
     r = np.random.randint(4, size=(height, width))
     r[r >= 1] = 1
-    symmetrize(r, symmetry)
 
     s = -1
     while np.sum(r==0) != s:
         s = np.sum(r==0)
         r = convolve(r, [[1]*3]*3, mode="constant", cval=1) // 6
 
-    rubble = np.random.randint(50, 100, size=r.shape)
+    # Add noise to the island shapes.
+    xx, yy = np.mgrid[:width, :height]
+    noise_x = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=10) * 4 - 2
+    noise_y = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=10) * 4 - 2 # Need to be careful when seeding this to not use same seed as noise_x.
+    new_xx = xx + np.round(noise_x)
+    new_xx = np.maximum(0, np.minimum(width-1, new_xx)).astype(int)
+    new_yy = yy + np.round(noise_y)
+    new_yy = np.maximum(0, np.minimum(height-1, new_yy)).astype(int)
+    prev_r = r.copy()
+    r[yy, xx] = r[new_yy, new_xx]
+
+    symmetrize(r, symmetry)
+
+    rubble = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=3) * 50 + 50
     rubble[r==0] //= 20
 
-    symmetrize(rubble, symmetry)
-
-    return GameMap(rubble, r*100, r*100)
+    return GameMap(rubble, prev_r*100, r*100)
 
 def solve_poisson(f):
     """
@@ -158,7 +143,6 @@ def random_map():
     width = height = np.random.randint(32, 64)
     map_type = np.random.choice(["cave", "craters", "island", "mountain"])
     symmetry = np.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
-    map_type = "mountain"
     return eval(map_type)(width, height, symmetry)
 
 
