@@ -3,7 +3,7 @@ from collections.abc import Iterable
 import numpy as np
 
 def symmetrize(x, symmetry="vertical"):
-    # Makes it match symmetry, in place.
+    # In place operation to average along the symmetry.
     height, width = x.shape
     if symmetry == "horizontal":
         x[height//2:] += x[(height-1)//2::-1]
