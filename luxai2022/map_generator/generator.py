@@ -251,12 +251,12 @@ class Mountain(GameMap):
         det = 16 * Dxx * Dyy - Dxy ** 2 # Hessian determinant
         det = det.astype(np.csingle) # complex
 
-        char = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
-        char = char.real # should already be real except for floating point errors
-        symmetrize(char, symmetry) # for floating point errors
+        cond = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
+        cond = cond.real # should already be real except for floating point errors
+        symmetrize(cond, symmetry) # for floating point errors
 
         def bdry(x, y):
-            return abs(char[y][x]) < 0.05 and f[y][x] == 0
+            return abs(cond[y][x]) < 0.05 and f[y][x] == 0
 
         closed_set = set()
         def flood_fill(x, y):
