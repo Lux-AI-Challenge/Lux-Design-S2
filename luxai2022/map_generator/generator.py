@@ -32,12 +32,18 @@ class GameMap(object):
         return noise
 
     @staticmethod
-    def random_map(seed=None, map_type=None, symmetry=None):
+    def random_map(seed=None, map_type=None, symmetry=None, width=None, height=None):
         """random_map
         Returns a random map. Can specify seed.
         """
         noise = GameMap.noise(seed)
-        width = height = noise.random.randint(32, 64)
+        if width is None:
+            if height is None:
+                width = noise.random.randint(32, 64)
+            else:
+                width = height
+        if height is None:
+            height = width
         if not map_type:
             map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
         if not symmetry:
@@ -142,7 +148,7 @@ class Craters(GameMap):
         for i in range(num_craters):
             cx, cy = noise.random.randint(width), np.random.randint(height)
             cr = noise.random.randint(3, min(width, height)//4)
-            c = (xx - x) **2 + (yy - y)**2
+            c = (xx - cx) **2 + (yy - cy)**2
             c = c.T * crater_noise
             mask[c < cr**2] += 1
             edge = np.logical_and(c >= cr**2, c < 2 * cr**2)
@@ -365,6 +371,24 @@ class Island(GameMap):
 
 
 if __name__ == "__main__":
-    game_map = GameMap.random_map()
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate maps for Lux AI 2022.")
+    parser.add_argument("-t", "--map_type", help="Map type ('Cave', 'Craters', 'Island', 'Mountain')", required=False)
+    parser.add_argument("-s", "--size", help="Size (32-64)", required=False)
+    parser.add_argument("-d", "--seed", help="Seed")
+    parser.add_argument("-m", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
+
+    args = vars(parser.parse_args())
+    map_type = args.get("map_type", None)
+    symmetry = args.get("symmetry", None)
+    if args.get("size", None):
+        width = height = int(args["size"])
+    else:
+        width = height = None
+    if args.get("seed", None):
+        seed = int(args["seed"])
+    else:
+        seed = None
+    game_map = GameMap.random_map(seed=seed, symmetry=symmetry, map_type=map_type, width=width, height=height)
     viz(game_map)
     input()
