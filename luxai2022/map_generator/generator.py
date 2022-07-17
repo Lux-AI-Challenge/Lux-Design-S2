@@ -247,35 +247,57 @@ class Mountain(GameMap):
 
         char = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
         char = char.real # should already be real except for floating point errors
-        zscore = abs(char-np.mean(char))/np.std(char)
-        symmetrize(zscore, symmetry) # for floating point errors
+        symmetrize(char, symmetry) # for floating point errors
 
-        # Flood fill on the smallest zscores for the low points.
+        def bdry(x, y):
+            return abs(char[y][x]) < 0.05 and f[y][x] == 0
+
+        closed_set = set()
         def flood_fill(x, y):
-            max_val = mask[y][x]
-            start_x, start_y = x, y
+            nonlocal closed_set
+            region = []
+            bounds = []
             open_set = {(x, y)}
-            closed_set = set()
             while len(open_set) > 0:
                 new_set = set()
                 closed_set |= open_set
                 for x, y in open_set:
-                    mask[y][x] = 0
+                    region.append((x, y))
                     for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                         new_x, new_y = x + dx, y + dy
                         if (new_x, new_y) in closed_set:
                             continue
-                        if 0 <= new_x < width and 0 <= new_y < height and mask[new_y][new_x] <= max_val:
-                            new_set.add((new_x, new_y))
+                        if 0 <= new_x < width and 0 <= new_y < height:
+                            if bdry(new_x, new_y):
+                                bounds.append((new_x, new_y))
+                            else:
+                                new_set.add((new_x, new_y))
                 open_set = new_set
+            return region, bounds
+
+        regions = []
+        bdrys = []
+        for x in range(width):
+            for y in range(height):
+                if (x, y) in closed_set:
+                    continue
+                if bdry(x, y):
+                    continue
+                region, bounds = flood_fill(x, y)
+                if len(region) > 0 and len(bounds) > 0:
+                    regions.append(region)
+                    bdrys.append(bounds)
+
+        for region, bounds in zip(regions, bdrys):
+            if len(region) * 5 > width * height:
+                continue
+            if np.mean(np.take(mask, region)) < 2 * np.mean(np.take(mask, bounds)):
+                for x, y in region:
+                    mask[y][x] = 0
 
         for x in range(width):
             for y in range(height):
-                if abs(zscore[y][x]) > np.min(zscore):
-                    continue
-                if mask[y][x] == 0:
-                    continue
-                flood_fill(x, y)
+                if bdry(x, y): mask[y][x] = 0
 
         mask[np.where(mask > 0)] -= np.amin(mask[np.where(mask>0)])
         mask -= np.amin(mask)
@@ -307,9 +329,9 @@ class Island(GameMap):
         mask[mask >= 1] = 1
 
         s = -1
-        while np.sum(r==0) != s:
-            s = np.sum(r==0)
-            mask = convolve(r, [[1]*3]*3, mode="constant", cval=1) // 6
+        while np.sum(mask==0) != s:
+            s = np.sum(mask==0)
+            mask = convolve(mask, [[1]*3]*3, mode="constant", cval=1) // 6
 
         # Shift every spot on the map a little, making the islands nosier.
         x = np.linspace(0, 1, width)
@@ -328,21 +350,21 @@ class Island(GameMap):
         symmetrize(mask, symmetry)
 
         rubble = noise(x, y - 100, frequency=3) * 50 + 50
-        rubble[r==0] //= 20
+        rubble[mask==0] //= 20
 
         # Unsure what to do about ice, ore right now. Place in pockets on islands?
         ice = noise(x, y + 200, frequency=10) ** 2 * 100
         ice[ice < 50] = 0
-        ice[r!=0] = 0
+        ice[mask!=0] = 0
 
         ore = noise(x, y - 200, frequency=10) ** 2 * 100
         ore[ore < 50] = 0
-        ore[r!=0] = 0
+        ore[mask!=0] = 0
 
         super().__init__(rubble, ice, ore)
 
 
 if __name__ == "__main__":
-    game_map = GameMap.random_map(map_type="Mountain")
+    game_map = GameMap.random_map()
     viz(game_map)
     input()
