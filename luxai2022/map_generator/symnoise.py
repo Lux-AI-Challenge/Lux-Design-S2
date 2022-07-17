@@ -22,15 +22,17 @@ def symmetrize(x, symmetry="vertical"):
         for j in range(height):
             x[j, j:] += x[j:, j]
             x[j:, j] = x[j, j:]
+    else:
+        x *= 2
+
     if x.dtype.kind == "i": # Integer arrays need integer division.
         x //= 2
     else:
         x /= 2
 
 class SymmetricNoise(object):
-    def __init__(self, seed: int = 0, octaves: int = 1, symmetry="vertical", width=None, height=None):
-        # TODO: Rotational doesn't look good, and zero-centering doesn't help.
-        """Symmetrical Perlin noise.
+    def __init__(self, seed: int = 0, octaves: int = 1, symmetry="vertical", width=None, height=None, noise_shift=0):
+        """Symmetrical Simplex noise.
 
             ex.: noise = SymmetricalNoise(symmetry="rotational", width=50, height=100,
                                           octaves=3.5, seed=777)
@@ -42,15 +44,24 @@ class SymmetricNoise(object):
             seed : rng seed
             octaves : how fine the features are
         """
-        if symmetry not in ("vertical", "horizontal", "rotational", "/", "\\"):
-            raise ValueError("symmetry must be one of 'vertical', 'horizontal', 'rotational', '/', and '\\'")
-        if symmetry in "/\\" and width != height:
+        if symmetry not in (None, "vertical", "horizontal", "rotational", "/", "\\"):
+            raise ValueError("symmetry must be one of None, 'vertical', 'horizontal', 'rotational', '/', and '\\'")
+        if symmetry and symmetry in "/\\" and width != height:
             raise ValueError("width and height must be equal if symmetry = / or \\")
 
+        if not seed:
+            seed = np.random.randint(1 << 31)
+
         self._instances = [OpenSimplex(seed + i) for i in range(octaves)]
+        self.random = np.random.RandomState(seed)
+        self.noise_shift = noise_shift
+        self.seed = seed
 
         self.width = width
         self.height = height
+        self.symmetry = symmetry
+
+    def update_symmetry(self, symmetry):
         self.symmetry = symmetry
 
     def noise(self, x=None, y=None, frequency: float=1):
@@ -64,6 +75,8 @@ class SymmetricNoise(object):
             x = np.linspace(0, 1, self.width)
         if y is None:
             y = np.linspace(0, 1, self.height)
+
+        x = x + self.noise_shift
 
         total = 0
         for i in self._instances:

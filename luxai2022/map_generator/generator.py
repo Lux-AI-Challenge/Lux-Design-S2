@@ -4,12 +4,10 @@ from scipy.fft import dctn, idctn
 from visualize import viz
 from symnoise import SymmetricNoise, symmetrize
 
+random = np.random.RandomState()
+
 # TODO:
-# - (Sub)classes > 4 different functions.
-# - Seeding
-# - Pass in a SymmetricNoise class to the various generators and only use that one
-#       (creating SymmetricNoise takes awhile (3ms), so if you don't care about maps
-#        all having the same noise, you can generate them much faster)
+# - Faster algorithm for island generation.
 
 class GameMap(object):
     def __init__(self, rubble, ice, ore):
@@ -18,81 +16,149 @@ class GameMap(object):
         self.ore = ore
         self.width, self.height = len(rubble[0]), len(rubble)
 
-def cave(width, height, symmetry="vertical"):
-    # Build the cave system
-    r = np.random.randint(6, size=(height, width))
-    r[r >= 1] = 1
-    symmetrize(r, symmetry)
+    @staticmethod
+    def noise(seed=None, noise=None, noise_shift=None, symmetry=None):
+        if seed is not None and noise is not None:
+            raise ValueError("At most one of seed, noise can be specified.")
 
-    for i in range(3):
-        r = convolve(r, [[1]*3]*3, mode="constant", cval=0) // 6
+        if noise is None:
+            noise = SymmetricNoise(seed=seed, symmetry=symmetry)
+        else:
+            seed = noise.seed
+        if noise_shift is not None:
+            noise.noise_shift += noise_shift
+        if seed is not None and noise_shift is not None:
+            noise.random.seed(seed + noise_shift)
+        return noise
 
-    r = 1-r
-    r += maximum_filter(r, size=4)
+    @staticmethod
+    def random_map(seed=None, map_type=None, symmetry=None):
+        """random_map
+        Returns a random map. Can specify seed.
+        """
+        noise = GameMap.noise(seed)
+        width = height = noise.random.randint(32, 64)
+        if not map_type:
+            map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
+        if not symmetry:
+            symmetry = noise.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
+        noise.update_symmetry(symmetry)
+        return eval(map_type)(width, height, symmetry, noise=noise)
 
-    # Make it a little noisy
-    rubble = SymmetricNoise(symmetry=symmetry, width=width, height=height)() * 50 + 50
-    rubble = np.floor(rubble + 0.5)
-    rubble[r==1] //= 5
-    rubble[r==0] //= 20
+    @staticmethod
+    def random_maps(n, seed=None):
+        noise = GameMap.noise(seed)
+        for i in range(n):
+            noise = GameMap.noise(noise, noise_shift=100)
+            width = height = noise.random.randint(32, 64)
+            map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
+            symmetry = noise.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
+            noise.update_symmetry(symmetry)
 
-    symmetrize(rubble, symmetry)
+            yield eval(map_type)(width, height, symmetry, noise=noise)
 
-    return GameMap(rubble, r*50, r*50)
+class Cave(GameMap):
+    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+        """Cave
+        Builds a cave system of size width x height and symmetrical across the `symmetry` axis.
 
-def craters(width, height, symmetry="vertical"):
-    min_craters = max(2, width*height // 1000)
-    max_craters = max(4, width*height // 500)
-    craters = np.random.randint(min_craters, max_craters+1)
+        seed - If noise is not provided, use this seed to generate it.
+        noise - A symmetric noise generator.
+        noise_shift - Allows use of the same noise function to get different maps.
 
-    rubble = np.zeros((height, width))
-    xx, yy = np.mgrid[:width, :height]
-    noise = SymmetricNoise(symmetry=symmetry, width=width, height=height)
-    crater_noise = noise(frequency=10) * 0.5 + 0.75
-    circles = []
-    for i in range(craters):
-        x, y = np.random.randint(width), np.random.randint(height)
-        r = np.random.randint(3, min(width, height)//4)
-        c = (xx - x) **2 + (yy - y)**2
-        rubble[c.T * crater_noise < r**2] += 1
+        Note: The last two are provided as it takes 3x longer to initialize SymmetricNoise than to run.
+        """
 
-    rubble = rubble.astype(float)
-    symmetrize(rubble, symmetry)
-    rubble = (np.minimum(rubble, 1) * 90 + 10) * noise(frequency=3)
+        noise = GameMap.noise(seed, noise, noise_shift, symmetry)
 
-    return GameMap(rubble, rubble, rubble)
+        """
+        Mask will end up with
+           0 = interior
+           1 = cave wall
+           >1 = outside cave
+        """
+        # Start with mostly zeros
+        mask = noise.random.randint(6, size=(height, width))
+        mask[mask >= 1] = 1
+        symmetrize(mask, symmetry)
 
+        # Build clumps of ones (will be interior of caves)
+        for i in range(3):
+            mask = convolve(mask, [[1]*3]*3, mode="constant", cval=0) // 6
+        mask = 1 - mask
 
+        # Create cave wall
+        mask += maximum_filter(mask, size=4)
 
+        # Make some noisy rubble
+        x = np.linspace(0, 1, width)
+        y = np.linspace(0, 1, height)
+        rubble = noise(x, y) * 50 + 50
+        rubble = rubble.round()
+        rubble[mask==1] //= 5 # Cave walls
+        rubble[mask==0] = 0 # Interior of cave
 
-def island(width, height, symmetry="vertical"):
-    # TODO: Use a faster algorithm for island.
+        # Make some noisy ice, most ice is on cave edges
+        ice = noise(x, y + 100) * 50 + 50
+        ice = ice.round()
+        ice[mask>1] //= 5
+        ice[mask==0] = 0
 
-    r = np.random.randint(4, size=(height, width))
-    r[r >= 1] = 1
+        # Make some noisy ore, most ore is outside caves
+        ore = noise(x, y - 100) * 50 + 50
+        ore = ore.round()
+        ore[mask==1] //= 5
+        ore[mask==0] = 0
 
-    s = -1
-    while np.sum(r==0) != s:
-        s = np.sum(r==0)
-        r = convolve(r, [[1]*3]*3, mode="constant", cval=1) // 6
+        super().__init__(rubble, ice, ore)
 
-    # Add noise to the island shapes.
-    xx, yy = np.mgrid[:width, :height]
-    noise_x = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=10) * 4 - 2
-    noise_y = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=10) * 4 - 2 # Need to be careful when seeding this to not use same seed as noise_x.
-    new_xx = xx + np.round(noise_x)
-    new_xx = np.maximum(0, np.minimum(width-1, new_xx)).astype(int)
-    new_yy = yy + np.round(noise_y)
-    new_yy = np.maximum(0, np.minimum(height-1, new_yy)).astype(int)
-    prev_r = r.copy()
-    r[yy, xx] = r[new_yy, new_xx]
+class Craters(GameMap):
+    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+        """Craters
+        Builds a craters system of size `width` x `height` and symmetrical across the `symmetry` axis.
 
-    symmetrize(r, symmetry)
+        seed - If noise is not provided, use this seed to generate it.
+        noise - A symmetric noise generator.
+        noise_shift - Allows use of the same noise function to get different maps.
 
-    rubble = SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=3) * 50 + 50
-    rubble[r==0] //= 20
+        Note: The last two are provided as it takes 3x longer to initialize SymmetricNoise than to run.
+        """
 
-    return GameMap(rubble, prev_r*100, r*100)
+        noise = GameMap.noise(seed, noise, noise_shift, symmetry)
+
+        min_craters = max(2, width*height // 1000)
+        max_craters = max(4, width*height // 500)
+        num_craters = noise.random.randint(min_craters, max_craters+1)
+
+        # Mask = how many craters have hit the spot. When it symmetrizes, it will divide by 2.
+        mask = np.zeros((height, width))
+        x = np.linspace(0, 1, width)
+        y = np.linspace(0, 1, height)
+        crater_noise = noise(x, y, frequency=10) * 0.5 + 0.75 # Don't want perfectly circular craters.
+        xx, yy = np.mgrid[:width, :height]
+
+        # ice should be around edges of crater
+        ice_mask = np.zeros((height, width))
+        for i in range(num_craters):
+            cx, cy = noise.random.randint(width), np.random.randint(height)
+            cr = noise.random.randint(3, min(width, height)//4)
+            c = (xx - x) **2 + (yy - y)**2
+            c = c.T * crater_noise
+            mask[c < cr**2] += 1
+            edge = np.logical_and(c >= cr**2, c < 2 * cr**2)
+            ice_mask[edge] = 2
+
+        mask.astype(float)
+
+        symmetrize(mask, symmetry)
+        symmetrize(ice_mask, symmetry)
+
+        rubble = (np.minimum(mask, 1) * 90 + 10) * noise(x, y+100, frequency=3)
+        ice = noise(x, y-100) * 50 + 50
+        ice[ice_mask==0] = 0
+        ore = (np.minimum(mask, 1) * 90 + 10) * noise(x, y-100, frequency=3)
+
+        super().__init__(rubble, ice, ore)
 
 def solve_poisson(f):
     """
@@ -119,34 +185,164 @@ def solve_poisson(f):
     potential = idctn(dct, type=1)
     return potential / 2
 
-def mountain(width, height, symmetry="vertical"):
-    f = np.zeros((height, width))
+def nabla(x):
+    return convolve(x, ((0, 1, 0), (1, -5, 1), (0, 1, 0)))
 
-    # Sprinkle a few mountains on the map.
-    min_mountains = max(2, width*height//750)
-    max_mountains = max(4, width*height//375)
-    mountains = np.random.randint(min_mountains, max_mountains+1)
-    while mountains > 0:
-        x, y = np.random.randint(width), np.random.randint(height)
-        f[y][x] -= 1
-        mountains -= 1
+def dxx(x):
+    return convolve(x, ((1,), (-2,), (1,)))
 
-    symmetrize(f, symmetry)
-    rubble = solve_poisson(f)
-    rubble *= 1 + SymmetricNoise(symmetry=symmetry, width=width, height=height)(frequency=3)
-    rubble -= np.amin(rubble)
-    rubble /= np.amax(rubble)
-    rubble = np.floor(100 / np.max(rubble) * rubble)
-    return GameMap(rubble, rubble, rubble)
+def dyy(x):
+    return convolve(x, ((1, -2, 1),))
 
-def random_map():
-    width = height = np.random.randint(32, 64)
-    map_type = np.random.choice(["cave", "craters", "island", "mountain"])
-    symmetry = np.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
-    return eval(map_type)(width, height, symmetry)
+def dxy(x):
+    return convolve(x, ((1, 0, -1), (0, 0, 0), (-1, 0, 1))) / 4
+
+def laplacian(x):
+    return convolve(x, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3
+
+
+
+class Mountain(GameMap):
+    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+        """Mountain
+        Builds a mountain system of size `width` x `height` and symmetrical across the `symmetry` axis.
+
+        seed - If noise is not provided, use this seed to generate it.
+        noise - A symmetric noise generator.
+        noise_shift - Allows use of the same noise function to get different maps.
+
+        Note: The last two are provided as it takes 3x longer to initialize SymmetricNoise than to run.
+        """
+
+        noise = GameMap.noise(seed, noise, noise_shift, symmetry)
+
+        f = np.zeros((height, width))
+
+        # Sprinkle a few mountains on the map.
+        min_mountains = max(2, width*height//750)
+        max_mountains = max(4, width*height//375)
+        num_mountains = noise.random.randint(min_mountains, max_mountains+1)
+        for i in range(num_mountains):
+            x, y = noise.random.randint(width), noise.random.randint(height)
+            f[y][x] -= 1
+
+        symmetrize(f, symmetry)
+
+        # mask will be floats in [0, 1], where 0 = no mountain, 1 = tallest peak
+        mask = solve_poisson(f)
+        symmetrize(mask, symmetry) # in case of floating point errors
+        x = np.linspace(0, 1, width)
+        y = np.linspace(0, 1, height)
+        mask *= 5 + noise(x, y, frequency=3)
+        mask -= np.amin(mask)
+        mask /= np.amax(mask)
+
+        # Find the valleys
+        Lap = convolve(mask, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3 # Laplacian
+        Dxx = convolve(mask, ((1,), (-2,), (1,)))
+        Dyy = convolve(mask, ((1, -2, 1),))
+        Dxy = convolve(mask, ((1, 0, -1), (0, 0, 0), (-1, 0, 1)))
+        det = 16 * Dxx * Dyy - Dxy ** 2 # Hessian determinant
+        det = det.astype(np.csingle) # complex
+
+        char = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
+        char = char.real # should already be real except for floating point errors
+        zscore = abs(char-np.mean(char))/np.std(char)
+        symmetrize(zscore, symmetry) # for floating point errors
+
+        # Flood fill on the smallest zscores for the low points.
+        def flood_fill(x, y):
+            max_val = mask[y][x]
+            start_x, start_y = x, y
+            open_set = {(x, y)}
+            closed_set = set()
+            while len(open_set) > 0:
+                new_set = set()
+                closed_set |= open_set
+                for x, y in open_set:
+                    mask[y][x] = 0
+                    for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                        new_x, new_y = x + dx, y + dy
+                        if (new_x, new_y) in closed_set:
+                            continue
+                        if 0 <= new_x < width and 0 <= new_y < height and mask[new_y][new_x] <= max_val:
+                            new_set.add((new_x, new_y))
+                open_set = new_set
+
+        for x in range(width):
+            for y in range(height):
+                if abs(zscore[y][x]) > np.min(zscore):
+                    continue
+                if mask[y][x] == 0:
+                    continue
+                flood_fill(x, y)
+
+        mask[np.where(mask > 0)] -= np.amin(mask[np.where(mask>0)])
+        mask -= np.amin(mask)
+        mask /= np.amax(mask)
+
+        rubble = (100*mask).round()
+        ice = (100 * mask**3).round()
+        ore = (100 * mask).round()
+
+
+        super().__init__(rubble, ice, ore)
+
+class Island(GameMap):
+    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+        """Island
+        Builds an island system of size `width` x `height` and symmetrical across the `symmetry` axis.
+
+        seed - If noise is not provided, use this seed to generate it.
+        noise - A symmetric noise generator.
+        noise_shift - Allows use of the same noise function to get different maps.
+
+        Note: The last two are provided as it takes 3x longer to initialize SymmetricNoise than to run.
+        """
+
+        noise = GameMap.noise(seed, noise, noise_shift, symmetry)
+
+        # at the end, 0 = island, 1 = sea (of rubble)
+        mask = noise.random.randint(4, size=(height, width))
+        mask[mask >= 1] = 1
+
+        s = -1
+        while np.sum(r==0) != s:
+            s = np.sum(r==0)
+            mask = convolve(r, [[1]*3]*3, mode="constant", cval=1) // 6
+
+        # Shift every spot on the map a little, making the islands nosier.
+        x = np.linspace(0, 1, width)
+        y = np.linspace(0, 1, height)
+        noise_dx = noise(x, y, frequency=10) * 4 - 2
+        noise_dy = noise(x, y + 100, frequency=10) * 4 - 2
+
+        xx, yy = np.mgrid[:width, :height]
+        new_xx = xx + np.round(noise_dx).astype(int)
+        new_xx = np.maximum(0, np.minimum(width-1, new_xx))
+        new_yy = yy + np.round(noise_dy).astype(int)
+        new_yy = np.maximum(0, np.minimum(height-1, new_yy))
+
+        mask[yy, xx] = mask[new_yy, new_xx]
+
+        symmetrize(mask, symmetry)
+
+        rubble = noise(x, y - 100, frequency=3) * 50 + 50
+        rubble[r==0] //= 20
+
+        # Unsure what to do about ice, ore right now. Place in pockets on islands?
+        ice = noise(x, y + 200, frequency=10) ** 2 * 100
+        ice[ice < 50] = 0
+        ice[r!=0] = 0
+
+        ore = noise(x, y - 200, frequency=10) ** 2 * 100
+        ore[ore < 50] = 0
+        ore[r!=0] = 0
+
+        super().__init__(rubble, ice, ore)
 
 
 if __name__ == "__main__":
-    game_map = random_map()
+    game_map = GameMap.random_map(map_type="Mountain")
     viz(game_map)
     input()
