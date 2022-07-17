@@ -252,11 +252,12 @@ class Mountain(GameMap):
         det = det.astype(np.csingle) # complex
 
         cond = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
-        cond = cond.real # should already be real except for floating point errors
+        cond = abs(cond) # should already be real except for floating point errors
+        cond = np.maximum(cond, 1/cond)
         symmetrize(cond, symmetry) # for floating point errors
 
         def bdry(x, y):
-            return abs(cond[y][x]) < 0.05 and f[y][x] == 0
+            return abs(cond[y][x]) > 20 and f[y][x] == 0
 
         closed_set = set()
         def flood_fill(x, y):
