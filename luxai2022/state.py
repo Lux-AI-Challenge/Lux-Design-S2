@@ -4,6 +4,7 @@ from typing import Dict, List
 import numpy as np
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
+from luxai2022.map.board import Board
 from luxai2022.team import Team
 
 from luxai2022.unit import Unit
@@ -15,9 +16,11 @@ class State:
     seed: int
     env_steps: int
     env_cfg: EnvConfig
+    board: Board = None
     units: Dict[int, List[Unit]] = field(default_factory=dict)
     factories: Dict[int, List[Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
+    
     def get_obs(self):
         units = dict()
         # TODO: speedups?
@@ -44,4 +47,5 @@ class State:
             units=units,
             team=teams,
             factories=factories,
+            board=self.board.state_dict()
         )

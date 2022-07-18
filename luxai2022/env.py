@@ -6,6 +6,7 @@ from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 
 from luxai2022.config import EnvConfig
+from luxai2022.map.board import Board
 from luxai2022.spaces.act_space import get_act_space, get_act_space_init
 from luxai2022.spaces.obs_space import get_obs_space
 from luxai2022.state import State
@@ -42,7 +43,7 @@ class LuxAI2022(ParallelEnv):
         )
         self.max_episode_length = max_episode_length
 
-        self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1)
+        self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1, board=None)
 
         self.seed_rng: np.random.RandomState = None
 
@@ -102,11 +103,13 @@ class LuxAI2022(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         self.seed = seed
-        self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0)
+        board = Board()
+        self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board)
         for agent in range(len(self.possible_agents)):
             self.state.units[agent] = []
             self.state.factories[agent] = []
-        observations = {agent: 0 for agent in self.agents}
+        obs = self.state.get_obs()
+        observations = {agent: obs for agent in self.agents}
         return observations
     def step(self, actions):
         """
@@ -129,31 +132,30 @@ class LuxAI2022(ParallelEnv):
         if self.env_steps == 0:
             # handle initialization
             for k, a in actions.items():
-                print(k, a, self.state.teams)
-                self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=a["faction"])
+                self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=FactionTypes[a["faction"]])
             # TODO return the initial obs, skip all the other parts in this list
-        
-        # TODO Transfer resources/power
-        
-        # TODO Resource Pickup
+        else:
+            # TODO Transfer resources/power
+            
+            # TODO Resource Pickup
 
-        # TODO digging and self destruct
+            # TODO digging and self destruct
 
-        # TODO execute movement and recharge/wait actions, then resolve collisions
-        
-        # TODO - grow lichen
-        
-        # TODO - robot building with factories
+            # TODO execute movement and recharge/wait actions, then resolve collisions
+            
+            # TODO - grow lichen
+            
+            # TODO - robot building with factories
 
-        # resources refining
-        for i in range(len(self.agents)):
-            for factory in self.state.factories[i]:
-                factory.refine_step(self.env_cfg)
-        # power gain
-        if is_day(self.env_cfg, self.env_steps):
+            # resources refining
             for i in range(len(self.agents)):
-                for u in self.state.units[i]:
-                    u.power = u.power + self.env_cfg.ROBOTS[u.unit_type].CHARGE
+                for factory in self.state.factories[i]:
+                    factory.refine_step(self.env_cfg)
+            # power gain
+            if is_day(self.env_cfg, self.env_steps):
+                for i in range(len(self.agents)):
+                    for u in self.state.units[i]:
+                        u.power = u.power + self.env_cfg.ROBOTS[u.unit_type].CHARGE
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -164,9 +166,10 @@ class LuxAI2022(ParallelEnv):
         dones = {agent: env_done for agent in self.agents}
 
         # generate observations
+        obs = self.state.get_obs()
         observations = {}
         for k in self.agents:
-            observations[k] = 0
+            observations[k] = obs
 
         # log stats and other things
         infos = {agent: {} for agent in self.agents}
@@ -195,7 +198,6 @@ if __name__ == "__main__":
     u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
     env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
-    print("obs", o)
     o, r, d, _ = env.step({"player_0": dict(faction="MotherMars"), "player_1": dict(faction="AlphaStrike")})
     print(o, r, d)
     import ipdb;ipdb.set_trace()

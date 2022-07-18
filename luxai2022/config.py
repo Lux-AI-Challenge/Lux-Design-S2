@@ -15,6 +15,7 @@ class UnitConfig:
     POWER_COST: int = 500
     CARGO_SPACE: int = 1000
     BATTERY_CAPACITY: int = 1500
+    CHARGE: int = 1
 
 
 @dataclass

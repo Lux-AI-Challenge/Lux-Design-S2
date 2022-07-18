@@ -23,5 +23,5 @@ class Team:
     def state_dict(self):
         return dict(
             team_id=self.team_id,
-            faction=self.faction.value
+            faction=self.faction.name
         )

@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.ndimage import convolve, maximum_filter
 from scipy.fft import dctn, idctn
-from visualize import viz
-from symnoise import SymmetricNoise, symmetrize
+from luxai2022.map_generator.visualize import viz
+from luxai2022.map_generator.symnoise import SymmetricNoise, symmetrize
 
 random = np.random.RandomState()
 

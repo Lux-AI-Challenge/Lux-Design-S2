@@ -1,5 +1,5 @@
 # A quick visualizer to aid in map generating algorithms.
-import pygame
+# import pygame
 import numpy as np
 
 
