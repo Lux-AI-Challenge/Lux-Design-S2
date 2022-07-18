@@ -1,8 +1,9 @@
-from typing import List
+from typing import Dict, List
 from gym import spaces
 import gym
 
 from luxai2022.config import EnvConfig
+from luxai2022.factory import Factory
 from luxai2022.team import FactionTypes
 from luxai2022.unit import Unit
 import random
@@ -28,7 +29,7 @@ def get_act_space_init(config: EnvConfig, agent: int = 0):
     act_space["spawns"] = spaces.Box(low=0, high=config.map_size, shape=(config.MAX_FACTORIES, 2), dtype=int)
     return spaces.Dict(act_space)
 
-def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
+def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[str, Factory]], config: EnvConfig, agent: int = 0):
     act_space = dict()
 
     # for consistency, every action space per unit is fixed, makes it easier to work out of the box. 
@@ -38,8 +39,8 @@ def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
     # a human readable version of an action vector
 
     # TODO - verify speed of building action spaces like this.
-    for u in units[agent]:
-        # Each action for any mobile unit, (light, heavy) is an array A of shape (max_queue, 4)
+    for u in units[agent].values():
+        # Each action for any mobile unit, (light, heavy) is an array A of shape (max_queue, 5)
         # if max_queue is 1, we remove this dimension
         # let a be some element in A
         # Then
@@ -54,7 +55,13 @@ def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
         # a[3] = X, amount of resources transferred or picked up if action is transfer or pickup. 
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
-        act_space[u.unit_id] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount])
+        # a[4] = 0,1 - repeat false or repeat true. If true, action is sent to end of queue once consumed
+
+        act_space[u.unit_id] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount, 2])
+
+    for factory in factories[agent].values():
+        # action type (0 = build light robot, 1 = build heavy robot, 2 = water lichen)
+        act_space[factory.unit_id] = spaces.Discrete(3)
     
 
     return spaces.Dict(act_space)

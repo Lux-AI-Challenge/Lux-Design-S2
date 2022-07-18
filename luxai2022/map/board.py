@@ -11,8 +11,9 @@ class Board:
         symmetry = None # args.get("symmetry", None)
         # TODO fix rng here
         self.map = GameMap.random_map(seed=0, symmetry=symmetry, map_type=map_type, width=self.width, height=self.height)
-        
-        self.units_map: np.ndarray = np.zeros((self.width, self.height))
+        self.lichen = np.zeros((self.height, self.width))
+        self.lichen_strains = np.zeros((self.height, self.width)) # ownership of lichen
+        self.units_map: np.ndarray = np.zeros((self.height, self.width))
     @property
     def rubble(self):
         return self.map.rubble
@@ -26,7 +27,10 @@ class Board:
         return dict(
             rubble=self.rubble,
             ore=self.ore,
-            ice=self.ice
+            ice=self.ice,
+            lichen=self.lichen,
+            lichen_strains=self.lichen_strains
+
         )
         
 

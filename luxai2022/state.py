@@ -8,6 +8,7 @@ from luxai2022.map.board import Board
 from luxai2022.team import Team
 
 from luxai2022.unit import Unit
+from collections import OrderedDict
 
 
 @dataclass
@@ -17,16 +18,17 @@ class State:
     env_steps: int
     env_cfg: EnvConfig
     board: Board = None
-    units: Dict[int, List[Unit]] = field(default_factory=dict)
-    factories: Dict[int, List[Factory]] = field(default_factory=dict)
+    units: Dict[int, Dict[str, Unit]] = field(default_factory=dict)
+    factories: Dict[int, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
+    global_id: int = 0
     
     def get_obs(self):
         units = dict()
         # TODO: speedups?
         for team in self.units:
             units[team] = dict()
-            for unit in self.units[team]:
+            for unit in self.units[team].values():
                 state_dict = unit.state_dict()
                 if self.env_cfg.UNIT_ACTION_QUEUE_SIZE == 1:
                     # if config is such that action queue is size 1, we do not include the queue as it is always empty
@@ -40,9 +42,9 @@ class State:
         factories = dict()
         for team in self.factories:
             factories[team] = dict()
-            for factory in self.factories[team]:
+            for factory in self.factories[team].values():
                 state_dict = factory.state_dict()
-                factories[team][unit.unit_id] = state_dict
+                factories[team][factory.unit_id] = state_dict
         return dict(
             units=units,
             team=teams,

@@ -29,7 +29,7 @@ class Factory:
         return dict(
             pos=self.pos.pos,
             power=self.power,
-            cargo=self.cargo,
+            cargo=self.cargo.state_dict(),
             unit_id=self.unit_id,
             team_id=self.team_id
 

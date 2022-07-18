@@ -20,6 +20,13 @@ class UnitCargo:
     ore: int = 0
     water: int = 0
     metal: int = 0
+    def state_dict(self):
+        return dict(
+            ice=self.ice,
+            ore=self.ore,
+            water=self.water,
+            metal=self.metal
+        )
 
 class Unit:
     def __init__(self, team: Team, unit_type: UnitType, unit_id: str) -> None:
@@ -31,7 +38,6 @@ class Unit:
         self.power = 0
         self.cargo = UnitCargo()
         self.action_queue: List[Action] = []
-        self.repeating_actions = False
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_type} at {self.pos}"
@@ -47,8 +53,7 @@ class Unit:
             unit_id=self.unit_id,
             power=self.power,
             pos=self.pos.pos,
-            cargo=self.cargo,
-            repeating_actions=self.repeating_actions,
+            cargo=self.cargo.state_dict(),
             action_queue=[a.state_dict() for a in self.action_queue],
         )
     # def move(self, ) -> str:
