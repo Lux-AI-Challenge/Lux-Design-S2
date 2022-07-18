@@ -16,10 +16,24 @@ class UnitConfig:
     CARGO_SPACE: int = 1000
     BATTERY_CAPACITY: int = 1500
     CHARGE: int = 1
+    INIT_POWER: int = 50
+    MOVE_COST: int = 1
+    RUBBLE_MOVEMENT_COST: int = 1
+    PICKUP_COST: int = 1
+    DIG_COST: int = 5
+    DIG_RUBBLE_REMOVED: int = 1
+    DIG_RESOURCE_GAIN: int = 2
+    DIG_LICHEN_REMOVED: int = 10
+    SELF_DESTRUCT_COST: int = 10
+
 
 
 @dataclass
 class EnvConfig:
+    ## various options that can be configured if needed
+    validate_actions: bool = True # can turn this off to speed up env
+
+
     ### Variable parameters that don't affect game logic much ###
     max_episode_length: int = 1000
     map_size: int = 64
@@ -45,12 +59,14 @@ class EnvConfig:
 
 
     #### Units ####
+    # TODO FILL IN POWER COSTS FOR ACTIONS
     ROBOTS = dict(
         LIGHT=UnitConfig(
-            METAL_COST=10, POWER_COST=50, CARGO_SPACE=100, BATTERY_CAPACITY=50, CHARGE=1
+            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=50, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=1,
         ),
+        
         HEAVY=UnitConfig(
-            METAL_COST=100, POWER_COST=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500, CHARGE=10
+            METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500, CHARGE=10, MOVE_COST=1, RUBBLE_MOVEMENT_COST=5
         ),
     )
 

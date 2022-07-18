@@ -1,11 +1,11 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import functools
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from luxai2022.actions import FactoryBuildAction, FactoryWaterAction, format_action_vec, format_factory_action
+from luxai2022.actions import Action, FactoryBuildAction, FactoryWaterAction, MoveAction, PickupAction, TransferAction, format_action_vec, format_factory_action, validate_actions, move_deltas
 
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
@@ -130,13 +130,15 @@ class LuxAI2022(ParallelEnv):
             self.agents = []
             return {}, {}, {}, {}
 
-        # TODO - format actions
+        failed_agents = {agent: False for agent in self.agents}
         dones = {agent: False for agent in self.agents}
+        
         # Turn 1 logic, handle # TODO Bidding
 
         if self.env_steps == 0:
             # handle initialization
             for k, a in actions.items():
+                if k not in self.agents: raise ValueError(f"Invalid player {k}")
                 if "spawns" in a:
                     self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=FactionTypes[a["faction"]])
                     for spawn_loc in a["spawns"]:
@@ -145,36 +147,80 @@ class LuxAI2022(ParallelEnv):
                         self.state.factories[k][factory.unit_id] = factory
                 else:
                     # team k loses
-                    dones[k] = True
+                    failed_agents[k] = True
 
             # TODO return the initial obs, skip all the other parts in this list
         else:
             # 1. Check for malformed actions
-            for agent, unit_actions in actions.items():
-                if not self.action_space(agent).contains(unit_actions):
-                    raise ValueError("Inappropriate action given")
-            # 2. validate all actions against current state TODO
+            if self.env_cfg.validate_actions: 
+                try:
+                    for agent, unit_actions in actions.items():
+                        if not self.action_space(agent).contains(unit_actions):
+                            raise ValueError("Inappropriate action given")
+                    for agent, unit_actions in actions.items():
+                        for unit_id, action in unit_actions.items():
+                            if "factory" in unit_id:
+                                self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
+                            elif "unit" in unit_id:
+                                formatted_actions = []
+                                if type(action) == list:
+                                    formatted_actions = [format_action_vec(a) for a in action]
+                                else:
+                                    formatted_actions = [format_action_vec(action)]
+                                self.state.units[agent][unit_id].action_queue = formatted_actions
+                except ValueError:
+                    failed_agents[agent] = True
 
-            # 3. organize actions
-            for agent, unit_actions in actions.items():
-                for unit_id, action in unit_actions.items():
-                    if "factory" in unit_id:
-                        self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
-                    elif "unit" in unit_id:
-                        formatted_actions = []
-                        if type(action) == list:
-                            formatted_actions = [format_action_vec(a) for a in action]
-                        else:
-                            formatted_actions = [format_action_vec(action)]
-                        self.state.units[agent][unit_id].action_queue = formatted_actions
-                    
+            actions_by_type: Dict[str, List[Tuple[Unit, Action]]] = defaultdict(list)
+            for agent in self.agents:
+                if failed_agents[agent]: continue
+                for unit in self.state.units[agent].values():
+                    unit_a = unit.next_action()
+                    actions_by_type[unit_a.act_type].append((unit, unit_a))
+            
+            # 2. validate all actions against current state, throw away impossible actions TODO
+            # if self.env_cfg.validate_actions: 
+                # actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
             # TODO Transfer resources/power
 
+            for unit, transfer_action in actions_by_type["transfer"]:
+                transfer_action: TransferAction
+                transfer_amount = unit.sub_resource(transfer_action.resource, transfer_action.transfer_amount)
+                transfer_pos = unit.pos + move_deltas[transfer_action.transfer_dir]
+                units_there = self.state.board.get_units_at(transfer_pos)
+                if units_there is not None:
+                    assert len(units_there) == 1
+                    target_unit = units_there[0]
+                    # add resources to target. This will waste (transfer_amount - actually_transferred) resources
+                    actually_transferred = target_unit.add_resource(transfer_action.resource, transfer_amount)
+                
             # TODO Resource Pickup
+            for unit, pickup_action in actions_by_type["transfer"]:
+                pickup_action: PickupAction
 
             # TODO digging and self destruct
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
+            new_units_map: Dict[str, List[Unit]] = defaultdict(list)
+            for unit, move_action in actions_by_type["move"]:
+                move_action: MoveAction
+                old_pos_hash = self.state.board.pos_hash(unit.pos)
+                target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
+                rubble = self.state.board.rubble[target_pos.y, target_pos.x]
+                power_required = unit.unit_cfg.MOVE_COST + unit.unit_cfg.RUBBLE_MOVEMENT_COST * rubble
+                unit.pos = target_pos
+                new_pos_hash = self.state.board.pos_hash(unit.pos)
+                del self.state.board.units_map[old_pos_hash]
+                new_units_map[new_pos_hash].append(unit)
+                unit.power -= power_required
+            
+            for pos_hash, units in new_units_map:
+                if len(units) <= 1: continue
+                # TODO handle collisions
+
+            self.state.board.units_map = new_units_map
+
+            # nothing to do for recharging actions
 
             # TODO - grow lichen
 
@@ -185,7 +231,13 @@ class LuxAI2022(ParallelEnv):
                         action = factory.action_queue.pop()
                         if action.act_type == "factory_build":
                             team = self.state.teams[agent]
-                            unit = Unit(team=team, unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT, unit_id=f"unit_{self.state.global_id}")
+                            unit = Unit(team=team, unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT, unit_id=f"unit_{self.state.global_id}", env_cfg=self.env_cfg)
+                            unit.pos.pos = factory.pos.pos.copy()
+                            if unit.unit_type == UnitType.HEAVY:
+                                # TODO allow user to specify how much power to give unit?
+                                unit.power = 500
+                            else:
+                                unit.power = 50
                             self.state.global_id += 1
                             self.state.units[agent][unit.unit_id] = unit
 

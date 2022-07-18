@@ -2,8 +2,8 @@ import numpy as np
 
 
 class Position:
-    def __init__(self, pos: np.array) -> None:
-        self.pos: np.array = pos
+    def __init__(self, pos: np.ndarray) -> None:
+        self.pos: np.ndarray = pos
 
     @property
     def x(self) -> int:

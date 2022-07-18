@@ -4,6 +4,7 @@ from typing import List
 
 import numpy as np
 from termcolor import colored
+from luxai2022.config import EnvConfig, UnitConfig
 
 from luxai2022.globals import TERM_COLORS
 from luxai2022.map.position import Position
@@ -29,15 +30,19 @@ class UnitCargo:
         )
 
 class Unit:
-    def __init__(self, team: Team, unit_type: UnitType, unit_id: str) -> None:
+    def __init__(self, team: Team, unit_type: UnitType, unit_id: str, env_cfg: EnvConfig) -> None:
         self.unit_type = unit_type
         self.team_id = team.team_id
         self.team = team
         self.unit_id = unit_id
         self.pos = Position(np.zeros(2, dtype=int))
-        self.power = 0
+        
         self.cargo = UnitCargo()
         self.action_queue: List[Action] = []
+        self.unit_cfg: UnitConfig = env_cfg.ROBOTS[unit_type.name]
+        self.power = env_cfg.ROBOTS[unit_type.name].INIT_POWER
+        self.cargo_space = env_cfg.ROBOTS[unit_type.name].CARGO_SPACE
+        self.battery_capacity = env_cfg.ROBOTS[unit_type.name].BATTERY_CAPACITY
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_type} at {self.pos}"
@@ -46,7 +51,12 @@ class Unit:
         return out
     def is_heavy(self) -> bool:
         return self.unit_type == UnitType.HEAVY
-
+    def next_action(self) -> Action:
+        if len(self.action_queue): return None
+        action = self.action_queue.pop(0)
+        if action.repeat:
+            self.action_queue.append(action)
+        return action
     def state_dict(self):
         return dict(
             team_id=self.team_id,
@@ -56,10 +66,43 @@ class Unit:
             cargo=self.cargo.state_dict(),
             action_queue=[a.state_dict() for a in self.action_queue],
         )
-    # def move(self, ) -> str:
-    #     if self.is_mobile:
-    #     else:
-    #         raise TypeError("Unit is not a mobile unit")
+    def add_resource(self, resource_id, amount):
+        if amount < 0: amount = 0
+        if resource_id == 0:
+            transfer_amount = min(self.cargo_space - self.cargo.ice, amount)
+            self.cargo.ice += transfer_amount
+        elif resource_id == 1:
+            transfer_amount = min(self.cargo_space - self.cargo.ore, amount)
+            self.cargo.ore += transfer_amount
+        elif resource_id == 2:
+            transfer_amount = min(self.cargo_space - self.cargo.water, amount)
+            self.cargo.water += transfer_amount
+        elif resource_id == 3:
+            transfer_amount = min(self.cargo_space - self.cargo.metal, amount)
+            self.cargo.metal += transfer_amount
+        elif resource_id == 4:
+            transfer_amount = min(self.battery_capacity - self.power, amount)
+            self.power += transfer_amount
+        return transfer_amount
+    def sub_resource(self, resource_id, amount):
+        # subtract/transfer out as much as you min(have, request)
+        if amount < 0: amount = 0
+        if resource_id == 0:
+            transfer_amount = min(self.cargo.ice, amount)
+            self.cargo.ice -= transfer_amount
+        elif resource_id == 1:
+            transfer_amount = min(self.cargo.ore, amount)
+            self.cargo.ore -= transfer_amount
+        elif resource_id == 2:
+            transfer_amount = min(self.cargo.water, amount)
+            self.cargo.water -= transfer_amount
+        elif resource_id == 3:
+            transfer_amount = min(self.cargo.metal, amount)
+            self.cargo.metal -= transfer_amount
+        elif resource_id == 4:
+            transfer_amount = min(self.power, amount)
+            self.power -= transfer_amount
+        return transfer_amount
 
 
 if __name__ == "__main__":
