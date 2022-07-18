@@ -4,13 +4,24 @@ from typing import Callable
 
 import numpy as np
 
+
 # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
 class Action:
     def __init__(self, act_type: str) -> None:
         self.act_type = act_type
     def state_dict():
         raise NotImplementedError("")
-
+class FactoryBuildAction(Action):
+    def __init__(self, unit_type: int) -> None:
+        super().__init__("factory_build")
+        self.unit_type = unit_type
+    def state_dict(self):
+        return self.unit_type
+class FactoryWaterAction(Action):
+    def __init__(self) -> None:
+        super().__init__("factory_water")
+    def state_dict():
+        return 2
 class MoveAction(Action):
     def __init__(self, move_dir: int, dist: int = 1, repeat=False) -> None:
         super().__init__("move")
@@ -62,7 +73,13 @@ class RechargeAction(Action):
         self.repeat = repeat
     def state_dict(self):
         return np.array([5, 0, 0, self.power, self.repeat])
-
+def format_factory_action(a: int):
+    if a == 0 or a == 1:
+        return FactoryBuildAction(unit_type=a)
+    elif a == 2:
+        return FactoryWaterAction()
+    else:
+        raise ValueError(f"Action {a} for factory is invalid")
 def format_action_vec(a: np.ndarray):
     # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
     a_type = a[0]

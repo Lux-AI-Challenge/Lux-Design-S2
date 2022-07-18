@@ -41,6 +41,7 @@ class EnvConfig:
     ICE_WATER_RATIO: int = 10
     FACTORY_PROCESSING_RATE_METAL: int = 50
     ORE_METAL_RATIO: int = 10
+    FACTORY_CHARGE: int = 50
 
 
     #### Units ####

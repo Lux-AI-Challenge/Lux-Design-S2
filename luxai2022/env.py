@@ -1,11 +1,11 @@
 from collections import OrderedDict
 import functools
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from luxai2022.actions import format_action_vec
+from luxai2022.actions import FactoryBuildAction, FactoryWaterAction, format_action_vec, format_factory_action
 
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
@@ -149,17 +149,24 @@ class LuxAI2022(ParallelEnv):
 
             # TODO return the initial obs, skip all the other parts in this list
         else:
-
-            # validate all actions against current state
-
+            # 1. Check for malformed actions
             for agent, unit_actions in actions.items():
-                print("####",unit_actions)
                 if not self.action_space(agent).contains(unit_actions):
                     raise ValueError("Inappropriate action given")
+            # 2. validate all actions against current state TODO
+
+            # 3. organize actions
+            for agent, unit_actions in actions.items():
                 for unit_id, action in unit_actions.items():
-                    # if "factory" in unit_id:
-                    pass
-                    # format_action_vec()
+                    if "factory" in unit_id:
+                        self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
+                    elif "unit" in unit_id:
+                        formatted_actions = []
+                        if type(action) == list:
+                            formatted_actions = [format_action_vec(a) for a in action]
+                        else:
+                            formatted_actions = [format_action_vec(action)]
+                        self.state.units[agent][unit_id].action_queue = formatted_actions
                     
             # TODO Transfer resources/power
 
@@ -172,16 +179,28 @@ class LuxAI2022(ParallelEnv):
             # TODO - grow lichen
 
             # TODO - robot building with factories
+            for agent in self.agents:
+                for factory in self.state.factories[agent].values():
+                    if len(factory.action_queue) > 0:
+                        action = factory.action_queue.pop()
+                        if action.act_type == "factory_build":
+                            team = self.state.teams[agent]
+                            unit = Unit(team=team, unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT, unit_id=f"unit_{self.state.global_id}")
+                            self.state.global_id += 1
+                            self.state.units[agent][unit.unit_id] = unit
 
             # resources refining
-            for i in range(len(self.agents)):
-                for factory in self.state.factories[i]:
+            for agent in self.agents:
+                for factory in self.state.factories[agent].values():
                     factory.refine_step(self.env_cfg)
             # power gain
             if is_day(self.env_cfg, self.env_steps):
-                for i in range(len(self.agents)):
-                    for u in self.state.units[i]:
+                for agent in self.agents:
+                    for u in self.state.units[agent].values():
                         u.power = u.power + self.env_cfg.ROBOTS[u.unit_type].CHARGE
+            for agent in self.agents:
+                for f in self.state.factories[agent].values():
+                    f.power = f.power + self.env_cfg.FACTORY_CHARGE    
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}

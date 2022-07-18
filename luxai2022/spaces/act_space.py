@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 from gym import spaces
 import gym
 
@@ -18,8 +18,17 @@ class FactionString(gym.Space):
         return random.choice(self.valid_factions)
 
     def contains(self, x):
-        return type(x) is "str" and x in self.valid_factions
+        return type(x) == "str" and x in self.valid_factions
 
+class PartialDict(spaces.Dict):
+    def contains(self, x: Any) -> bool:
+        if not isinstance(x, dict) or len(x) > len(self.spaces):
+            return False
+        for k, space in self.spaces.items():
+            if k in x:
+                if not space.contains(x[k]):
+                    return False
+        return True
 
 def get_act_space_init(config: EnvConfig, agent: int = 0):
     # Get action space for turn 0 initialization
@@ -64,4 +73,4 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         act_space[factory.unit_id] = spaces.Discrete(3)
     
 
-    return spaces.Dict(act_space)
+    return PartialDict(act_space)

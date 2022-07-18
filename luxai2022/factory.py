@@ -1,4 +1,6 @@
+from typing import List
 import numpy as np
+from luxai2022.actions import Action
 from luxai2022.config import EnvConfig
 from luxai2022.map.position import Position
 from luxai2022.team import Team
@@ -13,6 +15,7 @@ class Factory:
         self.pos = Position(np.zeros(2, dtype=int))
         self.power = 0
         self.cargo = UnitCargo()
+        self.action_queue: List[Action] = [] # TODO can we queue actions or are factories outside of max control limit
 
     def refine_step(self, config: EnvConfig):
         consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
