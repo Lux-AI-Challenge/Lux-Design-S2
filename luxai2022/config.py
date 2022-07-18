@@ -29,6 +29,8 @@ class EnvConfig:
     MAX_FACTORIES = 5
     CYCLE_LENGTH = 50
     DAY_LENGTH = 30
+    UNIT_ACTION_QUEUE_SIZE = 10 # when set to 1, then no action queue is used
+    UNITS_CONTROLLED = 20 # when set to -1, all units can be controlled at once
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True

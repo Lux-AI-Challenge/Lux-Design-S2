@@ -20,3 +20,8 @@ class Team:
     def __init__(self, team_id: int, faction: FactionTypes = None) -> None:
         self.faction = faction
         self.team_id = team_id
+    def state_dict(self):
+        return dict(
+            team_id=self.team_id,
+            faction=self.faction.value
+        )

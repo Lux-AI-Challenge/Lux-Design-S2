@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 import numpy as np
 from termcolor import colored
@@ -7,7 +8,7 @@ from termcolor import colored
 from luxai2022.globals import TERM_COLORS
 from luxai2022.map.position import Position
 from luxai2022.team import FactionTypes, Team
-
+from luxai2022.actions import Action
 
 class UnitType(Enum):
     LIGHT = "Light"
@@ -29,6 +30,7 @@ class Unit:
         self.pos = Position(np.zeros(2, dtype=int))
         self.power = 0
         self.cargo = UnitCargo()
+        self.action_queue: List[Action] = []
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_type} at {self.pos}"
@@ -37,6 +39,16 @@ class Unit:
         return out
     def is_mobile(self) -> bool:
         return self.unit_type.value != UnitType.FACTORY
+
+    def state_dict(self):
+        return dict(
+            team_id=self.team_id,
+            unit_id=self.unit_id,
+            power=self.power,
+            pos=self.pos.pos,
+            cargo=self.cargo,
+            action_queue=[a.state_dict() for a in self.action_queue],
+        )
     # def move(self, ) -> str:
     #     if self.is_mobile:
     #     else:

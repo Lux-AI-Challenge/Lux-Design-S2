@@ -19,7 +19,6 @@ class Action(Enum):
 
 
 
-def format_actions():
-    # we accept only the structure action tpes, we assume its of shape...
-    # TODO
-    pass
+def format_actions(agent, units, actions):
+    for u in units[agent]:
+        pass

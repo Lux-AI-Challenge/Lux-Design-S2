@@ -24,3 +24,13 @@ class Factory:
         # TODO - are we rounding or doing floats or anything?
         self.cargo.water += consumed_ice / config.ICE_WATER_RATIO
         self.cargo.metal += consumed_ore / config.ORE_METAL_RATIO
+
+    def state_dict(self):
+        return dict(
+            pos=self.pos.pos,
+            power=self.power,
+            cargo=self.cargo,
+            unit_id=self.unit_id,
+            team_id=self.team_id
+
+        )

@@ -1,0 +1,2 @@
+def agent(observation, configuration):
+    

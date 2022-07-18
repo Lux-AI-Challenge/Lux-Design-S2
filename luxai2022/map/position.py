@@ -3,7 +3,7 @@ import numpy as np
 
 class Position:
     def __init__(self, pos: np.array) -> None:
-        self.pos = pos
+        self.pos: np.array = pos
 
     @property
     def x(self) -> int:

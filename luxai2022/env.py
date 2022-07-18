@@ -13,7 +13,6 @@ from luxai2022.team import FactionTypes, Team
 from luxai2022.unit import Unit, UnitType
 from luxai2022.utils.utils import is_day
 
-
 def env():
     """
     The env function often wraps the environment in wrappers by default.
@@ -178,7 +177,7 @@ class LuxAI2022(ParallelEnv):
         return observations, rewards, dones, infos
 
     ### Game Logic ###
-    def add_unit(self):
+    def add_unit(self, team_id):
         u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
 
 
