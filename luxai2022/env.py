@@ -5,7 +5,7 @@ from typing import Dict, List, Set, Tuple, Union
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from luxai2022.actions import Action, FactoryBuildAction, FactoryWaterAction, MoveAction, PickupAction, TransferAction, format_action_vec, format_factory_action, validate_actions, move_deltas
+from luxai2022.actions import Action, DigAction, FactoryBuildAction, FactoryWaterAction, MoveAction, PickupAction, SelfDestructAction, TransferAction, format_action_vec, format_factory_action, validate_actions, move_deltas
 
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
@@ -162,11 +162,13 @@ class LuxAI2022(ParallelEnv):
                             elif "unit" in unit_id:
                                 formatted_actions = []
                                 if type(action) == list:
-                                    formatted_actions = [format_action_vec(a) for a in action]
+                                    trunked_actions = action[:self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
+                                    formatted_actions = [format_action_vec(a) for a in trunked_actions]
                                 else:
                                     formatted_actions = [format_action_vec(action)]
                                 self.state.units[agent][unit_id].action_queue = formatted_actions
-                except ValueError:
+                except ValueError as e:
+                    print(e)
                     failed_agents[agent] = True
 
             actions_by_type: Dict[str, List[Tuple[Unit, Action]]] = defaultdict(list)
@@ -196,7 +198,16 @@ class LuxAI2022(ParallelEnv):
             for unit, pickup_action in actions_by_type["transfer"]:
                 pickup_action: PickupAction
 
-            # TODO digging and self destruct
+            # TODO digging
+            for unit, dig_action in actions_by_type["dig"]:
+                dig_action: DigAction
+
+            for unit, self_destruct_action in actions_by_type["transfer"]:
+                unit: Unit
+                self_destruct_action: SelfDestructAction
+                pos_hash = self.state.board.pos_hash(unit.pos)
+                del self.state.board.units_map[pos_hash]
+                del self.state.units[self.agents[unit.team_id]][unit.id]
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -230,7 +241,7 @@ class LuxAI2022(ParallelEnv):
             destroyed_units: Set[Unit] = set()
             new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list) 
             for pos_hash, units in new_units_map.items():
-                if len(units) <= 1: continue
+                if len(units) <= 1: new_units_map_after_collision[pos_hash] += units
                 
                 if len(heavy_entered_pos[pos_hash]) > 1:
                     # all units collide and break
@@ -268,6 +279,8 @@ class LuxAI2022(ParallelEnv):
             self.state.board.units_map = new_units_map_after_collision
 
             for u in destroyed_units:
+                self.state.board.rubble[u.pos.y, u.pos.x] += u.unit_cfg.RUBBLE_AFTER_DESTRUCTION
+                self.state.board.rubble[u.pos.y, u.pos.x] = min(self.state.board.rubble[u.pos.y, u.pos.x], self.env_cfg.MAX_RUBBLE)
                 del self.state.units[self.agents[u.team_id]][u.unit_id]
 
             # nothing to do for recharging actions
@@ -287,10 +300,21 @@ class LuxAI2022(ParallelEnv):
                             self.state.global_id += 1
                             self.state.units[agent][unit.unit_id] = unit
 
+
+            # TODO - handle weather effects
+            
             # resources refining
             for agent in self.agents:
+                factories_to_destroy: Set[Factory] = set()
                 for factory in self.state.factories[agent].values():
                     factory.refine_step(self.env_cfg)
+                    factory.cargo.water -= self.env_cfg.FACTORY_WATER_CONSUMPTION
+                    if factory.cargo.water < 0:
+                        factories_to_destroy.add(factory)
+                for factory in factories_to_destroy:
+                    # destroy factories that ran out of water
+                    del self.state.factories[agent][factory.unit_id]
+                    # TODO destroy robots on 3x3 factory, add MAX rubble
             # power gain
             if is_day(self.env_cfg, self.env_steps):
                 for agent in self.agents:
