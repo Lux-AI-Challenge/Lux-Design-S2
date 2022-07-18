@@ -131,8 +131,6 @@ class LuxAI2022(ParallelEnv):
             return {}, {}, {}, {}
 
         failed_agents = {agent: False for agent in self.agents}
-        dones = {agent: False for agent in self.agents}
-        
         # Turn 1 logic, handle # TODO Bidding
 
         if self.env_steps == 0:
@@ -259,10 +257,15 @@ class LuxAI2022(ParallelEnv):
         for agent in self.agents:
             unit_ids = list(self.state.factories[agent].keys())
             # TODO: TEST
-            rewards[agent] = self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
+            if failed_agents[agent]: 
+                rewards[agent] = -1000
+            else:
+                rewards[agent] = self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
+
 
         self.env_steps += 1
         env_done = self.env_steps >= self.max_episode_length
+        dones = {agent: env_done for agent in self.agents}
         
 
         # generate observations
