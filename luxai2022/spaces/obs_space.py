@@ -31,16 +31,20 @@ def get_obs_space(config: EnvConfig, agent: int = 0):
     for i in range(2):
         # defines what each unit's info looks like since its variable
         # up to user to do any kind of padding or reshaping
-        units_obs_space[i] = spaces.Dict(
-            power=spaces.Discrete(config.ROBOTS["HEAVY"].BATTERY_CAPACITY),
+        obs_dict = dict(
+            power=spaces.Discrete(config.ROBOTS["HEAVY"].BATTERY_CAPACITY + 1),
+            repeating_actions=spaces.Discrete(2),
             pos=spaces.Box(0, config.map_size, shape=(2,), dtype=int),
             cargo=spaces.Dict(
-                ice=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
-                water=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
-                ore=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
-                metal=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
+                ice=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE + 1),
+                water=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE + 1),
+                ore=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE + 1),
+                metal=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE + 1),
             ),
         )
+        if config.UNIT_ACTION_QUEUE_SIZE != 1:
+            obs_dict["action_queue"] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount])
+        units_obs_space[i] = spaces.Dict(obs_dict)
 
     obs_space["units"] = spaces.Dict(units_obs_space)
 
@@ -49,6 +53,7 @@ def get_obs_space(config: EnvConfig, agent: int = 0):
         # defines what each factory's info looks like since its variable
         # up to user to do any kind of padding or reshaping
         obs_dict = dict(
+            power=spaces.Discrete(999999999),
             pos=spaces.Box(0, config.map_size, shape=(2,), dtype=int),
             cargo=spaces.Dict(
                 ice=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
@@ -57,8 +62,6 @@ def get_obs_space(config: EnvConfig, agent: int = 0):
                 metal=spaces.Discrete(config.ROBOTS["HEAVY"].CARGO_SPACE),
             ),
         )
-        if config.UNIT_ACTION_QUEUE_SIZE != 1:
-            obs_dict["action_queue"] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount])
         factories_obs_space[i] = spaces.Dict(obs_dict)
     obs_space["factories"] = spaces.Dict(factories_obs_space)
 

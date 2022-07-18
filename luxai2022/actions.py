@@ -4,21 +4,6 @@ from typing import Callable
 
 import numpy as np
 
-@dataclass
-class ActionData:
-    type: str
-    create: Callable
-
-
-def move_fn():
-    pass
-# class Action(Enum):
-#     MOVE = ActionData(type='move', create = move_fn)
-#     TRANSFER = ActionData(type='transfer')
-#     PICKUP = ActionData(type='pickup')
-#     DIG = ActionData(type='dig')
-#     SELF_DESTRUCT = ActionData(type='self_destruct')
-
 # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
 class Action:
     def __init__(self, act_type: str) -> None:
@@ -72,6 +57,21 @@ class RechargeAction(Action):
     def state_dict(self):
         return np.array([5, 0, 0, self.power])
 
-def format_actions(agent, units, actions):
-    for u in units[agent]:
-        pass
+def format_action_vec(a: np.ndarray):
+    # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
+    a_type = a[0]
+    if a_type == 0:
+        return MoveAction(a[1], dist=1)
+    elif a_type == 1:
+        return TransferAction(a[1], a[2], a[3])
+    elif a_type == 2:
+        return PickupAction(a[2], a[3])
+    elif a_type == 3:
+        return DigAction()
+    elif a_type == 4:
+        return SelfDestructAction()
+    elif a_type == 5:
+        return RechargeAction(a[3])
+    else:
+        raise ValueError(f"Action {a} is invalid type, {a[0]} is not valid")
+                

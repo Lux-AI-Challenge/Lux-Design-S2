@@ -31,14 +31,15 @@ class Unit:
         self.power = 0
         self.cargo = UnitCargo()
         self.action_queue: List[Action] = []
+        self.repeating_actions = False
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_type} at {self.pos}"
         if TERM_COLORS:
             return colored(out, self.team.faction.value.color)
         return out
-    def is_mobile(self) -> bool:
-        return self.unit_type.value != UnitType.FACTORY
+    def is_heavy(self) -> bool:
+        return self.unit_type == UnitType.HEAVY
 
     def state_dict(self):
         return dict(
@@ -47,6 +48,7 @@ class Unit:
             power=self.power,
             pos=self.pos.pos,
             cargo=self.cargo,
+            repeating_actions=self.repeating_actions,
             action_queue=[a.state_dict() for a in self.action_queue],
         )
     # def move(self, ) -> str:
