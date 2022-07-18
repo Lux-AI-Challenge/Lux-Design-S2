@@ -31,7 +31,7 @@ class UnitConfig:
 @dataclass
 class EnvConfig:
     ## various options that can be configured if needed
-    validate_actions: bool = True # can turn this off to speed up env
+    validate_actions: bool = True # can turn this off to speed up env. Disable at your own risk
 
 
     ### Variable parameters that don't affect game logic much ###

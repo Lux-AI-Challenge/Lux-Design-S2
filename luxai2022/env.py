@@ -1,6 +1,6 @@
 from collections import OrderedDict, defaultdict
 import functools
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 import numpy as np
 from pettingzoo import ParallelEnv
@@ -177,9 +177,9 @@ class LuxAI2022(ParallelEnv):
                     actions_by_type[unit_a.act_type].append((unit, unit_a))
             
             # 2. validate all actions against current state, throw away impossible actions TODO
-            # if self.env_cfg.validate_actions: 
-                # actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
-            # TODO Transfer resources/power
+            if self.env_cfg.validate_actions: 
+                actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
+            # TODO test Transfer resources/power
 
             for unit, transfer_action in actions_by_type["transfer"]:
                 transfer_action: TransferAction
@@ -200,8 +200,13 @@ class LuxAI2022(ParallelEnv):
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
+            heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
+            light_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
             for unit, move_action in actions_by_type["move"]:
                 move_action: MoveAction
+                # skip move center
+                if move_action.move_dir == 0: continue
+
                 old_pos_hash = self.state.board.pos_hash(unit.pos)
                 target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
                 rubble = self.state.board.rubble[target_pos.y, target_pos.x]
@@ -211,12 +216,59 @@ class LuxAI2022(ParallelEnv):
                 del self.state.board.units_map[old_pos_hash]
                 new_units_map[new_pos_hash].append(unit)
                 unit.power -= power_required
-            
-            for pos_hash, units in new_units_map:
-                if len(units) <= 1: continue
-                # TODO handle collisions
 
-            self.state.board.units_map = new_units_map
+                if unit.unit_type == UnitType.HEAVY:
+                    heavy_entered_pos[new_pos_hash].append(unit)
+                else:
+                    light_entered_pos[new_pos_hash].append(unit)
+
+            for pos_hash, units in new_units_map.items():
+                # add in all the stationary units
+                new_units_map[pos_hash] += units
+            
+            # TODO test collisions
+            destroyed_units: Set[Unit] = set()
+            new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list) 
+            for pos_hash, units in new_units_map.items():
+                if len(units) <= 1: continue
+                
+                if len(heavy_entered_pos[pos_hash]) > 1:
+                    # all units collide and break
+                    for u in units:
+                        destroyed_units.add(u)
+                elif len(heavy_entered_pos[pos_hash]) > 0:
+                    # all other units collide and break
+                    surviving_unit = heavy_entered_pos[pos_hash][0].unit_id
+                    for u in units:
+                        if u.unit_id != surviving_unit: destroyed_units.add(u)
+                    new_units_map_after_collision[pos_hash].append(surviving_unit)
+                else:
+                    # check for stationary heavy unit there
+                    heavy_stationary_unit = None
+                    for u in units:
+                        if u.unit_type == UnitType.HEAVY:
+                            heavy_stationary_unit = u
+                            break
+                    if heavy_stationary_unit is not None:
+                        surviving_unit = heavy_stationary_unit
+                    else:
+                        if len(light_entered_pos[pos_hash]) > 1:
+                            # all units collide
+                            surviving_unit = None
+                        elif len(light_entered_pos[pos_hash]) > 0:
+                            # light crashes into stationary light unit
+                            surviving_unit = light_entered_pos[pos_hash][0]
+                    if surviving_unit is None:
+                        for u in units: destroyed_units.add(u)
+                    else:
+                        for u in units:
+                            if u.unit_id != surviving_unit.unit_id: destroyed_units.add(u)
+                        new_units_map_after_collision[pos_hash].append(surviving_unit)
+
+            self.state.board.units_map = new_units_map_after_collision
+
+            for u in destroyed_units:
+                del self.state.units[self.agents[u.team_id]][u.unit_id]
 
             # nothing to do for recharging actions
 
@@ -231,11 +283,7 @@ class LuxAI2022(ParallelEnv):
                             team = self.state.teams[agent]
                             unit = Unit(team=team, unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT, unit_id=f"unit_{self.state.global_id}", env_cfg=self.env_cfg)
                             unit.pos.pos = factory.pos.pos.copy()
-                            if unit.unit_type == UnitType.HEAVY:
-                                # TODO allow user to specify how much power to give unit?
-                                unit.power = 500
-                            else:
-                                unit.power = 50
+                            # TODO allow user to specify how much power to give unit?
                             self.state.global_id += 1
                             self.state.units[agent][unit.unit_id] = unit
 
