@@ -113,18 +113,3 @@ class EnvConfig:
             POWER_GAIN=2
         ),
     )
-
-
-# class EnvConfig():
-#     env_constants = convert_dict_to_ns(dict(
-
-#         ))
-#     def __init__(
-#         self,
-#         max_episode_length=1000,
-#         map_size=None,
-#         # TODO FILL IN ENV CONSTANTS
-
-#     ) -> None:
-#         pass
-#         # self.env_constants = env_constants

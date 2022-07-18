@@ -127,6 +127,7 @@ class LuxAI2022(ParallelEnv):
         """
         # If a user passes in actions with no agents, then just return empty observations, etc.
         if not actions:
+            raise ValueError("No actions given")
             self.agents = []
             return {}, {}, {}, {}
 
@@ -141,6 +142,12 @@ class LuxAI2022(ParallelEnv):
                     self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=FactionTypes[a["faction"]])
                     for spawn_loc in a["spawns"]:
                         factory = Factory(self.state.teams[k], unit_id=f"factory_{self.state.global_id}")
+                        factory.pos.pos = spawn_loc
+                        # TODO verify spawn locations are valid
+                        # TODO MAKE THESE CONSTANTS
+                        factory.cargo.water = 100
+                        factory.cargo.metal = 50
+                        factory.power = 100
                         self.state.global_id += 1
                         self.state.factories[k][factory.unit_id] = factory
                 else:
@@ -154,7 +161,7 @@ class LuxAI2022(ParallelEnv):
                 try:
                     for agent, unit_actions in actions.items():
                         if not self.action_space(agent).contains(unit_actions):
-                            raise ValueError("Inappropriate action given")
+                            raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. Either attempted to control an opponent's unit or gave a invalid sized action vector")
                     for agent, unit_actions in actions.items():
                         for unit_id, action in unit_actions.items():
                             if "factory" in unit_id:
@@ -393,7 +400,7 @@ if __name__ == "__main__":
         for unit_id, factory in factories.items():
             actions[unit_id] = 0
         all_actions[agent] = actions
-
+    # all_actions["player_0"] = all_actions["player_1"]
     o, r, d, _ = env.step(all_actions)
     import ipdb
 

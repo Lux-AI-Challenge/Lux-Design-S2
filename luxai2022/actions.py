@@ -8,7 +8,7 @@ from luxai2022.config import EnvConfig
 from luxai2022.map.position import Position
 from luxai2022.state import State
 
-from luxai2022.unit import Unit
+import luxai2022.unit as luxai_unit
 
 
 # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
@@ -149,7 +149,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
 
     for unit, transfer_action in actions_by_type["transfer"]:
         valid_action = True
-        unit: Unit
+        unit: luxai_unit.Unit
         transfer_action: TransferAction
         if transfer_action.resource > 4 or transfer_action.resource < 0:
             invalidate_action(
@@ -190,7 +190,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
     for unit, pickup_action in actions_by_type["pickup"]:
         valid_action = True
         pickup_action: PickupAction
-        unit: Unit
+        unit: luxai_unit.Unit
         state.factories
         if valid_action:
             actions_by_type_validated["pickup"].append(pickup_action)

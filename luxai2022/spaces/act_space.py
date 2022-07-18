@@ -24,10 +24,13 @@ class PartialDict(spaces.Dict):
     def contains(self, x: Any) -> bool:
         if not isinstance(x, dict) or len(x) > len(self.spaces):
             return False
-        for k, space in self.spaces.items():
-            if k in x:
-                if not space.contains(x[k]):
+        for k, v in x.items():
+            if k in self.spaces:
+                space = self.spaces[k]
+                if not space.contains(v):
                     return False
+            else:
+                return False
         return True
 
 def get_act_space_init(config: EnvConfig, agent: int = 0):

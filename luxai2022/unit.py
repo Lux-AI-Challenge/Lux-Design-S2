@@ -9,7 +9,6 @@ from luxai2022.config import EnvConfig, UnitConfig
 from luxai2022.globals import TERM_COLORS
 from luxai2022.map.position import Position
 from luxai2022.team import FactionTypes, Team
-from luxai2022.actions import Action
 
 class UnitType(Enum):
     LIGHT = "Light"
@@ -38,7 +37,7 @@ class Unit:
         self.pos = Position(np.zeros(2, dtype=int))
         
         self.cargo = UnitCargo()
-        self.action_queue: List[Action] = []
+        self.action_queue: List = []
         self.unit_cfg: UnitConfig = env_cfg.ROBOTS[unit_type.name]
         self.power = env_cfg.ROBOTS[unit_type.name].INIT_POWER
         self.cargo_space = env_cfg.ROBOTS[unit_type.name].CARGO_SPACE
@@ -51,7 +50,7 @@ class Unit:
         return out
     def is_heavy(self) -> bool:
         return self.unit_type == UnitType.HEAVY
-    def next_action(self) -> Action:
+    def next_action(self):
         if len(self.action_queue): return None
         action = self.action_queue.pop(0)
         if action.repeat:
