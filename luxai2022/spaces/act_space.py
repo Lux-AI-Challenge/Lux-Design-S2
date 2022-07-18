@@ -34,7 +34,8 @@ def get_act_space(units: List[Unit], config: EnvConfig, agent: int = 0):
     # for consistency, every action space per unit is fixed, makes it easier to work out of the box. 
     # we further annotate dimensions, in many places for clarity
 
-    # for those who are programming rule-based bots, we provide helper functions to generate the action vector to store in an actions dict.
+    # for those who are programming rule-based bots, we provide helper functions to generate the action vector to store in an actions dict, as well as generate
+    # a human readable version of an action vector
 
     # TODO - verify speed of building action spaces like this.
     for u in units[agent]:
