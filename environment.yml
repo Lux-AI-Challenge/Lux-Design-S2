@@ -29,3 +29,5 @@ dependencies:
     - omegaconf
     - termcolor
     - opensimplex
+    - pygame
+

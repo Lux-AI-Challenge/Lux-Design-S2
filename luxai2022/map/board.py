@@ -13,8 +13,9 @@ class Board:
         # self.map: GameMap = random_map()
         map_type = None #args.get("map_type", None)
         symmetry = None # args.get("symmetry", None)
-        # TODO fix rng here
-        self.map = GameMap.random_map(seed=0, symmetry=symmetry, map_type=map_type, width=self.width, height=self.height)
+        # TODO fix Craters RNG
+        self.map = GameMap.random_map(seed=3, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
+        self.map.rubble = self.map.rubble.astype(int)
         self.lichen = np.zeros((self.height, self.width))
         self.lichen_strains = np.zeros((self.height, self.width)) # ownership of lichen
         # self.units_map: np.ndarray = np.zeros((self.height, self.width))

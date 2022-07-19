@@ -51,7 +51,7 @@ class Unit:
     def is_heavy(self) -> bool:
         return self.unit_type == UnitType.HEAVY
     def next_action(self):
-        if len(self.action_queue): return None
+        if len(self.action_queue) == 0: return None
         action = self.action_queue.pop(0)
         if action.repeat:
             self.action_queue.append(action)

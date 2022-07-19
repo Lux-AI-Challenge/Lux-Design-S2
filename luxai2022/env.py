@@ -5,11 +5,13 @@ from typing import Dict, List, Set, Tuple, Union
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
+import pygame
 from luxai2022.actions import Action, DigAction, FactoryBuildAction, FactoryWaterAction, MoveAction, PickupAction, SelfDestructAction, TransferAction, format_action_vec, format_factory_action, validate_actions, move_deltas
 
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
 from luxai2022.map.board import Board
+from luxai2022.pyvisual.visualizer import Visualizer
 from luxai2022.spaces.act_space import get_act_space, get_act_space_init
 from luxai2022.spaces.obs_space import get_obs_space
 from luxai2022.state import State
@@ -50,6 +52,8 @@ class LuxAI2022(ParallelEnv):
 
         self.seed_rng: np.random.RandomState = None
 
+        self.py_visualizer: Visualizer = None
+
     # this cache ensures that same space object is returned for the same agent
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
@@ -57,7 +61,7 @@ class LuxAI2022(ParallelEnv):
         # Gym spaces are defined and documented here: https://gym.openai.com/docs/#spaces
         return get_obs_space(config=self.env_cfg, agent=agent)
 
-    @functools.lru_cache(maxsize=None)
+    # @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
         if self.env_steps == 0:
             return get_act_space_init(config=self.env_cfg, agent=agent)
@@ -72,7 +76,12 @@ class LuxAI2022(ParallelEnv):
         #     string = ("Current state: Agent1: {} , Agent2: {}".format(MOVES[self.state[self.agents[0]]], MOVES[self.state[self.agents[1]]]))
         # else:
         #     string = "Game over"
-        print("hello")
+
+        if mode == "human":
+            if self.py_visualizer is None:
+                self.py_visualizer = Visualizer(self.state)
+            self.py_visualizer.update_scene(self.state)
+            self.py_visualizer.render()
 
     def close(self):
         """
@@ -153,8 +162,6 @@ class LuxAI2022(ParallelEnv):
                 else:
                     # team k loses
                     failed_agents[k] = True
-
-            # TODO return the initial obs, skip all the other parts in this list
         else:
             # 1. Check for malformed actions
             if self.env_cfg.validate_actions: 
@@ -182,7 +189,9 @@ class LuxAI2022(ParallelEnv):
             for agent in self.agents:
                 if failed_agents[agent]: continue
                 for unit in self.state.units[agent].values():
+                    
                     unit_a = unit.next_action()
+                    if unit_a is None: continue
                     actions_by_type[unit_a.act_type].append((unit, unit_a))
             
             # 2. validate all actions against current state, throw away impossible actions TODO
@@ -224,7 +233,6 @@ class LuxAI2022(ParallelEnv):
                 move_action: MoveAction
                 # skip move center
                 if move_action.move_dir == 0: continue
-
                 old_pos_hash = self.state.board.pos_hash(unit.pos)
                 target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
                 rubble = self.state.board.rubble[target_pos.y, target_pos.x]
@@ -240,16 +248,16 @@ class LuxAI2022(ParallelEnv):
                 else:
                     light_entered_pos[new_pos_hash].append(unit)
 
-            for pos_hash, units in new_units_map.items():
+            for pos_hash, units in self.state.board.units_map.items():
                 # add in all the stationary units
                 new_units_map[pos_hash] += units
-            
             # TODO test collisions
             destroyed_units: Set[Unit] = set()
             new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list) 
             for pos_hash, units in new_units_map.items():
-                if len(units) <= 1: new_units_map_after_collision[pos_hash] += units
-                
+                if len(units) <= 1: 
+                    new_units_map_after_collision[pos_hash] += units
+                    continue
                 if len(heavy_entered_pos[pos_hash]) > 1:
                     # all units collide and break
                     for u in units:
@@ -282,7 +290,6 @@ class LuxAI2022(ParallelEnv):
                         for u in units:
                             if u.unit_id != surviving_unit.unit_id: destroyed_units.add(u)
                         new_units_map_after_collision[pos_hash].append(surviving_unit)
-
             self.state.board.units_map = new_units_map_after_collision
 
             for u in destroyed_units:
@@ -306,6 +313,7 @@ class LuxAI2022(ParallelEnv):
                             # TODO allow user to specify how much power to give unit?
                             self.state.global_id += 1
                             self.state.units[agent][unit.unit_id] = unit
+                            self.state.board.units_map[self.state.board.pos_hash(unit.pos)].append(unit)
 
 
             # TODO - handle weather effects
@@ -326,7 +334,7 @@ class LuxAI2022(ParallelEnv):
             if is_day(self.env_cfg, self.env_steps):
                 for agent in self.agents:
                     for u in self.state.units[agent].values():
-                        u.power = u.power + self.env_cfg.ROBOTS[u.unit_type].CHARGE
+                        u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
                     f.power = f.power + self.env_cfg.FACTORY_CHARGE    
@@ -339,7 +347,7 @@ class LuxAI2022(ParallelEnv):
             if failed_agents[agent]: 
                 rewards[agent] = -1000
             else:
-                rewards[agent] = self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
+                rewards[agent] = 0#self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
 
 
         self.env_steps += 1
@@ -377,31 +385,42 @@ def raw_env() -> LuxAI2022:
 
 
 if __name__ == "__main__":
+    import time
     env: LuxAI2022 = LuxAI2022()
     o = env.reset()
+    env.render()
+    time.sleep(.5)
     # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
     # env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
     o, r, d, _ = env.step(
         {"player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])), "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]]))}
     )
-    print(o, r, d)
+    env.render()
+    # print(o, r, d)
 
-    all_actions = dict()
-    for team_id, agent in enumerate(env.possible_agents):
-        obs = o[agent]
-        all_actions[agent] = dict()
-        # units = o[agent]["units"]
-        # actions = []
-        # for unit_id, unit in units.items():
-        #     actions.append(dict(unit_id=unit_id))
-        factories = obs["factories"][agent]
-        actions = dict()
-        for unit_id, factory in factories.items():
-            actions[unit_id] = 0
-        all_actions[agent] = actions
-    # all_actions["player_0"] = all_actions["player_1"]
-    o, r, d, _ = env.step(all_actions)
-    import ipdb
-
-    ipdb.set_trace()
+    for i in range(50):
+        all_actions = dict()
+        for team_id, agent in enumerate(env.possible_agents):
+            obs = o[agent]
+            all_actions[agent] = dict()
+            # units = o[agent]["units"]
+            # actions = []
+            # for unit_id, unit in units.items():
+            #     actions.append(dict(unit_id=unit_id))
+            factories = obs["factories"][agent]
+            actions = dict()
+            if i == 0:
+                for unit_id, factory in factories.items():
+                    actions[unit_id] = 0
+            for unit_id, unit in obs["units"][agent].items():
+                actions[unit_id] = np.array([0,np.random.randint(4), 0, 0,0])
+            all_actions[agent] = actions
+        import ipdb
+        # ipdb.set_trace()
+        # , env.action_space("player_0").sample()
+        # all_actions["player_0"] = all_actions["player_1"]
+        o, r, d, _ = env.step(all_actions)
+        env.render()
+        time.sleep(0.2)
+   

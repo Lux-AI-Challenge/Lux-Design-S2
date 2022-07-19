@@ -185,7 +185,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
                 )
 
         if valid_action:
-            actions_by_type_validated["transfer"].append(transfer_action)
+            actions_by_type_validated["transfer"].append((unit, transfer_action))
     # TODO Resource Pickup
     for unit, pickup_action in actions_by_type["pickup"]:
         valid_action = True
@@ -193,7 +193,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
         unit: luxai_unit.Unit
         state.factories
         if valid_action:
-            actions_by_type_validated["pickup"].append(pickup_action)
+            actions_by_type_validated["pickup"].append((unit, pickup_action))
 
     # TODO Movement
     for unit, move_action in actions_by_type["move"]:
@@ -216,6 +216,6 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
                 f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power but only had {unit.power}"
             )
         if valid_action:
-            actions_by_type_validated["move"].append(move_action)
+            actions_by_type_validated["move"].append((unit, move_action))
 
     return actions_by_type_validated

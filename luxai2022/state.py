@@ -18,8 +18,8 @@ class State:
     env_steps: int
     env_cfg: EnvConfig
     board: Board = None
-    units: Dict[int, Dict[str, Unit]] = field(default_factory=dict)
-    factories: Dict[int, Dict[str, Factory]] = field(default_factory=dict)
+    units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
+    factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
     

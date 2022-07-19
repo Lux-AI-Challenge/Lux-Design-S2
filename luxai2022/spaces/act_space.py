@@ -58,7 +58,7 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         # Then
         
         # a[0] = action type 
-        # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
+        # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
         
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
         
@@ -68,8 +68,7 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
         # a[4] = 0,1 - repeat false or repeat true. If true, action is sent to end of queue once consumed
-
-        act_space[u.unit_id] = spaces.MultiDiscrete([7, 5, 5, config.max_transfer_amount, 2])
+        act_space[u.unit_id] = spaces.MultiDiscrete([6, 5, 5, config.max_transfer_amount, 2])
 
     for factory in factories[agent].values():
         # action type (0 = build light robot, 1 = build heavy robot, 2 = water lichen)
