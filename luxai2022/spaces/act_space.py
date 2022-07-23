@@ -28,10 +28,10 @@ class PartialDict(spaces.Dict):
             if k in self.spaces:
                 space = self.spaces[k]
                 if not space.contains(v):
-                    return False
+                    return False, f"invalid action {v} for {k}"
             else:
-                return False
-        return True
+                return False, f"{k} is not on your team or does not exist"
+        return True, None
 
 def get_act_space_init(config: EnvConfig, agent: int = 0):
     # Get action space for turn 0 initialization

@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Dict, List
 import numpy as np
+from luxai2022.factory import Factory
 from luxai2022.map.position import Position
 from luxai2022.map_generator.generator import GameMap
 from luxai2022.unit import Unit
@@ -17,15 +18,27 @@ class Board:
         self.map = GameMap.random_map(seed=3, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
         self.map.rubble = self.map.rubble.astype(int)
         self.lichen = np.zeros((self.height, self.width))
-        self.lichen_strains = np.zeros((self.height, self.width)) # ownership of lichen
+        # ownership of lichen by factory id, a simple mask
+        # -1 = no ownership
+        self.lichen_strains = -np.ones((self.height, self.width))
         # self.units_map: np.ndarray = np.zeros((self.height, self.width))
         self.units_map: Dict[str, List[Unit]] = defaultdict(list)
+
+        # maps center of factory to the factory
+        self.factory_map: Dict[str, Factory] = dict()
+        # != -1 if a factory tile is on the location. Equals factory number id
+        self.factory_occupancy_map = -np.ones((self.height, self.width))
     def pos_hash(self, pos: Position):
         return f"{pos.x},{pos.y}"
     def get_units_at(self, pos: Position):
-        pos_hash = f"{pos.x},{pos.y}"
+        pos_hash = self.pos_hash(pos)
         if pos_hash in self.units_map:
             return self.units_map[pos_hash]
+        return None
+    def get_factory_at(self, pos: Position):
+        pos_hash = self.pos_hash(pos)
+        if pos_hash in self.factory_map:
+            return self.factory_map[pos_hash]
         return None
     @property
     def rubble(self):

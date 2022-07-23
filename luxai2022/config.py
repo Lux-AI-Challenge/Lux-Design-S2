@@ -47,6 +47,13 @@ class EnvConfig:
     UNIT_ACTION_QUEUE_SIZE = 10 # when set to 1, then no action queue is used
     UNITS_CONTROLLED = 20 # when set to -1, all units can be controlled at once
     MAX_RUBBLE = 100
+    FACTORY_RUBBLE_AFTER_DESTRUCTION = 50
+
+    #### LICHEN ####
+    MIN_LICHEN_TO_SPREAD = 20
+    LICHEN_LOST_WITHOUT_WATER = 1
+    LICHEN_GAINED_WITH_WATER = 1
+    LICHEN_WATERING_COST_FACTOR = 10
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True

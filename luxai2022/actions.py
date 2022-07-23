@@ -5,6 +5,7 @@ from typing import Callable
 
 import numpy as np
 from luxai2022.config import EnvConfig
+from luxai2022.factory import Factory
 from luxai2022.map.position import Position
 from luxai2022.state import State
 
@@ -33,6 +34,7 @@ class FactoryBuildAction(Action):
 class FactoryWaterAction(Action):
     def __init__(self) -> None:
         super().__init__("factory_water")
+        self.water_cost = None
 
     def state_dict():
         return 2
@@ -135,7 +137,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
+def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -145,7 +147,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
     def invalidate_action(msg):
         nonlocal valid_action
         valid_action = False
-        print(msg)
+        if verbose > 0: print(msg)
 
     for unit, transfer_action in actions_by_type["transfer"]:
         valid_action = True
@@ -155,7 +157,8 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
             invalidate_action(
                 f"Invalid Transfer Action for unit {unit}, transferring invalid resource id {transfer_action.resource}"
             )
-        # if transfer_action.transfer_amount < 0:
+            continue
+        # if transfer_action.transfer_amount < 0: do not need to check as action space permits range of [0, max_transfer_amount] anyway
         resource_id = transfer_action.resource
         amount = transfer_action.transfer_amount
         if resource_id == 0:
@@ -163,39 +166,78 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
                 invalidate_action(
                     f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} ice but only had {unit.cargo.ice}"
                 )
+                continue
         elif resource_id == 1:
             if unit.cargo.ore < amount:
                 invalidate_action(
                     f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} ore but only had {unit.cargo.ore}"
                 )
+                continue
         elif resource_id == 2:
             if unit.cargo.water < amount:
                 invalidate_action(
                     f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} water but only had {unit.cargo.water}"
                 )
+                continue
         elif resource_id == 3:
             if unit.cargo.metal < amount:
                 invalidate_action(
                     f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} metal but only had {unit.cargo.metal}"
                 )
+                continue
         elif resource_id == 4:
             if unit.power < amount:
                 invalidate_action(
                     f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} power but only had {unit.power}"
                 )
+                continue
 
         if valid_action:
             actions_by_type_validated["transfer"].append((unit, transfer_action))
-    # TODO Resource Pickup
+
     for unit, pickup_action in actions_by_type["pickup"]:
         valid_action = True
         pickup_action: PickupAction
         unit: luxai_unit.Unit
-        state.factories
+        factory = state.board.get_factory_at(unit.pos)
+        if factory is None:
+            invalidate_action(f"No factory to pickup from for unit {unit}")
+            continue
+        resource_id = pickup_action.resource
+        amount = pickup_action.pickup_amount
+        if resource_id == 0:
+            if factory.cargo.ice < amount:
+                invalidate_action(
+                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} ice but factory only had {factory.cargo.ice}"
+                )
+                continue
+        elif resource_id == 1:
+            if factory.cargo.ore < amount:
+                invalidate_action(
+                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} ore but factory only had {factory.cargo.ore}"
+                )
+                continue
+        elif resource_id == 2:
+            if factory.cargo.water < amount:
+                invalidate_action(
+                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} water but factory only had {factory.cargo.water}"
+                )
+                continue
+        elif resource_id == 3:
+            if factory.cargo.metal < amount:
+                invalidate_action(
+                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} metal but factory only had {factory.cargo.metal}"
+                )
+                continue
+        elif resource_id == 4:
+            if factory.power < amount:
+                invalidate_action(
+                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} power but factory only had {factory.power}"
+                )
+                continue
         if valid_action:
             actions_by_type_validated["pickup"].append((unit, pickup_action))
 
-    # TODO Movement
     for unit, move_action in actions_by_type["move"]:
         valid_action = True
         move_action: MoveAction
@@ -209,13 +251,48 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type):
             invalidate_action(
                 f"Invalid movement action for unit {unit} - Tried to move to {target_pos} which is off the map"
             )
+            continue
+        if state.board.factory_occupancy_map[target_pos.y, target_pos.x] != -1:
+            factory_id = state.board.factory_occupancy_map[target_pos.y, target_pos.x]
+            if f"factory_{factory_id}" not in state.factories[unit.team.agent]:
+                # if there is a factory but not same team
+                invalidate_action(
+                    f"Invalid movement action for unit {unit} - Tried to move to {target_pos} which is on an opponent factory"
+                )
+                continue
         rubble = state.board.rubble[target_pos.y, target_pos.x]
-        power_required = unit.unit_cfg.MOVE_COST + unit.unit_cfg.RUBBLE_MOVEMENT_COST * rubble
+        power_required = unit.move_power_cost(rubble)
         if power_required > unit.power:
             invalidate_action(
                 f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power but only had {unit.power}"
             )
+            continue
         if valid_action:
             actions_by_type_validated["move"].append((unit, move_action))
+
+    for factory, build_action in actions_by_type["factory_build"]:
+        build_action: FactoryBuildAction
+        factory: Factory
+        
+        if build_action.unit_type == 0:
+            unit_cfg = env_cfg.ROBOTS["LIGHT"]
+            # Light
+        elif build_action.unit_type == 1:
+            unit_cfg = env_cfg.ROBOTS["HEAVY"]
+        if factory.cargo.metal < unit_cfg.METAL_COST:
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal {factory.cargo.metal}")
+            continue
+        if factory.power < unit_cfg.POWER_COST:
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal {factory.cargo.metal}")
+            continue
+        if valid_action:
+            actions_by_type_validated["factory_build"].append((factory, build_action))
+        pass
+    
+    
+    for factory, water_action in actions_by_type["factory_water"]:
+        # compute the cost of watering
+        if valid_action:
+            actions_by_type_validated["factory_water"].append((factory, water_action))
 
     return actions_by_type_validated

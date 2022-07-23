@@ -17,9 +17,11 @@ class FactionTypes(Enum):
 
 
 class Team:
-    def __init__(self, team_id: int, faction: FactionTypes = None) -> None:
+    def __init__(self, team_id: int, agent: str, faction: FactionTypes = None) -> None:
         self.faction = faction
         self.team_id = team_id
+        # the key used to differentiate ownership of things in state
+        self.agent = agent
     def state_dict(self):
         return dict(
             team_id=self.team_id,

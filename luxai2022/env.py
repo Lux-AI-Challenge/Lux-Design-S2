@@ -6,11 +6,25 @@ import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 import pygame
-from luxai2022.actions import Action, DigAction, FactoryBuildAction, FactoryWaterAction, MoveAction, PickupAction, SelfDestructAction, TransferAction, format_action_vec, format_factory_action, validate_actions, move_deltas
+from luxai2022.actions import (
+    Action,
+    DigAction,
+    FactoryBuildAction,
+    FactoryWaterAction,
+    MoveAction,
+    PickupAction,
+    SelfDestructAction,
+    TransferAction,
+    format_action_vec,
+    format_factory_action,
+    validate_actions,
+    move_deltas,
+)
 
 from luxai2022.config import EnvConfig
 from luxai2022.factory import Factory
 from luxai2022.map.board import Board
+from luxai2022.map.position import Position
 from luxai2022.pyvisual.visualizer import Visualizer
 from luxai2022.spaces.act_space import get_act_space, get_act_space_init
 from luxai2022.spaces.obs_space import get_obs_space
@@ -146,9 +160,12 @@ class LuxAI2022(ParallelEnv):
         if self.env_steps == 0:
             # handle initialization
             for k, a in actions.items():
-                if k not in self.agents: raise ValueError(f"Invalid player {k}")
+                if k not in self.agents:
+                    raise ValueError(f"Invalid player {k}")
                 if "spawns" in a:
-                    self.state.teams[k] = Team(team_id=self.agent_name_mapping[k], faction=FactionTypes[a["faction"]])
+                    self.state.teams[k] = Team(
+                        team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
+                    )
                     for spawn_loc in a["spawns"]:
                         factory = Factory(self.state.teams[k], unit_id=f"factory_{self.state.global_id}")
                         factory.pos.pos = spawn_loc
@@ -164,11 +181,12 @@ class LuxAI2022(ParallelEnv):
                     failed_agents[k] = True
         else:
             # 1. Check for malformed actions
-            if self.env_cfg.validate_actions: 
+            if self.env_cfg.validate_actions:
                 try:
                     for agent, unit_actions in actions.items():
-                        if not self.action_space(agent).contains(unit_actions):
-                            raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. Either attempted to control an opponent's unit or gave a invalid sized action vector")
+                        valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
+                        if not valid_acts:
+                            raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. {err_reason}")
                     for agent, unit_actions in actions.items():
                         for unit_id, action in unit_actions.items():
                             if "factory" in unit_id:
@@ -176,7 +194,7 @@ class LuxAI2022(ParallelEnv):
                             elif "unit" in unit_id:
                                 formatted_actions = []
                                 if type(action) == list:
-                                    trunked_actions = action[:self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
+                                    trunked_actions = action[: self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
                                     formatted_actions = [format_action_vec(a) for a in trunked_actions]
                                 else:
                                     formatted_actions = [format_action_vec(action)]
@@ -187,15 +205,21 @@ class LuxAI2022(ParallelEnv):
 
             actions_by_type: Dict[str, List[Tuple[Unit, Action]]] = defaultdict(list)
             for agent in self.agents:
-                if failed_agents[agent]: continue
+                if failed_agents[agent]:
+                    continue
                 for unit in self.state.units[agent].values():
-                    
-                    unit_a = unit.next_action()
-                    if unit_a is None: continue
+
+                    unit_a: Action = unit.next_action()
+                    if unit_a is None:
+                        continue
                     actions_by_type[unit_a.act_type].append((unit, unit_a))
-            
+                for factory in self.state.factories[agent].values():
+                    if len(factory.action_queue) > 0:
+                        unit_a: Action = factory.action_queue.pop(0)
+                        actions_by_type[unit_a.act_type].append((factory, unit_a))
+
             # 2. validate all actions against current state, throw away impossible actions TODO
-            if self.env_cfg.validate_actions: 
+            if self.env_cfg.validate_actions:
                 actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
             # TODO test Transfer resources/power
 
@@ -209,21 +233,34 @@ class LuxAI2022(ParallelEnv):
                     target_unit = units_there[0]
                     # add resources to target. This will waste (transfer_amount - actually_transferred) resources
                     actually_transferred = target_unit.add_resource(transfer_action.resource, transfer_amount)
-                
+
             # TODO Resource Pickup
-            for unit, pickup_action in actions_by_type["transfer"]:
+            for unit, pickup_action in actions_by_type["pickup"]:
                 pickup_action: PickupAction
 
             # TODO digging
             for unit, dig_action in actions_by_type["dig"]:
                 dig_action: DigAction
 
-            for unit, self_destruct_action in actions_by_type["transfer"]:
+            for unit, self_destruct_action in actions_by_type["self_destruct"]:
                 unit: Unit
                 self_destruct_action: SelfDestructAction
                 pos_hash = self.state.board.pos_hash(unit.pos)
                 del self.state.board.units_map[pos_hash]
-                del self.state.units[self.agents[unit.team_id]][unit.id]
+                del self.state.units[unit.team.agent][unit.id]
+
+            # TODO - robot building with factories
+            for agent in self.agents:
+                for factory in self.state.factories[agent].values():
+                    if len(factory.action_queue) > 0:
+                        action = factory.action_queue.pop()
+                        if action.act_type == "factory_build":
+                            team = self.state.teams[agent]
+                            self.add_unit(
+                                team=team,
+                                unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT,
+                                pos=factory.pos.pos,
+                            )
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -232,7 +269,8 @@ class LuxAI2022(ParallelEnv):
             for unit, move_action in actions_by_type["move"]:
                 move_action: MoveAction
                 # skip move center
-                if move_action.move_dir == 0: continue
+                if move_action.move_dir == 0:
+                    continue
                 old_pos_hash = self.state.board.pos_hash(unit.pos)
                 target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
                 rubble = self.state.board.rubble[target_pos.y, target_pos.x]
@@ -253,9 +291,9 @@ class LuxAI2022(ParallelEnv):
                 new_units_map[pos_hash] += units
             # TODO test collisions
             destroyed_units: Set[Unit] = set()
-            new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list) 
+            new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list)
             for pos_hash, units in new_units_map.items():
-                if len(units) <= 1: 
+                if len(units) <= 1:
                     new_units_map_after_collision[pos_hash] += units
                     continue
                 if len(heavy_entered_pos[pos_hash]) > 1:
@@ -266,7 +304,8 @@ class LuxAI2022(ParallelEnv):
                     # all other units collide and break
                     surviving_unit = heavy_entered_pos[pos_hash][0].unit_id
                     for u in units:
-                        if u.unit_id != surviving_unit: destroyed_units.add(u)
+                        if u.unit_id != surviving_unit:
+                            destroyed_units.add(u)
                     new_units_map_after_collision[pos_hash].append(surviving_unit)
                 else:
                     # check for stationary heavy unit there
@@ -285,39 +324,24 @@ class LuxAI2022(ParallelEnv):
                             # light crashes into stationary light unit
                             surviving_unit = light_entered_pos[pos_hash][0]
                     if surviving_unit is None:
-                        for u in units: destroyed_units.add(u)
+                        for u in units:
+                            destroyed_units.add(u)
                     else:
                         for u in units:
-                            if u.unit_id != surviving_unit.unit_id: destroyed_units.add(u)
+                            if u.unit_id != surviving_unit.unit_id:
+                                destroyed_units.add(u)
                         new_units_map_after_collision[pos_hash].append(surviving_unit)
             self.state.board.units_map = new_units_map_after_collision
 
             for u in destroyed_units:
-                self.state.board.rubble[u.pos.y, u.pos.x] += u.unit_cfg.RUBBLE_AFTER_DESTRUCTION
-                self.state.board.rubble[u.pos.y, u.pos.x] = min(self.state.board.rubble[u.pos.y, u.pos.x], self.env_cfg.MAX_RUBBLE)
-                del self.state.units[self.agents[u.team_id]][u.unit_id]
+                self.destroy_unit(u)
 
             # nothing to do for recharging actions
 
             # TODO - grow lichen
 
-            # TODO - robot building with factories
-            for agent in self.agents:
-                for factory in self.state.factories[agent].values():
-                    if len(factory.action_queue) > 0:
-                        action = factory.action_queue.pop()
-                        if action.act_type == "factory_build":
-                            team = self.state.teams[agent]
-                            unit = Unit(team=team, unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT, unit_id=f"unit_{self.state.global_id}", env_cfg=self.env_cfg)
-                            unit.pos.pos = factory.pos.pos.copy()
-                            # TODO allow user to specify how much power to give unit?
-                            self.state.global_id += 1
-                            self.state.units[agent][unit.unit_id] = unit
-                            self.state.board.units_map[self.state.board.pos_hash(unit.pos)].append(unit)
-
-
             # TODO - handle weather effects
-            
+
             # resources refining
             for agent in self.agents:
                 factories_to_destroy: Set[Factory] = set()
@@ -337,23 +361,21 @@ class LuxAI2022(ParallelEnv):
                         u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
-                    f.power = f.power + self.env_cfg.FACTORY_CHARGE    
+                    f.power = f.power + self.env_cfg.FACTORY_CHARGE
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
         for agent in self.agents:
             unit_ids = list(self.state.factories[agent].keys())
             # TODO: TEST
-            if failed_agents[agent]: 
+            if failed_agents[agent]:
                 rewards[agent] = -1000
             else:
-                rewards[agent] = 0#self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
-
+                rewards[agent] = 0  # self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
 
         self.env_steps += 1
         env_done = self.env_steps >= self.max_episode_length
         dones = {agent: env_done for agent in self.agents}
-        
 
         # generate observations
         obs = self.state.get_obs()
@@ -370,8 +392,48 @@ class LuxAI2022(ParallelEnv):
         return observations, rewards, dones, infos
 
     ### Game Logic ###
-    def add_unit(self, team_id):
-        u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id="1s")
+    def add_unit(self, team: Team, unit_type, pos: np.ndarray):
+        unit = Unit(team=team, unit_type=unit_type, unit_id=f"unit_{self.state.global_id}", env_cfg=self.env_cfg)
+        unit.pos.pos = pos.copy()
+        # TODO allow user to specify how much power to give unit?
+        self.state.global_id += 1
+        self.state.units[team.agent][unit.unit_id] = unit
+        self.state.board.units_map[self.state.board.pos_hash(unit.pos)].append(unit)
+        return unit
+
+    def add_factory(self, team: Team, pos: np.ndarray):
+        factory = Factory(team=team, unit_id=f"factory_{self.state.global_id}", num_id=self.state.global_id)
+        factory.pos.pos = pos.copy()
+        # TODO verify spawn locations are valid
+        # TODO MAKE THESE CONSTANTS
+        factory.cargo.water = 100
+        factory.cargo.metal = 50
+        factory.power = 100
+        self.state.global_id += 1
+        
+        self.state.factories[team.agent][factory.unit_id] = factory
+        self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
+        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = 1
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = factory.num_id
+        return factory
+
+    def destroy_unit(self, unit: Unit):
+        self.state.board.rubble[unit.pos.y, unit.pos.x] = min(
+            self.state.board.rubble[unit.pos.y, unit.pos.x] + unit.unit_cfg.RUBBLE_AFTER_DESTRUCTION,
+            self.env_cfg.MAX_RUBBLE,
+        )
+        del self.state.units[unit.team.agent][unit.unit_id]
+        del self.state.board.units_map[self.state.board.pos_hash(unit.pos)]
+
+    def destroy_factory(self, factory: Factory):
+        # spray rubble on every factory tile
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1].clip(0, self.env_cfg.MAX_RUBBLE)
+        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = -1
+        del self.state.factories[factory.team.agent][factory.unit_id]
+        del self.state.board.factory_map[self.state.board.pos_hash(factory.pos)]
+        # TODO - shouldn't rubble under factory always be 0?
+        # TODO remove units on each factory tile
 
 
 def raw_env() -> LuxAI2022:
@@ -386,20 +448,25 @@ def raw_env() -> LuxAI2022:
 
 if __name__ == "__main__":
     import time
+
     env: LuxAI2022 = LuxAI2022()
     o = env.reset()
     env.render()
-    time.sleep(.5)
+    time.sleep(0.5)
     # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
     # env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
     o, r, d, _ = env.step(
-        {"player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])), "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]]))}
+        {
+            "player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])),
+            "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])),
+        }
     )
     env.render()
     # print(o, r, d)
-
-    for i in range(50):
+    s_time = time.time_ns()
+    N = 10000
+    for i in range(N):
         all_actions = dict()
         for team_id, agent in enumerate(env.possible_agents):
             obs = o[agent]
@@ -414,13 +481,17 @@ if __name__ == "__main__":
                 for unit_id, factory in factories.items():
                     actions[unit_id] = 0
             for unit_id, unit in obs["units"][agent].items():
-                actions[unit_id] = np.array([0,np.random.randint(4), 0, 0,0])
+                actions[unit_id] = np.array([0, np.random.randint(4), 0, 0, 0])
             all_actions[agent] = actions
-        import ipdb
         # ipdb.set_trace()
         # , env.action_space("player_0").sample()
         # all_actions["player_0"] = all_actions["player_1"]
         o, r, d, _ = env.step(all_actions)
-        env.render()
-        time.sleep(0.2)
-   
+        if np.all([d[k] for k in d]):
+            o = env.reset()
+            env.render()
+            print(f"=== {i} ===")
+        # env.render()`
+        # time.sleep(0.2)`
+    e_time = time.time_ns()
+    print(f"FPS={N / ((e_time - s_time) * 1e-9)}")
