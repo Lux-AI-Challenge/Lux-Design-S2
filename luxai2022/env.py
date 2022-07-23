@@ -226,17 +226,27 @@ class LuxAI2022(ParallelEnv):
             for unit, transfer_action in actions_by_type["transfer"]:
                 transfer_action: TransferAction
                 transfer_amount = unit.sub_resource(transfer_action.resource, transfer_action.transfer_amount)
-                transfer_pos = unit.pos + move_deltas[transfer_action.transfer_dir]
+                transfer_pos: Position = unit.pos + move_deltas[transfer_action.transfer_dir]
                 units_there = self.state.board.get_units_at(transfer_pos)
-                if units_there is not None:
+                
+                # if there is a factory, we prefer transferring to that entity
+                factory_id = f"factory_{self.state.board.factory_occupancy_map[transfer_pos.y, transfer_pos.x]}"
+                if factory_id in self.state.factories[unit.team.agent]:
+                    factory = self.state.factories[unit.team.agent][factory_id]
+                    # add resources to target. This will waste (transfer_amount - actually_transferred) resources
+                    actually_transferred = factory.add_resource(transfer_action.resource, transfer_action.transfer_amount)
+                elif units_there is not None:
                     assert len(units_there) == 1
                     target_unit = units_there[0]
                     # add resources to target. This will waste (transfer_amount - actually_transferred) resources
                     actually_transferred = target_unit.add_resource(transfer_action.resource, transfer_amount)
 
-            # TODO Resource Pickup
             for unit, pickup_action in actions_by_type["pickup"]:
                 pickup_action: PickupAction
+                factory = self.state.board.get_factory_at(unit.pos)
+                pickup_amount = factory.sub_resource(pickup_action.resource, pickup_action.pickup_amount)
+                # may waste resources if tried to pickup more than one can hold.
+                actually_pickedup = unit.add_resource(pickup_action.resource, pickup_amount)
 
             # TODO digging
             for unit, dig_action in actions_by_type["dig"]:
