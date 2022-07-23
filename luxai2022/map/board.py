@@ -41,10 +41,10 @@ class Board:
             return self.factory_map[pos_hash]
         return None
     @property
-    def rubble(self):
+    def rubble(self) -> np.ndarray:
         return self.map.rubble
     @property
-    def ice(self):
+    def ice(self) -> np.ndarray:
         return self.map.ice
     @property
     def ore(self):

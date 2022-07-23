@@ -195,6 +195,17 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=
         if valid_action:
             actions_by_type_validated["transfer"].append((unit, transfer_action))
 
+    for unit, dig_action in actions_by_type["dig"]:
+        valid_action = True
+        dig_action: DigAction
+        if unit.unit_cfg.DIG_COST > unit.power:
+            invalidate_action(
+                f"Invalid Dig Action for unit {unit} - Tried to dig requiring {unit.unit_cfg.DIG_COST} power but only had {unit.power} power"
+            )
+            continue
+        if valid_action:
+            actions_by_type_validated["dig"].append((unit, dig_action))
+
     for unit, pickup_action in actions_by_type["pickup"]:
         valid_action = True
         pickup_action: PickupAction
@@ -264,13 +275,14 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=
         power_required = unit.move_power_cost(rubble)
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power but only had {unit.power}"
+                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power but only had {unit.power} power"
             )
             continue
         if valid_action:
             actions_by_type_validated["move"].append((unit, move_action))
 
     for factory, build_action in actions_by_type["factory_build"]:
+        valid_action = True
         build_action: FactoryBuildAction
         factory: Factory
         
@@ -291,6 +303,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=
     
     
     for factory, water_action in actions_by_type["factory_water"]:
+        valid_action = True
         # compute the cost of watering
         if valid_action:
             actions_by_type_validated["factory_water"].append((factory, water_action))

@@ -219,8 +219,7 @@ class LuxAI2022(ParallelEnv):
                         actions_by_type[unit_a.act_type].append((factory, unit_a))
 
             # 2. validate all actions against current state, throw away impossible actions TODO
-            if self.env_cfg.validate_actions:
-                actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
+            actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
             # TODO test Transfer resources/power
 
             for unit, transfer_action in actions_by_type["transfer"]:
@@ -248,9 +247,16 @@ class LuxAI2022(ParallelEnv):
                 # may waste resources if tried to pickup more than one can hold.
                 actually_pickedup = unit.add_resource(pickup_action.resource, pickup_amount)
 
-            # TODO digging
             for unit, dig_action in actions_by_type["dig"]:
                 dig_action: DigAction
+                if self.state.board.rubble[unit.pos.y, unit.pos.x] > 0:
+                    self.state.board.rubble[unit.pos.y, unit.pos.x] = min(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
+                elif self.state.board.lichen[unit.pos.y, unit.pos.x] > 0:
+                    self.state.board.lichen[unit.pos.y, unit.pos.x] = min(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+                elif self.state.board.ice[unit.pos.y, unit.pos.x] > 0:
+                    unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
+                elif self.state.board.ore[unit.pos.y, unit.pos.x] > 0:
+                    unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
 
             for unit, self_destruct_action in actions_by_type["self_destruct"]:
                 unit: Unit
@@ -299,6 +305,7 @@ class LuxAI2022(ParallelEnv):
             for pos_hash, units in self.state.board.units_map.items():
                 # add in all the stationary units
                 new_units_map[pos_hash] += units
+            
             # TODO test collisions
             destroyed_units: Set[Unit] = set()
             new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list)
