@@ -167,41 +167,32 @@ class LuxAI2022(ParallelEnv):
                         team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
                     )
                     for spawn_loc in a["spawns"]:
-                        factory = Factory(self.state.teams[k], unit_id=f"factory_{self.state.global_id}")
-                        factory.pos.pos = spawn_loc
-                        # TODO verify spawn locations are valid
-                        # TODO MAKE THESE CONSTANTS
-                        factory.cargo.water = 100
-                        factory.cargo.metal = 50
-                        factory.power = 100
-                        self.state.global_id += 1
-                        self.state.factories[k][factory.unit_id] = factory
+                        self.add_factory(self.state.teams[k], spawn_loc)
                 else:
                     # team k loses
                     failed_agents[k] = True
         else:
             # 1. Check for malformed actions
-            if self.env_cfg.validate_actions:
-                try:
-                    for agent, unit_actions in actions.items():
-                        valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
-                        if not valid_acts:
-                            raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. {err_reason}")
-                    for agent, unit_actions in actions.items():
-                        for unit_id, action in unit_actions.items():
-                            if "factory" in unit_id:
-                                self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
-                            elif "unit" in unit_id:
-                                formatted_actions = []
-                                if type(action) == list:
-                                    trunked_actions = action[: self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
-                                    formatted_actions = [format_action_vec(a) for a in trunked_actions]
-                                else:
-                                    formatted_actions = [format_action_vec(action)]
-                                self.state.units[agent][unit_id].action_queue = formatted_actions
-                except ValueError as e:
-                    print(e)
-                    failed_agents[agent] = True
+            try:
+                for agent, unit_actions in actions.items():
+                    valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
+                    if not valid_acts:
+                        raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. {err_reason}")
+                for agent, unit_actions in actions.items():
+                    for unit_id, action in unit_actions.items():
+                        if "factory" in unit_id:
+                            self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
+                        elif "unit" in unit_id:
+                            formatted_actions = []
+                            if type(action) == list:
+                                trunked_actions = action[: self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
+                                formatted_actions = [format_action_vec(a) for a in trunked_actions]
+                            else:
+                                formatted_actions = [format_action_vec(action)]
+                            self.state.units[agent][unit_id].action_queue = formatted_actions
+            except ValueError as e:
+                print(e)
+                failed_agents[agent] = True
 
             actions_by_type: Dict[str, List[Tuple[Unit, Action]]] = defaultdict(list)
             for agent in self.agents:
@@ -266,17 +257,14 @@ class LuxAI2022(ParallelEnv):
                 del self.state.units[unit.team.agent][unit.id]
 
             # TODO - robot building with factories
-            for agent in self.agents:
-                for factory in self.state.factories[agent].values():
-                    if len(factory.action_queue) > 0:
-                        action = factory.action_queue.pop()
-                        if action.act_type == "factory_build":
-                            team = self.state.teams[agent]
-                            self.add_unit(
-                                team=team,
-                                unit_type=UnitType.HEAVY if action.unit_type == 1 else UnitType.LIGHT,
-                                pos=factory.pos.pos,
-                            )
+            for factory, factory_build_action in actions_by_type["factory_build"]:
+                factory: Factory
+                team = self.state.teams[factory.team.agent]
+                self.add_unit(
+                    team=team,
+                    unit_type=UnitType.HEAVY if factory_build_action.unit_type == 1 else UnitType.LIGHT,
+                    pos=factory.pos.pos,
+                )
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -369,8 +357,7 @@ class LuxAI2022(ParallelEnv):
                         factories_to_destroy.add(factory)
                 for factory in factories_to_destroy:
                     # destroy factories that ran out of water
-                    del self.state.factories[agent][factory.unit_id]
-                    # TODO destroy robots on 3x3 factory, add MAX rubble
+                    self.destroy_factory(factory)
             # power gain
             if is_day(self.env_cfg, self.env_steps):
                 for agent in self.agents:
@@ -383,12 +370,13 @@ class LuxAI2022(ParallelEnv):
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
         for agent in self.agents:
-            unit_ids = list(self.state.factories[agent].keys())
+            unit_ids = [factory.num_id for factory in self.state.factories[agent].values()]
             # TODO: TEST
             if failed_agents[agent]:
                 rewards[agent] = -1000
             else:
-                rewards[agent] = 0  # self.state.board.lichen[np.isin(self.state.board.lichen_strains, unit_ids)].sum()
+                agent_lichen_mask = np.isin(self.state.board.lichen_strains, unit_ids)
+                rewards[agent] = self.state.board.lichen[agent_lichen_mask].sum()
 
         self.env_steps += 1
         env_done = self.env_steps >= self.max_episode_length
@@ -430,8 +418,8 @@ class LuxAI2022(ParallelEnv):
         
         self.state.factories[team.agent][factory.unit_id] = factory
         self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
-        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = 1
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = factory.num_id
+        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = factory.num_id
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = 0
         return factory
 
     def destroy_unit(self, unit: Unit):
@@ -444,9 +432,9 @@ class LuxAI2022(ParallelEnv):
 
     def destroy_factory(self, factory: Factory):
         # spray rubble on every factory tile
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1].clip(0, self.env_cfg.MAX_RUBBLE)
-        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 1, factory.pos.x - 1:factory.pos.x + 1] = -1
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
+        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2].clip(0, self.env_cfg.MAX_RUBBLE)
+        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = -1
         del self.state.factories[factory.team.agent][factory.unit_id]
         del self.state.board.factory_map[self.state.board.pos_hash(factory.pos)]
         # TODO - shouldn't rubble under factory always be 0?
@@ -483,6 +471,7 @@ if __name__ == "__main__":
     # print(o, r, d)
     s_time = time.time_ns()
     N = 10000
+    import ipdb
     for i in range(N):
         all_actions = dict()
         for team_id, agent in enumerate(env.possible_agents):
@@ -500,15 +489,16 @@ if __name__ == "__main__":
             for unit_id, unit in obs["units"][agent].items():
                 actions[unit_id] = np.array([0, np.random.randint(4), 0, 0, 0])
             all_actions[agent] = actions
-        # ipdb.set_trace()
-        # , env.action_space("player_0").sample()
+        ipdb.set_trace()
+        # env.action_space("player_0").sample()
+        print(all_actions)
         # all_actions["player_0"] = all_actions["player_1"]
         o, r, d, _ = env.step(all_actions)
         if np.all([d[k] for k in d]):
             o = env.reset()
             env.render()
             print(f"=== {i} ===")
-        # env.render()`
-        # time.sleep(0.2)`
+        env.render()
+        time.sleep(0.1)
     e_time = time.time_ns()
     print(f"FPS={N / ((e_time - s_time) * 1e-9)}")

@@ -1,7 +1,10 @@
+from __future__ import annotations
 from collections import defaultdict
 from typing import Dict, List
 import numpy as np
-from luxai2022.factory import Factory
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from luxai2022.factory import Factory
 from luxai2022.map.position import Position
 from luxai2022.map_generator.generator import GameMap
 from luxai2022.unit import Unit
@@ -20,14 +23,14 @@ class Board:
         self.lichen = np.zeros((self.height, self.width))
         # ownership of lichen by factory id, a simple mask
         # -1 = no ownership
-        self.lichen_strains = -np.ones((self.height, self.width))
+        self.lichen_strains = -np.ones((self.height, self.width), dtype=int)
         # self.units_map: np.ndarray = np.zeros((self.height, self.width))
         self.units_map: Dict[str, List[Unit]] = defaultdict(list)
 
         # maps center of factory to the factory
-        self.factory_map: Dict[str, Factory] = dict()
+        self.factory_map: Dict[str, 'Factory'] = dict()
         # != -1 if a factory tile is on the location. Equals factory number id
-        self.factory_occupancy_map = -np.ones((self.height, self.width))
+        self.factory_occupancy_map = -np.ones((self.height, self.width), dtype=int)
     def pos_hash(self, pos: Position):
         return f"{pos.x},{pos.y}"
     def get_units_at(self, pos: Position):

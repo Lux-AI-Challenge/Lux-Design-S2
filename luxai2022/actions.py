@@ -4,10 +4,13 @@ from enum import Enum
 from typing import Callable
 
 import numpy as np
+from typing import TYPE_CHECKING
 from luxai2022.config import EnvConfig
-from luxai2022.factory import Factory
+if TYPE_CHECKING:
+    from luxai2022.factory import Factory
+    from luxai2022.state import State
 from luxai2022.map.position import Position
-from luxai2022.state import State
+
 
 import luxai2022.unit as luxai_unit
 
@@ -137,7 +140,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=1):
+def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -265,6 +268,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=
             continue
         if state.board.factory_occupancy_map[target_pos.y, target_pos.x] != -1:
             factory_id = state.board.factory_occupancy_map[target_pos.y, target_pos.x]
+            print(factory_id, state.factories[unit.team.agent].keys())
             if f"factory_{factory_id}" not in state.factories[unit.team.agent]:
                 # if there is a factory but not same team
                 invalidate_action(
@@ -284,7 +288,7 @@ def validate_actions(env_cfg: EnvConfig, state: State, actions_by_type, verbose=
     for factory, build_action in actions_by_type["factory_build"]:
         valid_action = True
         build_action: FactoryBuildAction
-        factory: Factory
+        factory: 'Factory'
         
         if build_action.unit_type == 0:
             unit_cfg = env_cfg.ROBOTS["LIGHT"]
