@@ -428,7 +428,6 @@ class LuxAI2022(ParallelEnv):
             self.env_cfg.MAX_RUBBLE,
         )
         del self.state.units[unit.team.agent][unit.unit_id]
-        del self.state.board.units_map[self.state.board.pos_hash(unit.pos)]
 
     def destroy_factory(self, factory: Factory):
         # spray rubble on every factory tile
@@ -487,13 +486,33 @@ if __name__ == "__main__":
                 for unit_id, factory in factories.items():
                     actions[unit_id] = 0
             for unit_id, unit in obs["units"][agent].items():
-                actions[unit_id] = np.array([0, np.random.randint(4), 0, 0, 0])
+                # actions[unit_id] = np.array([0, np.random.randint(5), 0, 0, 0])
+                # make units go to 0, 0
+                pos = unit['pos']
+                target_pos = np.array([32, 32])
+                diff = target_pos - pos
+                # print(pos, diff)
+                direc = 0
+                if diff[0] != 0:
+                    if diff[0] > 0:
+                        direc = 2
+                    else:
+                        direc = 4
+                elif diff[1] != 0:
+                    if diff[1] > 0:
+                        direc = 3
+                    else:
+                        direc = 1
+                actions[unit_id] = np.array([0, direc, 0, 0, 0])
             all_actions[agent] = actions
-        ipdb.set_trace()
+        # ipdb.set_trace()
         # env.action_space("player_0").sample()
-        print(all_actions)
+        # print(all_actions)
         # all_actions["player_0"] = all_actions["player_1"]
         o, r, d, _ = env.step(all_actions)
+        for agent in env.agents:
+            for unit in env.state.units[agent].values():
+                unit.power = 100
         if np.all([d[k] for k in d]):
             o = env.reset()
             env.render()
