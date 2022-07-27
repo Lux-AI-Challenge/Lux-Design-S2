@@ -1,0 +1,76 @@
+@use "sass:math";
+
+$slider-width: 38rem;
+
+.controls {
+  position: absolute;
+  bottom: 2rem;
+  left: calc(50% - #{math.div($slider-width, 2)});
+}
+
+.turn {
+  text-align: center;
+}
+
+.slider {
+  width: $slider-width;
+}
+
+:global {
+  // https://mui.com/base/react-slider/
+  // TODO: clean this up. the styles were initially copied from the example in the mui docs
+  
+  .MuiSlider-root {
+    height: 4px;
+    // width: 100%;
+    padding: 13px 0;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    opacity: 0.75;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .MuiSlider-rail {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background-color: currentColor;
+    opacity: 0.38;
+  }
+
+  .MuiSlider-track {  
+    display: block;
+    position: absolute;
+    height: 4px;
+    border-radius: 2px;
+    background-color: currentColor;
+  }
+
+  .MuiSlider-range {
+    position: absolute;
+    background-color: orange;
+    border-radius: 9999px;
+    height: 100%;
+  }
+
+  .MuiSlider-thumb {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin-left: -6px;
+    margin-top: -5px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    outline: 0;
+    border: 2px solid currentColor;
+    background-color: #fff;
+  }
+}
