@@ -36,6 +36,7 @@ class EnvConfig:
     ### Variable parameters that don't affect game logic much ###
     max_episode_length: int = 1000
     map_size: int = 64
+    verbose: int = 1
 
     ### Constants ###
     # you can only ever transfer in/out 1000 as this is the max cargo space.

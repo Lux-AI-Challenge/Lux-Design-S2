@@ -55,9 +55,9 @@ def env():
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
 
-    def __init__(self, max_episode_length=1000):
+    def __init__(self, max_episode_length=1000, **kwargs):
         # TODO - allow user to override env configs
-        default_config = EnvConfig()
+        default_config = EnvConfig(**kwargs)
         self.env_cfg = default_config
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
@@ -216,7 +216,7 @@ class LuxAI2022(ParallelEnv):
                     factory.cache_water_info(self.state.board, self.env_cfg)
 
             # 2. validate all actions against current state, throw away impossible actions TODO
-            actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
+            actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type, verbose=self.env_cfg.verbose)
             # TODO test Transfer resources/power
 
             for unit, transfer_action in actions_by_type["transfer"]:

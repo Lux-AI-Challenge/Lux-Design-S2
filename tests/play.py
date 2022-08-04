@@ -3,10 +3,10 @@ from luxai2022.env import LuxAI2022
 if __name__ == "__main__":
     import time
 
-    env: LuxAI2022 = LuxAI2022()
+    env: LuxAI2022 = LuxAI2022(verbose=0)
     o = env.reset()
-    env.render()
-    time.sleep(0.5)
+    # env.render()
+    # time.sleep(0.5)
     # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
     # env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
@@ -16,7 +16,7 @@ if __name__ == "__main__":
             "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])),
         }
     )
-    env.render()
+    # env.render()
     # print(o, r, d)
     s_time = time.time_ns()
     N = 10000
@@ -71,9 +71,9 @@ if __name__ == "__main__":
                 factory.cargo.water = 1000
         if np.all([d[k] for k in d]):
             o = env.reset()
-            env.render()
-            print(f"=== {i} ===")
-        env.render()
-        time.sleep(0.1)
+            # env.render()
+            # print(f"=== {i} ===")
+        # env.render()
+        # time.sleep(0.1)
     e_time = time.time_ns()
     print(f"FPS={N / ((e_time - s_time) * 1e-9)}")
