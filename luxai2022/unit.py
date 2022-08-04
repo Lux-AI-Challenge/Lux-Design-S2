@@ -45,7 +45,7 @@ class Unit:
         self.battery_capacity = env_cfg.ROBOTS[unit_type.name].BATTERY_CAPACITY
 
     def __str__(self) -> str:
-        out = f"[{self.team_id}] {self.unit_type} at {self.pos}"
+        out = f"[{self.team_id}] {self.unit_id} {self.unit_type} at {self.pos}"
         if TERM_COLORS:
             return colored(out, self.team.faction.value.color)
         return out

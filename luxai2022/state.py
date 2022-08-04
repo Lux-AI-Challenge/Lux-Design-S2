@@ -9,7 +9,7 @@ from luxai2022.team import Team
 
 from luxai2022.unit import Unit
 from collections import OrderedDict
-
+import copy
 
 @dataclass
 class State:
@@ -45,9 +45,9 @@ class State:
             for factory in self.factories[team].values():
                 state_dict = factory.state_dict()
                 factories[team][factory.unit_id] = state_dict
-        return dict(
+        return copy.deepcopy(dict(
             units=units,
             team=teams,
             factories=factories,
             board=self.board.state_dict()
-        )
+        ))

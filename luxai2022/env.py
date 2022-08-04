@@ -276,6 +276,7 @@ class LuxAI2022(ParallelEnv):
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
             heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
             light_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
+
             for unit, move_action in actions_by_type["move"]:
                 move_action: MoveAction
                 # skip move center
@@ -287,7 +288,13 @@ class LuxAI2022(ParallelEnv):
                 power_required = unit.unit_cfg.MOVE_COST + unit.unit_cfg.RUBBLE_MOVEMENT_COST * rubble
                 unit.pos = target_pos
                 new_pos_hash = self.state.board.pos_hash(unit.pos)
-                del self.state.board.units_map[old_pos_hash]
+
+                # remove unit from map temporarily
+                if len(self.state.board.units_map[old_pos_hash]) == 1:
+                    del self.state.board.units_map[old_pos_hash]
+                else:
+                    self.state.board.units_map[old_pos_hash].remove(unit)
+                
                 new_units_map[new_pos_hash].append(unit)
                 unit.power -= power_required
 
@@ -313,18 +320,24 @@ class LuxAI2022(ParallelEnv):
                         destroyed_units.add(u)
                 elif len(heavy_entered_pos[pos_hash]) > 0:
                     # all other units collide and break
-                    surviving_unit = heavy_entered_pos[pos_hash][0].unit_id
+                    surviving_unit = heavy_entered_pos[pos_hash][0]
                     for u in units:
-                        if u.unit_id != surviving_unit:
+                        if u.unit_id != surviving_unit.unit_id:
                             destroyed_units.add(u)
                     new_units_map_after_collision[pos_hash].append(surviving_unit)
                 else:
+                        # import ipdb;ipdb.set_trace()
                     # check for stationary heavy unit there
+                    surviving_unit = None
                     heavy_stationary_unit = None
                     for u in units:
                         if u.unit_type == UnitType.HEAVY:
+                            if heavy_stationary_unit is not None:
+                                heavy_stationary_unit = None
+                                # we found >= 2 heavies stationary in a tile where no heavies are entering.
+                                break
                             heavy_stationary_unit = u
-                            break
+                        
                     if heavy_stationary_unit is not None:
                         surviving_unit = heavy_stationary_unit
                     else:
@@ -363,7 +376,7 @@ class LuxAI2022(ParallelEnv):
                 self.state.board.lichen_strains[indexable_positions] = factory.num_id
             # TODO - reduce lichen if no watering happens
             self.state.board.lichen -= 1
-            self.state.board.lichen = self.state.board.lichen.clip(0)
+            self.state.board.lichen = self.state.board.lichen.clip(0, 20)
 
 
             # TODO - handle weather effects
