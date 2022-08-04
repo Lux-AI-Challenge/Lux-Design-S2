@@ -2,9 +2,9 @@ import pygame
 from luxai2022.map.board import Board
 from luxai2022.state import State
 from luxai2022.unit import UnitType
-
+import matplotlib.pyplot as plt
 color_to_rgb = dict(yellow=[236, 238, 126], green=[173, 214, 113], blue=[154, 210, 203], red=[164, 74, 63])
-
+strain_colors=plt.colormaps['Pastel1']
 
 class Visualizer:
     def __init__(self, state: State) -> None:
@@ -26,16 +26,25 @@ class Visualizer:
                 self.screen.fill(
                     rubble_color, (self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width)
                 )
+                # self.sans_font = pygame.font.SysFont('Open Sans', 14)
+                # self.screen.blit(self.sans_font.render(f"{self.state.board.rubble[y][x]}", False, [51,56,68]), (self.tile_width * x, self.tile_width * y))
                 if self.state.board.ice[y, x] > 0:
                     pygame.draw.rect(
                         self.screen,
-                        [10 + self.state.board.ice[y, x] * 5, 130, 250],
+                        [10 + int(self.state.board.ice[y, x]) * 5, 130, 250],
                         pygame.Rect(self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width),
                     )
                 if self.state.board.ore[y, x] > 0:
                     pygame.draw.rect(
                         self.screen,
-                        [250, self.state.board.ice[y, x] * 5, 100],
+                        [250, int(self.state.board.ore[y, x]) * 5, 100],
+                        pygame.Rect(self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width),
+                    )
+                if self.state.board.lichen_strains[y, x] != -1:
+                    c = strain_colors.colors[self.state.board.lichen_strains[y, x]]
+                    pygame.draw.rect(
+                        self.screen,
+                        [int(c[0]*255),int(c[1]*255),int(c[2]*255)],
                         pygame.Rect(self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width),
                     )
                 # screen.fill(ice_color, (N*x+N*game_map.width, N*y, N, N))

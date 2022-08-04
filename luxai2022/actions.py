@@ -269,7 +269,6 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
             continue
         if state.board.factory_occupancy_map[target_pos.y, target_pos.x] != -1:
             factory_id = state.board.factory_occupancy_map[target_pos.y, target_pos.x]
-            print(factory_id, state.factories[unit.team.agent].keys())
             if f"factory_{factory_id}" not in state.factories[unit.team.agent]:
                 # if there is a factory but not same team
                 invalidate_action(
@@ -297,19 +296,21 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
         elif build_action.unit_type == 1:
             unit_cfg = env_cfg.ROBOTS["HEAVY"]
         if factory.cargo.metal < unit_cfg.METAL_COST:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal {factory.cargo.metal}")
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST}")
             continue
         if factory.power < unit_cfg.POWER_COST:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal {factory.cargo.metal}")
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {unit_cfg.POWER_COST}")
             continue
         if valid_action:
             actions_by_type_validated["factory_build"].append((factory, build_action))
         pass
-    
-    
+        
     for factory, water_action in actions_by_type["factory_water"]:
         valid_action = True
-        # compute the cost of watering
+        water_cost = factory.water_cost(env_cfg)
+        if water_cost > factory.cargo.water:
+            invalidate_action(f"Invalid factory water action for factory {factory} - Insufficient water, factory has {factory.cargo.water}, but requires {water_cost} to water lichen")
+            continue
         if valid_action:
             actions_by_type_validated["factory_water"].append((factory, water_action))
 

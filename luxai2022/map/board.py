@@ -19,13 +19,20 @@ class Board:
         symmetry = None # args.get("symmetry", None)
         # TODO fix Craters RNG
         self.map = GameMap.random_map(seed=3, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
+
+        # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)
+        self.map.rubble[self.map.rubble < 10] = 0
+        self.map.ice[self.map.ice != 0] = 1
+        # self.map.ore[self.map.ore > 50] = 1
+        # self.map.ore[self.map.ore <= 50] = 0
         self.lichen = np.zeros((self.height, self.width))
         # ownership of lichen by factory id, a simple mask
         # -1 = no ownership
         self.lichen_strains = -np.ones((self.height, self.width), dtype=int)
         # self.units_map: np.ndarray = np.zeros((self.height, self.width))
         self.units_map: Dict[str, List[Unit]] = defaultdict(list)
+        # TODO consider unit occupancy map, may speed up computation by storing more info in a form indexable in numpy arrays
 
         # maps center of factory to the factory
         self.factory_map: Dict[str, 'Factory'] = dict()

@@ -37,6 +37,7 @@ class Unit:
         self.pos = Position(np.zeros(2, dtype=int))
         
         self.cargo = UnitCargo()
+        # TODO - replace with a deque perhaps?
         self.action_queue: List = []
         self.unit_cfg: UnitConfig = env_cfg.ROBOTS[unit_type.name]
         self.power = env_cfg.ROBOTS[unit_type.name].INIT_POWER

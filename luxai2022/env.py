@@ -13,6 +13,7 @@ from luxai2022.actions import (
     FactoryWaterAction,
     MoveAction,
     PickupAction,
+    RechargeAction,
     SelfDestructAction,
     TransferAction,
     format_action_vec,
@@ -209,6 +210,11 @@ class LuxAI2022(ParallelEnv):
                         unit_a: Action = factory.action_queue.pop(0)
                         actions_by_type[unit_a.act_type].append((factory, unit_a))
 
+            for agent in self.agents:
+                for factory in self.state.factories[agent].values():
+                    # update information for lichen growing and cache it
+                    factory.cache_water_info(self.state.board, self.env_cfg)
+
             # 2. validate all actions against current state, throw away impossible actions TODO
             actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type)
             # TODO test Transfer resources/power
@@ -254,7 +260,7 @@ class LuxAI2022(ParallelEnv):
                 self_destruct_action: SelfDestructAction
                 pos_hash = self.state.board.pos_hash(unit.pos)
                 del self.state.board.units_map[pos_hash]
-                del self.state.units[unit.team.agent][unit.id]
+                self.destroy_unit(unit)
 
             # TODO - robot building with factories
             for factory, factory_build_action in actions_by_type["factory_build"]:
@@ -341,9 +347,24 @@ class LuxAI2022(ParallelEnv):
             for u in destroyed_units:
                 self.destroy_unit(u)
 
-            # nothing to do for recharging actions
+            # for recharging actions, check if unit has enough power. If not, add action back to the queue
+            for unit, recharge_action in actions_by_type["recharge"]:
+                recharge_action: RechargeAction
+                if unit.power < recharge_action.power:
+                    unit.action_queue.insert(0, recharge_action)
 
-            # TODO - grow lichen
+
+            # TODO - test lichen growth
+            for factory, factory_water_action in actions_by_type["factory_water"]:
+                water_cost = factory.water_cost(self.env_cfg)
+                factory.cargo.water -= water_cost # earlier validation ensures this is always possible.
+                indexable_positions = ([v[1] for v in factory.grow_lichen_positions], [v[0] for v in factory.grow_lichen_positions])
+                self.state.board.lichen[indexable_positions] += 2
+                self.state.board.lichen_strains[indexable_positions] = factory.num_id
+            # TODO - reduce lichen if no watering happens
+            self.state.board.lichen -= 1
+            self.state.board.lichen = self.state.board.lichen.clip(0)
+
 
             # TODO - handle weather effects
 
@@ -366,6 +387,9 @@ class LuxAI2022(ParallelEnv):
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
                     f.power = f.power + self.env_cfg.FACTORY_CHARGE
+            
+            # always set rubble under factories to 0.
+            self.state.board.rubble[self.state.board.factory_occupancy_map != -1] = 0
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -423,6 +447,9 @@ class LuxAI2022(ParallelEnv):
         return factory
 
     def destroy_unit(self, unit: Unit):
+        """
+        # NOTE this doesn't remove unit reference from board map
+        """
         self.state.board.rubble[unit.pos.y, unit.pos.x] = min(
             self.state.board.rubble[unit.pos.y, unit.pos.x] + unit.unit_cfg.RUBBLE_AFTER_DESTRUCTION,
             self.env_cfg.MAX_RUBBLE,
@@ -448,76 +475,3 @@ def raw_env() -> LuxAI2022:
     env = LuxAI2022()
     # env = parallel_to_aec(env)
     return env
-
-
-if __name__ == "__main__":
-    import time
-
-    env: LuxAI2022 = LuxAI2022()
-    o = env.reset()
-    env.render()
-    time.sleep(0.5)
-    # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
-    # env.state.units[1].append(u)
-    # observation, reward, done, info = env.last()
-    o, r, d, _ = env.step(
-        {
-            "player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])),
-            "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])),
-        }
-    )
-    env.render()
-    # print(o, r, d)
-    s_time = time.time_ns()
-    N = 10000
-    import ipdb
-    for i in range(N):
-        all_actions = dict()
-        for team_id, agent in enumerate(env.possible_agents):
-            obs = o[agent]
-            all_actions[agent] = dict()
-            # units = o[agent]["units"]
-            # actions = []
-            # for unit_id, unit in units.items():
-            #     actions.append(dict(unit_id=unit_id))
-            factories = obs["factories"][agent]
-            actions = dict()
-            if i == 0:
-                for unit_id, factory in factories.items():
-                    actions[unit_id] = 0
-            for unit_id, unit in obs["units"][agent].items():
-                # actions[unit_id] = np.array([0, np.random.randint(5), 0, 0, 0])
-                # make units go to 0, 0
-                pos = unit['pos']
-                target_pos = np.array([32, 32])
-                diff = target_pos - pos
-                # print(pos, diff)
-                direc = 0
-                if diff[0] != 0:
-                    if diff[0] > 0:
-                        direc = 2
-                    else:
-                        direc = 4
-                elif diff[1] != 0:
-                    if diff[1] > 0:
-                        direc = 3
-                    else:
-                        direc = 1
-                actions[unit_id] = np.array([0, direc, 0, 0, 0])
-            all_actions[agent] = actions
-        # ipdb.set_trace()
-        # env.action_space("player_0").sample()
-        # print(all_actions)
-        # all_actions["player_0"] = all_actions["player_1"]
-        o, r, d, _ = env.step(all_actions)
-        for agent in env.agents:
-            for unit in env.state.units[agent].values():
-                unit.power = 100
-        if np.all([d[k] for k in d]):
-            o = env.reset()
-            env.render()
-            print(f"=== {i} ===")
-        env.render()
-        time.sleep(0.1)
-    e_time = time.time_ns()
-    print(f"FPS={N / ((e_time - s_time) * 1e-9)}")
