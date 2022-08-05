@@ -6,7 +6,7 @@ if __name__ == "__main__":
 
     env: LuxAI2022 = LuxAI2022(verbose=0)
     o = env.reset()
-    render = False
+    render = True
     if render: 
         env.render()
         time.sleep(0.1)

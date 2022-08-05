@@ -51,3 +51,5 @@ class State:
             factories=factories,
             board=self.board.state_dict()
         ))
+    def from_obs(obs):
+        pass
