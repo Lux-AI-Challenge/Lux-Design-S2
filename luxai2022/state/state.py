@@ -56,12 +56,12 @@ class State:
         teams = State.generate_team_data(self.teams)
         factories = State.generate_factory_data(self.factories)
         board = self.board.state_dict()
-        return copy.deepcopy(dict(
+        return dict(
             units=units,
             team=teams,
             factories=factories,
             board=board
-        ))
+        )
     def get_compressed_obs(self):
         # return everything on turn 0
         if self.env_steps == 0:

@@ -61,12 +61,11 @@ class Board:
         return self.map.ore
     def state_dict(self):
         return dict(
-            rubble=self.rubble,
-            ore=self.ore,
-            ice=self.ice,
-            lichen=self.lichen,
-            lichen_strains=self.lichen_strains
-
+            rubble=self.rubble.copy(),
+            ore=self.ore.copy(),
+            ice=self.ice.copy(),
+            lichen=self.lichen.copy(),
+            lichen_strains=self.lichen_strains.copy()
         )
         
 
