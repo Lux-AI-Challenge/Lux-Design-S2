@@ -1,10 +1,11 @@
 import type { HasChildren } from "src/types/jsx"
 
-export type Replay = unknown
+// TODO
+export type Replay = any // unknown
 
 export type ReplayContext = {
   replay: Nullable<Replay>
-  dispatch: (action: ReplayAction) => void
+  replayDispatch: (action: ReplayAction) => void
 }
 
 export interface ReplayProviderProps extends HasChildren {

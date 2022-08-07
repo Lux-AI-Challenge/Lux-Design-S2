@@ -3,7 +3,7 @@ import { useReplayContext } from "@/context/ReplayContext"
 import { parseReplayData } from "@/helpers/replays"
 
 export function Landing () {
-  const { dispatch } = useReplayContext()
+  const { replayDispatch: dispatch } = useReplayContext()
 
   const inputRef = useRef<HTMLInputElement>(null)
 

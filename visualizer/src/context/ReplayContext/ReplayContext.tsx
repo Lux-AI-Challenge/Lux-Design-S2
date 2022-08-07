@@ -1,12 +1,13 @@
-import { createContext, useContext, useReducer } from "react"
+import { createContext, useContext, useEffect, useReducer } from "react"
 
-import type { Nullable } from "@/types/utils"
 import { initial, replayReducer } from "./reducer"
 import type {
   Replay,
   ReplayContext,
   ReplayProviderProps,
 } from "./types"
+
+import testReplay from "@/assets/replay.json"
 
 const replayContext = createContext<ReplayContext | undefined>(undefined)
 
@@ -19,13 +20,16 @@ export function useReplayContext () {
 } 
 
 export function ReplayProvider ({ children }: ReplayProviderProps) {
-  const [replay, dispatch] = useReducer(replayReducer, initial)
+  const [replay, replayDispatch] = useReducer(replayReducer, initial)
 
-  console.log({replay})
+  // TEMPORARY FOR TESTING, REMOVE LATER
+  useEffect(() => {
+    replayDispatch({ type: 'set', replay: testReplay })
+  }, [])
+
   return (
-    <replayContext.Provider value={{ replay, dispatch }}>
+    <replayContext.Provider value={{ replay, replayDispatch }}>
       {children}
     </replayContext.Provider>
   )
 }
-
