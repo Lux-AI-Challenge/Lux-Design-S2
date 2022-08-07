@@ -1,0 +1,11 @@
+.mapContainer {
+  position: relative;
+}
+
+.mapLayer {
+  position: absolute;
+
+  // TODO: THIS IS CURRENTLY A TEMPORARY HARDCODED LENGTH FOR TESTING
+  display: grid;
+  grid-template-columns: repeat(64, 1fr);
+}

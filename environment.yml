@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python=3.8
   - numpy
+  - numba
   - matplotlib
   - dill
   - pandas
@@ -29,3 +30,5 @@ dependencies:
     - omegaconf
     - termcolor
     - opensimplex
+    - pygame
+

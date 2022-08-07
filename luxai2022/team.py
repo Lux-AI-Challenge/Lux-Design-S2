@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
-
-
+from luxai2022.globals import TERM_COLORS
+from termcolor import colored
 @dataclass
 class FactionInfo:
     color: str = "none"
@@ -17,6 +17,18 @@ class FactionTypes(Enum):
 
 
 class Team:
-    def __init__(self, team_id: int, faction: FactionTypes = None) -> None:
+    def __init__(self, team_id: int, agent: str, faction: FactionTypes = None) -> None:
         self.faction = faction
         self.team_id = team_id
+        # the key used to differentiate ownership of things in state
+        self.agent = agent
+    def state_dict(self):
+        return dict(
+            team_id=self.team_id,
+            faction=self.faction.name
+        )
+    def __str__(self) -> str:
+        out = f"[Player {self.team_id}]"
+        if TERM_COLORS:
+            return colored(out, self.faction.value.color)
+        return out

@@ -51,7 +51,6 @@ class SymmetricNoise(object):
 
         if not seed:
             seed = np.random.randint(1 << 31)
-
         self._instances = [OpenSimplex(seed + i) for i in range(octaves)]
         self.random = np.random.RandomState(seed)
         self.noise_shift = noise_shift

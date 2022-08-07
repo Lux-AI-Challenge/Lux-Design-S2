@@ -1,0 +1,1 @@
+export { version as VISUALIZER_VERSION } from "../package.json"

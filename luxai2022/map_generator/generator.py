@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.ndimage import convolve, maximum_filter
 from scipy.fft import dctn, idctn
-from visualize import viz
-from symnoise import SymmetricNoise, symmetrize
+from luxai2022.map_generator.visualize import viz
+from luxai2022.map_generator.symnoise import SymmetricNoise, symmetrize
 
 random = np.random.RandomState()
 
@@ -22,7 +22,7 @@ class GameMap(object):
             raise ValueError("At most one of seed, noise can be specified.")
 
         if noise is None:
-            noise = SymmetricNoise(seed=seed, symmetry=symmetry)
+            noise = SymmetricNoise(seed=seed, symmetry=symmetry, octaves=3)
         else:
             seed = noise.seed
         if noise_shift is not None:
@@ -106,16 +106,26 @@ class Cave(GameMap):
 
         # Make some noisy ice, most ice is on cave edges
         ice = noise(x, y + 100) * 50 + 50
+        ice[mask > 1] = 0
+        ice[mask == 0] = 0
+        ice[mask == 1] /= 4
         ice = ice.round()
-        ice[mask>1] //= 5
-        ice[mask==0] = 0
+        for i in np.unique(ice):
+            if noise.random.uniform(0, 1) > 0.2:
+                ice[ice == i] = 0
+        
+        # ice[ice < 90] = 0
+        # ice[noise.random.uniform(0,1, size=ice.shape) > .15] = 0
 
         # Make some noisy ore, most ore is outside caves
         ore = noise(x, y - 100) * 50 + 50
-        ore = ore.round()
-        ore[mask==1] //= 5
+        ore[mask > 1] /= 5
+        ore[mask==1] = 0
         ore[mask==0] = 0
-
+        ore = ore.round()
+        for i in np.unique(ore):
+            if noise.random.uniform(0, 1) > 0.2:
+                ore[ore == i] = 0
         super().__init__(rubble, ice, ore)
 
 class Craters(GameMap):
