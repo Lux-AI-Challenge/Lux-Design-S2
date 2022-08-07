@@ -108,23 +108,18 @@ class Cave(GameMap):
         ice = noise(x, y + 100) * 50 + 50
         ice[mask > 1] = 0
         ice[mask == 0] = 0
-        ice[mask == 1] /= 4
         ice = ice.round()
         for i in np.unique(ice):
-            if noise.random.uniform(0, 1) > 0.2:
+            if noise.random.uniform(0, 1) > 0.1:
                 ice[ice == i] = 0
-        
-        # ice[ice < 90] = 0
-        # ice[noise.random.uniform(0,1, size=ice.shape) > .15] = 0
 
         # Make some noisy ore, most ore is outside caves
         ore = noise(x, y - 100) * 50 + 50
-        ore[mask > 1] /= 5
         ore[mask==1] = 0
         ore[mask==0] = 0
         ore = ore.round()
         for i in np.unique(ore):
-            if noise.random.uniform(0, 1) > 0.2:
+            if noise.random.uniform(0, 1) > 0.1:
                 ore[ore == i] = 0
         super().__init__(rubble, ice, ore)
 
@@ -170,9 +165,14 @@ class Craters(GameMap):
         symmetrize(ice_mask, symmetry)
 
         rubble = (np.minimum(mask, 1) * 90 + 10) * noise(x, y+100, frequency=3)
-        ice = noise(x, y-100) * 50 + 50
+        ice = noise(x, y-100) * 100
         ice[ice_mask==0] = 0
-        ore = (np.minimum(mask, 1) * 90 + 10) * noise(x, y-100, frequency=3)
+        ice[ice < noise.random.uniform(*np.percentile(ice, [90, 100]), ice.shape)] = 0
+        symmetrize(ice, symmetry)
+
+        ore = np.minimum(mask, 1) * noise(x, y-100, frequency=3) * 100
+        ore[ore < noise.random.uniform(*np.percentile(ore, [80, 100]), ore.shape)] = 0
+        symmetrize(ore, symmetry)
 
         super().__init__(rubble, ice, ore)
 
@@ -323,6 +323,8 @@ class Mountain(GameMap):
         rubble = (100*mask).round()
         ice = (100 * mask**3).round()
         ore = (100 * mask).round()
+        ore[ore < noise.random.uniform(*np.percentile(ore, [80, 100]), ore.shape)] = 0
+        symmetrize(ore, symmetry)
 
 
         super().__init__(rubble, ice, ore)
