@@ -4,7 +4,7 @@ import numpy as np
 
 
 def viz(game_map, screen=None):
-    N = min(400 // game_map.width, 750 // game_map.height)
+    N = min(500 // game_map.width, 750 // game_map.height)
     if screen is None:
         screen = pygame.display.set_mode((3*N*game_map.width, N*game_map.height))
 
@@ -16,6 +16,5 @@ def viz(game_map, screen=None):
             screen.fill(rubble_color, (N*x, N*y, N, N))
             screen.fill(ice_color, (N*x+N*game_map.width, N*y, N, N))
             screen.fill(ore_color, (N*x+2*N*game_map.width, N*y, N, N))
-    
+
     pygame.display.update()
-    

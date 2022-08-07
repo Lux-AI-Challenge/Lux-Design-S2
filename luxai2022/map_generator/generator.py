@@ -241,7 +241,6 @@ class Mountain(GameMap):
         y = np.linspace(0, 1, height)
         mask *= 5 + noise(x, y, frequency=3)
         mask -= np.amin(mask)
-        mask /= np.amax(mask)
 
         # Find the valleys
         Lap = convolve(mask, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3 # Laplacian
@@ -257,6 +256,7 @@ class Mountain(GameMap):
         symmetrize(cond, symmetry) # for floating point errors
 
         def bdry(x, y):
+            # Maybe instead of > 20, use some mean and std stuff?
             return abs(cond[y][x]) > 20 and f[y][x] == 0
 
         closed_set = set()
