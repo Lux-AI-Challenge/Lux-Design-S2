@@ -21,7 +21,7 @@ def decode_replay_file(replay_file) -> Tuple[State, List]:
 
 def generate_replay(states: List[State]):
     """
-    Generates a replay.
+    Generates a compressed replay.
     
     """
-    pass
+    return [s.get_compressed_obs() for s in states]

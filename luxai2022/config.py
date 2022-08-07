@@ -37,6 +37,8 @@ class EnvConfig:
     max_episode_length: int = 1000
     map_size: int = 64
     verbose: int = 1
+    #### these can be disabled to improve env FPS 
+    validate_action_space: bool = True
 
     ### Constants ###
     # you can only ever transfer in/out 1000 as this is the max cargo space.

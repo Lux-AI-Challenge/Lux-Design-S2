@@ -1,26 +1,28 @@
 import numpy as np
 from luxai2022.env import LuxAI2022
+from luxai2022.replay.replay import generate_replay
+import copy
 if __name__ == "__main__":
     import time
     np.random.seed(0)
 
     env: LuxAI2022 = LuxAI2022(verbose=0)
     o = env.reset()
-    render = True
+    render = False
     if render: 
         env.render()
         time.sleep(0.1)
-    states = [env.state.get_obs()]
+    states = [env.state.get_compressed_obs()]
     
     # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
     # env.state.units[1].append(u)
     # observation, reward, done, info = env.last()
     
-    states += [env.state.get_obs()]
     # env.render()
     # print(o, r, d)
     s_time = time.time_ns()
-    N = 10000
+    foward_pass_time = 0
+    N = 2000
     step = 0
     import ipdb
     for i in range(N):
@@ -68,16 +70,15 @@ if __name__ == "__main__":
                             direc = 1
                 else:
                     direc = np.random.randint(0,5)
-                actions[unit_id] = np.array([0, direc, 0, 0, 0])
+                actions[unit_id] = []
+                for i in range(10):
+                    actions[unit_id] += [np.array([0, direc, 0, 0, 0])]
             all_actions[agent] = actions
-        # ipdb.set_trace()
-        # env.action_space("player_0").sample()
-        # print(all_actions)
-        # all_actions["player_0"] = all_actions["player_1"]
+        
         o, r, d, _ = env.step(all_actions)
         step += 1
-        import copy
-        states += [env.state.get_obs()]
+        
+        # states += [env.state.get_compressed_obs()]
         for agent in env.agents:
             for unit in env.state.units[agent].values():
                 unit.power = 100
@@ -86,13 +87,14 @@ if __name__ == "__main__":
                 factory.cargo.water = 1000
         if np.all([d[k] for k in d]):
             o = env.reset()
-            step = 0
+            
             if render: env.render()
             print(f"=== {i} ===")
             e_time = time.time_ns()
-            print(f"FPS={N / ((e_time - s_time) * 1e-9)}")
+            print(f"FPS={step / ((e_time - s_time) * 1e-9)}")
             s_time = time.time_ns()
-        if render: 
+            step = 0
+        if render:
             env.render()
             # time.sleep(0.1)
     # e_time = time.time_ns()
@@ -115,7 +117,9 @@ if __name__ == "__main__":
     # import pickle
     # with open("replay.pkl", "wb") as f:
     #     pickle.dump(dict(states=states), f)
+
+    # states = generate_replay(states)
     # replay = to_json(dict(states=states))
-    # # import ipdb;ipdb.set_trace()
+    # import ipdb;ipdb.set_trace()
     # with open("replay.json", "w") as f:
     #     json.dump(to_json(dict(states=states)), f)
