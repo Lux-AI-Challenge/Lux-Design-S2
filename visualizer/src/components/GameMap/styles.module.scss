@@ -9,3 +9,16 @@
   display: grid;
   grid-template-columns: repeat(64, 1fr);
 }
+
+.tile {
+  display: flex;
+}
+
+.unit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  transform: translate3d(var(--x), var(--y), 0);
+  transition: transform var(--t) ease;
+}

@@ -1,0 +1,15 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 1rem;
+}
+
+.uploadButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
