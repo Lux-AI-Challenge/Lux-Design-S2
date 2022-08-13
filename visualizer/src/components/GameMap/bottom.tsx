@@ -34,7 +34,7 @@ export const Bottom = React.memo(
             cols.map((_, j) => {
               return (
                 <GroundTile
-                key={`g-${i * cols.length + j}`}
+                  key={`g-${i * cols.length + j}`}
                   rubble={frame.board.rubble[i][j]}
                   ice={frameZero.board.ice[i][j]}
                   ore={frameZero.board.ore[i][j]}

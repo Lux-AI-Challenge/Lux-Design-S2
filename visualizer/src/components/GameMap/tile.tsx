@@ -25,7 +25,7 @@ export const GroundTile = React.memo(
   ({ rubble, lichen, ice, ore, x, y }: BottomProps) => {
     const tileWidth = 12;
     const tileBorder = 1;
-
+    console.log("render", {x,y})
     const tileSize = tileWidth + tileBorder * 2;
     if (ice > 0) {
       return (
@@ -64,12 +64,14 @@ export const GroundTile = React.memo(
         // onMouseEnter={handleOnMouseEnterTile}
       >
         <div
+          id={`lichen-${y * cols.length + x}`}
           style={{
             position: "absolute",
             width: tileWidth,
             height: tileWidth,
             backgroundColor: "green",
             opacity: lichen / 10,
+            willChange: 'opacity'
           }}
         ></div>
         <img

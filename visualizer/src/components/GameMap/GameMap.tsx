@@ -26,13 +26,22 @@ export  const GameMap = React.memo(({handleOnMouseEnterTile}: GameMapProps) => {
   const tileBorder = 1;
 
   const tileSize = tileWidth + tileBorder * 2;
+  for (let i = 0; i < 64; i++) {
+    for (let j = 0; j < 64; j++) {
+      const elem = document.getElementById(`lichen-${i*64+j}`)
+      if (elem) {
+        const lichen = frame.board.lichen[i][j];
+        elem.style.opacity = `${lichen / 10}`;
+      }
+    }
+  }
   return (
     <>
       
       <div className={s.mapContainer}>
         {/* bottom layer (height map, rubble, etc) */}
         <div className={s.mapLayer}>
-          <Bottom frame={replay.states[turn]} frameZero={frameZero} />
+          <Bottom frame={replay.states[0]} frameZero={frameZero} />
           </div>
 
         {/* top layer (units, buildings, etc) */}
