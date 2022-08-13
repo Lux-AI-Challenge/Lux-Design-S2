@@ -29,9 +29,13 @@ export  const GameMap = React.memo(({handleOnMouseEnterTile}: GameMapProps) => {
   for (let i = 0; i < 64; i++) {
     for (let j = 0; j < 64; j++) {
       const elem = document.getElementById(`lichen-${i*64+j}`)
+      const rubble = document.getElementById(`rubble-${i*64+j}`)
       if (elem) {
         const lichen = frame.board.lichen[i][j];
         elem.style.opacity = `${lichen / 10}`;
+      }
+      if (rubble) {
+        rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
       }
     }
   }

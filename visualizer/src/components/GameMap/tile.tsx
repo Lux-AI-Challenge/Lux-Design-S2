@@ -75,6 +75,7 @@ export const GroundTile = React.memo(
           }}
         ></div>
         <img
+          id={`rubble-${y * cols.length + x}`}
           src={groundSvg}
           width={tileWidth}
           height={tileWidth}
