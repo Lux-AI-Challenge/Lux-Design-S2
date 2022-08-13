@@ -24,7 +24,7 @@ class State:
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
 
-    def generate_unit_data(units_dict):
+    def generate_unit_data(units_dict: Dict[str, Dict[str, Unit]]):
         units = dict()
         for team in units_dict:
             units[team] = dict()

@@ -64,6 +64,7 @@ class Unit:
             team_id=self.team_id,
             unit_id=self.unit_id,
             power=self.power,
+            unit_type=self.unit_type.name,
             pos=self.pos.pos,
             cargo=self.cargo.state_dict(),
             action_queue=[a.state_dict() for a in self.action_queue],

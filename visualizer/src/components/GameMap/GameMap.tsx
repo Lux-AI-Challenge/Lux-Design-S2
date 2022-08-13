@@ -1,61 +1,121 @@
-import type { Replay } from "@/context/LoadReplayContext/types"
+import { useStore, useStoreKeys } from "@/store";
 
-import { useStore, useStoreKeys } from "@/store"
+import s from "./styles.module.scss";
 
-import s from "./styles.module.scss"
+import groundSvg from "@/assets/ground.svg";
+import factorySvg from "@/assets/factory.svg";
+import { Player } from "@/types/replay/player";
 
-import groundSvg from "@/assets/ground.svg"
-import factorySvg from "@/assets/factory.svg"
+interface GameMapProps {}
 
-const rows = Array.from({ length: 64 })
-const cols = Array.from({ length: 64 })
-
-interface GameMapProps {
-}
-
-export function GameMap ({}: GameMapProps) {
-  const replay = useStore((state) => state.replay)! // game map should only get rendered when replay is non-null
-  const { turn, speed } = useStoreKeys('turn', 'speed')
-
+export function GameMap({}: GameMapProps) {
+  const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
+  const { turn, speed } = useStoreKeys("turn", "speed");
   const frame = replay.states[turn];
+  const mapWidth = frame.board.rubble.length;
+  const rows = Array.from({ length: mapWidth });
+  const cols = Array.from({ length: mapWidth });
+
+  const tileWidth = 12;
+  const tileBorder = 1;
+
+  const tileSize = tileWidth + tileBorder * 2;
   return (
     <>
       <div className={s.mapContainer}>
         {/* bottom layer (height map, rubble, etc) */}
         <div className={s.mapLayer}>
-          {rows.map((_, i) => (
+          {rows.map((_, i) =>
+            cols.map((_, j) => {
+              // if (frame.board.ice[i][j] > 0) {
+              //   return (
+              //     <div key={`ice-${i * cols.length + j}`} className={s.tile}>
+              //       <div
+              //         style={{
+              //           opacity: frame.board.ice[i][j],
+              //           backgroundColor: "blue",
+              //           width: tileWidth,
+              //           height: tileWidth,
+              //         }}
+              //       />
+              //     </div>
+              //   );
+              // }
+              return (
+                <div key={`g-${i * cols.length + j}`} className={s.tile}>
+                  <img
+                    src={groundSvg}
+                    width={tileWidth}
+                    height={tileWidth}
+                    style={{
+                      opacity: 1 - Math.min(frame.board.rubble[i][j] / 50, 1),
+                    }}
+                  />
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* middle layer (resources, etc) */}
+        {/* <div className={s.mapLayer}>
+        {rows.map((_, i) =>
             cols.map((_, j) => (
-              <div key={i*cols.length+j} className={s.tile}>
-                <img src={groundSvg} width={16} height={16} />
+              <div key={`ice-${i * cols.length + j}`} className={s.tile}>
+                <div  style={{
+                  opacity: frame.board.ice[j][i],
+                  backgroundColor: 'blue',
+                  width:tileWidth,
+                  height: tileWidth
+                }} />
               </div>
             ))
-          ))}
-        </div>
-        
-        {/* middle layer (resources, etc) */}
-        <div className={s.mapLayer}>
-        </div>
-        
+          )}
+        </div> */}
+
         {/* top layer (units, buildings, etc) */}
-        <div className={s.mapLayer}>
-          {Object.values(frame.units.player_0).map((unit) => {
-            return (
-              <div
-                key={unit.unit_id}
-                className={s.unit}
-                style={{
+        <div
+          className={s.unitLayer}
+          style={{
+            width: `${tileSize * 64}px`,
+          }}
+        >
+          {["player_0", "player_1"].map((agent: Player) => {
+            return Object.values(frame.factories[agent]).map((factory) => {
+              return (
+                <div key={factory.unit_id} className={s.factory} style={{
                   // @ts-ignore
-                  "--x": `${unit.pos[0]*16}px`,
-                  "--y": `${unit.pos[1]*16}px`,
-                  "--t": `calc(1s / ${speed})`, 
-                }}
-              >
-                <img src={factorySvg} width={16} height={16} />
-              </div>
-            )
+                  "--x": `${factory.pos[0] * tileSize - tileSize + tileBorder}px`,
+                  "--y": `${factory.pos[1] * tileSize - tileSize + tileBorder}px`,
+                  "--t": `calc(1s / ${speed})`,
+                }}>
+                  <img src={factorySvg} width={tileSize * 3 - 2 * tileBorder} height={tileSize * 3 - 2*tileBorder} />
+                </div>
+              )
+            })
+          })}
+          {["player_0", "player_1"].map((agent: Player) => {
+            return Object.values(frame.units[agent]).map((unit) => {
+              return (
+                <div
+                  key={unit.unit_id}
+                  className={s.unit}
+                  style={{
+                    // @ts-ignore
+                    "--x": `${unit.pos[0] * tileSize + tileBorder}px`,
+                    "--y": `${unit.pos[1] * tileSize + tileBorder}px`,
+                    "--t": `calc(1s / ${speed})`,
+                  }}
+                >
+                  {/* add back once we have assets */}
+                  {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
+                  <div style={{width:tileWidth, height: tileWidth, backgroundColor: unit.unit_type === "HEAVY" ? "purple" : "pink" }}></div>
+                </div>
+              );
+            });
           })}
         </div>
       </div>
     </>
-  )
+  );
 }

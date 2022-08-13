@@ -15,6 +15,23 @@ $slider-width: 38rem;
 .slider {
   width: $slider-width;
 }
+.buttons:hover {
+  text-decoration: none;
+  border: none;
+}
+.buttons {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+.buttons button img {
+  vertical-align:middle;
+}
+.buttons button {
+  margin-left: .5rem;
+  margin-right: .5rem;
+  background-color: rgb(239, 76, 70);
+}
 
 :global {
   // https://mui.com/base/react-slider/

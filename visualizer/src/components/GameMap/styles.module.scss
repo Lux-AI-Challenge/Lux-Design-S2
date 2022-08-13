@@ -1,10 +1,16 @@
 .mapContainer {
   position: relative;
 }
-
+.unitLayer {
+  position: absolute;
+  text-align: center;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
 .mapLayer {
   position: absolute;
-
+  margin-left: 50%;
+  transform: translateX(-50%);
   // TODO: THIS IS CURRENTLY A TEMPORARY HARDCODED LENGTH FOR TESTING
   display: grid;
   grid-template-columns: repeat(64, 1fr);
@@ -12,9 +18,10 @@
 
 .tile {
   display: flex;
+  border: .1px solid rgba(0,0,0,0.9);
 }
 
-.unit {
+.unit, .factory {
   position: absolute;
   top: 0;
   left: 0;

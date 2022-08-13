@@ -78,7 +78,7 @@ if __name__ == "__main__":
         o, r, d, _ = env.step(all_actions)
         step += 1
         
-        # states += [env.state.get_compressed_obs()]
+        states += [env.state.get_compressed_obs()]
         for agent in env.agents:
             for unit in env.state.units[agent].values():
                 unit.power = 100
@@ -94,6 +94,7 @@ if __name__ == "__main__":
             print(f"FPS={step / ((e_time - s_time) * 1e-9)}")
             s_time = time.time_ns()
             step = 0
+            break
         if render:
             env.render()
             # time.sleep(0.1)
@@ -121,5 +122,6 @@ if __name__ == "__main__":
     # states = generate_replay(states)
     # replay = to_json(dict(states=states))
     # import ipdb;ipdb.set_trace()
-    # with open("replay.json", "w") as f:
-    #     json.dump(to_json(dict(states=states)), f)
+    replay=to_json(dict(states=states))
+    with open("replay.json", "w") as f:
+        json.dump(replay, f)

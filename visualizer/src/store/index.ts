@@ -10,9 +10,9 @@ import type { Store } from "./types"
 import TEMPORARY_REPLAY_FOR_TESTING_ONLY from "@/assets/replay.json"
 
 export const useStore = create<Store>((set, get) => ({
-  replay: initial.replay,
+  // replay: initial.replay,
   // TEMPORARY FOR FASTER TESTING ONLY. replace with the above commented out line for the actual app
-  // replay: loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY~),
+  replay: loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY),
 
   progress: initial.progress,
   
