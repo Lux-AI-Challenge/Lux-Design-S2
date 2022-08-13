@@ -55,7 +55,7 @@ def env():
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
 
-    def __init__(self, max_episode_length=1000, **kwargs):
+    def __init__(self, max_episode_length=1001, **kwargs):
         # TODO - allow user to override env configs
         default_config = EnvConfig(**kwargs)
         self.env_cfg = default_config
@@ -175,10 +175,11 @@ class LuxAI2022(ParallelEnv):
         else:
             # 1. Check for malformed actions
             try:
-                for agent, unit_actions in actions.items():
-                    valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
-                    if not valid_acts:
-                        raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. {err_reason}")
+                if self.env_cfg.validate_action_space:
+                    for agent, unit_actions in actions.items():
+                        valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
+                        if not valid_acts:
+                            raise ValueError(f"{self.state.teams[agent]} Inappropriate action given. {err_reason}")
                 for agent, unit_actions in actions.items():
                     for unit_id, action in unit_actions.items():
                         if "factory" in unit_id:
@@ -416,6 +417,7 @@ class LuxAI2022(ParallelEnv):
                 rewards[agent] = self.state.board.lichen[agent_lichen_mask].sum()
 
         self.env_steps += 1
+        self.state.env_steps += 1
         env_done = self.env_steps >= self.max_episode_length
         dones = {agent: env_done for agent in self.agents}
 

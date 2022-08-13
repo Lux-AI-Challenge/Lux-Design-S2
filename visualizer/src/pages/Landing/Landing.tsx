@@ -1,9 +1,12 @@
 import { useRef, useCallback } from "react"
-import { useReplayContext } from "@/context/ReplayContext"
-import { parseReplayData } from "@/helpers/replays"
+import { useStoreKeys } from "@/store"
+
+import uploadIcon from "@/assets/generic-icons/upload.svg"
+
+import s from "./styles.module.scss"
 
 export function Landing () {
-  const { replayDispatch: dispatch } = useReplayContext()
+  const { progress, loadReplay } = useStoreKeys('progress', 'loadReplay')
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -11,32 +14,29 @@ export function Landing () {
     inputRef.current?.click()
   }, [])
 
-  const handleUpload = useCallback(() => {
+  const handleUpload = useCallback(async () => {
     const file = inputRef.current?.files?.[0]
     if (!file) { return }
     const name = file.name
     const split = name.split('.')
     const extension = split.at(-1)! // `String.split` always returns at least 1 length array
     if (extension === 'json') {
-      file
-        .text()
-        .then(JSON.parse)
-        .then((data) => {
-          const parsed = parseReplayData(data)
-          dispatch({ type: 'set', replay: parsed })
-        })
+      loadReplay({ type: 'file', data: file })
     }
   }, [])
 
   return (
-    <div>
+    <div className={s.root}>
       {/* title */}
       <h1>Lux AI Season 2 Visualizer</h1>
 
       {/* upload replay button */}
       <input ref={inputRef} accept=".json, .luxr" type="file" onChange={handleUpload} style={{display: 'none'}} />
-      <button onClick={onButtonClick}>upload replay</button>
-
+      <button onClick={onButtonClick} className={s.uploadButton}>
+        <img src={uploadIcon} />
+        upload replay
+      </button>
+      {progress !== null && <span>loading...</span>}
     </div>
   )
 }

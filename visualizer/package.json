@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "license": "Apache-2.0",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,7 +13,8 @@
   },
   "dependencies": {
     "@mui/base": "^5.0.0-alpha.91",
-    "preact": "^10.9.0"
+    "preact": "^10.10.1",
+    "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.3.0",
@@ -21,5 +24,5 @@
     "typescript": "^4.6.4",
     "vite": "^3.0.0",
     "vite-tsconfig-paths": "^3.5.0"
-  } 
+  }
 }

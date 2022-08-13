@@ -1,19 +1,11 @@
-import { ReplayProvider, useReplayContext } from './context/ReplayContext'
+import { useStore } from '@/store'
 import { Landing } from './pages/Landing'
 import { ReplayViewer } from './pages/ReplayViewer'
 
 import './app.css'
 
 export function App() {
-  return (
-    <ReplayProvider>
-      <Contents />
-    </ReplayProvider>
-  )
-}
-
-function Contents () {
-  const { replay } = useReplayContext()
+  const replay = useStore((state) => state.replay)
   return replay === null
     ? <Landing />
     : <ReplayViewer />

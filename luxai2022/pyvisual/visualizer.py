@@ -31,13 +31,14 @@ class Visualizer:
                 if self.state.board.ice[y, x] > 0:
                     pygame.draw.rect(
                         self.screen,
-                        [10 + int(self.state.board.ice[y, x]) * 5, 130, 250],
+                        [10 + int(self.state.board.ice[y, x]) * 1, 130, 250],
                         pygame.Rect(self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width),
                     )
+                # print(self.state.board.ore[y, x])
                 if self.state.board.ore[y, x] > 0:
                     pygame.draw.rect(
                         self.screen,
-                        [250, int(self.state.board.ore[y, x]) * 5, 100],
+                        [250, int(self.state.board.ore[y, x]) * 1, 100],
                         pygame.Rect(self.tile_width * x, self.tile_width * y, self.tile_width, self.tile_width),
                     )
                 if self.state.board.lichen_strains[y, x] != -1:
