@@ -23,7 +23,7 @@ class FactionString(gym.Space):
 class PartialDict(spaces.Dict):
     def contains(self, x: Any) -> bool:
         if not isinstance(x, dict) or len(x) > len(self.spaces):
-            return False
+            return False, "invalid"
         for k, v in x.items():
             if k in self.spaces:
                 space = self.spaces[k]
@@ -32,6 +32,24 @@ class PartialDict(spaces.Dict):
             else:
                 return False, f"{k} is not on your team or does not exist"
         return True, None
+
+class ActionsQueue(spaces.Space):
+    def __init__(self, action_space: spaces.Space, max_length: int) -> None:
+        super().__init__((), float)
+        self.max_length = max_length
+        self.action_space = action_space
+    def sample(self):
+        queue_size = self.np_random.randint(0, self.max_length) + 1
+        action_q = []
+        for _ in range(queue_size):
+            action_q.append(self.action_space.sample())
+    def contains(self, x: Any) -> bool:
+        if not isinstance(x, list) or len(x) > self.max_length:
+            return False
+        for a in x:
+            if not self.action_space.contains(a):
+                return False
+        return True
 
 def get_act_space_init(config: EnvConfig, agent: int = 0):
     # Get action space for turn 0 initialization
@@ -68,7 +86,7 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
         # a[4] = 0,1 - repeat false or repeat true. If true, action is sent to end of queue once consumed
-        act_space[u.unit_id] = spaces.MultiDiscrete([6, 5, 5, config.max_transfer_amount, 2])
+        act_space[u.unit_id] = ActionsQueue(spaces.MultiDiscrete([6, 5, 5, config.max_transfer_amount, 2]), config.UNIT_ACTION_QUEUE_SIZE)
 
     for factory in factories[agent].values():
         # action type (0 = build light robot, 1 = build heavy robot, 2 = water lichen)
