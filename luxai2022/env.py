@@ -55,7 +55,7 @@ def env():
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
 
-    def __init__(self, max_episode_length=1000, **kwargs):
+    def __init__(self, max_episode_length=1001, **kwargs):
         # TODO - allow user to override env configs
         default_config = EnvConfig(**kwargs)
         self.env_cfg = default_config

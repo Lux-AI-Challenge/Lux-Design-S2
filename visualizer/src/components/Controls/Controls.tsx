@@ -67,7 +67,7 @@ export function Controls ({}: ControlsProps) {
           onChange={onChangeSliderValue}
           step={1}
           min={0}
-          max={episodeLength} // temporary hardcoded value
+          max={episodeLength - 1} // temporary hardcoded value
         />
         <div className={s.buttons}>
           {/* restart replay button */}
