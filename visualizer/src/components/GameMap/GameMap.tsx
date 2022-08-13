@@ -57,6 +57,11 @@ export function GameMap({}: GameMapProps) {
               }
               return (
                 <div key={`g-${i * cols.length + j}`} className={s.tile}>
+                  <div style={{position: 'absolute', width:tileWidth, height: tileWidth, backgroundColor: "green",
+                  opacity: frame.board.lichen[i][j] / 10
+                }}>
+
+                  </div>
                   <img
                     src={groundSvg}
                     width={tileWidth}
