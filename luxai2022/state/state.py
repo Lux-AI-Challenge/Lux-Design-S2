@@ -72,6 +72,30 @@ class State:
             del data["board"]["ore"]
             del data["board"]["ice"]
             return data
+    def get_change_obs(self, prev_obs):
+        """
+        returns sparse dicts for large matrices of where values change only
+        """
+        data = self.get_compressed_obs()
+        
+        data["board"]["rubble"] = dict()
+        data["board"]["lichen"] = dict()
+        data["board"]["lichen_strains"] = dict()
+
+        change_indices = np.argwhere(self.board.rubble != prev_obs["board"]["rubble"])
+        for ind in change_indices:
+            y,x = ind[0], ind[1]
+            data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[y, x]
+        change_indices = np.argwhere(self.board.lichen != prev_obs["board"]["lichen"])
+        for ind in change_indices:
+            y,x = ind[0], ind[1]
+            data["board"]["lichen"][f"{x},{y}"] = self.board.rubble[y, x]
+        change_indices = np.argwhere(self.board.lichen_strains != prev_obs["board"]["lichen_strains"])
+        for ind in change_indices:
+            y,x = ind[0], ind[1]
+            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.rubble[y, x]
+        return data
+        
     def from_obs(obs):
         # generate state from compressed obs
         pass

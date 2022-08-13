@@ -62,7 +62,7 @@ class Factory:
 
     def refine_step(self, config: EnvConfig):
         consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
-        consumed_ore = min(self.cargo.metal, config.FACTORY_PROCESSING_RATE_METAL)
+        consumed_ore = min(self.cargo.ore, config.FACTORY_PROCESSING_RATE_METAL)
 
         self.cargo.ice -= consumed_ice
         self.cargo.ore -= consumed_ore

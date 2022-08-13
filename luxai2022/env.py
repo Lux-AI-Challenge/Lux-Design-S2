@@ -248,9 +248,9 @@ class LuxAI2022(ParallelEnv):
             for unit, dig_action in actions_by_type["dig"]:
                 dig_action: DigAction
                 if self.state.board.rubble[unit.pos.y, unit.pos.x] > 0:
-                    self.state.board.rubble[unit.pos.y, unit.pos.x] = min(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
+                    self.state.board.rubble[unit.pos.y, unit.pos.x] = max(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
                 elif self.state.board.lichen[unit.pos.y, unit.pos.x] > 0:
-                    self.state.board.lichen[unit.pos.y, unit.pos.x] = min(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+                    self.state.board.lichen[unit.pos.y, unit.pos.x] = max(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
                 elif self.state.board.ice[unit.pos.y, unit.pos.x] > 0:
                     unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
                 elif self.state.board.ore[unit.pos.y, unit.pos.x] > 0:
@@ -266,12 +266,19 @@ class LuxAI2022(ParallelEnv):
             # TODO - robot building with factories
             for factory, factory_build_action in actions_by_type["factory_build"]:
                 factory: Factory
+                factory_build_action: FactoryBuildAction
                 team = self.state.teams[factory.team.agent]
                 self.add_unit(
                     team=team,
                     unit_type=UnitType.HEAVY if factory_build_action.unit_type == 1 else UnitType.LIGHT,
                     pos=factory.pos.pos,
                 )
+                if factory_build_action.unit_type == 1:
+                    factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
+                    factory.sub_resource(4, self.env_cfg.ROBOTS["HEAVY"].POWER_COST)
+                else:
+                    factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
+                    factory.sub_resource(4, self.env_cfg.ROBOTS["LIGHT"].POWER_COST)
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
