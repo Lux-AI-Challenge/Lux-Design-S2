@@ -21,8 +21,7 @@ export function GameMap({}: GameMapProps) {
   const tileBorder = 1;
 
   const tileSize = tileWidth + tileBorder * 2;
-  console.log({frame})
-  return (
+    return (
     <>
       <div className={s.mapContainer}>
         {/* bottom layer (height map, rubble, etc) */}
@@ -67,7 +66,7 @@ export function GameMap({}: GameMapProps) {
                     width={tileWidth}
                     height={tileWidth}
                     style={{
-                      opacity: 1 - Math.min(frame.board.rubble[i][j] / 50, 1),
+                      opacity: 1 - Math.min(frame.board.rubble[i][j] / 125, 1),
                     }}
                   />
                 </div>
@@ -121,14 +120,14 @@ export function GameMap({}: GameMapProps) {
                   className={s.unit}
                   style={{
                     // @ts-ignore
-                    "--x": `${unit.pos[0] * tileSize + tileBorder}px`,
-                    "--y": `${unit.pos[1] * tileSize + tileBorder}px`,
+                    "--x": `${unit.pos[0] * tileSize}px`,
+                    "--y": `${unit.pos[1] * tileSize}px`,
                     "--t": `calc(1s / ${speed})`,
                   }}
                 >
                   {/* add back once we have assets */}
                   {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
-                  <div style={{width:tileWidth, height: tileWidth, backgroundColor: unit.unit_type === "HEAVY" ? "purple" : "pink" }}></div>
+                  <div style={{width:tileWidth, height: tileWidth, borderRadius: "50%", backgroundColor: unit.unit_type === "HEAVY" ? "rgb(112,162,136)" : "rgb(193,215,204)", border: "1px solid black" }}></div>
                 </div>
               );
             });
