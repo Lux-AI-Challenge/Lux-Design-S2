@@ -12,6 +12,7 @@ export function GameMap({}: GameMapProps) {
   const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
   const { turn, speed } = useStoreKeys("turn", "speed");
   const frame = replay.states[turn];
+  const frameZero = replay.states[0];
   const mapWidth = frame.board.rubble.length;
   const rows = Array.from({ length: mapWidth });
   const cols = Array.from({ length: mapWidth });
@@ -20,6 +21,7 @@ export function GameMap({}: GameMapProps) {
   const tileBorder = 1;
 
   const tileSize = tileWidth + tileBorder * 2;
+  console.log({frame})
   return (
     <>
       <div className={s.mapContainer}>
@@ -27,20 +29,32 @@ export function GameMap({}: GameMapProps) {
         <div className={s.mapLayer}>
           {rows.map((_, i) =>
             cols.map((_, j) => {
-              // if (frame.board.ice[i][j] > 0) {
-              //   return (
-              //     <div key={`ice-${i * cols.length + j}`} className={s.tile}>
-              //       <div
-              //         style={{
-              //           opacity: frame.board.ice[i][j],
-              //           backgroundColor: "blue",
-              //           width: tileWidth,
-              //           height: tileWidth,
-              //         }}
-              //       />
-              //     </div>
-              //   );
-              // }
+              if (frameZero.board.ice[i][j] > 0) {
+                return (
+                  <div key={`ice-${i * cols.length + j}`} className={s.tile}>
+                    <div
+                      style={{
+                        backgroundColor: "blue",
+                        width: tileWidth,
+                        height: tileWidth,
+                      }}
+                    />
+                  </div>
+                );
+              }
+              if (frameZero.board.ore[i][j] > 0) {
+                return (
+                  <div key={`ore-${i * cols.length + j}`} className={s.tile}>
+                    <div
+                      style={{
+                        backgroundColor: "red",
+                        width: tileWidth,
+                        height: tileWidth,
+                      }}
+                    />
+                  </div>
+                );
+              }
               return (
                 <div key={`g-${i * cols.length + j}`} className={s.tile}>
                   <img
