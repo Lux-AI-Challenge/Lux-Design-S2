@@ -105,22 +105,18 @@ class Cave(GameMap):
         rubble[mask==0] = 0 # Interior of cave
 
         # Make some noisy ice, most ice is on cave edges
-        ice = noise(x, y + 100) * 50 + 50
+        ice = noise(x, y + 100)
         ice[mask > 1] = 0
         ice[mask == 0] = 0
-        ice = ice.round()
-        for i in np.unique(ice):
-            if noise.random.uniform(0, 1) > 0.1:
-                ice[ice == i] = 0
+        ice[ice < np.percentile(ice, 95)] = 0
+        ice = np.round(ice * 50 + 50)
 
         # Make some noisy ore, most ore is outside caves
-        ore = noise(x, y - 100) * 50 + 50
+        ore = noise(x, y - 100)
         ore[mask==1] = 0
         ore[mask==0] = 0
-        ore = ore.round()
-        for i in np.unique(ore):
-            if noise.random.uniform(0, 1) > 0.1:
-                ore[ore == i] = 0
+        ore[ore < np.percentile(ore, 95)] = 0
+        ore = np.round(ore * 50 + 50)
         super().__init__(rubble, ice, ore)
 
 class Craters(GameMap):
@@ -165,14 +161,14 @@ class Craters(GameMap):
         symmetrize(ice_mask, symmetry)
 
         rubble = (np.minimum(mask, 1) * 90 + 10) * noise(x, y+100, frequency=3)
-        ice = noise(x, y-100) * 100
+        ice = noise(x, y-100)
         ice[ice_mask==0] = 0
-        ice[ice < noise.random.uniform(*np.percentile(ice, [90, 100]), ice.shape)] = 0
-        symmetrize(ice, symmetry)
+        ice[ice < np.percentile(ice, 95)] = 0
+        ice = np.round(50 * ice + 50)
 
-        ore = np.minimum(mask, 1) * noise(x, y-100, frequency=3) * 100
-        ore[ore < noise.random.uniform(*np.percentile(ore, [80, 100]), ore.shape)] = 0
-        symmetrize(ore, symmetry)
+        ore = np.minimum(mask, 1) * noise(x, y+100, frequency=3)
+        ore[ore < np.percentile(ore, 95)] = 0
+        ore = np.round(50 * ore + 50)
 
         super().__init__(rubble, ice, ore)
 
@@ -321,11 +317,11 @@ class Mountain(GameMap):
         mask /= np.amax(mask)
 
         rubble = (100*mask).round()
-        ice = (100 * mask**3).round()
+        ice = (100 * mask).round()
+        ice[ice < np.percentile(ice, 98)] = 0
         ore = (100 * mask).round()
-        ore[ore < noise.random.uniform(*np.percentile(ore, [80, 100]), ore.shape)] = 0
-        symmetrize(ore, symmetry)
-
+        ore[ore < np.percentile(ore, 80)] = 0
+        ore[ore > np.percentile(ore, 85)] = 0
 
         super().__init__(rubble, ice, ore)
 
