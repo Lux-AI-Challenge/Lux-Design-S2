@@ -62,7 +62,7 @@ def get_act_space_init(config: EnvConfig, agent: int = 0):
 def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[str, Factory]], config: EnvConfig, agent: int = 0):
     act_space = dict()
 
-    # for consistency, every action space per unit is fixed, makes it easier to work out of the box. 
+    # for consistency, every action space per unit is fixed, makes it easier to work out of the box.
     # we further annotate dimensions, in many places for clarity
 
     # for those who are programming rule-based bots, we provide helper functions to generate the action vector to store in an actions dict, as well as generate
@@ -74,15 +74,15 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         # if max_queue is 1, we remove this dimension
         # let a be some element in A
         # Then
-        
-        # a[0] = action type 
+
+        # a[0] = action type
         # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
-        
+
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
-        
+
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
-        
-        # a[3] = X, amount of resources transferred or picked up if action is transfer or pickup. 
+
+        # a[3] = X, amount of resources transferred or picked up if action is transfer or pickup.
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
         # a[4] = 0,1 - repeat false or repeat true. If true, action is sent to end of queue once consumed
@@ -91,6 +91,6 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
     for factory in factories[agent].values():
         # action type (0 = build light robot, 1 = build heavy robot, 2 = water lichen)
         act_space[factory.unit_id] = spaces.Discrete(3)
-    
+
 
     return PartialDict(act_space)

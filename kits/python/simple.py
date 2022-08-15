@@ -3,59 +3,82 @@ from luxai2022.unit import UnitType
 
 import random
 
-MY_TEAM_KEY = None
+FACTION = "AlphaStrike"
 
 def distance(pos1, pos2):
-    return (pos1.x - pos2.x) ** 2 + (pos1.y - pos2.x)**2
+    return sum((pos1-pos2)**2)
 
 def nearest_factory(factories, pos):
-    return min(factories, key=lambda f: distance(pos, f.pos))
+    return min(factories.values(), key=lambda f: distance(pos, f["pos"]))
 
 # (dx, dy) = (1, 2) is moving right 1 and up 2
-DIRECTIONS = {0: (0, 0), 1: (0, 1), 2: (1, 0), 3: (0, -1), 4: (-1, 0)}
+# DIRECTIONS = {0: (0, 0), 1: (0, 1), 2: (1, 0), 3: (0, -1), 4: (-1, 0)}
+DIRECTIONS = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
+
+def from_dirs(d):
+    if all(d == [0, 0]):
+        return 0
+    if all(d == [0, -1]):
+        return 1
+    if all(d == [1, 0]):
+        return 2
+    if all(d == [0, 1]):
+        return 3
+    if all(d == [-1, 0]):
+        return 4
+    raise ValueError("d must be one of DIRECTIONS.")
+
 def direction_between(pos, goal):
-    return min(DIRECTIONS, key=lambda d: distance(pos + DIRECTIONS[d], goal))
+    return min(DIRECTIONS, key=lambda d: distance(pos + d, goal))
 
-def agent(observation, configuration):
-    # How do we find which team is ours?
-    # TODO: Include this in observation
+def spawn(observation, configuration, team_id):
+    info = dict(faction=FACTION, )
+    locs = observation["board"]["spawns"][team_id]
+    spawn_locs = [random.choice(locs) for i in range(configuration.MAX_FACTORIES)]
 
-    my_team = teams["factories"][MY_TEAM_KEY]
-    my_units = observation["units"][MY_TEAM_KEY]
-    my_factories = observation["factories"][MY_TEAM_KEY]
+    return dict(faction=FACTION, spawns=spawn_locs)
 
+def agent(observation, configuration, team_id):
+    my_team = observation["team"][team_id]
+    my_units = observation["units"][team_id]
+    my_factories = observation["factories"][team_id]
+
+    factory_positions = set()
     actions = dict()
-    for factory in my_factories:
-        if (factory.cargo.metal >= configuration.ROBOTS["LIGHT"].METAL_COST and
-            factory.cargo.power >= configuration.ROBOTS["LIGHT"].POWER_COST):
-            actions[factory.unit_id] = FactoryBuildAction(UnitType.LIGHT)
+    for id, factory in my_factories.items():
+        factory_positions.add(tuple(factory["pos"]))
+        if (factory["power"] >= configuration.ROBOTS["LIGHT"].POWER_COST and
+            factory["cargo"]["metal"] >= configuration.ROBOTS["LIGHT"].METAL_COST):
+            actions[id] = FactoryBuildAction(UnitType.LIGHT).state_dict()
 
-    for unit in my_units:
-        if unit.cargo.ice > 10 or unit.cargo.ore > 10:
+    for id, unit in my_units.items():
+        x, y = unit["pos"]
+
+        if unit["cargo"]["ice"] > 10 or unit["cargo"]["ore"] > 10:
+            if id == "unit_11":
+                print("Dropping off!")
             # Bring resources to factory. Should automatically drop off
-            goal = nearest_factory(my_factories, unit.pos)
-            move_dir = direction_between(unit.pos, goal)
-            actions[unit.id] = MoveAction(move_dir)
+            goal = nearest_factory(my_factories, unit["pos"])["pos"]
+            move_dir = direction_between(unit["pos"], goal)
+            move_dir = from_dirs(move_dir)
+            actions[id] = [MoveAction(move_dir).state_dict()]
 
-        elif observation["resources"]["ice"][unit.pos] > 0: # Mine ice
-            if unit.unit_type == UnitType.LIGHT:
-                pickup = configuration.ROBOTS["LIGHT"].DIG_RESOURCE_GAIN
-            else:
-                pickup = configuration.ROBOTS["HEAVY"].DIG_RESOURCE_GAIN
+        elif ((x, y) not in factory_positions and
+                observation["board"]["ice"][y, x] > 0): # Mine ice
+            if id == "unit_11":
+                print("Mining ice!", observation["board"]["ice"][y, x])
 
-            actions[unit.id] = PickupAction(0, pickup, repeat=True) # 0 = ice
+            actions[id] = [DigAction().state_dict()] # 0 = ice
 
-        elif observation["resources"]["ore"][unit.pos] > 0: # Mine ore
-            if unit.unit_type == UnitType.LIGHT:
-                pickup = configuration.ROBOTS["LIGHT"].DIG_RESOURCE_GAIN
-            else:
-                pickup = configuration.ROBOTS["HEAVY"].DIG_RESOURCE_GAIN
-
-            actions[unit.id] = PickupAction(1, pickup, repeat=True) # 1 = ore
+        elif ((x, y) not in factory_positions and
+                observation["board"]["ore"][y, x] > 0): # Mine ore
+            if id == "unit_11":
+                print("Mining ore!", observation["board"]["ore"][y, x])
+            actions[id] = [DigAction().state_dict()] # 1 = ore
 
         else: # Move randomly
-            actions[unit.id] = MoveAction(random.choice(DIRECTIONS))
+            actions[id] = [MoveAction(random.randrange(len(DIRECTIONS))).state_dict()]
+            if id == "unit_11":
+                print("Moving randomly!")
 
-        # How to append the actions to the queue?
-        # TODO: Figure that out.
-        return actions
+    return actions

@@ -19,10 +19,8 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
     while len(frontier) > 0:
         pos = frontier.popleft()
         if (pos[0], pos[1]) in seen: continue
-        if pos[0] < 0 or pos[1] < 0 or pos[0] >= forbidden.shape[1] or pos[1] >= forbidden.shape[0]:
-            continue
         seen.add((pos[0], pos[1]))
-        if forbidden[pos[1], pos[0]]:
+        if forbidden[pos[1], pos[0]]: 
             continue
         pos_lichen = lichen[pos[1], pos[0]]
         # check for surrounding tiles with lichen and no incompatible lichen strains, grow on those
@@ -44,7 +42,7 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             if pos_lichen >= MIN_LICHEN_TO_SPREAD and adj_strain == -1:
                 # empty tile and current tile has enough lichen to spread
                 frontier.append(check_pos)
-
+                
         if can_grow:
             grow_lichen_positions.add((pos[0], pos[1]))
     return grow_lichen_positions
@@ -64,11 +62,11 @@ class Factory:
 
     def refine_step(self, config: EnvConfig):
         consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
-        consumed_ore = min(self.cargo.ore, config.FACTORY_PROCESSING_RATE_METAL)
+        consumed_ore = min(self.cargo.metal, config.FACTORY_PROCESSING_RATE_METAL)
 
         self.cargo.ice -= consumed_ice
         self.cargo.ore -= consumed_ore
-
+        
         # TODO - are we rounding or doing floats or anything?
         self.cargo.water += consumed_ice / config.ICE_WATER_RATIO
         self.cargo.metal += consumed_ore / config.ORE_METAL_RATIO
@@ -76,7 +74,7 @@ class Factory:
     def cache_water_info(self, board: Board, env_cfg: EnvConfig):
         # TODO this can easily be a fairly slow function, can we make it much faster?
         # Caches information about which tiles lichen can grow on for this factory
-
+        
         # perform a BFS from the factory position and look for non rubble, non factory tiles.
         # find the current frontier from 4 starting positions x marked below
         """
@@ -86,7 +84,7 @@ class Factory:
         x |     | x
           |_ _ _|
              x
-
+        
         """
         forbidden = (board.rubble > 0) | (board.factory_occupancy_map != -1)
         init_arr = np.stack([self.pos.pos + np.array([0, -2]), self.pos.pos + np.array([2, 0]), self.pos.pos + np.array([0, 2]), self.pos.pos + np.array([-2, 0])])

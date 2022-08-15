@@ -55,7 +55,7 @@ def env():
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
 
-    def __init__(self, max_episode_length=1001, **kwargs):
+    def __init__(self, max_episode_length=1000, **kwargs):
         # TODO - allow user to override env configs
         default_config = EnvConfig(**kwargs)
         self.env_cfg = default_config
@@ -248,9 +248,9 @@ class LuxAI2022(ParallelEnv):
             for unit, dig_action in actions_by_type["dig"]:
                 dig_action: DigAction
                 if self.state.board.rubble[unit.pos.y, unit.pos.x] > 0:
-                    self.state.board.rubble[unit.pos.y, unit.pos.x] = max(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
+                    self.state.board.rubble[unit.pos.y, unit.pos.x] = min(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
                 elif self.state.board.lichen[unit.pos.y, unit.pos.x] > 0:
-                    self.state.board.lichen[unit.pos.y, unit.pos.x] = max(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+                    self.state.board.lichen[unit.pos.y, unit.pos.x] = min(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
                 elif self.state.board.ice[unit.pos.y, unit.pos.x] > 0:
                     unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
                 elif self.state.board.ore[unit.pos.y, unit.pos.x] > 0:
@@ -266,19 +266,12 @@ class LuxAI2022(ParallelEnv):
             # TODO - robot building with factories
             for factory, factory_build_action in actions_by_type["factory_build"]:
                 factory: Factory
-                factory_build_action: FactoryBuildAction
                 team = self.state.teams[factory.team.agent]
                 self.add_unit(
                     team=team,
                     unit_type=UnitType.HEAVY if factory_build_action.unit_type == 1 else UnitType.LIGHT,
                     pos=factory.pos.pos,
                 )
-                if factory_build_action.unit_type == 1:
-                    factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
-                    factory.sub_resource(4, self.env_cfg.ROBOTS["HEAVY"].POWER_COST)
-                else:
-                    factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
-                    factory.sub_resource(4, self.env_cfg.ROBOTS["LIGHT"].POWER_COST)
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -454,7 +447,7 @@ class LuxAI2022(ParallelEnv):
 
     def add_factory(self, team: Team, pos: np.ndarray):
         factory = Factory(team=team, unit_id=f"factory_{self.state.global_id}", num_id=self.state.global_id)
-        factory.pos.pos = list(pos)
+        factory.pos.pos = pos.copy()
         # TODO verify spawn locations are valid
         # TODO MAKE THESE CONSTANTS
         factory.cargo.water = 100

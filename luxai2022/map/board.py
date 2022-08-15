@@ -38,6 +38,12 @@ class Board:
         self.factory_map: Dict[str, 'Factory'] = dict()
         # != -1 if a factory tile is on the location. Equals factory number id
         self.factory_occupancy_map = -np.ones((self.height, self.width), dtype=int)
+
+
+        # Valid spawn locations
+        self.spawns = {"player_0": self.get_valid_spawns(0),
+                       "player_1": self.get_valid_spawns(1)}
+
     def pos_hash(self, pos: Position):
         return f"{pos.x},{pos.y}"
     def get_units_at(self, pos: Position):
@@ -50,6 +56,37 @@ class Board:
         if pos_hash in self.factory_map:
             return self.factory_map[pos_hash]
         return None
+
+    def get_valid_spawns(self, team_id):
+        xx, yy = np.mgrid[:self.width, :self.height]
+        if self.map.symmetry == "horizontal":
+            if team_id == 0:
+                x, y = np.where(xx < (self.width - 1) / 2)
+            else:
+                x, y = np.where(xx > (self.width - 1) / 2)
+        if self.map.symmetry == "vertical":
+            if team_id == 0:
+                x, y = np.where(yy < (self.height - 1) / 2)
+            else:
+                x, y = np.where(yy > (self.height - 1) / 2)
+        if self.map.symmetry == "rotational":
+            if team_id == 0:
+                x, y = np.where(xx < (self.width - 1) / 2)
+            else:
+                x, y = np.where(xx > (self.width - 1) / 2)
+        if self.map.symmetry == "/":
+            if team_id == 0:
+                x, y = np.where(xx - yy < 0)
+            else:
+                x, y = np.where(xx - yy > 0)
+        if self.map.symmetry == "\\":
+            if team_id == 0:
+                x, y = np.where(xx + yy < (self.width + self.height) / 2 - 1)
+            else:
+                x, y = np.where(xx + yy > (self.width + self.height) / 2 - 1)
+
+        return np.array([*zip(x, y)])
+
     @property
     def rubble(self) -> np.ndarray:
         return self.map.rubble
@@ -65,11 +102,6 @@ class Board:
             ore=self.ore.copy(),
             ice=self.ice.copy(),
             lichen=self.lichen.copy(),
-            lichen_strains=self.lichen_strains.copy()
+            lichen_strains=self.lichen_strains.copy(),
+            spawns=self.spawns.copy()
         )
-        
-
-        
-        
-        
-

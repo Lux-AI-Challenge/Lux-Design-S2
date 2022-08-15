@@ -4,16 +4,12 @@ from scipy.fft import dctn, idctn
 from luxai2022.map_generator.visualize import viz
 from luxai2022.map_generator.symnoise import SymmetricNoise, symmetrize
 
-random = np.random.RandomState()
-
-# TODO:
-# - Faster algorithm for island generation.
-
 class GameMap(object):
-    def __init__(self, rubble, ice, ore):
+    def __init__(self, rubble, ice, ore, symmetry):
         self.rubble = rubble
         self.ice = ice
         self.ore = ore
+        self.symmetry = symmetry
         self.width, self.height = len(rubble[0]), len(rubble)
 
     @staticmethod
@@ -87,7 +83,7 @@ class Cave(GameMap):
         mask = noise.random.randint(6, size=(height, width))
         mask[mask >= 1] = 1
         symmetrize(mask, symmetry)
-
+        
         # Build clumps of ones (will be interior of caves)
         for i in range(3):
             mask = convolve(mask, [[1]*3]*3, mode="constant", cval=0) // 6
@@ -117,7 +113,7 @@ class Cave(GameMap):
         ore[mask==0] = 0
         ore[ore < np.percentile(ore, 95)] = 0
         ore = np.round(ore * 50 + 50)
-        super().__init__(rubble, ice, ore)
+        super().__init__(rubble, ice, ore, symmetry)
 
 class Craters(GameMap):
     def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
@@ -170,7 +166,7 @@ class Craters(GameMap):
         ore[ore < np.percentile(ore, 95)] = 0
         ore = np.round(50 * ore + 50)
 
-        super().__init__(rubble, ice, ore)
+        super().__init__(rubble, ice, ore, symmetry)
 
 def solve_poisson(f):
     """
@@ -323,7 +319,7 @@ class Mountain(GameMap):
         ore[ore < np.percentile(ore, 80)] = 0
         ore[ore > np.percentile(ore, 85)] = 0
 
-        super().__init__(rubble, ice, ore)
+        super().__init__(rubble, ice, ore, symmetry)
 
 class Island(GameMap):
     def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
@@ -376,7 +372,7 @@ class Island(GameMap):
         ore[ore < 50] = 0
         ore[mask!=0] = 0
 
-        super().__init__(rubble, ice, ore)
+        super().__init__(rubble, ice, ore, symmetry)
 
 
 if __name__ == "__main__":

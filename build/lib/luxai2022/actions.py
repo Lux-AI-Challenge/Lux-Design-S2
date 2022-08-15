@@ -26,14 +26,12 @@ class Action:
 
 
 class FactoryBuildAction(Action):
-    def __init__(self, unit_type: luxai_unit.UnitType) -> None:
+    def __init__(self, unit_type: int) -> None:
         super().__init__("factory_build")
         self.unit_type = unit_type
 
     def state_dict(self):
-        if self.unit_type == luxai_unit.UnitType.LIGHT:
-            return 0
-        return 1
+        return self.unit_type
 
 
 class FactoryWaterAction(Action):
@@ -291,7 +289,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
         valid_action = True
         build_action: FactoryBuildAction
         factory: 'Factory'
-
+        
         if build_action.unit_type == 0:
             unit_cfg = env_cfg.ROBOTS["LIGHT"]
             # Light
@@ -306,7 +304,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
         if valid_action:
             actions_by_type_validated["factory_build"].append((factory, build_action))
         pass
-
+        
     for factory, water_action in actions_by_type["factory_water"]:
         valid_action = True
         water_cost = factory.water_cost(env_cfg)

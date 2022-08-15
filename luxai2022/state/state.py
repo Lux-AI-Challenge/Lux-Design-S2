@@ -48,9 +48,9 @@ class State:
                 state_dict = factory.state_dict()
                 factories[team][factory.unit_id] = state_dict
         return factories
-    
+
     def get_obs(self):
-        
+
         # TODO: speedups?
         units = State.generate_unit_data(self.units)
         teams = State.generate_team_data(self.teams)
@@ -77,7 +77,7 @@ class State:
         returns sparse dicts for large matrices of where values change only
         """
         data = self.get_compressed_obs()
-        
+
         data["board"]["rubble"] = dict()
         data["board"]["lichen"] = dict()
         data["board"]["lichen_strains"] = dict()
@@ -95,7 +95,7 @@ class State:
             y,x = ind[0], ind[1]
             data["board"]["lichen_strains"][f"{x},{y}"] = self.board.rubble[y, x]
         return data
-        
+
     def from_obs(obs):
         # generate state from compressed obs
         pass
