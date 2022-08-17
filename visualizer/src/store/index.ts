@@ -99,6 +99,8 @@ export const useStore = create<Store>((set, get) => ({
 
   /* selected entity */
   selectedEntity: initial.selectedEntity,
+
+  tileWidth: initial.tileWidth
 }))
 
 /**

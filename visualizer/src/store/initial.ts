@@ -13,4 +13,6 @@ export const initial = {
   speed: initialSpeed,
   
   selectedEntity: initialSelectedEntity,
+
+  tileWidth: 14
 }

@@ -61,5 +61,5 @@ export type Store = {
 
   /* zoom */
   
-  // TODO. heck do we even want zoom in the zustand global store?
+  tileWidth: number;
 }
