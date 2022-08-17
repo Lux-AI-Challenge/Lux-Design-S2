@@ -25,9 +25,7 @@ dependencies:
   - gym=0.19
 
   - pip:
-    - stable-baselines3
     - pettingzoo
-    - omegaconf
     - termcolor
     - opensimplex
     - pygame

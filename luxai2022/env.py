@@ -131,7 +131,7 @@ class LuxAI2022(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         self.seed = seed
-        board = Board()
+        board = Board(seed=seed)
         self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board)
         for agent in self.possible_agents:
             self.state.units[agent] = OrderedDict()
