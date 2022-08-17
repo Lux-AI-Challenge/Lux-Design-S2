@@ -12,8 +12,9 @@ interface GameMapProps {
   // setHoveredTilePos: any
   handleOnMouseEnterTile: any;
 }
-const rows = Array.from({ length: 64 });
-const cols = Array.from({ length: 64 });
+const mapWidth = 64;
+const rows = Array.from({ length: mapWidth });
+const cols = Array.from({ length: mapWidth });
 export  const GameMap = React.memo(({handleOnMouseEnterTile}: GameMapProps) => {
   const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
   const { turn, speed } = useStoreKeys("turn", "speed");
@@ -26,33 +27,46 @@ export  const GameMap = React.memo(({handleOnMouseEnterTile}: GameMapProps) => {
   const tileBorder = 1;
 
   const tileSize = tileWidth + tileBorder * 2;
-  for (let i = 0; i < 64; i++) {
-    for (let j = 0; j < 64; j++) {
-      const elem = document.getElementById(`lichen-${i*64+j}`)
-      const rubble = document.getElementById(`rubble-${i*64+j}`)
-      if (elem) {
-        const lichen = frame.board.lichen[i][j];
-        elem.style.opacity = `${lichen / 10}`;
-      }
-      if (rubble) {
-        rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
-      }
-    }
-  }
+  // const factor = 20;
+  // for (let i = 0; i < 64; i++) {
+  //   for (let j = 0; j < 64; j++) {
+  //     const elem = document.getElementById(`lichen-${i*64+j}`)
+  //     const rubble = document.getElementById(`rubble-${i*64+j}`)
+  //     if (elem) {
+        
+        
+  //       const lichen = frame.board.lichen[i][j];
+  //       if (!elem.getAttribute("lichen")) {
+  //         elem.setAttribute("lichen", `${lichen}`)
+  //       }
+  //       //@ts-ignore
+  //       const oldLichen = parseFloat(elem.getAttribute("lichen"));
+  //       // console.log({lichen, oldLichen})
+  //     if (Math.round(lichen / factor) != Math.round(oldLichen / factor)) {
+  //       elem.style.opacity = `${lichen / 10}`;
+         
+  //       }
+  //       elem.setAttribute("lichen", `${lichen}`)
+  //     }
+  //     if (rubble) {
+  //       rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
+  //     }
+  //   }
+  // }
   return (
     <>
       
       <div className={s.mapContainer}>
         {/* bottom layer (height map, rubble, etc) */}
         <div className={s.mapLayer}>
-          <Bottom frame={replay.states[0]} frameZero={frameZero} />
+          <Bottom frame={replay.states[turn]} frameZero={frameZero} />
           </div>
 
         {/* top layer (units, buildings, etc) */}
         <div
           className={s.unitLayer}
           style={{
-            width: `${tileSize * 64}px`,
+            width: `${tileSize * mapWidth}px`,
           }}
         >
           {["player_0", "player_1"].map((agent: Player) => {

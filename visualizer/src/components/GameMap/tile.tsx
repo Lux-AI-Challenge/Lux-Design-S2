@@ -20,12 +20,10 @@ interface BottomProps {
 }
 const rows = Array.from({ length: 64 });
 const cols = Array.from({ length: 64 });
-let i =0;
 export const GroundTile = React.memo(
   ({ rubble, lichen, ice, ore, x, y }: BottomProps) => {
     const tileWidth = 12;
     const tileBorder = 1;
-    console.log("render", {x,y})
     const tileSize = tileWidth + tileBorder * 2;
     if (ice > 0) {
       return (
@@ -88,16 +86,16 @@ export const GroundTile = React.memo(
   },
   (prevProps, nextProps) => {
     // TODO don't change if lichen doesn't enter a new bracket
-    // console.log("CHECK", i)
-    i += 1;
     if (prevProps.rubble !== nextProps.rubble || prevProps.lichenStrain !== nextProps.lichenStrain || prevProps.handleOnMouseEnterTile !== nextProps.handleOnMouseEnterTile) {
       return false;
     }
-    // if (prevProps.lichen !== nextProps.lichen) {
-    //   if (nextProps.lichen > 20 && prevProps.lichen < 20) {
-    //     return false;
-    //   }
-    // }
+    if (prevProps.lichen !== nextProps.lichen) {
+      if (nextProps.lichen > 20) return true;
+      const factor = 20;
+      if (Math.round(nextProps.lichen / factor) != Math.round(prevProps.lichen / factor)) {
+        return false;
+      }
+    }
     return true;
   }
 );
