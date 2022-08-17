@@ -2,6 +2,7 @@ import type { Replay } from "@/types/replay"
 import type { LoadReplayAction } from "./load-replay/types"
 import type { Speed, SpeedAction } from "./autoplay/types"
 import type { Turn, TurnAction } from "./turn/types"
+import { Factory, Unit } from "@/types/replay/unit"
 
 export type Store = {
   /* the replay file */
@@ -62,4 +63,10 @@ export type Store = {
   /* zoom */
   
   tileWidth: number;
+
+  /* tile info */
+
+  gameInfo: {posToUnit: Map<string, Unit>, posToFactory: Map<string, Factory>}
+  // TODO: TYPING
+  updateGameInfo: (action: any) => void
 }

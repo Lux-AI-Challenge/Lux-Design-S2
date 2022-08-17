@@ -5,9 +5,10 @@ import s from "./styles.module.scss";
 import groundSvg from "@/assets/ground.svg";
 import factorySvg from "@/assets/factory.svg";
 import { Player } from "@/types/replay/player";
-import React, { MouseEventHandler, useState } from "react";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Bottom } from "./bottom";
 import { InteractionLayer } from "@/components/GameMap/interactor";
+import { Unit } from "@/types/replay/unit";
 interface GameMapProps {
   // hoveredTilePos: {x: number, y: number};
   // setHoveredTilePos: any
@@ -19,9 +20,17 @@ const mapWidth = 64;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 export const GameMap = React.memo(
-  ({ handleOnMouseEnterTile, viewedTilePos, handleClickTile }: GameMapProps) => {
+  ({
+    handleOnMouseEnterTile,
+    viewedTilePos,
+    handleClickTile,
+  }: GameMapProps) => {
     const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
-    const { turn, speed } = useStoreKeys("turn", "speed");
+    const { turn, speed, updateGameInfo } = useStoreKeys(
+      "turn",
+      "speed",
+      "updateGameInfo"
+    );
     const frame = replay.states[turn];
     const frameZero = replay.states[0];
     const mapWidth = frame.board.rubble.length;
@@ -55,22 +64,55 @@ export const GameMap = React.memo(
     //     }
     //   }
     // }
-    
+
     // const [dragTranslation, setDragTranslation] = useState({x: 0, y: 0})
-    console.log("RENDER")
+    const unitRender: Array<JSX.Element> = [];
+    const posToUnit: Map<string, Unit> = new Map();
+    const posToFactory: Map<string, Unit> = new Map(); // TODO
+    // we should onyl do this when turns change
+    {
+      ["player_0", "player_1"].forEach((agent: Player) => {
+        return Object.values(frame.units[agent]).forEach((unit) => {
+          posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
+          unitRender.push(
+            <div
+              key={unit.unit_id}
+              className={s.unit}
+              style={{
+                // @ts-ignore
+                "--x": `${unit.pos[0] * tileSize}px`,
+                "--y": `${unit.pos[1] * tileSize}px`,
+                "--t": `calc(1s / ${speed})`,
+              }}
+            >
+              {/* add back once we have assets */}
+              {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
+              <div
+                style={{
+                  width: tileWidth,
+                  height: tileWidth,
+                  borderRadius: "50%",
+                  backgroundColor:
+                    unit.unit_type === "HEAVY"
+                      ? "rgb(112,162,136)"
+                      : "rgb(193,215,204)",
+                  border: "1px solid black",
+                }}
+              ></div>
+            </div>
+          );
+        });
+      });
+    }
+    useEffect(() => {
+      updateGameInfo({ type: "set", data: { posToUnit, posToFactory } });
+    }, [turn]);
     return (
       <>
         <div id="mapContainer" className={s.mapContainer}>
-          
           {/* bottom layer (height map, rubble, etc) */}
-            <Bottom frame={replay.states[turn]} frameZero={frameZero} />
+          <Bottom frame={replay.states[turn]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}
-          <InteractionLayer handleOnMouseEnterTile={handleOnMouseEnterTile} handleClickTile={handleClickTile} viewedTilePos={viewedTilePos}
-            // dragTranslation={dragTranslation}
-            // setDragTranslationOffset={setDragTranslationOffset}
-            // setDragTranslation={setDragTranslation}
-          
-          />
           <div
             className={s.unitLayer}
             style={{
@@ -103,38 +145,13 @@ export const GameMap = React.memo(
                 );
               });
             })}
-            {["player_0", "player_1"].map((agent: Player) => {
-              return Object.values(frame.units[agent]).map((unit) => {
-                return (
-                  <div
-                    key={unit.unit_id}
-                    className={s.unit}
-                    style={{
-                      // @ts-ignore
-                      "--x": `${unit.pos[0] * tileSize}px`,
-                      "--y": `${unit.pos[1] * tileSize}px`,
-                      "--t": `calc(1s / ${speed})`,
-                    }}
-                  >
-                    {/* add back once we have assets */}
-                    {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
-                    <div
-                      style={{
-                        width: tileWidth,
-                        height: tileWidth,
-                        borderRadius: "50%",
-                        backgroundColor:
-                          unit.unit_type === "HEAVY"
-                            ? "rgb(112,162,136)"
-                            : "rgb(193,215,204)",
-                        border: "1px solid black",
-                      }}
-                    ></div>
-                  </div>
-                );
-              });
-            })}
+            {unitRender}
           </div>
+          <InteractionLayer
+            handleOnMouseEnterTile={handleOnMouseEnterTile}
+            handleClickTile={handleClickTile}
+            viewedTilePos={viewedTilePos}
+          />
         </div>
       </>
     );
