@@ -39,6 +39,12 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
         <h3>
           ({viewedTilePos.x}, {viewedTilePos.y})
         </h3>
+        <div>
+<p>Rubble: {frame.board.rubble[viewedTilePos.y][viewedTilePos.x]}</p>
+<p>Lichen: {frame.board.lichen[viewedTilePos.y][viewedTilePos.x]}</p>
+<p>Lichen Strain: {frame.board.lichen_strains[viewedTilePos.y][viewedTilePos.x]}</p>
+
+        </div>
         {viewedUnit && (
           <div>
             <h4>{toTitleCase(viewedUnit.unit_type)} unit: {viewedUnit.unit_id}</h4>
