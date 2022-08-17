@@ -1,5 +1,6 @@
 .mapContainer {
   position: relative;
+  will-change: transform;
 }
 .unitLayer {
   position: absolute;

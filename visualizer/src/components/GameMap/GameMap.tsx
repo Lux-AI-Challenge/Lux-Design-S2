@@ -55,14 +55,22 @@ export const GameMap = React.memo(
     //     }
     //   }
     // }
+    
+    // const [dragTranslation, setDragTranslation] = useState({x: 0, y: 0})
+    console.log("RENDER")
     return (
       <>
-        <div className={s.mapContainer}>
+        <div id="mapContainer" className={s.mapContainer}>
           
           {/* bottom layer (height map, rubble, etc) */}
             <Bottom frame={replay.states[turn]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}
-          <InteractionLayer handleOnMouseEnterTile={handleOnMouseEnterTile} handleClickTile={handleClickTile} viewedTilePos={viewedTilePos} />
+          <InteractionLayer handleOnMouseEnterTile={handleOnMouseEnterTile} handleClickTile={handleClickTile} viewedTilePos={viewedTilePos}
+            // dragTranslation={dragTranslation}
+            // setDragTranslationOffset={setDragTranslationOffset}
+            // setDragTranslation={setDragTranslation}
+          
+          />
           <div
             className={s.unitLayer}
             style={{
