@@ -22,6 +22,7 @@ ChartJS.register(
 );
 import s from "./charts.module.scss"
 import {Line} from 'react-chartjs-2'
+import { useStore, useStoreKeys } from '@/store';
 export const Charts = () => {
   // const labels = Utils.months({count: 7});
   const labels = [0,1,2,3,4,5,6,7,8,9,10];
@@ -112,6 +113,14 @@ export const Charts = () => {
       tension: 0.1
     }]
   };
+  const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
+  const { turn, speed, updateGameInfo, tileWidth } = useStoreKeys(
+    "turn",
+    "speed",
+    "updateGameInfo",
+    "tileWidth"
+  );
+  const frame = replay.states[turn];
   return (
     <>
       <div>
