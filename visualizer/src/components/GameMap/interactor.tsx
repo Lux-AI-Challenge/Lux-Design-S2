@@ -75,8 +75,6 @@ export const InteractionLayer = React.memo(
                 height: `${tileWidth}px`,
                 border: "1px solid white",
                 position: "absolute",
-                // top: 0,
-                // left: 0,
                 transform: `translate3d(${viewedTilePos.x * tileSize}px, ${
                   viewedTilePos.y * tileSize
                 }px, 0)`,
@@ -90,7 +88,7 @@ export const InteractionLayer = React.memo(
           style={{
             width: `${tileSize * 64}px`,
             height: `${tileSize * 64}px`,
-            border: "1px solid black",
+            border: "1px solid rgba(0,0,0,0)",
           }}
           onKeyDown={keyDownHandler}
           onMouseMove={(e) => {

@@ -30,7 +30,7 @@ export const Bottom = React.memo(
     return (
       <>   
         {/* bottom layer (height map, rubble, etc) */}
-        <div className={s.mapLayer}>
+        <div className={s.mapLayer} style={{position: 'relative'}}>
           {rows.map((_, i) =>
             cols.map((_, j) => {
               return (

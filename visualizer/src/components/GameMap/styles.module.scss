@@ -1,17 +1,17 @@
 .mapContainer {
   position: relative;
-  will-change: transform;
+  width: max-content;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
 }
 .unitLayer {
   position: absolute;
-  text-align: center;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  top: 0;
 }
 .mapLayer {
   position: absolute;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  top: 0;
   // TODO: THIS IS CURRENTLY A TEMPORARY HARDCODED LENGTH FOR TESTING
   display: grid;
   grid-template-columns: repeat(64, 1fr);

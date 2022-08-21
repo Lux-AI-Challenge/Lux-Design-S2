@@ -1,15 +1,17 @@
 @use "sass:math";
+@import "../../main.scss";
 
 $slider-width: 38rem;
 
 .controls {
-  position: absolute;
-  bottom: 2rem;
-  left: calc(50% - #{math.div($slider-width, 2)});
+  position: relative;
+  margin-top: 1rem;
 }
 
 .turn {
   text-align: center;
+  font-weight: 600;
+  margin-left: -2rem;
 }
 
 .slider {
@@ -30,7 +32,13 @@ $slider-width: 38rem;
 .buttons button {
   margin-left: .5rem;
   margin-right: .5rem;
-  background-color: rgb(239, 76, 70);
+  background-color: transparent;
+}
+.speed {
+  display: inline-flex;
+  align-items: center;
+  color: white;
+  font-weight: 600;
 }
 
 :global {

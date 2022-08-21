@@ -3,7 +3,7 @@ import { GameMap } from "@/components/GameMap";
 import { TileView } from "@/components/TileView/TileView";
 import { useStoreKeys } from "@/store";
 import { MouseEventHandler, useState } from "react";
-
+import s from "./styles.module.scss";
 export function ReplayViewer() {
   const { tileWidth } = useStoreKeys("tileWidth");
   const tileSize = tileWidth + 1 * 2;
@@ -26,7 +26,7 @@ export function ReplayViewer() {
     return { x, y };
   };
   const outOfBounds = ({ x, y }: { x: number; y: number }) => {
-    return (x < 0 || y < 0 || x >= 64 || y >= 64);
+    return x < 0 || y < 0 || x >= 64 || y >= 64;
   };
   const handleOnMouseEnterTile: MouseEventHandler<HTMLDivElement> = (e) => {
     const { x, y } = getTileXYFromEvent(e);
@@ -55,13 +55,19 @@ export function ReplayViewer() {
   };
   return (
     <>
-      <GameMap
-        handleOnMouseEnterTile={handleOnMouseEnterTile}
-        viewedTilePos={viewedTilePos}
-        handleClickTile={handleClickTile}
-      />
-      <Controls />
-      <TileView viewedTilePos={viewedTilePos} />
+      <div className={s.viewer}>
+      <div className={s.leftPanel}>
+          <TileView viewedTilePos={viewedTilePos} />
+        </div>
+        <div className={s.gameWrapper}>
+          <GameMap
+            handleOnMouseEnterTile={handleOnMouseEnterTile}
+            viewedTilePos={viewedTilePos}
+            handleClickTile={handleClickTile}
+          />
+          <Controls />
+        </div>
+      </div>
     </>
   );
 }

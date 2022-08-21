@@ -71,7 +71,7 @@ export function Controls ({}: ControlsProps) {
         />
         <div className={s.buttons}>
           {/* restart replay button */}
-          <button onClick={onClickRestartButton}><img src={reloadIcon} /></button>
+          {/* <button onClick={onClickRestartButton}><img src={reloadIcon} /></button> */}
 
           {/* decrease speed button */}
           <button onClick={() => updateSpeed({ type: 'decrease' })} disabled={speed === SPEEDS[0]}>
@@ -89,7 +89,7 @@ export function Controls ({}: ControlsProps) {
           </button>
 
           {/* speed display */}
-          <span>{`${speed}x`}</span>
+          <span className={s.speed}>{`${speed}x`}</span>
         </div>
       </div>
     </>
