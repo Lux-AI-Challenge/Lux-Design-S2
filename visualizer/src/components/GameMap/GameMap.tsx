@@ -118,7 +118,7 @@ export const GameMap = React.memo(
       <>
         <div id="mapContainer" className={s.mapContainer}>
           {/* bottom layer (height map, rubble, etc) */}
-          <Bottom frame={replay.states[turn]} frameZero={frameZero} />
+          {/* <Bottom frame={replay.states[1]} frameZero={frameZero} /> */}
           {/* top layer (units, buildings, etc) */}
           <div
             className={s.unitLayer}

@@ -1,7 +1,10 @@
+import { Charts } from "@/components/InfoPanel/Charts";
 import { TileView } from "@/components/TileView/TileView";
 import { useStoreKeys } from "@/store";
 import { Player } from "@/types/replay/player";
 import React from "react";
+
+
 import s from "./styles.module.scss";
 type InfoPanelProps = {
   viewedTilePos: { x: number; y: number } | null;
@@ -45,6 +48,7 @@ export const InfoPanel = React.memo(
             </div>
           </div>
           <TileView viewedTilePos={viewedTilePos} />
+          <div className={s.chartWrapper}><Charts /></div>
         </div>
       </div>
       </>
