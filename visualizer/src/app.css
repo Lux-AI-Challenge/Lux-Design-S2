@@ -10,3 +10,6 @@
 html, body, #app {
   height: 100%;
 }
+p, span, div {
+  font-weight: 600;
+}

@@ -1,5 +1,6 @@
 import { Controls } from "@/components/Controls";
 import { GameMap } from "@/components/GameMap";
+import { InfoPanel } from "@/components/InfoPanel";
 import { TileView } from "@/components/TileView/TileView";
 import { useStoreKeys } from "@/store";
 import { MouseEventHandler, useState } from "react";
@@ -57,14 +58,16 @@ export function ReplayViewer() {
     <>
       <div className={s.viewer}>
       <div className={s.leftPanel}>
-          <TileView viewedTilePos={viewedTilePos} />
+          <InfoPanel viewedTilePos={viewedTilePos} />
         </div>
         <div className={s.gameWrapper}>
+          <div className={s.gameMapWrapper}>
           <GameMap
             handleOnMouseEnterTile={handleOnMouseEnterTile}
             viewedTilePos={viewedTilePos}
             handleClickTile={handleClickTile}
           />
+          </div>
           <Controls />
         </div>
       </div>

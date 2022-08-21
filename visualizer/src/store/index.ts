@@ -114,6 +114,8 @@ export const useStore = create<Store>((set, get) => ({
   gameInfo: {
     posToUnit: new Map(),
     posToFactory: new Map(),
+    unitCounts: {},
+    factoryCounts: {}
   },
   updateGameInfo: (action) =>
     set((state) => {

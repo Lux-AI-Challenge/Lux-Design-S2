@@ -66,7 +66,7 @@ export type Store = {
 
   /* tile info */
 
-  gameInfo: {posToUnit: Map<string, Unit>, posToFactory: Map<string, Factory>}
+  gameInfo: {posToUnit: Map<string, Unit>, posToFactory: Map<string, Factory>, factoryCounts: Record<string, number>, unitCounts: Record<string, number> }
   // TODO: TYPING
   updateGameInfo: (action: any) => void
 }

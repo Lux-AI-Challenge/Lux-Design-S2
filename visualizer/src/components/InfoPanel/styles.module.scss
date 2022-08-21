@@ -1,0 +1,73 @@
+.infoPanel {
+
+}
+$p0-primary: #007D51;
+$p0-secondary: #1EB980;
+$p1-primary: #0082FB;
+$p1-secondary: #0082FB;
+
+.body {
+  position: relative;
+  background-color: #373740;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  .globalStats {
+    margin: auto;
+    display: flex;
+    justify-content: space-around;
+    width: calc(100% - 8rem);
+    p {
+      margin: 0.5rem;
+    }
+    .value {
+      width: 20%;
+      height: 8rem;
+      div {
+        background-color: $p0-secondary;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+    }
+    .value:last-child div {
+      background-color: $p1-secondary;
+    }
+    
+  }
+}
+$teamborderradius: 8rem;
+.teams {
+  position: relative;
+  width: 100%;
+  font-weight: 600;
+  height: fit-content;
+  .teamname {
+    font-size: 1.5rem;
+  }
+  p {
+    margin: 0rem;
+    margin-bottom: 0.25rem;
+  }
+  p:last-child {
+    margin-bottom: 0rem;
+  }
+  .p0 {
+    left: 0;
+    top: 0;
+    position: relative;
+    width: 50%;
+    background-color: $p0-primary;
+    border-top-right-radius: $teamborderradius;
+    text-align: left;
+    padding-left: 1rem;
+  }
+  .p1 {
+    right: 0;
+    top: 0;
+    position: absolute;
+    width: 50%;
+    background-color: $p1-primary;
+    border-top-left-radius: $teamborderradius;
+    text-align: right;
+    padding-right: 1rem;
+  }
+}

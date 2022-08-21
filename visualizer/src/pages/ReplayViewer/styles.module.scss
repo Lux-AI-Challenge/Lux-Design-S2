@@ -7,8 +7,13 @@
 }
 .leftPanel {
   width: 30%;
-  background-color: aqua;
   height: 20rem;
+  padding: 1rem;
+}
+.gameMapWrapper {
+  padding-top: 1rem;
+  justify-content: center;
+  display: flex;
 }
 .viewer > div {
   

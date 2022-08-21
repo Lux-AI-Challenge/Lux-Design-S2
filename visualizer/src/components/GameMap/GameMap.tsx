@@ -70,10 +70,16 @@ export const GameMap = React.memo(
     const unitRender: Array<JSX.Element> = [];
     const posToUnit: Map<string, Unit> = new Map();
     const posToFactory: Map<string, Unit> = new Map(); // TODO
-    // we should onyl do this when turns change
+    const factoryCounts: Record<string, number> = {};
+    const unitCounts: Record<string, number> = {};
+
+    // Collect all statistics ahead of time, we should move this out somewhere.
     {
       ["player_0", "player_1"].forEach((agent: Player) => {
+        factoryCounts[agent] = Object.keys(frame.factories[agent]).length;
+        unitCounts[agent] = Object.keys(frame.units[agent]).length;
         return Object.values(frame.units[agent]).forEach((unit) => {
+          // store units by position
           posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
           unitRender.push(
             <div
@@ -106,7 +112,7 @@ export const GameMap = React.memo(
       });
     }
     useEffect(() => {
-      updateGameInfo({ type: "set", data: { posToUnit, posToFactory } });
+      updateGameInfo({ type: "set", data: { posToUnit, posToFactory, factoryCounts, unitCounts } });
     }, [turn]);
     return (
       <>
