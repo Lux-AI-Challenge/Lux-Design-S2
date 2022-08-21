@@ -12,12 +12,9 @@ const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 export const TileView = ({ viewedTilePos }: TileViewProps) => {
   function toTitleCase(str: string) {
-    return str.replace(
-      /\w\S*/g,
-      function(txt) {
-        return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
-      }
-    );
+    return str.replace(/\w\S*/g, function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+    });
   }
   const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
   const { turn, speed, gameInfo } = useStoreKeys("turn", "speed", "gameInfo");
@@ -40,16 +37,23 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
           ({viewedTilePos.x}, {viewedTilePos.y})
         </h3>
         <div>
-<p>Rubble: {frame.board.rubble[viewedTilePos.y][viewedTilePos.x]}</p>
-<p>Lichen: {frame.board.lichen[viewedTilePos.y][viewedTilePos.x]}</p>
-<p>Lichen Strain: {frame.board.lichen_strains[viewedTilePos.y][viewedTilePos.x]}</p>
-
+          <p>Rubble: {frame.board.rubble[viewedTilePos.y][viewedTilePos.x]}</p>
+          <p>Lichen: {frame.board.lichen[viewedTilePos.y][viewedTilePos.x]}</p>
+          <p>
+            Lichen Strain:{" "}
+            {frame.board.lichen_strains[viewedTilePos.y][viewedTilePos.x]}
+          </p>
         </div>
         {viewedUnit && (
           <div>
-            <h4>{toTitleCase(viewedUnit.unit_type)} unit: {viewedUnit.unit_id}</h4>
+            <h4>
+              {toTitleCase(viewedUnit.unit_type)} unit: {viewedUnit.unit_id}
+            </h4>
             <p>Power: {viewedUnit.power}</p>
-            <p>Cargo: Ice: {viewedUnit.cargo.ice}, Ore: {viewedUnit.cargo.ore}, Water: {viewedUnit.cargo.water}, Metal: {viewedUnit.cargo.metal}</p>
+            <p>
+              Cargo: Ice: {viewedUnit.cargo.ice}, Ore: {viewedUnit.cargo.ore},
+              Water: {viewedUnit.cargo.water}, Metal: {viewedUnit.cargo.metal}
+            </p>
             <p>Team: {viewedUnit.team_id}</p>
           </div>
         )}

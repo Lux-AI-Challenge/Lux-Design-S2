@@ -22,7 +22,9 @@ const rows = Array.from({ length: 64 });
 const cols = Array.from({ length: 64 });
 export const GroundTile = React.memo(
   ({ rubble, lichen, ice, ore, x, y }: BottomProps) => {
-    const tileWidth = 12;
+    const { tileWidth } = useStoreKeys(
+      "tileWidth"
+    );
     const tileBorder = 1;
     const tileSize = tileWidth + tileBorder * 2;
     if (ice > 0) {

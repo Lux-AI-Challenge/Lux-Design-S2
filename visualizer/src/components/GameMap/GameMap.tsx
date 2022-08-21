@@ -26,16 +26,17 @@ export const GameMap = React.memo(
     handleClickTile,
   }: GameMapProps) => {
     const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
-    const { turn, speed, updateGameInfo } = useStoreKeys(
+    const { turn, speed, updateGameInfo, tileWidth } = useStoreKeys(
       "turn",
       "speed",
-      "updateGameInfo"
+      "updateGameInfo",
+      "tileWidth"
     );
     const frame = replay.states[turn];
     const frameZero = replay.states[0];
     const mapWidth = frame.board.rubble.length;
 
-    const tileWidth = 12;
+    // const tileWidth = tileWidth;
     const tileBorder = 1;
 
     const tileSize = tileWidth + tileBorder * 2;

@@ -6,6 +6,7 @@ import { MouseEventHandler, useState } from "react";
 
 export function ReplayViewer() {
   const { tileWidth } = useStoreKeys("tileWidth");
+  const tileSize = tileWidth + 1 * 2;
   const [viewedTilePos, setViewedTilePos] = useState<{
     x: number;
     y: number;
@@ -20,8 +21,8 @@ export function ReplayViewer() {
     const bounds = e.target.getBoundingClientRect();
     let x = e.clientX - bounds.left;
     let y = e.clientY - bounds.top;
-    x = Math.floor(x / tileWidth);
-    y = Math.floor(y / tileWidth);
+    x = Math.floor(x / tileSize);
+    y = Math.floor(y / tileSize);
     return { x, y };
   };
   const outOfBounds = ({ x, y }: { x: number; y: number }) => {

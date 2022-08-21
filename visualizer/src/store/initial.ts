@@ -14,5 +14,5 @@ export const initial = {
   
   selectedEntity: initialSelectedEntity,
 
-  tileWidth: 14
+  tileWidth: 10
 }

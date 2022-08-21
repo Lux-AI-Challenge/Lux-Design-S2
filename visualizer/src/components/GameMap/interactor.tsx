@@ -2,7 +2,6 @@ import { useStoreKeys } from "@/store";
 import React, { useState } from "react";
 import s from "./styles.module.scss";
 const mapWidth = 64;
-const tileWidth = 12;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 interface InteractionLayerProps {
@@ -24,6 +23,7 @@ export const InteractionLayer = React.memo(
   }: InteractionLayerProps) => {
     const [dragTranslation, _setDragTranslation] = useState({x: 0, y: 0})
     const { tileWidth } = useStoreKeys("tileWidth");
+    const tileSize = tileWidth + 1 * 2;
     const [mouseDragging, setMouseDragging] = useState(false);
     const [dragTranslationOffset, setDragTranslationOffset] = useState({x: 0, y: 0})
     const setDragTranslation = ({x, y}: any) => {
@@ -63,8 +63,8 @@ export const InteractionLayer = React.memo(
         <div
         className={s.mapLayer}
           style={{
-            width: `${tileWidth * 64}px`,
-            height: `${tileWidth * 64}px`,
+            width: `${tileSize * 64}px`,
+            height: `${tileSize * 64}px`,
             position: 'absolute'
           }}
         >
@@ -73,12 +73,12 @@ export const InteractionLayer = React.memo(
               style={{
                 width: `${tileWidth}px`,
                 height: `${tileWidth}px`,
-                border: "1px solid black",
+                border: "1px solid white",
                 position: "absolute",
                 // top: 0,
                 // left: 0,
-                transform: `translate3d(${viewedTilePos.x * tileWidth}px, ${
-                  viewedTilePos.y * tileWidth
+                transform: `translate3d(${viewedTilePos.x * tileSize}px, ${
+                  viewedTilePos.y * tileSize
                 }px, 0)`,
               }}
             ></div>
@@ -88,8 +88,8 @@ export const InteractionLayer = React.memo(
           tabIndex={0}
           className={s.mapLayer}
           style={{
-            width: `${tileWidth * 64}px`,
-            height: `${tileWidth * 64}px`,
+            width: `${tileSize * 64}px`,
+            height: `${tileSize * 64}px`,
             border: "1px solid black",
           }}
           onKeyDown={keyDownHandler}

@@ -19,8 +19,9 @@ const cols = Array.from({ length: 64 });
 export const Bottom = React.memo(
   ({ frame, frameZero }: BottomProps) => {
     const mapWidth = frame.board.rubble.length;
-
-    const tileWidth = 12;
+    const { tileWidth } = useStoreKeys(
+      "tileWidth"
+    );
     const tileBorder = 1;
 
     const tileSize = tileWidth + tileBorder * 2;
