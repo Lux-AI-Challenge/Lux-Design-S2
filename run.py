@@ -53,6 +53,7 @@ if __name__ == "__main__":
         players[player.name] = player
 
     # Seed game. Right now this seed doesn't actually change the env seed.
+    np.random.seed(10)
     if args["seed"]:
         seed = args["seed"]
         np.random.seed(seed)

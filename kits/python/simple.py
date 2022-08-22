@@ -6,13 +6,12 @@ import random
 FACTION = "AlphaStrike"
 
 def distance(pos1, pos2):
-    return sum((pos1-pos2)**2)
+    return (pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2
 
 def nearest_factory(factories, pos):
     return min(factories.values(), key=lambda f: distance(pos, f["pos"]))
 
 # (dx, dy) = (1, 2) is moving right 1 and up 2
-# DIRECTIONS = {0: (0, 0), 1: (0, 1), 2: (1, 0), 3: (0, -1), 4: (-1, 0)}
 DIRECTIONS = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 def from_dirs(d):
@@ -46,34 +45,36 @@ def agent(observation, configuration, team_id):
     factory_positions = set()
     actions = dict()
     for id, factory in my_factories.items():
+        if id == "factory_0":
+            print(id, factory["cargo"])
         factory_positions.add(tuple(factory["pos"]))
         if (factory["power"] >= configuration.ROBOTS["LIGHT"].POWER_COST and
-            factory["cargo"]["metal"] >= configuration.ROBOTS["LIGHT"].METAL_COST):
+          factory["cargo"]["metal"] >= configuration.ROBOTS["LIGHT"].METAL_COST):
             actions[id] = FactoryBuildAction(UnitType.LIGHT).state_dict()
 
     for id, unit in my_units.items():
         x, y = unit["pos"]
+        cargo_space = configuration.ROBOTS[unit["unit_type"]].CARGO_SPACE
 
-        if unit["cargo"]["ice"] > 10 or unit["cargo"]["ore"] > 10:
+        if unit["cargo"]["ice"] + unit["cargo"]["ore"] >= cargo_space:
             if id == "unit_11":
-                print("Dropping off!")
-            # Bring resources to factory. Should automatically drop off
+                print("Dropping off!", x, y, unit["cargo"])
+            # Bring resources to factory.
             goal = nearest_factory(my_factories, unit["pos"])["pos"]
-            move_dir = direction_between(unit["pos"], goal)
-            move_dir = from_dirs(move_dir)
-            actions[id] = [MoveAction(move_dir).state_dict()]
+            dir = direction_between(unit["pos"], goal)
+            dir = from_dirs(dir)
+            if distance(unit["pos"], goal) <= 8:
+                if unit["cargo"]["ice"] > unit["cargo"]["ore"]:
+                    actions[id] = [TransferAction(dir, 0, unit["cargo"]["ice"]).state_dict()]
+                else:
+                    actions[id] = [TransferAction(dir, 1, unit["cargo"]["ore"]).state_dict()]
+            else:
+                actions[id] = [MoveAction(dir).state_dict()]
 
-        elif ((x, y) not in factory_positions and
-                observation["board"]["ice"][y, x] > 0): # Mine ice
-            if id == "unit_11":
-                print("Mining ice!", observation["board"]["ice"][y, x])
-
+        elif (observation["board"]["ice"][y][x] > 0): # Mine ice
             actions[id] = [DigAction().state_dict()] # 0 = ice
 
-        elif ((x, y) not in factory_positions and
-                observation["board"]["ore"][y, x] > 0): # Mine ore
-            if id == "unit_11":
-                print("Mining ore!", observation["board"]["ore"][y, x])
+        elif (observation["board"]["ore"][y][x] > 0): # Mine ore
             actions[id] = [DigAction().state_dict()] # 1 = ore
 
         else: # Move randomly

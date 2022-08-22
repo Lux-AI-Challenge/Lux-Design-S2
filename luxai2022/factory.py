@@ -95,22 +95,17 @@ class Factory:
         return np.ceil(len(self.grow_lichen_positions) / config.LICHEN_WATERING_COST_FACTOR) + 1
 
     ### Add and sub resource functions copied over from unit.py code, can we consolidate them somewhere?
-    def add_resource(self, resource_id, amount):
-        if amount < 0: amount = 0
+    def add_resource(self, resource_id, transfer_amount):
+        if transfer_amount < 0: transfer_amount = 0
         if resource_id == 0:
-            transfer_amount = min(self.cargo_space - self.cargo.ice, amount)
             self.cargo.ice += transfer_amount
         elif resource_id == 1:
-            transfer_amount = min(self.cargo_space - self.cargo.ore, amount)
             self.cargo.ore += transfer_amount
         elif resource_id == 2:
-            transfer_amount = min(self.cargo_space - self.cargo.water, amount)
             self.cargo.water += transfer_amount
         elif resource_id == 3:
-            transfer_amount = min(self.cargo_space - self.cargo.metal, amount)
             self.cargo.metal += transfer_amount
         elif resource_id == 4:
-            transfer_amount = min(self.battery_capacity - self.power, amount)
             self.power += transfer_amount
         return transfer_amount
     def sub_resource(self, resource_id, amount):

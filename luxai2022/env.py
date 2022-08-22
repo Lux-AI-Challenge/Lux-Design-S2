@@ -480,6 +480,7 @@ class LuxAI2022(ParallelEnv):
 
     def destroy_factory(self, factory: Factory):
         # spray rubble on every factory tile
+        print("DESTROYING", factory)
         self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
         self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2].clip(0, self.env_cfg.MAX_RUBBLE)
         self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = -1
