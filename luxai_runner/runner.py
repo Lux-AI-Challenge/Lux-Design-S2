@@ -27,8 +27,8 @@ if __name__ == "__main__":
     parser.add_argument("--size", help="Size (32-64)", type=int)
     parser.add_argument("-sym", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
     args = parser.parse_args()
-    # asyncio.run(main(args.players, verbosity=))
-    # env: LuxAI2022 = LuxAI2022(verbose=args.verbose, validate_action_space=True)
+    
+    # TODO make a tournament runner ranked by ELO, Wins/Losses, Trueskill, Bradley-Terry system
     eps = Episode(cfg=EpisodeConfig(players=args.players, env_cls=LuxAI2022, seed=0, env_cfg=dict(
         verbose=args.verbose,
         validate_action_space=True,
