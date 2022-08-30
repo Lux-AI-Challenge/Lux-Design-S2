@@ -26,6 +26,9 @@ if __name__ == "__main__":
     parser.add_argument("-map", "--map_type", help="Map type ('Cave', 'Craters', 'Island', 'Mountain')")
     parser.add_argument("--size", help="Size (32-64)", type=int)
     parser.add_argument("-sym", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
+
+    # parser.add_argument("--tournament", type=bool)
+
     args = parser.parse_args()
     
     # TODO make a tournament runner ranked by ELO, Wins/Losses, Trueskill, Bradley-Terry system
