@@ -161,6 +161,9 @@ class LuxAI2022(ParallelEnv):
         if self.env_steps == 0:
             # handle initialization
             for k, a in actions.items():
+                if a is None:
+                    failed_agents[k] = True
+                    continue
                 if k not in self.agents:
                     raise ValueError(f"Invalid player {k}")
                 if "spawns" in a:
@@ -426,7 +429,7 @@ class LuxAI2022(ParallelEnv):
         self.env_steps += 1
         self.state.env_steps += 1
         env_done = self.env_steps >= self.max_episode_length
-        dones = {agent: env_done for agent in self.agents}
+        dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations
         obs = self.state.get_obs()

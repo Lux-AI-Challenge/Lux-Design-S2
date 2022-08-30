@@ -105,14 +105,14 @@ class Cave(GameMap):
         ice[mask > 1] = 0
         ice[mask == 0] = 0
         ice[ice < np.percentile(ice, 95)] = 0
-        ice = np.round(ice * 50 + 50)
+        ice[ice != 0] = 1
 
         # Make some noisy ore, most ore is outside caves
         ore = noise(x, y - 100)
         ore[mask==1] = 0
         ore[mask==0] = 0
         ore[ore < np.percentile(ore, 95)] = 0
-        ore = np.round(ore * 50 + 50)
+        ore[ore != 0] = 1
         super().__init__(rubble, ice, ore, symmetry)
 
 class Craters(GameMap):
