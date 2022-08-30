@@ -11,7 +11,7 @@ from luxai2022.unit import Unit
 
 
 class Board:
-    def __init__(self) -> None:
+    def __init__(self, seed=None) -> None:
         self.height = 64
         self.width = 64
         # self.map: GameMap = random_map()

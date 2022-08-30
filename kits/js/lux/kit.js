@@ -73,22 +73,16 @@ class Agent {
   async initialize() {
 
     // get agent ID
-    const input = (await this.getLine());
-    console.error({input})
-    this.agent = input.agent;
-    this.agent_idx = input.agent_idx;
-    // get some other necessary initial input
-    // let mapInfo = (await this.getLine());
-    // let width = mapInfo.nextInt();
-    // let height = mapInfo.nextInt();
-    // const map = new GameMap(width, height);
-    // const players = [new Player(0), new Player(1)];
+    // const input = (await this.getLine());
+    // // console.error({input})
+    
+    // this.agent = input.player;
 
     // this.gameState = {
-    //   id,
-    //   map,
-    //   players,
-    //   turn: -1,
+    //   // id,
+    //   // map,
+    //   // players,
+    //   step: input.step,
     // };
   }
   /**
@@ -112,6 +106,8 @@ class Agent {
   }
   async retrieveUpdates() {
     // this.resetPlayerStates();
+    const input = (await this.getLine());
+    this.agent = input.player;
     // // TODO: this can be optimized. we only reset because some resources get removed
     // this.gameState.map = new GameMap(this.gameState.map.width, this.gameState.map.height);
     // while (true) {
