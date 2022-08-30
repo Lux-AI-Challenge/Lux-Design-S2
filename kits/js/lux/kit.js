@@ -106,8 +106,10 @@ class Agent {
   }
   async retrieveUpdates() {
     // this.resetPlayerStates();
-    const input = (await this.getLine());
-    this.agent = input.player;
+    const input = JSON.parse(await this.getLine());
+    this.last_input = input;
+    this.step = parseInt(input["step"]);
+    this.agent = input["player"];
     // // TODO: this can be optimized. we only reset because some resources get removed
     // this.gameState.map = new GameMap(this.gameState.map.width, this.gameState.map.height);
     // while (true) {

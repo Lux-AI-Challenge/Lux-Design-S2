@@ -1,70 +1,13 @@
 import asyncio
-from typing import Dict
+from typing import Dict, List
 from luxai_runner.bot import Bot
 from luxai2022 import LuxAI2022
 import numpy as np
 import json
-def to_json(state):
-    if isinstance(state, np.ndarray):
-        return state.tolist()
-    elif isinstance(state, np.int64):
-        return state.tolist()
-    elif isinstance(state, list):
-        return [to_json(s) for s in state]
-    elif isinstance(state, dict):
-        out = {}
-        for k in state:
-            out[k] = to_json(state[k])
-        return out
-    else:
-        return state
-async def main(args):
-    if len(args.players) != 2:
-        raise ValueError("Must provide two paths.")
+from luxai_runner.episode import Episode, EpisodeConfig
 
-    players: Dict[str, Bot] = dict()
-    for i in range(2):
-        player = Bot(args.players[i], f"player_{i}", i, args.verbose)
-        players[player.agent] = player
-        await asyncio.wait([player.proc.start()], return_when=asyncio.ALL_COMPLETED)
-    # exit()
+from luxai_runner.logger import Logger
 
-    env: LuxAI2022 = LuxAI2022(verbose=args.verbose, validate_action_space=True)
-    seed = args.seed if args.seed is not None else np.random.randint(9999999)
-    obs = env.reset(seed=seed)
-    game_done = False
-    rewards, dones, infos = dict(), dict(), dict()
-    for agent in env.agents:
-        rewards[agent] = 0 
-        dones[agent] = 0
-        infos[agent] = dict()
-
-    while not game_done:
-        print("===", env.env_steps)
-        actions = dict()
-        obs = env.state.get_compressed_obs()
-        obs = to_json(obs)
-        agent_ids = []
-        action_coros = []
-        for agent in players:
-            player = players[agent]
-            action = player.step(obs, env.env_steps, rewards[agent], infos[agent])
-            action_coros += [action]
-            agent_ids += [player.agent]
-        resolved_actions = await asyncio.gather(*action_coros)
-        for agent_id, action in zip(agent_ids, resolved_actions):
-            actions[agent_id] = action
-        print(actions)
-        obs, rewards, dones, infos = env.step(actions)
-
-        players_left = len(dones)
-        for k in dones:
-            if dones[k]: players_left -= 1
-        if players_left == 0:
-            game_done = True
-        
-
-    pass
 
 if __name__ == "__main__":
     import argparse
@@ -84,4 +27,10 @@ if __name__ == "__main__":
     parser.add_argument("--size", help="Size (32-64)", type=int)
     parser.add_argument("-sym", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
     args = parser.parse_args()
-    asyncio.run(main(args))
+    # asyncio.run(main(args.players, verbosity=))
+    # env: LuxAI2022 = LuxAI2022(verbose=args.verbose, validate_action_space=True)
+    eps = Episode(cfg=EpisodeConfig(players=args.players, env_cls=LuxAI2022, seed=0, env_cfg=dict(
+        verbose=args.verbose,
+        validate_action_space=True,
+    ),verbosity=args.verbose))
+    asyncio.run(eps.run())

@@ -26,7 +26,7 @@ class Bot:
         self.verbose = verbose
         self.proc = BotProcess(self.command, self.main_file_path, verbose=verbose)
         # timing
-        self.remainingOverageTime = 60
+        self.remainingOverageTime = 10
         self.time_per_step = 2
 
         self.log = Logger(identifier=f"{self.agent}, {self.main_file_path}",verbosity=verbose)
@@ -40,7 +40,7 @@ class Bot:
             action, stderr = None, None
         time_used = time.time() - stime
 
-        if stderr != "":
+        if stderr != "" and stderr is not None:
             self.log.err(f"stderr:\n{stderr}")
 
         over_time = time_used - self.time_per_step
@@ -48,6 +48,10 @@ class Bot:
             self.remainingOverageTime -= over_time
 
         if self.remainingOverageTime <= 0 or action is None:
-            print(f"{self.agent} has timed out...")
+            self.log.err(f"{self.agent} has timed out...")
+            action = None
+        else:
+            print(action)
+            action = json.loads(action)
         return action
 
