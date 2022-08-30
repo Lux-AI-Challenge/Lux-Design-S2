@@ -25,6 +25,6 @@ class Logger:
     def err(self, msg: str, end: str = "\n"):
         if self.verbosity >= 1: self._print(msg, "red", end=end)
     def warn(self, msg: str, end: str = "\n"):
-        if self.verbosity >= 2: self._print(msg, "orange", end=end)
+        if self.verbosity >= 2: self._print(msg, "yellow", end=end)
     def info(self, msg: str, end: str = "\n"):
         if self.verbosity >= 3: self._print(msg, "cyan", end=end)

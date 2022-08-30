@@ -48,10 +48,15 @@ class Bot:
             self.remainingOverageTime -= over_time
 
         if self.remainingOverageTime <= 0 or action is None:
-            self.log.err(f"{self.agent} has timed out...")
+            self.log.err("timed out...")
             action = None
         else:
-            print(action)
-            action = json.loads(action)
+            try:
+                action = json.loads(action)
+                if not isinstance(action, dict):
+                    raise ValueError("")
+            except:
+                self.log.err(f"cannot parse action '{action}'")
+                action = None
         return action
 

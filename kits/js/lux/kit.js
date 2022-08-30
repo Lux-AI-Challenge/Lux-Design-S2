@@ -96,13 +96,7 @@ class Agent {
   }
 
   resetPlayerStates() {
-    // let players = this.gameState.players;
-    // players[0].units = [];
-    // players[0].cities = new Map();
-    // players[0].cityTileCount = 0;
-    // players[1].units = [];
-    // players[1].cities = new Map();
-    // players[1].cityTileCount = 0;
+
   }
   async retrieveUpdates() {
     // this.resetPlayerStates();
@@ -110,70 +104,6 @@ class Agent {
     this.last_input = input;
     this.step = parseInt(input["step"]);
     this.agent = input["player"];
-    // // TODO: this can be optimized. we only reset because some resources get removed
-    // this.gameState.map = new GameMap(this.gameState.map.width, this.gameState.map.height);
-    // while (true) {
-    //   let update = (await this.getLine());
-    //   if (update.str === INPUT_CONSTANTS.DONE) {
-    //     break;
-    //   }
-    //   const inputIdentifier = update.nextStr();
-    //   switch (inputIdentifier) {
-    //     case INPUT_CONSTANTS.RESEARCH_POINTS: {
-    //       const team = update.nextInt();
-    //       this.gameState.players[team].researchPoints = update.nextInt();
-    //       break;
-    //     }
-    //     case INPUT_CONSTANTS.RESOURCES: {
-    //       const type = update.nextStr();
-    //       const x = update.nextInt();
-    //       const y = update.nextInt();
-    //       const amt = update.nextInt();
-    //       this.gameState.map._setResource(type, x, y, amt);
-    //       break;
-    //     }
-    //     case INPUT_CONSTANTS.UNITS: {
-    //       const unittype = update.nextInt();
-    //       const team = update.nextInt();
-    //       const unitid = update.nextStr();
-    //       const x = update.nextInt();
-    //       const y = update.nextInt();
-    //       const cooldown = update.nextFloat();
-    //       const wood = update.nextInt();
-    //       const coal = update.nextInt();
-    //       const uranium = update.nextInt();
-    //       this.gameState.players[team].units.push(new Unit(team, unittype, unitid, x, y, cooldown, wood, coal, uranium));
-    //       break;
-    //     }
-    //     case INPUT_CONSTANTS.CITY: {
-    //       const team = update.nextInt();
-    //       const cityid = update.nextStr();
-    //       const fuel = update.nextFloat();
-    //       const lightUpkeep = update.nextFloat();
-    //       this.gameState.players[team].cities.set(cityid, new City(team, cityid, fuel, lightUpkeep));
-    //       break;
-    //     }
-    //     case INPUT_CONSTANTS.CITY_TILES: {
-    //       const team = update.nextInt();
-    //       const cityid = update.nextStr();
-    //       const x = update.nextInt();
-    //       const y = update.nextInt();
-    //       const cooldown = update.nextFloat();
-    //       const city = this.gameState.players[team].cities.get(cityid);
-    //       const citytile = city.addCityTile(x, y, cooldown);
-    //       this.gameState.map.getCell(x, y).citytile = citytile;
-    //       this.gameState.players[team].cityTileCount += 1;
-    //       break;
-    //     }
-    //     case INPUT_CONSTANTS.ROADS: {
-    //       const x = update.nextInt();
-    //       const y = update.nextInt();
-    //       const road = update.nextFloat();
-    //       this.gameState.map.getCell(x, y).road = road;
-    //       break;
-    //     }
-    //   }
-    // }
   }
 }
 

@@ -1,3 +1,4 @@
+
 const kit = require('./lux/kit');
 // const GAME_CONSTANTS = require('./lux/game_constants');
 // const DIRECTIONS = GAME_CONSTANTS.DIRECTIONS;
@@ -19,7 +20,12 @@ agent.initialize().then(async () => {
         spawns: [[20, 30]]
       }
     }
-    console.log(JSON.stringify(actions))
-    console.error(JSON.stringify(actions))
+    console.error(JSON.stringify({a:agent.step, me: agent.agent}))
+    console.error(JSON.stringify({a:agent.step, me: agent.agent}))
+    console.error(JSON.stringify({a:agent.step, me: agent.agent}))
+    console.error(JSON.stringify({a:agent.step, me: agent.agent}))
+    // console.error(JSON.stringify({a:agent.step}))
+    console.log(3)
+    // process.exit()
     }
 });

@@ -167,7 +167,6 @@ class LuxAI2022(ParallelEnv):
                 if k not in self.agents:
                     raise ValueError(f"Invalid player {k}")
                 if "spawns" in a:
-                    print(a, k, a["faction"])
                     self.state.teams[k] = Team(
                         team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
                     )

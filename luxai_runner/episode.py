@@ -32,6 +32,7 @@ class Episode:
         start_tasks = []
         for i in range(2):
             player = Bot(self.players[i], f"player_{i}", i, verbose=self.log.verbosity)
+            player.proc.log.identifier = player.log.identifier
             players[player.agent] = player
             start_tasks += [player.proc.start()]
         await asyncio.wait(start_tasks, return_when=asyncio.ALL_COMPLETED)
@@ -44,9 +45,10 @@ class Episode:
             rewards[agent] = 0 
             dones[agent] = 0
             infos[agent] = dict()
-
+        i= 0
         while not game_done:
-            print("===", self.env.env_steps)
+            i += 1
+            # print("===", self.env.env_steps)
             actions = dict()
             obs = self.env.state.get_compressed_obs()
             obs = to_json(obs)
@@ -59,9 +61,7 @@ class Episode:
             resolved_actions = await asyncio.gather(*action_coros)
             for agent_id, action in zip(agent_ids, resolved_actions):
                 actions[agent_id] = action
-            print(actions)
             obs, rewards, dones, infos = self.env.step(actions)
-
             players_left = len(dones)
             for k in dones:
                 if dones[k]: players_left -= 1
