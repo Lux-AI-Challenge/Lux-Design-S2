@@ -1,19 +1,6 @@
 const fs = require('fs');
 const readline = require('readline');
-
-// Create parser and use ',' as the delimiter between commands being sent by the `Match` and `MatchEngine`
-// const Parser = require('./parser');
-// const {
-//   GameMap
-// } = require('./map');
-// const {
-//   INPUT_CONSTANTS
-// } = require('./io');
-// const {
-//   Player,
-//   City,
-//   Unit,
-// } = require('./game_objects');
+const {processObs} = require("./obs");
 const GAME_CONSTANTS = require('./game_constants');
 // const parse = new Parser(' ');
 
@@ -71,26 +58,12 @@ class Agent {
    * Initialize Agent
    */
   async initialize() {
-
-    // get agent ID
-    // const input = (await this.getLine());
-    // // console.error({input})
-    
-    // this.agent = input.player;
-
-    // this.gameState = {
-    //   // id,
-    //   // map,
-    //   // players,
-    //   step: input.step,
-    // };
+    this.gameState = {}
   }
   /**
    * Updates agent's own known state of `Match`
-   * User should edit this according to their `Design`.
    */
   async update() {
-    // this.gameState.turn++;
     // wait for the engine to send any updates
     await this.retrieveUpdates();
   }
@@ -103,7 +76,10 @@ class Agent {
     const input = JSON.parse(await this.getLine());
     this.last_input = input;
     this.step = parseInt(input["step"]);
-    this.agent = input["player"];
+    this.player = input["player"];
+
+    this.gameState = processObs(this, this.last_input, this.step);
+
   }
 }
 

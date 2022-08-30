@@ -1,6 +1,7 @@
 
 import asyncio
 from dataclasses import dataclass
+import time
 from typing import Any, Callable, Dict, List, Optional
 import gym
 from luxai_runner.logger import Logger
@@ -15,6 +16,7 @@ class EpisodeConfig:
     seed: Optional[int] = None
     env_cfg: Optional[Any] = dict
     verbosity: Optional[int] = 1
+    render: Optional[bool] = False
 
 class Episode:
     def __init__(self, cfg: EpisodeConfig) -> None:
@@ -39,6 +41,9 @@ class Episode:
 
         
         obs = self.env.reset(seed=self.seed)
+        if self.cfg.render: 
+            self.env.render()
+            time.sleep(0.2)
         game_done = False
         rewards, dones, infos = dict(), dict(), dict()
         for agent in players:
@@ -62,6 +67,9 @@ class Episode:
             for agent_id, action in zip(agent_ids, resolved_actions):
                 actions[agent_id] = action
             obs, rewards, dones, infos = self.env.step(actions)
+            if self.cfg.render: 
+                self.env.render()
+                time.sleep(0.2)
             players_left = len(dones)
             for k in dones:
                 if dones[k]: players_left -= 1

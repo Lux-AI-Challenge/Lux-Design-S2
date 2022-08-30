@@ -12,7 +12,7 @@ from luxai_runner.logger import Logger
 
 
 class BotProcess:
-    def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = False) -> None:
+    def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = True) -> None:
         self.command = command
         self.file_path = file_path
         self.log = Logger(identifier="", verbosity=verbose)
@@ -29,6 +29,7 @@ class BotProcess:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=cwd,
+             limit=1024 * 128
         )
         self.log.info(f"Started {self.command} {self.file_path}")
         # following 4 lines from https://stackoverflow.com/questions/375427/a-non-blocking-read-on-a-subprocess-pipe-in-python

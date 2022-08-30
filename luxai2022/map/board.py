@@ -18,7 +18,7 @@ class Board:
         map_type = None #args.get("map_type", None)
         symmetry = None # args.get("symmetry", None)
         # TODO fix Craters RNG
-        self.map = GameMap.random_map(seed=3, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
+        self.map = GameMap.random_map(seed=seed, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
 
         # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)
