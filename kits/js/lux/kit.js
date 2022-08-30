@@ -77,6 +77,11 @@ class Agent {
     this.last_input = input;
     this.step = parseInt(input["step"]);
     this.player = input["player"];
+    if (this.player == "player_0") {
+      this.opp_player = "player_1"
+    } else {
+      this.opp_player = "player_0"
+    }
 
     this.gameState = processObs(this, this.last_input, this.step);
 

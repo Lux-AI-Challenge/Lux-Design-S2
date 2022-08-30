@@ -11,13 +11,15 @@ const processObs = (agent, obs, step) => {
       }
       for (const item of ["rubble", "lichen", "lichen_strains"]) {
         for (let k in obs["board"][item])  {
-          obs["board"][item]
+          const v = obs["board"][item][k]
           k = k.split(",")
-          x, y = parseInt(k[0]), parseInt(k[1])
-          gameState["board"][item][y][x] = obs["board"][item][v];
+          const x = parseInt(k[0])
+          const y = parseInt(k[1])
+          gameState["board"][item][y][x] = v;
         }
       }
     }
+    return gameState;
     // # use delta changes to board to update game state
     //     obs = from_json(obs)
     //     for k in obs:

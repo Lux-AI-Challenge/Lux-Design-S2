@@ -10,15 +10,18 @@ from luxai_runner.logger import Logger
 
 
 if __name__ == "__main__":
+    np.random.seed(0)
     import argparse
+
     parser = argparse.ArgumentParser(description="Run the LuxAI 2022 game.")
-    parser.add_argument('players', nargs="+", help="Paths to player modules.")
+    parser.add_argument("players", nargs="+", help="Paths to player modules.")
     # parser.add_argument("-r", "--rounds", help="Max rounds in game", type=int, default=2000)
-    
-    
+
     parser.add_argument("-o", "--output", help="Output file")
-    
-    parser.add_argument("-v", "--verbose", help="Verbose Level (0 = silent, 1 = errors, 2 = warnings, 3 = info)", type=int, default=1)
+
+    parser.add_argument(
+        "-v", "--verbose", help="Verbose Level (0 = silent, 1 = errors, 2 = warnings, 3 = info)", type=int, default=1
+    )
     parser.add_argument("-s", "--seed", help="Random seed for episode(s)", type=int)
 
     ## Map Arguments
@@ -30,10 +33,18 @@ if __name__ == "__main__":
     # parser.add_argument("--tournament", type=bool)
 
     args = parser.parse_args()
-    
+
     # TODO make a tournament runner ranked by ELO, Wins/Losses, Trueskill, Bradley-Terry system
-    eps = Episode(cfg=EpisodeConfig(players=args.players, env_cls=LuxAI2022, seed=0, env_cfg=dict(
-        verbose=args.verbose,
-        validate_action_space=True,
-    ),verbosity=args.verbose))
+    eps = Episode(
+        cfg=EpisodeConfig(
+            players=args.players,
+            env_cls=LuxAI2022,
+            seed=0,
+            env_cfg=dict(
+                verbose=args.verbose,
+                validate_action_space=True,
+            ),
+            verbosity=args.verbose,
+        )
+    )
     asyncio.run(eps.run())

@@ -16,7 +16,7 @@ class EpisodeConfig:
     seed: Optional[int] = None
     env_cfg: Optional[Any] = dict
     verbosity: Optional[int] = 1
-    render: Optional[bool] = False
+    render: Optional[bool] = True
 
 class Episode:
     def __init__(self, cfg: EpisodeConfig) -> None:
@@ -41,6 +41,9 @@ class Episode:
 
         
         obs = self.env.reset(seed=self.seed)
+        obs = self.env.state.get_compressed_obs()
+        obs = to_json(obs)
+
         if self.cfg.render: 
             self.env.render()
             time.sleep(0.2)
@@ -55,8 +58,7 @@ class Episode:
             i += 1
             # print("===", self.env.env_steps)
             actions = dict()
-            obs = self.env.state.get_compressed_obs()
-            obs = to_json(obs)
+            
             agent_ids = []
             action_coros = []
             for player in players.values():
@@ -66,7 +68,11 @@ class Episode:
             resolved_actions = await asyncio.gather(*action_coros)
             for agent_id, action in zip(agent_ids, resolved_actions):
                 actions[agent_id] = action
-            obs, rewards, dones, infos = self.env.step(actions)
+            next_obs, rewards, dones, infos = self.env.step(actions)
+
+            obs = self.env.state.get_change_obs(obs)
+            obs = to_json(obs)
+
             if self.cfg.render: 
                 self.env.render()
                 time.sleep(0.2)
