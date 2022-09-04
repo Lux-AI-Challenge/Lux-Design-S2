@@ -3,19 +3,30 @@ import numpy as np
 from luxai2022.env import LuxAI2022
 from luxai2022.replay.replay import generate_replay
 import copy
-
+spawns = None
 def policy(agent, step, obs):
+    global spawns
+    factory_placement_period = False
+    obs = obs[agent]
+    if step > 0 and step <= obs["board"]["factories_per_team"] + 1:
+        factory_placement_period = True
     if step == 0:
+        spawns = obs["board"]["spawns"]
         if agent == "player_0":
-            return dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]]))
+            return dict(faction="MotherMars", bid=10)
         else:
-            return dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]]))
+            return dict(faction="AlphaStrike", bid=9)
+    elif factory_placement_period:
+        water_left = obs["team"][agent]["water"]
+        metal_left = obs["team"][agent]["metal"]
+        factories_to_place = obs["team"][agent]["factories_to_place"]
+        if agent == "player_0":
+            spawn_loc = spawns[agent][np.random.randint(0, len(spawns[agent]))]
+            return dict(spawn=spawn_loc, metal=62, water=62)
+        else:
+            spawn_loc = spawns[agent][np.random.randint(0, len(spawns[agent]))]
+            return dict(spawn=spawn_loc, metal=100, water=100)
     else:
-        obs = o[agent]
-        # units = o[agent]["units"]
-        # actions = []
-        # for unit_id, unit in units.items():
-        #     actions.append(dict(unit_id=unit_id))
         factories = obs["factories"][agent]
         actions = dict()
         if step % 4 == 0 and step > 1:
@@ -56,9 +67,9 @@ if __name__ == "__main__":
     import time
     np.random.seed(0)
 
-    env: LuxAI2022 = LuxAI2022(verbose=0, validate_action_space=False)
-    o = env.reset()
-    render = False
+    env: LuxAI2022 = LuxAI2022(verbose=1, validate_action_space=False)
+    o = env.reset(seed=0)
+    render = True
     if render: 
         env.render()
         time.sleep(0.1)
@@ -69,14 +80,8 @@ if __name__ == "__main__":
     N = 2000
     step = 0
     for i in range(N):
-        if step == 0:
-            o, r, d, _ = env.step(
-                {
-                    "player_0": policy("player_0", step, o),
-                    "player_1": policy("player_1", step, o)
-                }
-            )
         all_actions = dict()
+        # import ipdb;ipdb.set_trace()
         for team_id, agent in enumerate(env.possible_agents):
             all_actions[agent] = dict()
             all_actions[agent] = policy(agent, step, o)

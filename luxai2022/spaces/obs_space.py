@@ -23,7 +23,7 @@ def get_obs_space(config: EnvConfig, agent: int = 0):
         ice=spaces.Box(low=0, high=1, shape=(config.map_size, config.map_size), dtype=int),
         ore=spaces.Box(low=0, high=1, shape=(config.map_size, config.map_size), dtype=int),
     )
-
+    # TODO add spawns, max_factories_per_team etc. from board space
     obs_space["resources"] = spaces.Dict(resources_obs_space)
     obs_space["rubble"] = spaces.Box(low=0, high=100, shape=(config.map_size, config.map_size), dtype=int)
 

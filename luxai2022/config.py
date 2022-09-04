@@ -50,6 +50,8 @@ class EnvConfig:
     UNITS_CONTROLLED = 20 # when set to -1, all units can be controlled at once
     MAX_RUBBLE = 100
     FACTORY_RUBBLE_AFTER_DESTRUCTION = 50
+    INIT_WATER_METAL_PER_FACTORY = 100 # amount of water and metal units given to each factory
+    INIT_POWER_PER_FACTORY = 100
 
     #### LICHEN ####
     MIN_LICHEN_TO_SPREAD = 1

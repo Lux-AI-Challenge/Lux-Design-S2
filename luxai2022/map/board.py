@@ -18,7 +18,9 @@ class Board:
         map_type = None #args.get("map_type", None)
         symmetry = None # args.get("symmetry", None)
         # TODO fix Craters RNG
+        rng = np.random.RandomState(seed=seed)
         self.map = GameMap.random_map(seed=seed, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
+        self.factories_per_team = rng.randint(2, 6)
 
         # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)
@@ -41,9 +43,12 @@ class Board:
 
 
         # Valid spawn locations
-        self.spawns = {"player_0": self.get_valid_spawns(0),
-                       "player_1": self.get_valid_spawns(1)}
-
+        player_0_spawn_info = self.get_valid_spawns(0)
+        player_1_spawn_info = self.get_valid_spawns(1)
+        self.spawns = {"player_0": player_0_spawn_info[0],
+                       "player_1": player_1_spawn_info[0]}
+        self.spawn_masks = {"player_0": player_0_spawn_info[1],
+                       "player_1": player_1_spawn_info[1]}
     def pos_hash(self, pos: Position):
         return f"{pos.x},{pos.y}"
     def get_units_at(self, pos: Position):
@@ -56,36 +61,47 @@ class Board:
         if pos_hash in self.factory_map:
             return self.factory_map[pos_hash]
         return None
-
     def get_valid_spawns(self, team_id):
         xx, yy = np.mgrid[:self.width, :self.height]
-        if self.map.symmetry == "horizontal":
-            if team_id == 0:
-                x, y = np.where(xx < (self.width - 1) / 2)
-            else:
-                x, y = np.where(xx > (self.width - 1) / 2)
         if self.map.symmetry == "vertical":
             if team_id == 0:
-                x, y = np.where(yy < (self.height - 1) / 2)
+                spawns_mask = xx < (self.width - 1) / 2
             else:
-                x, y = np.where(yy > (self.height - 1) / 2)
+                spawns_mask = xx > (self.width - 1) / 2
+        if self.map.symmetry == "horizontal":
+            if team_id == 0:
+                spawns_mask = yy < (self.height - 1) / 2
+                
+            else:
+                spawns_mask = yy > (self.height - 1) / 2
+                
         if self.map.symmetry == "rotational":
             if team_id == 0:
-                x, y = np.where(xx < (self.width - 1) / 2)
+                spawns_mask = xx < (self.width - 1) / 2
+                
             else:
-                x, y = np.where(xx > (self.width - 1) / 2)
+                spawns_mask = xx > (self.width - 1) / 2
+                
         if self.map.symmetry == "/":
             if team_id == 0:
-                x, y = np.where(xx - yy < 0)
+                spawns_mask = xx - yy < 0
+                
             else:
-                x, y = np.where(xx - yy > 0)
+                spawns_mask = xx - yy > 0
+                
         if self.map.symmetry == "\\":
             if team_id == 0:
-                x, y = np.where(xx + yy < (self.width + self.height) / 2 - 1)
+                spawns_mask = xx + yy < (self.width + self.height) / 2 - 1
+                
             else:
-                x, y = np.where(xx + yy > (self.width + self.height) / 2 - 1)
+                spawns_mask = xx + yy > (self.width + self.height) / 2 - 1
+                
+        x, y = np.where(spawns_mask)
 
-        return np.array([*zip(x, y)])
+        spawns = np.array([*zip(x, y)])
+        spawns = spawns[(spawns[:, 0] > 0) & (spawns[:, 1] > 0)]
+        spawns = spawns[(spawns[:, 0] < self.width - 1) & (spawns[:, 1] < self.height - 1)]
+        return spawns, spawns_mask
 
     @property
     def rubble(self) -> np.ndarray:
@@ -103,5 +119,6 @@ class Board:
             ice=self.ice.copy(),
             lichen=self.lichen.copy(),
             lichen_strains=self.lichen_strains.copy(),
-            spawns=self.spawns.copy()
+            spawns=self.spawns.copy(),
+            factories_per_team=self.factories_per_team,
         )

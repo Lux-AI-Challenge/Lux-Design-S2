@@ -27,7 +27,7 @@ from luxai2022.factory import Factory
 from luxai2022.map.board import Board
 from luxai2022.map.position import Position
 from luxai2022.pyvisual.visualizer import Visualizer
-from luxai2022.spaces.act_space import get_act_space, get_act_space_init
+from luxai2022.spaces.act_space import get_act_space, get_act_space_bid, get_act_space_init, get_act_space_placement
 from luxai2022.spaces.obs_space import get_obs_space
 from luxai2022.state import State
 from luxai2022.team import FactionTypes, Team
@@ -73,14 +73,22 @@ class LuxAI2022(ParallelEnv):
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
-        # Gym spaces are defined and documented here: https://gym.openai.com/docs/#spaces
+
         return get_obs_space(config=self.env_cfg, agent=agent)
 
     # @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        if self.env_steps == 0:
-            return get_act_space_init(config=self.env_cfg, agent=agent)
-        return get_act_space(self.state.units, self.state.factories, config=self.env_cfg, agent=agent)
+        if self.env_cfg.BIDDING_SYSTEM:
+            if self.env_steps == 0:
+                # bid first, then place factories
+                return get_act_space_bid(config=self.env_cfg, agent=agent)
+            if self.env_steps <= self.state.board.factories_per_team + 1:
+                return get_act_space_placement(config=self.env_cfg, agent=agent)
+            return get_act_space(self.state.units, self.state.factories, config=self.env_cfg, agent=agent)
+        else:
+            if self.env_steps == 0:
+                return get_act_space_init(config=self.env_cfg, agent=agent)
+            return get_act_space(self.state.units, self.state.factories, config=self.env_cfg, agent=agent)
 
     def render(self, mode="human"):
         """
@@ -157,24 +165,113 @@ class LuxAI2022(ParallelEnv):
 
         failed_agents = {agent: False for agent in self.agents}
         # Turn 1 logic, handle # TODO Bidding
-
+        early_game = False
         if self.env_steps == 0:
+            early_game = True
+        if self.env_cfg.BIDDING_SYSTEM and self.env_steps <= self.state.board.factories_per_team + 1:
+            early_game = True
+        
+        if early_game:
             # handle initialization
-            for k, a in actions.items():
-                if a is None:
-                    failed_agents[k] = True
-                    continue
-                if k not in self.agents:
-                    raise ValueError(f"Invalid player {k}")
-                if "spawns" in a:
-                    self.state.teams[k] = Team(
-                        team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
-                    )
-                    for spawn_loc in a["spawns"]:
-                        self.add_factory(self.state.teams[k], spawn_loc)
+            
+            if self.env_cfg.BIDDING_SYSTEM:
+                if self.env_steps == 0:
+                    highest_bid = -1
+                    highest_bid_agent = None
+                    for k, a in actions.items():
+                        if a is None:
+                            failed_agents[k] = True
+                            continue
+                        if k not in self.agents:
+                            raise ValueError(f"Invalid player {k}")
+                        if "faction" in a and "bid" in a:
+                            self.state.teams[k] = Team(
+                                team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
+                            )
+                            self.state.teams[k].init_water = self.env_cfg.INIT_WATER_METAL_PER_FACTORY * (self.state.board.factories_per_team)
+                            self.state.teams[k].init_metal = self.env_cfg.INIT_WATER_METAL_PER_FACTORY * (self.state.board.factories_per_team)
+                            self.state.teams[k].factories_to_place = self.state.board.factories_per_team
+                            # verify bid is valid
+                            valid_action = True
+                            bid = a["bid"]
+                            if bid < 0 or bid > self.state.teams[k].init_water:
+                                valid_action = False
+                            if not valid_action:
+                                failed_agents[k] = True
+                                continue
+                            if bid > highest_bid:
+                                highest_bid = bid
+                                highest_bid_agent = k
+                            elif bid == highest_bid:
+                                # no one gets the extra factory
+                                highest_bid_agent = "tie"
+                        else:
+                            # team k loses
+                            failed_agents[k] = True
+                    if highest_bid_agent == "tie":
+                        pass
+                    elif highest_bid_agent is None:
+                        # no valid bids made, all agents failed.
+                        pass
+                    else:
+                        self.state.teams[highest_bid_agent].init_water -= highest_bid
+                        self.state.teams[highest_bid_agent].init_metal -= highest_bid
+                        self.state.teams[highest_bid_agent].factories_to_place += 1
                 else:
-                    # team k loses
-                    failed_agents[k] = True
+                    # factory placement rounds
+                    for k, a in actions.items():
+                        if a is None:
+                            failed_agents[k] = True
+                            continue
+                        if k not in self.agents:
+                            raise ValueError(f"Invalid player {k}")
+                        if "spawn" in a and "metal" in a and "water" in a:
+                            print(k,self.state.teams[k].factories_to_place, self.env_steps, a["spawn"])
+                            if self.state.teams[k].factories_to_place <= 0:
+                                if self.env_cfg.verbose > 0: print(f"{k} cannot place additional factories. Cancelled placement of factory")
+                                continue
+                            if a["water"] < 0 or a["metal"] < 0:
+                                if self.env_cfg.verbose > 0: print(f"{k} tried to place negative water/metal in factory. Cancelled placement of factory")
+                                continue
+                            if a["water"] > self.state.teams[k].init_water:
+                                if self.env_cfg.verbose > 0: print(f"{k} does not have enough water. Cancelled placement of factory")
+                                continue
+                            if a["metal"] > self.state.teams[k].init_metal:
+                                if self.env_cfg.verbose > 0: print(f"{k} does not have enough metal. Cancelled placement of factory")
+                                continue
+                            # import ipdb;ipdb.set_trace()
+                            # self.state.board.spawns[k]
+                            # TODO handle overlapping factories.
+                            factory = self.add_factory(self.state.teams[k], a["spawn"])
+                            if factory is None: continue
+                            factory.cargo.water = a["water"]
+                            factory.cargo.metal = a["metal"]
+                            factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
+                            self.state.teams[k].factories_to_place -= 1
+                            self.state.teams[k].init_metal -= a["metal"]
+                            self.state.teams[k].init_water -= a["water"]
+                        else:
+                            # pass, turn is skipped.
+                            pass
+
+            else:
+                for k, a in actions.items():
+                    if a is None:
+                        failed_agents[k] = True
+                        continue
+                    if k not in self.agents:
+                        raise ValueError(f"Invalid player {k}")
+                    if "spawns" in a and "faction" in a:
+                        self.state.teams[k] = Team(
+                            team_id=self.agent_name_mapping[k], agent=k, faction=FactionTypes[a["faction"]]
+                        )
+                        if len(a["spawns"]) > self.state.board.factories_per_team:
+                            if self.env_cfg.verbose > 0: print(f"{k} tried to spawn more factories than allocated in board.factories_per_team. Spawning only the first {self.state.board.factories_per_team} locations")
+                        for spawn_loc in a["spawns"][:self.state.board.factories_per_team]:
+                            self.add_factory(self.state.teams[k], spawn_loc)
+                    else:
+                        # team k loses
+                        failed_agents[k] = True
         else:
             # 1. Check for malformed actions
             try:
@@ -432,6 +529,7 @@ class LuxAI2022(ParallelEnv):
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations
+        # TODO add info for bidding here
         obs = self.state.get_obs()
         observations = {}
         for k in self.agents:
@@ -459,16 +557,24 @@ class LuxAI2022(ParallelEnv):
         factory = Factory(team=team, unit_id=f"factory_{self.state.global_id}", num_id=self.state.global_id)
         factory.pos.pos = list(pos)
         # TODO verify spawn locations are valid
-        # TODO MAKE THESE CONSTANTS
-        factory.cargo.water = 100
-        factory.cargo.metal = 50
-        factory.power = 100
-        self.state.global_id += 1
+        factory.cargo.water = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
+        factory.cargo.metal = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
+        factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
+        if not self.state.board.spawn_masks[team.agent][pos[0], pos[1]]:
+            if self.env_cfg.verbose > 0: print(f"{team.agent} cannot place factory on other half of map.")
+            return None
+        if self.state.board.factory_occupancy_map[factory.pos_slice].sum() >= 0:
+            if self.env_cfg.verbose > 0: print(f"{team.agent} cannot overlap factory placement. Existing factory at {factory.pos} already.")
+            return None
 
         self.state.factories[team.agent][factory.unit_id] = factory
         self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
-        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = factory.num_id
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = 0
+        self.state.board.factory_occupancy_map[factory.pos_slice] = factory.num_id
+        self.state.board.rubble[factory.pos_slice] = 0
+        self.state.board.ice[factory.pos_slice] = 0
+        self.state.board.ore[factory.pos_slice] = 0
+
+        self.state.global_id += 1
         return factory
 
     def destroy_unit(self, unit: Unit):
@@ -483,9 +589,9 @@ class LuxAI2022(ParallelEnv):
 
     def destroy_factory(self, factory: Factory):
         # spray rubble on every factory tile
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
-        self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = self.state.board.rubble[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2].clip(0, self.env_cfg.MAX_RUBBLE)
-        self.state.board.factory_occupancy_map[factory.pos.y - 1:factory.pos.y + 2, factory.pos.x - 1:factory.pos.x + 2] = -1
+        self.state.board.rubble[factory.pos_slice] += self.env_cfg.FACTORY_RUBBLE_AFTER_DESTRUCTION
+        self.state.board.rubble[factory.pos_slice] = self.state.board.rubble[factory.pos_slice].clip(0, self.env_cfg.MAX_RUBBLE)
+        self.state.board.factory_occupancy_map[factory.pos_slice] = -1
         del self.state.factories[factory.team.agent][factory.unit_id]
         del self.state.board.factory_map[self.state.board.pos_hash(factory.pos)]
         # TODO - shouldn't rubble under factory always be 0?
