@@ -1,11 +1,10 @@
 
+const { exit } = require('process');
 const kit = require('./lux/kit');
 // const GAME_CONSTANTS = require('./lux/game_constants');
 // const DIRECTIONS = GAME_CONSTANTS.DIRECTIONS;
 // create a new agent
 const agent = new kit.Agent();
-// const annotate = kit.annotate;
-
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async () => {
   while (true) {
@@ -23,7 +22,6 @@ agent.initialize().then(async () => {
       console.log(JSON.stringify(actions));
       continue;
     }
-
     // various maps
     const rubble = agent.gameState["board"]["rubble"]
 
@@ -65,4 +63,7 @@ agent.initialize().then(async () => {
     // submit actions
     console.log(JSON.stringify(actions));
     }
+}).catch((err) => {
+  console.error(err)
+  process.exit(1)
 });
