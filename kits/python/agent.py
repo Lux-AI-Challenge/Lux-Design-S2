@@ -13,7 +13,7 @@ class Agent():
         else:
             self.opp_player = "player_0"
 
-    def early_setup(self, step, obs):
+    def early_setup(self, step, obs, remainingOverageTime: int):
         """
         Logic here to make actions in the early game. Select faction, bid for an extra factory, and place factories
         """
@@ -47,7 +47,7 @@ class Agent():
             spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
             return dict(spawn=spawn_loc, metal=62, water=62)
 
-    def act(self, step: int, obs: Dict):
+    def act(self, step: int, obs: Dict, remainingOverageTime: int):
         """
         Logic here to make actions for the rest of the game.
         """
@@ -92,14 +92,15 @@ def agent_fn(observation, configurations):
     global agent
     step = observation.step
     player = observation.player
+    remainingOverageTime = observation.remainingOverageTime
     if step == 0:
         agent = Agent(player)
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
     agent.game_state = new_game_state
 
     if step <= agent.game_state["board"]["factories_per_team"] + 1:
-        actions = agent.early_setup(step, new_game_state)
+        actions = agent.early_setup(step, new_game_state, remainingOverageTime)
     else:
-        actions = agent.act(step, new_game_state)
+        actions = agent.act(step, new_game_state, remainingOverageTime)
 
     return process_action(actions)

@@ -1,7 +1,7 @@
 
-const { processObs } = require("./obs");
+const { processObs } = require("./lux/obs");
 const GAME_CONSTANTS = require("./game_constants");
-const { setup } = require("./setup");
+const { setup } = require("./lux/setup");
 // const parse = new Parser(' ');
 
 /**

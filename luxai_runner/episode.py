@@ -16,7 +16,7 @@ class EpisodeConfig:
     seed: Optional[int] = None
     env_cfg: Optional[Any] = dict
     verbosity: Optional[int] = 1
-    render: Optional[bool] = False
+    render: Optional[bool] = True
 
 class Episode:
     def __init__(self, cfg: EpisodeConfig) -> None:
