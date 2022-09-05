@@ -50,6 +50,8 @@ class EnvConfig:
     UNITS_CONTROLLED = 20 # when set to -1, all units can be controlled at once
     MAX_RUBBLE = 100
     FACTORY_RUBBLE_AFTER_DESTRUCTION = 50
+    INIT_WATER_METAL_PER_FACTORY = 100 # amount of water and metal units given to each factory
+    INIT_POWER_PER_FACTORY = 100
 
     #### LICHEN ####
     MIN_LICHEN_TO_SPREAD = 1
@@ -64,7 +66,7 @@ class EnvConfig:
     FACTORY_PROCESSING_RATE_WATER: int = 50
     ICE_WATER_RATIO: int = 2
     FACTORY_PROCESSING_RATE_METAL: int = 50
-    ORE_METAL_RATIO: int = 10
+    ORE_METAL_RATIO: int = 2
     FACTORY_CHARGE: int = 50
     FACTORY_WATER_CONSUMPTION: int = 1
 
@@ -100,9 +102,9 @@ class EnvConfig:
     WEATHER_ID_TO_NAME = {
         0: "NONE",
         1: "MARS_QUAKE",
-        1: "COLD_SNAP",
-        2: "DUST_STORM",
-        3: "SOLAR_FLARE",
+        2: "COLD_SNAP",
+        3: "DUST_STORM",
+        4: "SOLAR_FLARE",
     }
     WEATHER = dict(
         MARS_QUAKE=dict(

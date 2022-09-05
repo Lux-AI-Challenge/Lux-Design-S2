@@ -9,6 +9,8 @@ from luxai2022.map.position import Position
 from luxai2022.team import Team
 from luxai2022.unit import UnitCargo
 from luxai2022.actions import move_deltas
+from luxai2022.globals import TERM_COLORS
+from termcolor import colored
 
 def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, strain_id: int, forbidden: np.ndarray):
     # TODO - improve the performance here with cached solution
@@ -61,6 +63,10 @@ class Factory:
         self.num_id = num_id
         self.action_queue = [] # TODO can we queue actions or are factories outside of max control limit
         self.grow_lichen_positions = None
+
+    @property
+    def pos_slice(self):
+        return slice(self.pos.y - 1, self.pos.y + 2), slice(self.pos.x - 1, self.pos.x + 2)
 
     def refine_step(self, config: EnvConfig):
         consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
@@ -140,3 +146,9 @@ class Factory:
             team_id=self.team_id
 
         )
+
+    def __str__(self) -> str:
+        out = f"[{self.team_id}] {self.unit_id} Factory at {self.pos}"
+        if TERM_COLORS:
+            return colored(out, self.team.faction.value.color)
+        return out

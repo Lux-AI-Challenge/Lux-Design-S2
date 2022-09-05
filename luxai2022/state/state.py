@@ -10,7 +10,6 @@ from luxai2022.team import Team
 from luxai2022.unit import Unit
 from collections import OrderedDict
 import copy
-import numba
 
 @dataclass
 class State:
@@ -71,8 +70,9 @@ class State:
             # convert lichen and lichen strains to sparse matrix format?
             del data["board"]["ore"]
             del data["board"]["ice"]
+            del data["board"]["spawns"]
             return data
-    def get_change_obs(self, prev_obs):
+    def get_change_obs(self, prev_state):
         """
         returns sparse dicts for large matrices of where values change only
         """
@@ -81,19 +81,19 @@ class State:
         data["board"]["rubble"] = dict()
         data["board"]["lichen"] = dict()
         data["board"]["lichen_strains"] = dict()
-
-        change_indices = np.argwhere(self.board.rubble != prev_obs["board"]["rubble"])
+        change_indices = np.argwhere(self.board.rubble != prev_state["board"]["rubble"])
+        import ipdb;ipdb.set_trace()
         for ind in change_indices:
             y,x = ind[0], ind[1]
             data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[y, x]
-        change_indices = np.argwhere(self.board.lichen != prev_obs["board"]["lichen"])
+        change_indices = np.argwhere(self.board.lichen != prev_state["board"]["lichen"])
         for ind in change_indices:
             y,x = ind[0], ind[1]
-            data["board"]["lichen"][f"{x},{y}"] = self.board.rubble[y, x]
-        change_indices = np.argwhere(self.board.lichen_strains != prev_obs["board"]["lichen_strains"])
+            data["board"]["lichen"][f"{x},{y}"] = self.board.lichen[y, x]
+        change_indices = np.argwhere(self.board.lichen_strains != prev_state["board"]["lichen_strains"])
         for ind in change_indices:
             y,x = ind[0], ind[1]
-            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.rubble[y, x]
+            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[y, x]
         return data
 
     def from_obs(obs):
