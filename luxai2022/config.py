@@ -37,12 +37,12 @@ class EnvConfig:
     max_episode_length: int = 1000
     map_size: int = 64
     verbose: int = 1
-    #### these can be disabled to improve env FPS 
+    #### these can be disabled to improve env FPS
     validate_action_space: bool = True
 
     ### Constants ###
     # you can only ever transfer in/out 1000 as this is the max cargo space.
-    max_transfer_amount = 10000 
+    max_transfer_amount = 10000
     MAX_FACTORIES = 5
     CYCLE_LENGTH = 50
     DAY_LENGTH = 30
@@ -62,7 +62,7 @@ class EnvConfig:
 
     #### Factores ####
     FACTORY_PROCESSING_RATE_WATER: int = 50
-    ICE_WATER_RATIO: int = 10
+    ICE_WATER_RATIO: int = 2
     FACTORY_PROCESSING_RATE_METAL: int = 50
     ORE_METAL_RATIO: int = 10
     FACTORY_CHARGE: int = 50
@@ -81,7 +81,7 @@ class EnvConfig:
             DIG_LICHEN_REMOVED=10,
             RUBBLE_AFTER_DESTRUCTION=1,
         ),
-        
+
         HEAVY=UnitConfig(
             METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=1500, CHARGE=10, MOVE_COST=20, RUBBLE_MOVEMENT_COST=5,
             DIG_COST=100,
