@@ -67,3 +67,5 @@ The general observation given to your bot will look lke this
 ```
 
 Every kit has an `Agent` class that defines two functions, `early_setup` and `act` with parameters `step`, `obs` and `remainingOverageTime` corresponding to the values in the definition above. 
+
+`Array(m, n)` refers to a matrix/array with `m` rows and `n` columns.
