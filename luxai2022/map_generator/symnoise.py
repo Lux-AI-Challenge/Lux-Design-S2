@@ -35,7 +35,7 @@ class SymmetricNoise(object):
         """Symmetrical Simplex noise.
 
             ex.: noise = SymmetricalNoise(symmetry="rotational", width=50, height=100,
-                                          octaves=3.5, seed=777)
+                                          octaves=3, seed=777)
 
         Parameters:
             symmetry : one of "vertical", "horizontal", "rotational", "/", and "\\"
