@@ -10,7 +10,6 @@ from luxai2022.team import Team
 from luxai2022.unit import Unit
 from collections import OrderedDict
 import copy
-import numba
 
 @dataclass
 class State:
