@@ -15,10 +15,6 @@ def to_json(state):
         return out
     else:
         return state  
-
-# def local_print(agent, m):
-#     with open(f"{agent}.log", "a") as f:
-#         f.write(f'{m}\n')
 def from_json(state):
     if isinstance(state, list):
         return np.array(state)

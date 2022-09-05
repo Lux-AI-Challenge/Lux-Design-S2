@@ -102,9 +102,9 @@ class EnvConfig:
     WEATHER_ID_TO_NAME = {
         0: "NONE",
         1: "MARS_QUAKE",
-        1: "COLD_SNAP",
-        2: "DUST_STORM",
-        3: "SOLAR_FLARE",
+        2: "COLD_SNAP",
+        3: "DUST_STORM",
+        4: "SOLAR_FLARE",
     }
     WEATHER = dict(
         MARS_QUAKE=dict(
