@@ -12,18 +12,18 @@ from luxai2022.actions import move_deltas
 from luxai2022.globals import TERM_COLORS
 from termcolor import colored
 
+
 def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, strain_id: int, forbidden: np.ndarray):
     # TODO - improve the performance here with cached solution
     frontier = deque(init)
-    seen = set()
+    seen = set(map(tuple, init))
     grow_lichen_positions = set()
     H, W = lichen.shape
     while len(frontier) > 0:
         pos = frontier.popleft()
-        if (pos[0], pos[1]) in seen: continue
         if pos[0] < 0 or pos[1] < 0 or pos[0] >= forbidden.shape[1] or pos[1] >= forbidden.shape[0]:
             continue
-        seen.add((pos[0], pos[1]))
+
         if forbidden[pos[1], pos[0]]:
             continue
         pos_lichen = lichen[pos[1], pos[0]]
@@ -35,22 +35,22 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             # check surrounding tiles on the map
             if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= W or check_pos[1] >= H: continue
             adj_strain = lichen_strains[check_pos[1], check_pos[0]]
-            if adj_strain != strain_id:
-                if adj_strain != -1:
+            if adj_strain == -1:
+                if pos_lichen >= MIN_LICHEN_TO_SPREAD:
+                    seen.add(tuple(check_pos))
+                    frontier.append(check_pos)
+            elif adj_strain != strain_id:
                     # adjacent tile is not empty and is not a strain this factory owns.
                     can_grow = False
+                    seen.add(tuple(check_pos))
             else:
                 # adjacent tile has our own strain, we can grow here too
-                frontier.append(check_pos)
-
-            if pos_lichen >= MIN_LICHEN_TO_SPREAD and adj_strain == -1:
-                # empty tile and current tile has enough lichen to spread
+                seen.add(tuple(check_pos))
                 frontier.append(check_pos)
 
         if can_grow:
             grow_lichen_positions.add((pos[0], pos[1]))
     return grow_lichen_positions
-
 
 class Factory:
     def __init__(self, team: Team, unit_id: str, num_id: int) -> None:
