@@ -41,8 +41,8 @@ class Episode:
 
         
         obs = self.env.reset(seed=self.seed)
-        obs = self.env.state.get_compressed_obs()
-        obs = to_json(obs)
+        state_obs = self.env.state.get_compressed_obs()
+        obs = to_json(state_obs)
 
         if self.cfg.render: 
             self.env.render()
@@ -68,9 +68,9 @@ class Episode:
             resolved_actions = await asyncio.gather(*action_coros)
             for agent_id, action in zip(agent_ids, resolved_actions):
                 actions[agent_id] = action
-            next_obs, rewards, dones, infos = self.env.step(actions)
-
-            obs = self.env.state.get_change_obs(obs)
+            new_state_obs, rewards, dones, infos = self.env.step(actions)
+            obs = self.env.state.get_change_obs(state_obs)
+            state_obs = new_state_obs["player_0"]
             obs = to_json(obs)
 
             if self.cfg.render: 

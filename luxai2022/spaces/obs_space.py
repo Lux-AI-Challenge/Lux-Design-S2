@@ -19,13 +19,24 @@ def get_obs_space(config: EnvConfig, agent: int = 0):
 
     obs_space["day"] = spaces.Discrete(2)
 
-    resources_obs_space = dict(
+
+    # rubble=self.rubble.copy(),
+    # ore=self.ore.copy(),
+    # ice=self.ice.copy(),
+    # lichen=self.lichen.copy(),
+    # lichen_strains=self.lichen_strains.copy(),
+    # spawns=self.spawns.copy(),
+    # factories_per_team=self.factories_per_team,
+    board_obs_space = dict(
         ice=spaces.Box(low=0, high=1, shape=(config.map_size, config.map_size), dtype=int),
         ore=spaces.Box(low=0, high=1, shape=(config.map_size, config.map_size), dtype=int),
+        rubble=spaces.Box(low=0, high=100, shape=(config.map_size, config.map_size), dtype=int),
+        lichen=spaces.Box(low=0, high=99999, shape=(config.map_size, config.map_size), dtype=int),
+        lichen_strains=spaces.Box(low=0, high=99999, shape=(config.map_size, config.map_size), dtype=int),
+        factories_per_team=spaces.Discrete(99999)
+        # spawns=spaces.Box(low=0, high=99999, shape=(config.map_size, config.map_size), dtype=int) # this array can change in size easily.
     )
-    # TODO add spawns, max_factories_per_team etc. from board space
-    obs_space["resources"] = spaces.Dict(resources_obs_space)
-    obs_space["rubble"] = spaces.Box(low=0, high=100, shape=(config.map_size, config.map_size), dtype=int)
+    obs_space["board"] = spaces.Dict(board_obs_space)
 
     units_obs_space = dict()
     for i in range(2):
