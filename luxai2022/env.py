@@ -226,7 +226,6 @@ class LuxAI2022(ParallelEnv):
                         if k not in self.agents:
                             raise ValueError(f"Invalid player {k}")
                         if "spawn" in a and "metal" in a and "water" in a:
-                            print(k,self.state.teams[k].factories_to_place, self.env_steps, a["spawn"])
                             if self.state.teams[k].factories_to_place <= 0:
                                 if self.env_cfg.verbose > 0: print(f"{k} cannot place additional factories. Cancelled placement of factory")
                                 continue
