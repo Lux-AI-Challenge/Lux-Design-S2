@@ -82,7 +82,6 @@ class State:
         data["board"]["lichen"] = dict()
         data["board"]["lichen_strains"] = dict()
         change_indices = np.argwhere(self.board.rubble != prev_state["board"]["rubble"])
-        import ipdb;ipdb.set_trace()
         for ind in change_indices:
             y,x = ind[0], ind[1]
             data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[y, x]
