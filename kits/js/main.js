@@ -6,8 +6,6 @@ const kit = require('./lux/kit');
 // create a new agent
 const agent = new kit.Agent();
 
-
-
 agent.initialize().then(async () => {
   while (true) {
     /** Do not edit! **/
