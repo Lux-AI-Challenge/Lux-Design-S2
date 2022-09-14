@@ -36,7 +36,7 @@ class EnvConfig:
 
 
     ### Variable parameters that don't affect game logic much ###
-    max_episode_length: int = 1000
+    max_episode_length: int = 100
     map_size: int = 48
     verbose: int = 1
     #### these can be disabled to improve env FPS

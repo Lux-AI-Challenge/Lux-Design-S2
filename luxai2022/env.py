@@ -275,6 +275,7 @@ class LuxAI2022(ParallelEnv):
             # handle weather effects
             current_weather = self.state.weather_schedule[self.state.real_env_steps]
             current_weather = self.state.env_cfg.WEATHER_ID_TO_NAME[current_weather]
+            print(current_weather)
             weather_cfg = weather.apply_weather(self.state, self.agents, current_weather)
 
             # 1. Check for malformed actions
