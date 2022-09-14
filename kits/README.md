@@ -22,6 +22,28 @@ In the `agent.py` file, we define a simple class that holds your agent, you can 
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
 
+## Environment Actions
+
+In each episode there are two competing teams, both of which control factories and units.
+
+Factories have 3 possible actions, `build_light`, `build_heavy`, and `water`.
+
+Units (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
+
+In Lux AI Season 2, the unit's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control units. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated, it is replaced to the back of the queue.
+
+In code, actions can be given to units as so
+
+```
+actions[unit_id] = [action_0, action_1, ...]
+```
+
+Importantly, each turn you can only set the action queue of up to `env_cfg.UNITS_CONTROLLED` units. Trying to set more will result in some acton queues being ignored.
+
+You may still compete by giving a single action to every unit but be aware that this can be inefficient as each turn only up to `env_cfg.UNITS_CONTROLLED` units will be performing actions.
+
+See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
+
 ## Environment Observations
 
 First, the environment configuration being run is given to your agent. It will be stored under `self.env_cfg`, see the code for details on how to access for different languages.

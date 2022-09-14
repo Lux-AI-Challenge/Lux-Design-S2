@@ -476,10 +476,15 @@ class LuxAI2022(ParallelEnv):
                 self.destroy_unit(u)
 
             # for recharging actions, check if unit has enough power. If not, add action back to the queue
+            
             for unit, recharge_action in actions_by_type["recharge"]:
                 recharge_action: RechargeAction
                 if unit.power < recharge_action.power:
                     unit.action_queue.insert(0, recharge_action)
+                    # by default actions with repeat=True will be placed to the back of queue
+                    # remove from back of queue if we re-inserted into the front
+                    if recharge_action.repeat:
+                        unit.action_queue = unit.action_queue[:-1]
 
 
             for factory, factory_water_action in actions_by_type["factory_water"]:
