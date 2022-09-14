@@ -26,11 +26,11 @@ class Unit:
         board = game_state.board
         target_pos = self.pos + move_deltas[direction]
         if target_pos[0] < 0 or target_pos[1] < 0 or target_pos[1] >= len(board.rubble) or target_pos[0] >= len(board.rubble[0]):
-            print("Warning, tried to get move cost for going off the map", file=sys.stderr)
+            # print("Warning, tried to get move cost for going off the map", file=sys.stderr)
             return None
         factory_there = board.factory_occupancy_map[target_pos[1], target_pos[0]]
         if factory_there != self.team_id and factory_there != -1:
-            print("Warning, tried to get move cost for going onto a opposition factory", file=sys.stderr)
+            # print("Warning, tried to get move cost for going onto a opposition factory", file=sys.stderr)
             return None
         rubble_at_target = board.rubble[target_pos[1]][target_pos[0]]
         
