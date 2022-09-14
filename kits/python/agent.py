@@ -25,6 +25,8 @@ class Agent():
         # if ore[y][x] > 0, then there is an ore tile at (x, y)
         ore = obs["board"]["ore"]
 
+        env_cfg = self.env_cfg # the current env configuration for the episode
+
         if step == 0:
             # decide on a faction, and make a bid for the extra factory. 
             # Each unit of bid removes one unit of water and metal from your initial pool
@@ -70,6 +72,8 @@ class Agent():
         The code ignores the time spent bidding and placing factories
         """
         actions = dict()
+
+        env_cfg = self.env_cfg # the current env configuration for the episode
         
         # the weather schedule, a sequence of values representing what the weather is at each real time step
         # 0 = Nothing, 1 = MARS_QUAKE, 2 = COLD_SNAP, 3 = DUST_STORM, 4 = SOLAR_FLARE
