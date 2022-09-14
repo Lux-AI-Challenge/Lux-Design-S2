@@ -87,7 +87,8 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
             # TODO - compute actual maximum initial water and metal
             water=spaces.Discrete(max_space),
             metal=spaces.Discrete(max_space),
-            factories_to_place=spaces.Discrete(config.MAX_FACTORIES + 1) # + 1 for potentially bidded factory
+            factories_to_place=spaces.Discrete(config.MAX_FACTORIES + 1), # + 1 for potentially bidded factory
+            factory_strains=DynamicArray(spaces.Discrete(max_space), max_length=(config.MAX_FACTORIES + 1))
         )
     obs_space["teams"] = spaces.Dict(teams_obs_space)
 

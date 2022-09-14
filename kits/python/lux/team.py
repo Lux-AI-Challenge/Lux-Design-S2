@@ -19,7 +19,7 @@ class FactionTypes(Enum):
     FirstMars = FactionInfo(color="red", faction_id=3)
 
 class Team:
-    def __init__(self, team_id: int, agent: str, faction: FactionTypes = None, water=0, metal=0, factories_to_place=0) -> None:
+    def __init__(self, team_id: int, agent: str, faction: FactionTypes = None, water=0, metal=0, factories_to_place=0, factory_strains=[]) -> None:
         self.faction = faction
         self.team_id = team_id
         # the key used to differentiate ownership of things in state
@@ -27,7 +27,8 @@ class Team:
 
         self.water = water
         self.metal = metal
-        self.factories_to_place = 0
+        self.factories_to_place = factories_to_place
+        self.factory_strains = factory_strains
     def state_dict(self):
         return dict(
             team_id=self.team_id,
