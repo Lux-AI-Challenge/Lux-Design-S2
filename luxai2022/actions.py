@@ -155,7 +155,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     def invalidate_action(msg):
         nonlocal valid_action
         valid_action = False
-        if verbose > 0: print(msg)
+        if verbose > 0: print(f"{state.real_env_steps}: {msg}")
 
     for unit, transfer_action in actions_by_type["transfer"]:
         valid_action = True
@@ -282,6 +282,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
                 continue
         rubble = state.board.rubble[target_pos.y, target_pos.x]
         power_required = unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"]
+
         if power_required > unit.power:
             invalidate_action(
                 f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} x {weather_cfg['power_loss_factor']} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"

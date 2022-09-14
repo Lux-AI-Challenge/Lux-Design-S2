@@ -4,11 +4,18 @@ This folder contains all official kits provided by the Lux AI team for the Lux A
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, this will be recorded and saved into a errorlogs folder for the match for each agent and will be recorded by the competition servers.
 
-To run a episode
+To run a episode with verbosity level 2 (higher is more verbose), and seed 42:
 
 ```
-python luxai_runner/runner.py kits/python/main.py kits/js/main.js -v 2
+python luxai_runner/runner.py kits/python/main.py kits/js/main.js -s 42 -v 2
 ```
+
+<!-- TODO: add instructions on watching replay either live or through visualizer -->
+<!-- TODO: add instructions on gym interface -->
+
+For submission to the kaggle challenge, you can first test your submission by running
+
+
 
 ## Kit Structure
 
@@ -18,11 +25,33 @@ In the `agent.py` file, we define a simple class that holds your agent, you can 
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
 
+## Environment Actions
+
+In each episode there are two competing teams, both of which control factories and units.
+
+Factories have 3 possible actions, `build_light`, `build_heavy`, and `water`.
+
+Units (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
+
+In Lux AI Season 2, the unit's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control units. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated, it is replaced to the back of the queue.
+
+In code, actions can be given to units as so
+
+```
+actions[unit_id] = [action_0, action_1, ...]
+```
+
+Importantly, each turn you can only set the action queue of up to `env_cfg.UNITS_CONTROLLED` units. Trying to set more will result in some acton queues being ignored.
+
+You may still compete by giving a single action to every unit but be aware that this can be inefficient as each turn only up to `env_cfg.UNITS_CONTROLLED` units will be performing actions.
+
+See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
+
 ## Environment Observations
 
 First, the environment configuration being run is given to your agent. It will be stored under `self.env_cfg`, see the code for details on how to access for different languages.
 
-The general observation given to your bot will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. 
+The general observation given to your bot in the kits will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. Note that the gym interface returns just the "obs" key as the observation.
 
 ```
 {
@@ -48,6 +77,7 @@ The general observation given to your bot will look like below. `Array(n, m)` in
           "power": int,
           "pos": Array(2),
           "cargo": { "ice": int, "ore": int, "water": int, "metal": int },
+          "strain_id": int,
         }
       }
     },

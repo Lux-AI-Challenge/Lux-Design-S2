@@ -91,7 +91,7 @@ class Episode:
 
             if self.cfg.render: 
                 self.env.render()
-                time.sleep(0.2)
+                # time.sleep(0.2)
             players_left = len(dones)
             for k in dones:
                 if dones[k]: players_left -= 1

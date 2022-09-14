@@ -1,11 +1,16 @@
-import pygame
+try:
+    import pygame
+except:
+    print("No pygame installed, ignoring import")
 from luxai2022.map.board import Board
 from luxai2022.state import State
 from luxai2022.unit import UnitType
-import matplotlib.pyplot as plt
-color_to_rgb = dict(yellow=[236, 238, 126], green=[173, 214, 113], blue=[154, 210, 203], red=[164, 74, 63])
-strain_colors=plt.colormaps['Pastel1']
-
+try:
+    import matplotlib.pyplot as plt
+    color_to_rgb = dict(yellow=[236, 238, 126], green=[173, 214, 113], blue=[154, 210, 203], red=[164, 74, 63])
+    strain_colors=plt.colormaps['Pastel1']
+except:
+    pass
 class Visualizer:
     def __init__(self, state: State) -> None:
         # self.screen = pygame.display.set_mode((3*N*game_map.width, N*game_map.height))

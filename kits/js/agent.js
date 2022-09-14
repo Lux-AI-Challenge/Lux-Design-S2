@@ -42,11 +42,11 @@ class Agent {
       // decide on where to spawn the next factory. Returning an empty dict() will skip your factory placement
 
       // how much water and metal you have in your starting pool to give to new factories
-      const water_left = obs["team"][this.player]["water"];
-      const metal_left = obs["team"][this.player]["metal"];
+      const water_left = obs["teams"][this.player]["water"];
+      const metal_left = obs["teams"][this.player]["metal"];
       // how many factories you have left to place
-      const factories_to_place = obs["team"][this.player]["factories_to_place"];
-      // obs["team"][this.opp_player] has the same information but for the other team
+      const factories_to_place = obs["teams"][this.player]["factories_to_place"];
+      // obs["teams"][this.opp_player] has the same information but for the other team
       // potential spawnable locations in your half of the map
       const potential_spawns = obs["board"]["spawns"][this.player]
 

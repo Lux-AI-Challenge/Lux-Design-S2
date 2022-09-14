@@ -5,7 +5,6 @@ from typing import Dict, List, Set, Tuple, Union
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-import pygame
 from luxai2022.map import weather
 from luxai2022.actions import (
     Action,
@@ -56,13 +55,13 @@ def env():
 class LuxAI2022(ParallelEnv):
     metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
 
-    def __init__(self, max_episode_length=1001, **kwargs):
+    def __init__(self, **kwargs):
         # TODO - allow user to override env configs
         default_config = EnvConfig(**kwargs)
         self.env_cfg = default_config
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
-        self.max_episode_length = max_episode_length
+        self.max_episode_length = self.env_cfg.max_episode_length
 
         self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1, board=None, weather_schedule=None)
 
@@ -74,8 +73,7 @@ class LuxAI2022(ParallelEnv):
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
-
-        return get_obs_space(config=self.env_cfg, agent=agent)
+        return get_obs_space(config=self.env_cfg, agent_names=self.possible_agents, agent=agent)
 
     # @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
@@ -125,6 +123,7 @@ class LuxAI2022(ParallelEnv):
         self.seed = state.seed
         # TODO - throw warning if setting state from a different configuration than initialized with
         self.env_cfg = state.env_cfg
+        self.max_episode_length = self.env_cfg.max_episode_length
 
     def reset(self, seed=None):
         """
@@ -140,9 +139,10 @@ class LuxAI2022(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         self.seed = seed
-        board = Board(seed=seed, map_size=self.env_cfg.map_size)
+        board = Board(seed=seed, env_cfg=self.env_cfg)
         weather_schedule = weather.generate_weather_schedule(seed_rng, self.state.env_cfg)
         self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board, weather_schedule=weather_schedule)
+        self.max_episode_length = self.env_cfg.max_episode_length
         for agent in self.possible_agents:
             self.state.units[agent] = OrderedDict()
             self.state.factories[agent] = OrderedDict()
@@ -477,10 +477,15 @@ class LuxAI2022(ParallelEnv):
                 self.destroy_unit(u)
 
             # for recharging actions, check if unit has enough power. If not, add action back to the queue
+            
             for unit, recharge_action in actions_by_type["recharge"]:
                 recharge_action: RechargeAction
                 if unit.power < recharge_action.power:
                     unit.action_queue.insert(0, recharge_action)
+                    # by default actions with repeat=True will be placed to the back of queue
+                    # remove from back of queue if we re-inserted into the front
+                    if recharge_action.repeat:
+                        unit.action_queue = unit.action_queue[:-1]
 
 
             for factory, factory_water_action in actions_by_type["factory_water"]:
@@ -491,7 +496,8 @@ class LuxAI2022(ParallelEnv):
                 self.state.board.lichen_strains[indexable_positions] = factory.num_id
             
             self.state.board.lichen -= 1
-            self.state.board.lichen = self.state.board.lichen.clip(0, 20)
+            self.state.board.lichen = self.state.board.lichen.clip(0)
+            self.state.board.lichen_strains[self.state.board.lichen == 0] = -1
 
             # resources refining
             for agent in self.agents:
@@ -520,17 +526,16 @@ class LuxAI2022(ParallelEnv):
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
         for agent in self.agents:
-            unit_ids = [factory.num_id for factory in self.state.factories[agent].values()]
-            # TODO: TEST
+            strain_ids = self.state.teams[agent].factory_strains
             if failed_agents[agent]:
                 rewards[agent] = -1000
             else:
-                agent_lichen_mask = np.isin(self.state.board.lichen_strains, unit_ids)
+                agent_lichen_mask = np.isin(self.state.board.lichen_strains, strain_ids)
                 rewards[agent] = self.state.board.lichen[agent_lichen_mask].sum()
 
         self.env_steps += 1
         self.state.env_steps += 1
-        env_done = self.state.real_env_steps >= self.max_episode_length
+        env_done = self.state.real_env_steps >= self.state.env_cfg.max_episode_length
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations
@@ -571,6 +576,8 @@ class LuxAI2022(ParallelEnv):
         if self.state.board.factory_occupancy_map[factory.pos_slice].sum() >= 0:
             if self.env_cfg.verbose > 0: print(f"{team.agent} cannot overlap factory placement. Existing factory at {factory.pos} already.")
             return None
+        
+        self.state.teams[team.agent].factory_strains += [factory.num_id]
 
         self.state.factories[team.agent][factory.unit_id] = factory
         self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
