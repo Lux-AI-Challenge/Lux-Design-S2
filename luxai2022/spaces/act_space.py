@@ -44,6 +44,7 @@ class ActionsQueue(spaces.Space):
         action_q = []
         for _ in range(queue_size):
             action_q.append(self.action_space.sample())
+        return action_q
     def contains(self, x: Any) -> bool:
         if isinstance(x, list) and len(x) > self.max_length:
             return False

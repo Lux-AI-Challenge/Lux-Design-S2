@@ -74,8 +74,7 @@ class LuxAI2022(ParallelEnv):
     # allows action space seeding to work as expected
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
-
-        return get_obs_space(config=self.env_cfg, agent=agent)
+        return get_obs_space(config=self.env_cfg, agent_names=self.possible_agents, agent=agent)
 
     # @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
@@ -140,7 +139,7 @@ class LuxAI2022(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         self.seed = seed
-        board = Board(seed=seed, map_size=self.env_cfg.map_size)
+        board = Board(seed=seed, env_cfg=self.env_cfg)
         weather_schedule = weather.generate_weather_schedule(seed_rng, self.state.env_cfg)
         self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board, weather_schedule=weather_schedule)
         for agent in self.possible_agents:

@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Dict, List
 import numpy as np
 from typing import TYPE_CHECKING
+from luxai2022.config import EnvConfig
 if TYPE_CHECKING:
     from luxai2022.factory import Factory
 from luxai2022.map.position import Position
@@ -11,12 +12,9 @@ from luxai2022.unit import Unit
 
 
 class Board:
-    def __init__(self, seed=None, map_size=None) -> None:
-        self.height = 64
-        self.width = 64
-        if map_size is not None:
-            self.height = map_size
-            self.width = map_size
+    def __init__(self, seed=None, env_cfg: EnvConfig = None) -> None:
+        self.height =  self.env_cfg.map_size
+        self.width =  self.env_cfg.map_size
         self.seed = seed
         # self.map: GameMap = random_map()
         map_type = None #args.get("map_type", None)
@@ -24,7 +22,7 @@ class Board:
         # TODO fix Craters RNG
         rng = np.random.RandomState(seed=seed)
         self.map = GameMap.random_map(seed=seed, symmetry="horizontal", map_type="Cave", width=self.width, height=self.height)
-        self.factories_per_team = rng.randint(2, 6)
+        self.factories_per_team = rng.randint(env_cfg.MIN_FACTORIES, env_cfg.MAX_FACTORIES + 1)
 
         # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)

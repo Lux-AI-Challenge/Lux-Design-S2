@@ -4,11 +4,15 @@ This folder contains all official kits provided by the Lux AI team for the Lux A
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, this will be recorded and saved into a errorlogs folder for the match for each agent and will be recorded by the competition servers.
 
-To run a episode
+To run a episode with verbosity level 2 (higher is more verbose), and seed 42:
 
 ```
-python luxai_runner/runner.py kits/python/main.py kits/js/main.js -v 2
+python luxai_runner/runner.py kits/python/main.py kits/js/main.js -s 42 -v 2
 ```
+
+<!-- TODO: add instructions on watching replay either live or through visualizer -->
+<!-- TODO: add instructions on gym interface -->
+
 
 ## Kit Structure
 
@@ -22,7 +26,7 @@ These two functions are where you define your agent's logic for both the early p
 
 First, the environment configuration being run is given to your agent. It will be stored under `self.env_cfg`, see the code for details on how to access for different languages.
 
-The general observation given to your bot will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. 
+The general observation given to your bot in the kits will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. Note that the gym interface returns just the "obs" key as the observation.
 
 ```
 {
