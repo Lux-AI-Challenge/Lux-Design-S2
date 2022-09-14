@@ -1,7 +1,11 @@
 from turtle import color
-from termcolor import colored
+
+from luxai2022.globals import TERM_COLORS
+try:
+    from termcolor import colored
+except:
+    pass
 import os
-TERM_COLORS = os.environ["LUX_COLORS"] == 'False' if "LUX_COLORS" in os.environ else True
 class Logger:
     """
     A basic logger

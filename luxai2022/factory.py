@@ -10,7 +10,10 @@ from luxai2022.team import Team
 from luxai2022.unit import UnitCargo
 from luxai2022.actions import move_deltas
 from luxai2022.globals import TERM_COLORS
-from termcolor import colored
+try:
+    from termcolor import colored
+except:
+    pass
 
 
 def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, strain_id: int, forbidden: np.ndarray):

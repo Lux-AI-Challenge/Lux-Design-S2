@@ -2,7 +2,10 @@ from dataclasses import dataclass
 from enum import Enum
 from luxai2022.config import EnvConfig
 from luxai2022.globals import TERM_COLORS
-from termcolor import colored
+try:
+    from termcolor import colored
+except: 
+    pass
 @dataclass
 class FactionInfo:
     color: str = "none"
