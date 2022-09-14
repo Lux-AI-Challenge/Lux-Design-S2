@@ -38,7 +38,7 @@ def spawn(observation, configuration, team_id):
     return dict(faction=FACTION, spawns=spawn_locs)
 
 def agent(observation, configuration, team_id):
-    my_team = observation["team"][team_id]
+    my_team = observation["teams"][team_id]
     my_units = observation["units"][team_id]
     my_factories = observation["factories"][team_id]
 

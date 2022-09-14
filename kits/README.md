@@ -48,6 +48,7 @@ The general observation given to your bot will look like below. `Array(n, m)` in
           "power": int,
           "pos": Array(2),
           "cargo": { "ice": int, "ore": int, "water": int, "metal": int },
+          "strain_id": int,
         }
       }
     },

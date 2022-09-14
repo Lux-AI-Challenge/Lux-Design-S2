@@ -69,10 +69,10 @@ class State:
         board = self.board.state_dict()
         return dict(
             units=units,
-            team=teams,
+            teams=teams,
             factories=factories,
             board=board,
-            weather=self.weather_schedule,
+            weather_schedule=self.weather_schedule,
             real_env_steps=self.real_env_steps
         )
     def get_compressed_obs(self):
@@ -85,7 +85,7 @@ class State:
             del data["board"]["ore"]
             del data["board"]["ice"]
             del data["board"]["spawns"]
-            del data["weather"]
+            del data["weather_schedule"]
             return data
     def get_change_obs(self, prev_state):
         """

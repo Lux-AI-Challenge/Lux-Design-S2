@@ -143,6 +143,7 @@ class Factory:
             power=self.power,
             cargo=self.cargo.state_dict(),
             unit_id=self.unit_id,
+            strain_id=self.num_id, # number version of unit_id
             team_id=self.team_id
 
         )

@@ -17,9 +17,9 @@ def policy(agent, step, obs):
         else:
             return dict(faction="AlphaStrike", bid=9)
     elif factory_placement_period:
-        water_left = obs["team"][agent]["water"]
-        metal_left = obs["team"][agent]["metal"]
-        factories_to_place = obs["team"][agent]["factories_to_place"]
+        water_left = obs["teams"][agent]["water"]
+        metal_left = obs["teams"][agent]["metal"]
+        factories_to_place = obs["teams"][agent]["factories_to_place"]
         if agent == "player_0":
             spawn_loc = spawns[agent][np.random.randint(0, len(spawns[agent]))]
             return dict(spawn=spawn_loc, metal=62, water=62)
