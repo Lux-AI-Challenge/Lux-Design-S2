@@ -39,7 +39,7 @@ if __name__ == "__main__":
         cfg=EpisodeConfig(
             players=args.players,
             env_cls=LuxAI2022,
-            seed=0,
+            seed=args.seed,
             env_cfg=dict(
                 verbose=args.verbose,
                 validate_action_space=True,

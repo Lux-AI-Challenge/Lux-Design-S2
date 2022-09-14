@@ -52,6 +52,7 @@ class Visualizer:
                 # screen.fill(ore_color, (N*x+2*N*game_map.width, N*y, N, N))
         if len(state.teams) > 0:
             for agent in state.factories:
+                if agent not in state.teams: continue
                 team = state.teams[agent]
                 for factory in state.factories[agent].values():
                     x = factory.pos.x
@@ -70,6 +71,7 @@ class Visualizer:
                     self.sans_font = pygame.font.SysFont('Open Sans', 30)
                     self.screen.blit(self.sans_font.render('F', False, [51,56,68]), (self.tile_width * x, self.tile_width * y))
             for agent in state.units:
+                if agent not in state.teams: continue
                 team = state.teams[agent]
                 for unit in state.units[agent].values():
                     x = unit.pos.x

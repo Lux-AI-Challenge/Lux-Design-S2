@@ -7,6 +7,7 @@ from luxai2022.factory import Factory
 from luxai2022.team import FactionTypes
 from luxai2022.unit import Unit
 import random
+import numpy as np
 
 class FactionString(gym.Space):
     def __init__(
@@ -44,10 +45,20 @@ class ActionsQueue(spaces.Space):
         for _ in range(queue_size):
             action_q.append(self.action_space.sample())
     def contains(self, x: Any) -> bool:
-        if not isinstance(x, list) or len(x) > self.max_length:
+        if isinstance(x, list) and len(x) > self.max_length:
             return False
+        elif isinstance(x, np.ndarray) and len(x.shape) == 2 and len(x) > self.max_length:
+            return False
+        elif isinstance(x, np.ndarray) and len(x.shape) == 1:
+            x = [x]
+        # if (not isinstance(x, list) and not isinstance(x, np.ndarray)) or len(x) > self.max_length:
+            # return False
         for a in x:
-            if not self.action_space.contains(a):
+            # fix issue where multidiscrete space does not do 100% check on type of value
+            try:
+                if not self.action_space.contains(a):
+                    return False
+            except:
                 return False
         return True
 

@@ -1,8 +1,6 @@
 
 const { processObs } = require("./lux/obs");
-const GAME_CONSTANTS = require("./game_constants");
 const { setup } = require("./lux/setup");
-// const parse = new Parser(' ');
 
 /**
  * Agent for sequential `Designs`
@@ -106,6 +104,10 @@ class Agent {
     const input = JSON.parse(await this.getLine());
     this.last_input = input;
     this.step = parseInt(input["step"]);
+    this.real_env_step = parseInt(input["obs"]["real_env_step"])
+    if (this.step === 0) {
+      this.env_cfg = input["info"]["env_cfg"]
+    }
     this.player = input["player"];
     if (this.player == "player_0") {
       this.opp_player = "player_1";

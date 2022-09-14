@@ -7,7 +7,7 @@ import gym
 from luxai_runner.logger import Logger
 from luxai_runner.bot import Bot
 import numpy as np
-
+import dataclasses
 from luxai_runner.utils import to_json
 @dataclass
 class EpisodeConfig:
@@ -41,6 +41,7 @@ class Episode:
 
         
         obs = self.env.reset(seed=self.seed)
+        env_cfg = self.env.state.env_cfg
         state_obs = self.env.state.get_compressed_obs()
         obs = to_json(state_obs)
 
@@ -52,7 +53,11 @@ class Episode:
         for agent in players:
             rewards[agent] = 0 
             dones[agent] = 0
-            infos[agent] = dict()
+            infos[agent] = dict(
+                # turn 0 provide configurations
+                env_cfg=dataclasses.asdict(env_cfg)
+            )
+
         i= 0
         while not game_done:
             i += 1
@@ -67,7 +72,18 @@ class Episode:
                 agent_ids += [player.agent]
             resolved_actions = await asyncio.gather(*action_coros)
             for agent_id, action in zip(agent_ids, resolved_actions):
-                actions[agent_id] = action
+                try:
+                    for k in action:
+                        if type(action[k]) == list:
+                            action[k] = np.array(action[k])
+                    actions[agent_id] = action
+                except:
+                    if self.cfg.verbosity > 0:
+                        if action is None:
+                            print(f"{agent_id} sent a invalid action {action}. Agent likely errored out somewhere, check above for stderr logs")
+                        else:
+                            print(f"{agent_id} sent a invalid action {action}")
+                    actions[agent_id] = None
             new_state_obs, rewards, dones, infos = self.env.step(actions)
             obs = self.env.state.get_change_obs(state_obs)
             state_obs = new_state_obs["player_0"]

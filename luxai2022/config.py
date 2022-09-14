@@ -1,5 +1,7 @@
 from argparse import Namespace
 from dataclasses import dataclass
+import dataclasses
+from typing import Dict, List
 
 
 def convert_dict_to_ns(x):
@@ -35,29 +37,29 @@ class EnvConfig:
 
     ### Variable parameters that don't affect game logic much ###
     max_episode_length: int = 1000
-    map_size: int = 64
+    map_size: int = 48
     verbose: int = 1
     #### these can be disabled to improve env FPS
     validate_action_space: bool = True
 
     ### Constants ###
     # you can only ever transfer in/out 1000 as this is the max cargo space.
-    max_transfer_amount = 10000
-    MAX_FACTORIES = 5
-    CYCLE_LENGTH = 50
-    DAY_LENGTH = 30
-    UNIT_ACTION_QUEUE_SIZE = 10 # when set to 1, then no action queue is used
-    UNITS_CONTROLLED = 20 # when set to -1, all units can be controlled at once
-    MAX_RUBBLE = 100
-    FACTORY_RUBBLE_AFTER_DESTRUCTION = 50
-    INIT_WATER_METAL_PER_FACTORY = 100 # amount of water and metal units given to each factory
-    INIT_POWER_PER_FACTORY = 100
+    max_transfer_amount: int = 10000
+    MAX_FACTORIES: int = 5
+    CYCLE_LENGTH: int = 50
+    DAY_LENGTH: int = 30
+    UNIT_ACTION_QUEUE_SIZE: int = 10 # when set to 1, then no action queue is used
+    UNITS_CONTROLLED: int = 20 # when set to -1, all units can be controlled at once
+    MAX_RUBBLE: int = 100
+    FACTORY_RUBBLE_AFTER_DESTRUCTION: int = 50
+    INIT_WATER_METAL_PER_FACTORY: int = 100 # amount of water and metal units given to each factory
+    INIT_POWER_PER_FACTORY: int = 100
 
     #### LICHEN ####
-    MIN_LICHEN_TO_SPREAD = 1
-    LICHEN_LOST_WITHOUT_WATER = 1
-    LICHEN_GAINED_WITH_WATER = 1
-    LICHEN_WATERING_COST_FACTOR = 10
+    MIN_LICHEN_TO_SPREAD: int = 1
+    LICHEN_LOST_WITHOUT_WATER: int = 1
+    LICHEN_GAINED_WITH_WATER: int = 1
+    LICHEN_WATERING_COST_FACTOR: int = 10
 
     #### Bidding System ####
     BIDDING_SYSTEM: bool = True
@@ -73,7 +75,8 @@ class EnvConfig:
 
     #### Units ####
     # TODO FILL IN POWER COSTS FOR ACTIONS
-    ROBOTS = dict(
+    ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
+        default_factory=lambda: dict(
         LIGHT=UnitConfig(
             METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=50, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=1,
             DIG_COST=5,
@@ -93,34 +96,40 @@ class EnvConfig:
             DIG_LICHEN_REMOVED=100,
             RUBBLE_AFTER_DESTRUCTION=10,
         ),
+        )
     )
 
     #### Map Generation ####
     # TODO
 
     #### Weather ####
-    WEATHER_ID_TO_NAME = {
+    WEATHER_ID_TO_NAME: dict = dataclasses.field(default_factory=lambda :{
         0: "NONE",
         1: "MARS_QUAKE",
         2: "COLD_SNAP",
         3: "DUST_STORM",
         4: "SOLAR_FLARE",
-    }
-    WEATHER = dict(
+    })
+    NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
+    WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
         MARS_QUAKE=dict(
-            # amount of rubble generated under each robot
-            RUBBLE=dict(LIGHT=1, HEAVY=10)
+            # amount of rubble generated under each robot per turn
+            RUBBLE=dict(LIGHT=1, HEAVY=10),
+            TIME_RANGE=[1, 5]
         ),
         COLD_SNAP=dict(
             # power multiplier required per robot action. 2 -> requires 2x as much power to execute the same action
-            POWER_CONSUMPTION=2
+            POWER_CONSUMPTION=2,
+            TIME_RANGE=[10, 30]
         ),
         DUST_STORM=dict(
             # power multiplier required per robot action. .5 -> requires .5x as much power to execute the same action
-            POWER_CONSUMPTION=0.5
+            POWER_CONSUMPTION=0.5,
+            TIME_RANGE=[10, 30]
         ),
         SOLAR_FLARE=dict(
             # power gain multiplier. 2 -> gain 2x as much power per turn
-            POWER_GAIN=2
+            POWER_GAIN=2,
+            TIME_RANGE=[10, 30]
         ),
-    )
+    ))

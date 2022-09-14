@@ -12,6 +12,7 @@ class Agent():
             self.opp_player = "player_1"
         else:
             self.opp_player = "player_0"
+        np.random.seed(0)
 
     def early_setup(self, step, obs, remainingOverageTime: int):
         """
@@ -23,6 +24,8 @@ class Agent():
         ice = obs["board"]["ice"]
         # if ore[y][x] > 0, then there is an ore tile at (x, y)
         ore = obs["board"]["ore"]
+
+        env_cfg = self.env_cfg # the current env configuration for the episode
 
         if step == 0:
             # decide on a faction, and make a bid for the extra factory. 
@@ -50,9 +53,33 @@ class Agent():
     def act(self, step: int, obs: Dict, remainingOverageTime: int):
         """
         Logic here to make actions for the rest of the game.
+
+        Parameters
+        ----------
+        step - the current environment step. This is the "real" time step, starts from 0
+            after all the bidding and factory placement is done.
+
+        obs - the env observation. This is the raw dictionary based observation and it's usage is detailed below.
+            The more raw format is suitable for those who may need it for ML based solutions. For programmed solutions
+            an API is provided that interfaces with the observation more nicely, in addition to providing
+            functions to generate action vectors
+
+        remainingOverageTime - amount of time in seconds left to make an action in addition to the 
+            2s timer per action. Time spent > 2s eats into the remainingOverageTime pool for next turn
+
+
+        NOTE that step is set back to 0 in this part of the code. This act function is executed max_episode_length times.
+        The code ignores the time spent bidding and placing factories
         """
         actions = dict()
+
+        env_cfg = self.env_cfg # the current env configuration for the episode
         
+        # the weather schedule, a sequence of values representing what the weather is at each real time step
+        # 0 = Nothing, 1 = MARS_QUAKE, 2 = COLD_SNAP, 3 = DUST_STORM, 4 = SOLAR_FLARE
+        weather_schedule = obs["weather"]
+        current_weather = obs["weather"][step]
+
         # various maps to help aid in decision making
         rubble = obs["board"]["rubble"]
 
@@ -82,8 +109,10 @@ class Agent():
                 actions[unit_id] = 2
         for unit_id, unit in units.items():
             pos = unit['pos']
+            actions[unit_id] = np.array([0, np.random.randint(0, 5), 0, 0, 0])
         return actions
 
+### DO NOT REMOVE THE FOLLOWING CODE ###
 agent = None
 def agent_fn(observation, configurations):
     """
@@ -91,16 +120,19 @@ def agent_fn(observation, configurations):
     """
     global agent
     step = observation.step
+    
     player = observation.player
     remainingOverageTime = observation.remainingOverageTime
     if step == 0:
         agent = Agent(player)
+        agent.env_cfg = configurations
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
     agent.game_state = new_game_state
 
     if step <= agent.game_state["board"]["factories_per_team"] + 1:
         actions = agent.early_setup(step, new_game_state, remainingOverageTime)
     else:
-        actions = agent.act(step, new_game_state, remainingOverageTime)
+        real_env_steps = new_game_state["real_env_steps"]
+        actions = agent.act(real_env_steps, new_game_state, remainingOverageTime)
 
     return process_action(actions)

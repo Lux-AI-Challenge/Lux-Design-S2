@@ -1,0 +1,105 @@
+{
+  "max_episode_length": 1000,
+  "map_size": 48,
+  "verbose": 1,
+  "validate_action_space": true,
+  "max_transfer_amount": 10000,
+  "MAX_FACTORIES": 5,
+  "CYCLE_LENGTH": 50,
+  "DAY_LENGTH": 30,
+  "UNIT_ACTION_QUEUE_SIZE": 10,
+  "UNITS_CONTROLLED": 20,
+  "MAX_RUBBLE": 100,
+  "FACTORY_RUBBLE_AFTER_DESTRUCTION": 50,
+  "INIT_WATER_METAL_PER_FACTORY": 100,
+  "INIT_POWER_PER_FACTORY": 100,
+  "MIN_LICHEN_TO_SPREAD": 1,
+  "LICHEN_LOST_WITHOUT_WATER": 1,
+  "LICHEN_GAINED_WITH_WATER": 1,
+  "LICHEN_WATERING_COST_FACTOR": 10,
+  "BIDDING_SYSTEM": true,
+  "FACTORY_PROCESSING_RATE_WATER": 50,
+  "ICE_WATER_RATIO": 2,
+  "FACTORY_PROCESSING_RATE_METAL": 50,
+  "ORE_METAL_RATIO": 2,
+  "FACTORY_CHARGE": 50,
+  "FACTORY_WATER_CONSUMPTION": 1,
+  "ROBOTS": {
+    "LIGHT": {
+      "METAL_COST": 10,
+      "POWER_COST": 50,
+      "CARGO_SPACE": 100,
+      "BATTERY_CAPACITY": 50,
+      "CHARGE": 1,
+      "INIT_POWER": 50,
+      "MOVE_COST": 1,
+      "RUBBLE_MOVEMENT_COST": 1,
+      "DIG_COST": 5,
+      "DIG_RUBBLE_REMOVED": 1,
+      "DIG_RESOURCE_GAIN": 2,
+      "DIG_LICHEN_REMOVED": 10,
+      "SELF_DESTRUCT_COST": 5,
+      "RUBBLE_AFTER_DESTRUCTION": 1
+    },
+    "HEAVY": {
+      "METAL_COST": 100,
+      "POWER_COST": 500,
+      "CARGO_SPACE": 1000,
+      "BATTERY_CAPACITY": 1500,
+      "CHARGE": 10,
+      "INIT_POWER": 500,
+      "MOVE_COST": 20,
+      "RUBBLE_MOVEMENT_COST": 5,
+      "DIG_COST": 100,
+      "DIG_RUBBLE_REMOVED": 10,
+      "DIG_RESOURCE_GAIN": 20,
+      "DIG_LICHEN_REMOVED": 100,
+      "SELF_DESTRUCT_COST": 100,
+      "RUBBLE_AFTER_DESTRUCTION": 10
+    }
+  },
+  "WEATHER_ID_TO_NAME": {
+    "0": "NONE",
+    "1": "MARS_QUAKE",
+    "2": "COLD_SNAP",
+    "3": "DUST_STORM",
+    "4": "SOLAR_FLARE"
+  },
+  "NUM_WEATHER_EVENTS_RANGE": [
+    3,
+    5
+  ],
+  "WEATHER": {
+    "MARS_QUAKE": {
+      "RUBBLE": {
+        "LIGHT": 1,
+        "HEAVY": 10
+      },
+      "TIME_RANGE": [
+        1,
+        5
+      ]
+    },
+    "COLD_SNAP": {
+      "POWER_CONSUMPTION": 2,
+      "TIME_RANGE": [
+        10,
+        30
+      ]
+    },
+    "DUST_STORM": {
+      "POWER_CONSUMPTION": 0.5,
+      "TIME_RANGE": [
+        10,
+        30
+      ]
+    },
+    "SOLAR_FLARE": {
+      "POWER_GAIN": 2,
+      "TIME_RANGE": [
+        10,
+        30
+      ]
+    }
+  }
+}

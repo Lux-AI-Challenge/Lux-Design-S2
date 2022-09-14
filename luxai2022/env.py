@@ -6,6 +6,7 @@ import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 import pygame
+from luxai2022.map import weather
 from luxai2022.actions import (
     Action,
     DigAction,
@@ -63,7 +64,7 @@ class LuxAI2022(ParallelEnv):
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
         self.max_episode_length = max_episode_length
 
-        self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1, board=None)
+        self.state: State = State(seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1, board=None, weather_schedule=None)
 
         self.seed_rng: np.random.RandomState = None
 
@@ -139,8 +140,9 @@ class LuxAI2022(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.env_steps = 0
         self.seed = seed
-        board = Board(seed=seed)
-        self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board)
+        board = Board(seed=seed, map_size=self.env_cfg.map_size)
+        weather_schedule = weather.generate_weather_schedule(seed_rng, self.state.env_cfg)
+        self.state: State = State(seed_rng=seed_rng, seed=seed, env_cfg=self.state.env_cfg, env_steps=0, board=board, weather_schedule=weather_schedule)
         for agent in self.possible_agents:
             self.state.units[agent] = OrderedDict()
             self.state.factories[agent] = OrderedDict()
@@ -240,7 +242,7 @@ class LuxAI2022(ParallelEnv):
                                 continue
                             # import ipdb;ipdb.set_trace()
                             # self.state.board.spawns[k]
-                            # TODO handle overlapping factories.
+
                             factory = self.add_factory(self.state.teams[k], a["spawn"])
                             if factory is None: continue
                             factory.cargo.water = a["water"]
@@ -272,6 +274,11 @@ class LuxAI2022(ParallelEnv):
                         # team k loses
                         failed_agents[k] = True
         else:
+            # handle weather effects
+            current_weather = self.state.weather_schedule[self.state.real_env_steps]
+            current_weather = self.state.env_cfg.WEATHER_ID_TO_NAME[current_weather]
+            weather_cfg = weather.apply_weather(self.state, self.agents, current_weather)
+
             # 1. Check for malformed actions
             try:
                 if self.env_cfg.validate_action_space:
@@ -285,22 +292,23 @@ class LuxAI2022(ParallelEnv):
                             self.state.factories[agent][unit_id].action_queue.append(format_factory_action(action))
                         elif "unit" in unit_id:
                             formatted_actions = []
-                            if type(action) == list:
+                            if type(action) == list or (type(action) == np.ndarray and len(action.shape) == 2):
                                 trunked_actions = action[: self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
                                 formatted_actions = [format_action_vec(a) for a in trunked_actions]
                             else:
+                                
                                 formatted_actions = [format_action_vec(action)]
                             self.state.units[agent][unit_id].action_queue = formatted_actions
             except ValueError as e:
                 print(e)
                 failed_agents[agent] = True
-
+            
+            # 2. store actions by type
             actions_by_type: Dict[str, List[Tuple[Unit, Action]]] = defaultdict(list)
             for agent in self.agents:
                 if failed_agents[agent]:
                     continue
                 for unit in self.state.units[agent].values():
-
                     unit_a: Action = unit.next_action()
                     if unit_a is None:
                         continue
@@ -315,8 +323,8 @@ class LuxAI2022(ParallelEnv):
                     # update information for lichen growing and cache it
                     factory.cache_water_info(self.state.board, self.env_cfg)
 
-            # 2. validate all actions against current state, throw away impossible actions TODO
-            actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type, verbose=self.env_cfg.verbose)
+            # 3. validate all actions against current state, throw away impossible actions TODO
+            actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type, verbose=self.env_cfg.verbose, weather_cfg=weather_cfg)
             # TODO test Transfer resources/power
 
             for unit, transfer_action in actions_by_type["transfer"]:
@@ -354,6 +362,7 @@ class LuxAI2022(ParallelEnv):
                     unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
                 elif self.state.board.ore[unit.pos.y, unit.pos.x] > 0:
                     unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
+                unit.power -= self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_COST
 
             for unit, self_destruct_action in actions_by_type["self_destruct"]:
                 unit: Unit
@@ -362,7 +371,6 @@ class LuxAI2022(ParallelEnv):
                 del self.state.board.units_map[pos_hash]
                 self.destroy_unit(unit)
 
-            # TODO - robot building with factories
             for factory, factory_build_action in actions_by_type["factory_build"]:
                 factory: Factory
                 factory_build_action: FactoryBuildAction
@@ -374,10 +382,10 @@ class LuxAI2022(ParallelEnv):
                 )
                 if factory_build_action.unit_type == 1:
                     factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
-                    factory.sub_resource(4, self.env_cfg.ROBOTS["HEAVY"].POWER_COST)
+                    factory.sub_resource(4, self.env_cfg.ROBOTS["HEAVY"].POWER_COST * weather_cfg["power_loss_factor"])
                 else:
                     factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
-                    factory.sub_resource(4, self.env_cfg.ROBOTS["LIGHT"].POWER_COST)
+                    factory.sub_resource(4, self.env_cfg.ROBOTS["LIGHT"].POWER_COST * weather_cfg["power_loss_factor"])
 
             # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -393,6 +401,7 @@ class LuxAI2022(ParallelEnv):
                 target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
                 rubble = self.state.board.rubble[target_pos.y, target_pos.x]
                 power_required = unit.unit_cfg.MOVE_COST + unit.unit_cfg.RUBBLE_MOVEMENT_COST * rubble
+                power_required = power_required * weather_cfg["power_loss_factor"]
                 unit.pos = target_pos
                 new_pos_hash = self.state.board.pos_hash(unit.pos)
 
@@ -474,19 +483,15 @@ class LuxAI2022(ParallelEnv):
                     unit.action_queue.insert(0, recharge_action)
 
 
-            # TODO - test lichen growth
             for factory, factory_water_action in actions_by_type["factory_water"]:
                 water_cost = factory.water_cost(self.env_cfg)
                 factory.cargo.water -= water_cost # earlier validation ensures this is always possible.
                 indexable_positions = ([v[1] for v in factory.grow_lichen_positions], [v[0] for v in factory.grow_lichen_positions])
                 self.state.board.lichen[indexable_positions] += 2
                 self.state.board.lichen_strains[indexable_positions] = factory.num_id
-            # TODO - reduce lichen if no watering happens
+            
             self.state.board.lichen -= 1
             self.state.board.lichen = self.state.board.lichen.clip(0, 20)
-
-
-            # TODO - handle weather effects
 
             # resources refining
             for agent in self.agents:
@@ -500,16 +505,17 @@ class LuxAI2022(ParallelEnv):
                     # destroy factories that ran out of water
                     self.destroy_factory(factory)
             # power gain
-            if is_day(self.env_cfg, self.env_steps):
+            if is_day(self.env_cfg, self.state.real_env_steps):
                 for agent in self.agents:
                     for u in self.state.units[agent].values():
-                        u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE
+                        u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE * weather_cfg["power_gain_factor"]
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
-                    f.power = f.power + self.env_cfg.FACTORY_CHARGE
+                    f.power = f.power + self.env_cfg.FACTORY_CHARGE * weather_cfg["power_gain_factor"]
 
-            # always set rubble under factories to 0.
-            self.state.board.rubble[self.state.board.factory_occupancy_map != -1] = 0
+
+        # always set rubble under factories to 0.
+        self.state.board.rubble[self.state.board.factory_occupancy_map != -1] = 0
 
         # rewards for all agents are placed in the rewards dictionary to be returned
         rewards = {}
@@ -524,7 +530,7 @@ class LuxAI2022(ParallelEnv):
 
         self.env_steps += 1
         self.state.env_steps += 1
-        env_done = self.env_steps >= self.max_episode_length
+        env_done = self.state.real_env_steps >= self.max_episode_length
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations
