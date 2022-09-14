@@ -79,7 +79,10 @@ class Episode:
                     actions[agent_id] = action
                 except:
                     if self.cfg.verbosity > 0:
-                        print(f"{agent_id} sent a invalid action {action}")
+                        if action is None:
+                            print(f"{agent_id} sent a invalid action {action}. Agent likely errored out somewhere, check above for stderr logs")
+                        else:
+                            print(f"{agent_id} sent a invalid action {action}")
                     actions[agent_id] = None
             new_state_obs, rewards, dones, infos = self.env.step(actions)
             obs = self.env.state.get_change_obs(state_obs)

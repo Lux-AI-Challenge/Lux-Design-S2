@@ -125,6 +125,7 @@ def agent_fn(observation, configurations):
     remainingOverageTime = observation.remainingOverageTime
     if step == 0:
         agent = Agent(player)
+        agent.env_cfg = configurations
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
     agent.game_state = new_game_state
 
