@@ -13,6 +13,7 @@ from luxai2022.unit import Unit
 
 class Board:
     def __init__(self, seed=None, env_cfg: EnvConfig = None) -> None:
+        self.env_cfg = env_cfg
         self.height =  self.env_cfg.map_size
         self.width =  self.env_cfg.map_size
         self.seed = seed

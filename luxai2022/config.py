@@ -134,3 +134,9 @@ class EnvConfig:
             TIME_RANGE=[10, 30]
         ),
     ))
+
+    @classmethod
+    def from_dict(cls, data):
+        data["ROBOTS"]["LIGHT"] = UnitConfig(**data["ROBOTS"]["LIGHT"])
+        data["ROBOTS"]["HEAVY"] = UnitConfig(**data["ROBOTS"]["HEAVY"])
+        return cls(**data)
