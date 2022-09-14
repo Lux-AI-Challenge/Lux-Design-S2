@@ -1,4 +1,7 @@
-import pygame
+try:
+    import pygame
+except:
+    print("No pygame installed, ignoring import")
 from luxai2022.map.board import Board
 from luxai2022.state import State
 from luxai2022.unit import UnitType

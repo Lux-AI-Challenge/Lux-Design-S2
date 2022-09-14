@@ -13,6 +13,9 @@ python luxai_runner/runner.py kits/python/main.py kits/js/main.js -s 42 -v 2
 <!-- TODO: add instructions on watching replay either live or through visualizer -->
 <!-- TODO: add instructions on gym interface -->
 
+For submission to the kaggle challenge, you can first test your submission by running
+
+
 
 ## Kit Structure
 

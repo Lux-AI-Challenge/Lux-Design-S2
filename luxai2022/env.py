@@ -5,7 +5,6 @@ from typing import Dict, List, Set, Tuple, Union
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-import pygame
 from luxai2022.map import weather
 from luxai2022.actions import (
     Action,
