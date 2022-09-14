@@ -91,17 +91,6 @@ class LuxAI2022(ParallelEnv):
                 return get_act_space_init(config=self.env_cfg, agent=agent)
             return get_act_space(self.state.units, self.state.factories, config=self.env_cfg, agent=agent)
 
-    @property
-    def real_env_steps(self):
-        """
-        the actual env step in the environment, which subtracts the time spent bidding and placing factories
-        """
-        if self.state.env_cfg.BIDDING_SYSTEM:
-            # + 1 for extra factory placement and + 1 for bidding step
-            return self.env_steps - (self.state.board.factories_per_team + 1 + 1)
-        else:
-            return self.env_steps
-
     def render(self, mode="human"):
         """
         Renders the environment. In human mode, it can print to terminal, open
@@ -286,7 +275,7 @@ class LuxAI2022(ParallelEnv):
                         failed_agents[k] = True
         else:
             # handle weather effects
-            current_weather = self.state.weather_schedule[self.real_env_steps]
+            current_weather = self.state.weather_schedule[self.state.real_env_steps]
             current_weather = self.state.env_cfg.WEATHER_ID_TO_NAME[current_weather]
             weather_cfg = weather.apply_weather(self.state, self.agents, current_weather)
 
@@ -516,7 +505,7 @@ class LuxAI2022(ParallelEnv):
                     # destroy factories that ran out of water
                     self.destroy_factory(factory)
             # power gain
-            if is_day(self.env_cfg, self.real_env_steps):
+            if is_day(self.env_cfg, self.state.real_env_steps):
                 for agent in self.agents:
                     for u in self.state.units[agent].values():
                         u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE * weather_cfg["power_gain_factor"]
@@ -541,7 +530,7 @@ class LuxAI2022(ParallelEnv):
 
         self.env_steps += 1
         self.state.env_steps += 1
-        env_done = self.real_env_steps >= self.max_episode_length
+        env_done = self.state.real_env_steps >= self.max_episode_length
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations

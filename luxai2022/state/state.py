@@ -24,6 +24,16 @@ class State:
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
     
+    @property
+    def real_env_steps(self):
+        """
+        the actual env step in the environment, which subtracts the time spent bidding and placing factories
+        """
+        if self.env_cfg.BIDDING_SYSTEM:
+            # + 1 for extra factory placement and + 1 for bidding step
+            return self.env_steps - (self.board.factories_per_team + 1 + 1)
+        else:
+            return self.env_steps
 
     def generate_unit_data(units_dict: Dict[str, Dict[str, Unit]]):
         units = dict()
@@ -62,7 +72,8 @@ class State:
             team=teams,
             factories=factories,
             board=board,
-            weather=self.weather_schedule
+            weather=self.weather_schedule,
+            real_env_steps=self.real_env_steps
         )
     def get_compressed_obs(self):
         # return everything on turn 0

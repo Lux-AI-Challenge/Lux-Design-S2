@@ -21,7 +21,7 @@ These two functions are where you define your agent's logic for both the early p
 
 ## Observations Definition
 
-The general observation given to your bot will look lke this
+The general observation given to your bot will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. 
 
 ```
 {
@@ -35,7 +35,7 @@ The general observation given to your bot will look lke this
           "unit_type": "LIGHT" or "HEAVY",
           "pos": Array(2),
           "cargo": { "ice": int, "ore": int, "water": int, "metal": int },
-          "action_queue": TODO
+          "action_queue": Array(N, 5)
         }
       }
     },
@@ -58,7 +58,9 @@ The general observation given to your bot will look lke this
       "lichen_strains": Array(64, 64),
       "spawns": Array(K, 2),
       "factories_per_team": int
-    }
+    },
+    "weather": Array(1000),
+    "real_env_steps": int
   },
   "step": int,
   "remainingOverageTime": int,
@@ -66,6 +68,4 @@ The general observation given to your bot will look lke this
 }
 ```
 
-Every kit has an `Agent` class that defines two functions, `early_setup` and `act` with parameters `step`, `obs` and `remainingOverageTime` corresponding to the values in the definition above. 
-
-`Array(m, n)` refers to a matrix/array with `m` rows and `n` columns.
+Every kit has an `Agent` class that defines two functions, `early_setup` and `act` with parameters `step`, `obs` and `remainingOverageTime` corresponding to the values in the definition above. Note that for the `act` function, `obs["real_env_steps"]` is used instead. This subtracts the time spent bidding and placing factories in `early_setup` and so the first call to `act` will be with `step = 0` and `act` will be called `max_episode_length` times (default 1000).
