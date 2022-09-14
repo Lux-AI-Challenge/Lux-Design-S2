@@ -67,10 +67,10 @@ class Agent():
 
 
         NOTE that step is set back to 0 in this part of the code. This act function is executed max_episode_length times.
+        The code ignores the time spent bidding and placing factories
         """
         actions = dict()
-        with open("log", "w") as f:
-            f.writelines(json.dumps(to_json(obs)))
+        
         # the weather schedule, a sequence of values representing what the weather is at each real time step
         # 0 = Nothing, 1 = MARS_QUAKE, 2 = COLD_SNAP, 3 = DUST_STORM, 4 = SOLAR_FLARE
         weather_schedule = obs["weather"]
@@ -100,7 +100,7 @@ class Agent():
         # iterate over all active factories
         for unit_id, factory in factories.items():
             if step % 4 == 0 and step > 1:
-                actions[unit_id] = 0 #np.random.randint(0,2)
+                actions[unit_id] = np.random.randint(0,2)
             else:
                 actions[unit_id] = 2
         for unit_id, unit in units.items():
@@ -108,6 +108,7 @@ class Agent():
             actions[unit_id] = np.array([0, np.random.randint(0, 5), 0, 0, 0])
         return actions
 
+### DO NOT REMOVE THE FOLLOWING CODE ###
 agent = None
 def agent_fn(observation, configurations):
     """
