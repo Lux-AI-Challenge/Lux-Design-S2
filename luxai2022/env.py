@@ -532,11 +532,9 @@ class LuxAI2022(ParallelEnv):
             else:
                 agent_lichen_mask = np.isin(self.state.board.lichen_strains, strain_ids)
                 rewards[agent] = self.state.board.lichen[agent_lichen_mask].sum()
-            print(agent, rewards[agent])
 
         self.env_steps += 1
         self.state.env_steps += 1
-        print(self.state.real_env_steps, self.state.env_cfg.max_episode_length)
         env_done = self.state.real_env_steps >= self.state.env_cfg.max_episode_length
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 

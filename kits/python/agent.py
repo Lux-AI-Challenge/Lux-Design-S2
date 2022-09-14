@@ -15,6 +15,9 @@ class Agent():
             self.opp_player = "player_0"
         np.random.seed(0)
         self.step = -1
+        self.factories_owned = 0
+        self.init_metal_left = 0
+        self.init_water_left = 0
 
     def early_setup(self, step, obs, remainingOverageTime: int):
         """
@@ -44,13 +47,18 @@ class Agent():
             metal_left = obs["teams"][self.player]["metal"]
             # how many factories you have left to place
             factories_to_place = obs["teams"][self.player]["factories_to_place"]
+            if step == 1:
+                # first step of factory placement, we save our initial pool of water and factory amount
+                self.factories_owned = factories_to_place
+                self.init_metal_left = metal_left
+                self.init_water_left = water_left
             # obs["teams"][self.opp_player] has the same information but for the other team
             # potential spawnable locations in your half of the map
             potential_spawns = obs["board"]["spawns"][self.player]
 
             # as a naive approach we randomly select a spawn location and spawn a factory there
             spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
-            return dict(spawn=spawn_loc, metal=62, water=62)
+            return dict(spawn=spawn_loc, metal=self.init_metal_left // self.factories_owned, water=self.init_water_left // self.factories_owned)
 
     def act(self, step: int, obs: Dict, remainingOverageTime: int):
         """
