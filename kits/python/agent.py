@@ -31,7 +31,7 @@ class Agent():
         ore = obs["board"]["ore"]
 
         env_cfg = self.env_cfg # the current env configuration for the episode
-
+        
         if step == 0:
             # decide on a faction, and make a bid for the extra factory. 
             # Each unit of bid removes one unit of water and metal from your initial pool
@@ -110,10 +110,10 @@ class Agent():
         lichen_strains = game_state.board.lichen_strains
 
         # units and factories for your team and the opposition team
-        units = game_state.units[agent.player]
-        opp_units = game_state.units[agent.opp_player]
-        factories = game_state.factories[agent.player]
-        opp_factories = game_state.factories[agent.opp_player]
+        units = game_state.units[self.player]
+        opp_units = game_state.units[self.opp_player]
+        factories = game_state.factories[self.player]
+        opp_factories = game_state.factories[self.opp_player]
         
         # iterate over all active factories
         for unit_id, factory in factories.items():
@@ -145,21 +145,23 @@ class Agent():
         return actions
 
 ### DO NOT REMOVE THE FOLLOWING CODE ###
-agent = None
+agent_dict = dict() # store potentially multiple dictionaries as kaggle imports code directly
 def agent_fn(observation, configurations):
     """
     agent definition for kaggle submission.
     """
-    global agent
+    global agent_dict
     step = observation.step
     
     
     player = observation.player
     remainingOverageTime = observation.remainingOverageTime
     if step == 0:
-        agent = Agent(player)
+        agent_dict[player] = Agent(player)
+        agent = agent_dict[player]
         # TODO verify this works with kaggle input and add logic to fix that
         agent.env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
+    agent = agent_dict[player]
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
     agent.game_state = new_game_state
     agent.step = step
