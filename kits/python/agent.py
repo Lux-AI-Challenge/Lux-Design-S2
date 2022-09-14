@@ -1,7 +1,7 @@
 import json
 import sys
 from typing import Dict
-from kits.python.lux.config import EnvConfig
+from lux.config import EnvConfig
 from lux.kit import process_obs, to_json, from_json, process_action, obs_to_game_state
 import numpy as np
 class Agent():
@@ -148,7 +148,7 @@ def agent_fn(observation, configurations):
     if step == 0:
         agent = Agent(player)
         # TODO verify this works with kaggle input and add logic to fix that
-        agent.env_cfg = EnvConfig.from_dict(configurations)
+        agent.env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
     agent.game_state = new_game_state
     agent.step = step

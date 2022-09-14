@@ -31,10 +31,10 @@ def generate_weather_schedule(rng: np.random.RandomState, cfg: EnvConfig):
 def apply_weather(state: State, agents: List[str], current_weather):
     if current_weather == "MARS_QUAKE":
         for agent in agents:
-            for unit_id, unit in state.units["agent"].values():
+            for unit in state.units[agent].values():
                 unit: Unit
                 state.board.rubble[unit.pos.y, unit.pos.x] += state.env_cfg.ROBOTS[unit.unit_type.name].RUBBLE_AFTER_DESTRUCTION
-        state.board.rubble = np.clip(state.board.rubble, 0, state.env_cfg.MAX_RUBBLE)
+        state.board.rubble.clip(0, state.env_cfg.MAX_RUBBLE)
         return dict(power_gain_factor=1, power_loss_factor=1)
     elif current_weather == "COLD_SNAP":
         return dict(power_gain_factor=1, power_loss_factor=2)
@@ -43,5 +43,3 @@ def apply_weather(state: State, agents: List[str], current_weather):
     elif current_weather == "SOLAR_FLARE":
         return dict(power_gain_factor=2, power_loss_factor=1)
     return dict(power_gain_factor=1, power_loss_factor=1)
-
-

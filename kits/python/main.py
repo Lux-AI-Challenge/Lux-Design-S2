@@ -25,6 +25,6 @@ if __name__ == "__main__":
         if i == 0:
             configurations = obs["info"]["env_cfg"]
         i += 1
-        actions = agent_fn(observation, configurations)
+        actions = agent_fn(observation, dict(env_cfg=configurations))
         # send actions to engine
         print(json.dumps(actions))

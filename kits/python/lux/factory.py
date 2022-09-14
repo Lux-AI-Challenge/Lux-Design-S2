@@ -1,7 +1,7 @@
 from sys import stderr
 import numpy as np
 from dataclasses import dataclass
-from kits.python.lux.weather import get_weather_config
+from lux.weather import get_weather_config
 
 from lux.cargo import UnitCargo
 from lux.config import EnvConfig

@@ -104,13 +104,7 @@ class EnvConfig:
     # TODO
 
     #### Weather ####
-    WEATHER_ID_TO_NAME: dict = dataclasses.field(default_factory=lambda :{
-        0: "NONE",
-        1: "MARS_QUAKE",
-        2: "COLD_SNAP",
-        3: "DUST_STORM",
-        4: "SOLAR_FLARE",
-    })
+    WEATHER_ID_TO_NAME: list = dataclasses.field(default_factory=lambda : ["NONE","MARS_QUAKE","COLD_SNAP","DUST_STORM","SOLAR_FLARE"])
     NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
     WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
         MARS_QUAKE=dict(
