@@ -7,7 +7,7 @@ import gym
 from luxai_runner.logger import Logger
 from luxai_runner.bot import Bot
 import numpy as np
-
+import dataclasses
 from luxai_runner.utils import to_json
 @dataclass
 class EpisodeConfig:
@@ -41,6 +41,7 @@ class Episode:
 
         
         obs = self.env.reset(seed=self.seed)
+        env_cfg = self.env.state.env_cfg
         state_obs = self.env.state.get_compressed_obs()
         obs = to_json(state_obs)
 
@@ -52,7 +53,11 @@ class Episode:
         for agent in players:
             rewards[agent] = 0 
             dones[agent] = 0
-            infos[agent] = dict()
+            infos[agent] = dict(
+                # turn 0 provide configurations
+                env_cfg=dataclasses.asdict(env_cfg)
+            )
+
         i= 0
         while not game_done:
             i += 1
