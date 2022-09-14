@@ -35,7 +35,7 @@ class EnvConfig:
 
     ### Variable parameters that don't affect game logic much ###
     max_episode_length: int = 1000
-    map_size: int = 64
+    map_size: int = 48
     verbose: int = 1
     #### these can be disabled to improve env FPS
     validate_action_space: bool = True
@@ -106,21 +106,26 @@ class EnvConfig:
         3: "DUST_STORM",
         4: "SOLAR_FLARE",
     }
+    NUM_WEATHER_EVENTS_RANGE=[3,5]
     WEATHER = dict(
         MARS_QUAKE=dict(
-            # amount of rubble generated under each robot
-            RUBBLE=dict(LIGHT=1, HEAVY=10)
+            # amount of rubble generated under each robot per turn
+            RUBBLE=dict(LIGHT=1, HEAVY=10),
+            TIME_RANGE=[1, 5]
         ),
         COLD_SNAP=dict(
             # power multiplier required per robot action. 2 -> requires 2x as much power to execute the same action
-            POWER_CONSUMPTION=2
+            POWER_CONSUMPTION=2,
+            TIME_RANGE=[10, 30]
         ),
         DUST_STORM=dict(
             # power multiplier required per robot action. .5 -> requires .5x as much power to execute the same action
-            POWER_CONSUMPTION=0.5
+            POWER_CONSUMPTION=0.5,
+            TIME_RANGE=[10, 30]
         ),
         SOLAR_FLARE=dict(
             # power gain multiplier. 2 -> gain 2x as much power per turn
-            POWER_GAIN=2
+            POWER_GAIN=2,
+            TIME_RANGE=[10, 30]
         ),
     )

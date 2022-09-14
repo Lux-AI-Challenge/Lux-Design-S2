@@ -18,10 +18,12 @@ class State:
     env_steps: int
     env_cfg: EnvConfig
     board: Board = None
+    weather_schedule: np.ndarray = None
     units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
+    
 
     def generate_unit_data(units_dict: Dict[str, Dict[str, Unit]]):
         units = dict()
@@ -59,7 +61,8 @@ class State:
             units=units,
             team=teams,
             factories=factories,
-            board=board
+            board=board,
+            weather=self.weather_schedule
         )
     def get_compressed_obs(self):
         # return everything on turn 0
@@ -71,6 +74,7 @@ class State:
             del data["board"]["ore"]
             del data["board"]["ice"]
             del data["board"]["spawns"]
+            del data["weather"]
             return data
     def get_change_obs(self, prev_state):
         """

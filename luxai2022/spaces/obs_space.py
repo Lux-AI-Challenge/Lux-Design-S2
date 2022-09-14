@@ -6,16 +6,12 @@ from luxai2022.config import EnvConfig
 def get_obs_space(config: EnvConfig, agent: int = 0):
     obs_space = dict()
     # observations regarding some meta information such as total units, resources etc.
-    meta_obs_space = dict(
-        # TODO - maybe we make this a variable array
-        weather=spaces.Box(
-            low=0,
-            high=len(config.WEATHER) + 1,
-            shape=(config.max_episode_length,),
-            dtype=int,
-        )
+    obs_space["weather"] = spaces.Box(
+        low=0,
+        high=len(config.WEATHER) + 1,
+        shape=(config.max_episode_length,),
+        dtype=int,
     )
-    obs_space["meta"] = spaces.Dict(meta_obs_space)
 
     obs_space["day"] = spaces.Discrete(2)
 

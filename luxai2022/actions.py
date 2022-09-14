@@ -112,7 +112,10 @@ class RechargeAction(Action):
 
 def format_factory_action(a: int):
     if a == 0 or a == 1:
-        return FactoryBuildAction(unit_type=a)
+        unit_type = luxai_unit.UnitType.HEAVY
+        if a == 0:
+            unit_type = luxai_unit.UnitType.LIGHT
+        return FactoryBuildAction(unit_type=unit_type)
     elif a == 2:
         return FactoryWaterAction()
     else:
@@ -142,7 +145,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbose=1):
+def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weather_cfg, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -204,9 +207,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
     for unit, dig_action in actions_by_type["dig"]:
         valid_action = True
         dig_action: DigAction
-        if unit.unit_cfg.DIG_COST > unit.power:
+        if unit.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"] > unit.power:
             invalidate_action(
-                f"Invalid Dig Action for unit {unit} - Tried to dig requiring {unit.unit_cfg.DIG_COST} power but only had {unit.power} power"
+                f"Invalid Dig Action for unit {unit} - Tried to dig requiring {unit.unit_cfg.DIG_COST} x {weather_cfg['power_loss_factor']} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
             )
             continue
         if valid_action:
@@ -278,30 +281,38 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
                 )
                 continue
         rubble = state.board.rubble[target_pos.y, target_pos.x]
-        power_required = unit.move_power_cost(rubble)
+        power_required = unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"]
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power but only had {unit.power} power"
+                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} x {weather_cfg['power_loss_factor']} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
             )
             continue
         if valid_action:
             actions_by_type_validated["move"].append((unit, move_action))
+    #TODO self destruct
+
+    for unit, self_destruct_action in actions_by_type["self_destruct"]:
+        valid_action = True
+        self_destruct_action: SelfDestructAction
+        power_required = unit.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"]
+        if power_required > unit.power:
+            invalidate_action(
+                f"Invalid self destruct action for unit {unit} - Tried to self destruct requiring {power_required} x {weather_cfg['power_loss_factor']} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+            )
+        if valid_action:
+            actions_by_type_validated["self_destruct"].append((unit, move_action))
 
     for factory, build_action in actions_by_type["factory_build"]:
         valid_action = True
         build_action: FactoryBuildAction
         factory: 'Factory'
 
-        if build_action.unit_type == 0:
-            unit_cfg = env_cfg.ROBOTS["LIGHT"]
-            # Light
-        elif build_action.unit_type == 1:
-            unit_cfg = env_cfg.ROBOTS["HEAVY"]
+        unit_cfg = env_cfg.ROBOTS[build_action.unit_type.name]
         if factory.cargo.metal < unit_cfg.METAL_COST:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST}")
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST} to build {build_action.unit_type}")
             continue
-        if factory.power < unit_cfg.POWER_COST:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {unit_cfg.POWER_COST}")
+        if factory.power < unit_cfg.POWER_COST * weather_cfg["power_loss_factor"]:
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {unit_cfg.POWER_COST} x {weather_cfg['power_loss_factor']} to build {build_action.unit_type.name}. Power cost factor is {weather_cfg['power_loss_factor']}")
             continue
         if valid_action:
             actions_by_type_validated["factory_build"].append((factory, build_action))

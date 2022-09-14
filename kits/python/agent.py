@@ -12,6 +12,7 @@ class Agent():
             self.opp_player = "player_1"
         else:
             self.opp_player = "player_0"
+        np.random.seed(0)
 
     def early_setup(self, step, obs, remainingOverageTime: int):
         """
@@ -77,11 +78,12 @@ class Agent():
         # iterate over all active factories
         for unit_id, factory in factories.items():
             if step % 4 == 0 and step > 1:
-                actions[unit_id] = np.random.randint(0,2)
+                actions[unit_id] = 0 #np.random.randint(0,2)
             else:
                 actions[unit_id] = 2
         for unit_id, unit in units.items():
             pos = unit['pos']
+            actions[unit_id] = np.array([0, np.random.randint(0, 5), 0, 0, 0])
         return actions
 
 agent = None

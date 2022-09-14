@@ -67,7 +67,15 @@ class Episode:
                 agent_ids += [player.agent]
             resolved_actions = await asyncio.gather(*action_coros)
             for agent_id, action in zip(agent_ids, resolved_actions):
-                actions[agent_id] = action
+                try:
+                    for k in action:
+                        if type(action[k]) == list:
+                            action[k] = np.array(action[k])
+                    actions[agent_id] = action
+                except:
+                    if self.cfg.verbosity > 0:
+                        print(f"{agent_id} sent a invalid action {action}")
+                    actions[agent_id] = None
             new_state_obs, rewards, dones, infos = self.env.step(actions)
             obs = self.env.state.get_change_obs(state_obs)
             state_obs = new_state_obs["player_0"]
