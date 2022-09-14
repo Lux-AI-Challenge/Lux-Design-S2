@@ -74,9 +74,8 @@ class Agent():
         The code ignores the time spent bidding and placing factories
         """
         actions = dict()
-        with open("log.json", "w") as f:
-            f.write(json.dumps(to_json(obs), indent=0))
-        env_cfg = self.env_cfg # the current env configuration for the episode
+
+        env_cfg: EnvConfig = self.env_cfg # the current env configuration for the episode
         game_state = obs_to_game_state(step=self.step, env_cfg=env_cfg, obs=obs)
 
         # the weather schedule, a sequence of values representing what the weather is at each real time step
@@ -126,6 +125,11 @@ class Agent():
             # (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
             move_dir = np.random.randint(0, 5)
             if unit.can_move(game_state, move_dir):
+                # by default, any unit action has repeat=True and moves completed actions back to the end of the action queue
+                # You can also queue up to env_cfg.UNIT_ACTION_QUEUE_SIZE actions for each unit.
+                # You can submit action queues for up to env_cfg.UNITS_CONTROLLED units each turn
+
+                # here, we tell this unit to move in a direction once and stay still until controlled again
                 actions[unit_id] = [unit.move(move_dir, repeat=False)]
         return actions
 
