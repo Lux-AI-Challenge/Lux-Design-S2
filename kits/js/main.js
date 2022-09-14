@@ -1,6 +1,6 @@
 
 const { exit } = require('process');
-const kit = require('./lux/kit');
+const kit = require('./agent');
 // const GAME_CONSTANTS = require('./lux/game_constants');
 // const DIRECTIONS = GAME_CONSTANTS.DIRECTIONS;
 // create a new agent
@@ -18,7 +18,7 @@ agent.initialize().then(async () => {
       // submit turn 0 actions
       console.log(JSON.stringify(actions));
     } else {
-      actions = agent.act(step);
+      actions = agent.act(agent.real_env_step);
       // submit turn 0 actions
       console.log(JSON.stringify(actions));
     }

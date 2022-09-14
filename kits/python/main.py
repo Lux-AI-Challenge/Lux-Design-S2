@@ -25,7 +25,6 @@ if __name__ == "__main__":
         if i == 0:
             configurations = obs["info"]["env_cfg"]
         i += 1
-        # data = json.dumps(dict(obs=json.loads(observation.obs), step=observation.step, remainingOverageTime=observation.remainingOverageTime, player=observation.player, reward=observation.reward))
-        # observation["updates"].append(inputs)
         actions = agent_fn(observation, configurations)
+        # send actions to engine
         print(json.dumps(actions))
