@@ -155,7 +155,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     def invalidate_action(msg):
         nonlocal valid_action
         valid_action = False
-        if verbose > 0: print(msg)
+        if verbose > 0: print(f"{state.real_env_steps}: {msg}")
 
     for unit, transfer_action in actions_by_type["transfer"]:
         valid_action = True

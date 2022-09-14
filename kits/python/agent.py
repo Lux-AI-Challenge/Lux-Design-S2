@@ -126,8 +126,7 @@ class Agent():
             # (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
             move_dir = np.random.randint(0, 5)
             if unit.can_move(game_state, move_dir):
-                actions[unit_id] = [unit.move(move_dir)]
-            # np.array([0, np.random.randint(0, 5), 0, 0, 0])
+                actions[unit_id] = [unit.move(move_dir, repeat=False)]
         return actions
 
 ### DO NOT REMOVE THE FOLLOWING CODE ###
