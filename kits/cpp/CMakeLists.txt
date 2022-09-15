@@ -17,6 +17,9 @@ if(${BUILD_DEBUG})
         -O0
         -g
     )
+    add_compile_definitions(
+        DEBUG_BUILD
+    )
 else()
     add_compile_options(
         -O3
