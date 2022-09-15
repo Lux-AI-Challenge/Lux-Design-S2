@@ -29,4 +29,5 @@ dependencies:
     - termcolor
     - opensimplex
     - pygame
+    - vec_noise
 

@@ -1,4 +1,4 @@
-from opensimplex import OpenSimplex
+from vec_noise import snoise2
 from collections.abc import Iterable
 import numpy as np
 
@@ -35,7 +35,7 @@ class SymmetricNoise(object):
         """Symmetrical Simplex noise.
 
             ex.: noise = SymmetricalNoise(symmetry="rotational", width=50, height=100,
-                                          octaves=3.5, seed=777)
+                                          octaves=3, seed=777)
 
         Parameters:
             symmetry : one of "vertical", "horizontal", "rotational", "/", and "\\"
@@ -51,7 +51,7 @@ class SymmetricNoise(object):
 
         if not seed:
             seed = np.random.randint(1 << 31)
-        self._instances = [OpenSimplex(seed + i) for i in range(octaves)]
+        self.octaves = octaves
         self.random = np.random.RandomState(seed)
         self.noise_shift = noise_shift
         self.seed = seed
@@ -77,9 +77,8 @@ class SymmetricNoise(object):
 
         x = x + self.noise_shift
 
-        total = 0
-        for i in self._instances:
-            total += i.noise2array(y * frequency, x * frequency)
+        x, y = np.meshgrid(x, y)
+        total = snoise2(x, y, octaves=self.octaves)
         symmetrize(total, self.symmetry)
         # Normalize between [0, 1]
         total -= np.amin(total)

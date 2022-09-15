@@ -9,19 +9,24 @@ from luxai2022.map.position import Position
 from luxai2022.team import Team
 from luxai2022.unit import UnitCargo
 from luxai2022.actions import move_deltas
+from luxai2022.globals import TERM_COLORS
+try:
+    from termcolor import colored
+except:
+    pass
+
 
 def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, strain_id: int, forbidden: np.ndarray):
     # TODO - improve the performance here with cached solution
     frontier = deque(init)
-    seen = set()
+    seen = set(map(tuple, init))
     grow_lichen_positions = set()
     H, W = lichen.shape
     while len(frontier) > 0:
         pos = frontier.popleft()
-        if (pos[0], pos[1]) in seen: continue
         if pos[0] < 0 or pos[1] < 0 or pos[0] >= forbidden.shape[1] or pos[1] >= forbidden.shape[0]:
             continue
-        seen.add((pos[0], pos[1]))
+
         if forbidden[pos[1], pos[0]]:
             continue
         pos_lichen = lichen[pos[1], pos[0]]
@@ -33,22 +38,22 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             # check surrounding tiles on the map
             if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= W or check_pos[1] >= H: continue
             adj_strain = lichen_strains[check_pos[1], check_pos[0]]
-            if adj_strain != strain_id:
-                if adj_strain != -1:
+            if adj_strain == -1:
+                if pos_lichen >= MIN_LICHEN_TO_SPREAD:
+                    seen.add(tuple(check_pos))
+                    frontier.append(check_pos)
+            elif adj_strain != strain_id:
                     # adjacent tile is not empty and is not a strain this factory owns.
                     can_grow = False
+                    seen.add(tuple(check_pos))
             else:
                 # adjacent tile has our own strain, we can grow here too
-                frontier.append(check_pos)
-
-            if pos_lichen >= MIN_LICHEN_TO_SPREAD and adj_strain == -1:
-                # empty tile and current tile has enough lichen to spread
+                seen.add(tuple(check_pos))
                 frontier.append(check_pos)
 
         if can_grow:
             grow_lichen_positions.add((pos[0], pos[1]))
     return grow_lichen_positions
-
 
 class Factory:
     def __init__(self, team: Team, unit_id: str, num_id: int) -> None:
@@ -61,6 +66,10 @@ class Factory:
         self.num_id = num_id
         self.action_queue = [] # TODO can we queue actions or are factories outside of max control limit
         self.grow_lichen_positions = None
+
+    @property
+    def pos_slice(self):
+        return slice(self.pos.y - 1, self.pos.y + 2), slice(self.pos.x - 1, self.pos.x + 2)
 
     def refine_step(self, config: EnvConfig):
         consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
@@ -95,22 +104,17 @@ class Factory:
         return np.ceil(len(self.grow_lichen_positions) / config.LICHEN_WATERING_COST_FACTOR) + 1
 
     ### Add and sub resource functions copied over from unit.py code, can we consolidate them somewhere?
-    def add_resource(self, resource_id, amount):
-        if amount < 0: amount = 0
+    def add_resource(self, resource_id, transfer_amount):
+        if transfer_amount < 0: transfer_amount = 0
         if resource_id == 0:
-            transfer_amount = min(self.cargo_space - self.cargo.ice, amount)
             self.cargo.ice += transfer_amount
         elif resource_id == 1:
-            transfer_amount = min(self.cargo_space - self.cargo.ore, amount)
             self.cargo.ore += transfer_amount
         elif resource_id == 2:
-            transfer_amount = min(self.cargo_space - self.cargo.water, amount)
             self.cargo.water += transfer_amount
         elif resource_id == 3:
-            transfer_amount = min(self.cargo_space - self.cargo.metal, amount)
             self.cargo.metal += transfer_amount
         elif resource_id == 4:
-            transfer_amount = min(self.battery_capacity - self.power, amount)
             self.power += transfer_amount
         return transfer_amount
     def sub_resource(self, resource_id, amount):
@@ -142,6 +146,13 @@ class Factory:
             power=self.power,
             cargo=self.cargo.state_dict(),
             unit_id=self.unit_id,
+            strain_id=self.num_id, # number version of unit_id
             team_id=self.team_id
 
         )
+
+    def __str__(self) -> str:
+        out = f"[{self.team_id}] {self.unit_id} Factory at {self.pos}"
+        if TERM_COLORS:
+            return colored(out, self.team.faction.value.color)
+        return out

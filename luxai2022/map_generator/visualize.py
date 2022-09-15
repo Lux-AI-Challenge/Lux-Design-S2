@@ -1,5 +1,8 @@
 # A quick visualizer to aid in map generating algorithms.
-import pygame
+try:
+    import pygame
+except:
+    pass
 import numpy as np
 
 

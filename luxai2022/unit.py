@@ -3,7 +3,10 @@ from enum import Enum
 from typing import List
 
 import numpy as np
-from termcolor import colored
+try:
+    from termcolor import colored
+except:
+    pass
 from luxai2022.config import EnvConfig, UnitConfig
 
 from luxai2022.globals import TERM_COLORS

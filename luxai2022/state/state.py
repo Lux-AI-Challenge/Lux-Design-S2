@@ -10,7 +10,6 @@ from luxai2022.team import Team
 from luxai2022.unit import Unit
 from collections import OrderedDict
 import copy
-import numba
 
 @dataclass
 class State:
@@ -19,10 +18,22 @@ class State:
     env_steps: int
     env_cfg: EnvConfig
     board: Board = None
+    weather_schedule: np.ndarray = None
     units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
+    
+    @property
+    def real_env_steps(self):
+        """
+        the actual env step in the environment, which subtracts the time spent bidding and placing factories
+        """
+        if self.env_cfg.BIDDING_SYSTEM:
+            # + 1 for extra factory placement and + 1 for bidding step
+            return self.env_steps - (self.board.factories_per_team + 1 + 1)
+        else:
+            return self.env_steps
 
     def generate_unit_data(units_dict: Dict[str, Dict[str, Unit]]):
         units = dict()
@@ -58,9 +69,11 @@ class State:
         board = self.board.state_dict()
         return dict(
             units=units,
-            team=teams,
+            teams=teams,
             factories=factories,
-            board=board
+            board=board,
+            weather_schedule=self.weather_schedule,
+            real_env_steps=self.real_env_steps
         )
     def get_compressed_obs(self):
         # return everything on turn 0
@@ -71,8 +84,10 @@ class State:
             # convert lichen and lichen strains to sparse matrix format?
             del data["board"]["ore"]
             del data["board"]["ice"]
+            del data["board"]["spawns"]
+            del data["weather_schedule"]
             return data
-    def get_change_obs(self, prev_obs):
+    def get_change_obs(self, prev_state):
         """
         returns sparse dicts for large matrices of where values change only
         """
@@ -81,19 +96,18 @@ class State:
         data["board"]["rubble"] = dict()
         data["board"]["lichen"] = dict()
         data["board"]["lichen_strains"] = dict()
-
-        change_indices = np.argwhere(self.board.rubble != prev_obs["board"]["rubble"])
+        change_indices = np.argwhere(self.board.rubble != prev_state["board"]["rubble"])
         for ind in change_indices:
             y,x = ind[0], ind[1]
             data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[y, x]
-        change_indices = np.argwhere(self.board.lichen != prev_obs["board"]["lichen"])
+        change_indices = np.argwhere(self.board.lichen != prev_state["board"]["lichen"])
         for ind in change_indices:
             y,x = ind[0], ind[1]
-            data["board"]["lichen"][f"{x},{y}"] = self.board.rubble[y, x]
-        change_indices = np.argwhere(self.board.lichen_strains != prev_obs["board"]["lichen_strains"])
+            data["board"]["lichen"][f"{x},{y}"] = self.board.lichen[y, x]
+        change_indices = np.argwhere(self.board.lichen_strains != prev_state["board"]["lichen_strains"])
         for ind in change_indices:
             y,x = ind[0], ind[1]
-            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.rubble[y, x]
+            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[y, x]
         return data
 
     def from_obs(obs):

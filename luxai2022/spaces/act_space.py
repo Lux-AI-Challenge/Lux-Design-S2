@@ -7,6 +7,7 @@ from luxai2022.factory import Factory
 from luxai2022.team import FactionTypes
 from luxai2022.unit import Unit
 import random
+import numpy as np
 
 class FactionString(gym.Space):
     def __init__(
@@ -43,11 +44,22 @@ class ActionsQueue(spaces.Space):
         action_q = []
         for _ in range(queue_size):
             action_q.append(self.action_space.sample())
+        return action_q
     def contains(self, x: Any) -> bool:
-        if not isinstance(x, list) or len(x) > self.max_length:
+        if isinstance(x, list) and len(x) > self.max_length:
             return False
+        elif isinstance(x, np.ndarray) and len(x.shape) == 2 and len(x) > self.max_length:
+            return False
+        elif isinstance(x, np.ndarray) and len(x.shape) == 1:
+            x = [x]
+        # if (not isinstance(x, list) and not isinstance(x, np.ndarray)) or len(x) > self.max_length:
+            # return False
         for a in x:
-            if not self.action_space.contains(a):
+            # fix issue where multidiscrete space does not do 100% check on type of value
+            try:
+                if not self.action_space.contains(a):
+                    return False
+            except:
                 return False
         return True
 
@@ -57,6 +69,19 @@ def get_act_space_init(config: EnvConfig, agent: int = 0):
     act_space = dict()
     act_space["faction"] = FactionString()
     act_space["spawns"] = spaces.Box(low=0, high=config.map_size, shape=(config.MAX_FACTORIES, 2), dtype=int)
+    return spaces.Dict(act_space)
+
+def get_act_space_bid(config: EnvConfig, agent: int = 0):
+    act_space = dict()
+    act_space["faction"] = FactionString()
+    act_space["bid"] = spaces.Discrete(0, 100000)
+def get_act_space_placement(config: EnvConfig, agent: int = 0):
+    # Get action space for turn 0 initialization
+    # TODO add bidding
+    act_space = dict()
+    act_space["spawn"] = spaces.Box(low=0, high=config.map_size, shape=(2,), dtype=int)
+    act_space["water"] = spaces.Discrete(0, 100000)
+    act_space["metal"] = spaces.Discrete(0, 100000)
     return spaces.Dict(act_space)
 
 def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[str, Factory]], config: EnvConfig, agent: int = 0):
