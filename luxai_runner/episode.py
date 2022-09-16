@@ -1,6 +1,7 @@
 
 import asyncio
 from dataclasses import dataclass
+import json
 import time
 from typing import Any, Callable, Dict, List, Optional
 import gym
@@ -9,6 +10,12 @@ from luxai_runner.bot import Bot
 import numpy as np
 import dataclasses
 from luxai_runner.utils import to_json
+
+
+@dataclass 
+class ReplayConfig:
+    save_format: str = "json"
+    compressed_obs: bool = False
 @dataclass
 class EpisodeConfig:
     players: List[str]
@@ -17,6 +24,8 @@ class EpisodeConfig:
     env_cfg: Optional[Any] = dict
     verbosity: Optional[int] = 1
     render: Optional[bool] = True
+    save_replay_path: Optional[str] = None
+    replay_options: ReplayConfig = ReplayConfig()
 
 class Episode:
     def __init__(self, cfg: EpisodeConfig) -> None:
@@ -26,12 +35,28 @@ class Episode:
         self.seed = cfg.seed if cfg.seed is not None else np.random.randint(9999999)
         self.players = cfg.players
 
+    def save_replay(self, replay):
+        # JSON option
+        if self.cfg.replay_options.save_format == "json":
+            replay["observations"] = [to_json(x) for x in replay["observations"]]
+            replay["actions"] = [to_json(x) for x in replay["actions"]]
+            del replay["dones"]
+            del replay["rewards"]
+            ext = ".json"
+            if self.cfg.save_replay_path[-5:] == ".json":
+                ext = ""
+            with open(f"{self.cfg.save_replay_path}{ext}", "w") as f:
+                json.dump(replay, f)
+        else:
+            raise ValueError(f"{self.cfg.replay_options.save_format} is not a valid save format")
+
     async def run(self):
         if len(self.players) != 2: 
             raise ValueError("Must provide two paths.")
         # Start agents
         players: Dict[str, Bot] = dict()
         start_tasks = []
+        save_replay = self.cfg.save_replay_path is not None
         for i in range(2):
             player = Bot(self.players[i], f"player_{i}", i, verbose=self.log.verbosity)
             player.proc.log.identifier = player.log.identifier
@@ -58,7 +83,14 @@ class Episode:
                 env_cfg=dataclasses.asdict(env_cfg)
             )
 
-        i= 0
+        if save_replay:
+            replay = dict(observations=[], actions=[], dones=[], rewards=[])
+            if self.cfg.replay_options.compressed_obs:
+                replay["observations"].append(state_obs)
+            else:
+                replay["observations"].append(self.env.state.get_obs())
+
+        i = 0
         while not game_done:
             i += 1
             # print("===", self.env.env_steps)
@@ -85,16 +117,26 @@ class Episode:
                             print(f"{agent_id} sent a invalid action {action}")
                     actions[agent_id] = None
             new_state_obs, rewards, dones, infos = self.env.step(actions)
-            obs = self.env.state.get_change_obs(state_obs)
+            change_obs = self.env.state.get_change_obs(state_obs)
             state_obs = new_state_obs["player_0"]
-            obs = to_json(obs)
+            obs = to_json(change_obs)
+            if save_replay:
+                if self.cfg.replay_options.compressed_obs:
+                    replay["observations"].append(change_obs)
+                else:
+                    replay["observations"].append(self.env.state.get_obs())
+                replay["actions"].append(actions)
+                replay["rewards"].append(rewards)
+                replay["dones"].append(dones)
 
             if self.cfg.render: 
                 self.env.render()
-                # time.sleep(0.2)
+                time.sleep(0.1)
             players_left = len(dones)
             for k in dones:
                 if dones[k]: players_left -= 1
             if players_left < 2: # specific to lux ai 2022
                 game_done = True
-        print("Final Scores", rewards)
+        self.log.info("Final Scores", rewards)
+        if save_replay:
+            self.save_replay(replay)
