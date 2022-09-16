@@ -7,6 +7,7 @@ help() {
     echo "OPTIONS can be:"
     echo "  -w  --no-warnings   : disable compiler warnings (e.g. -pedantic)"
     echo "  -d  --debug         : build in debug mode (O0 and -g)"
+    echo "  -b  --build-dir     : alternative build dir to use (default: build)"
     echo "  -h  --help          : print this help page"
 }
 
@@ -21,6 +22,7 @@ abort() {
 
 build_warnings="ON"
 build_debug="OFF"
+build_dir="build"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -32,18 +34,23 @@ while [[ $# -gt 0 ]]; do
             build_debug="ON"
             shift
             ;;
+        -b|--build-dir)
+            shift
+            build_dir="$1"
+            shift
+            ;;
         -h|--help)
             help && exit 0
             ;;
     esac
 done
 
-mkdir -p build
+mkdir -p $build_dir
 
-cmake -B ./build -DBUILD_WARNINGS=$build_warnings -DBUILD_DEBUG=$build_debug
+cmake -B $build_dir -DBUILD_WARNINGS=$build_warnings -DBUILD_DEBUG=$build_debug
 
 [ $? -ne 0 ] && abort "error during cmake configuration"
 
-cd build
+cd $build_dir
 make -j$(nproc)
 cd ..
