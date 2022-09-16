@@ -13,4 +13,5 @@ export type Frame = {
   units: MapToPlayers<{
     [K: UnitId]: Unit
   }>
+  weather_schedule: Array<number>;
 }

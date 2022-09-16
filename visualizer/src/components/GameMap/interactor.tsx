@@ -1,7 +1,7 @@
 import { useStoreKeys } from "@/store";
 import React, { useState } from "react";
 import s from "./styles.module.scss";
-const mapWidth = 64;
+const mapWidth = 48;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 interface InteractionLayerProps {
@@ -63,8 +63,8 @@ export const InteractionLayer = React.memo(
         <div
         className={s.mapLayer}
           style={{
-            width: `${tileSize * 64}px`,
-            height: `${tileSize * 64}px`,
+            width: `${tileSize * 48}px`,
+            height: `${tileSize * 48}px`,
             position: 'absolute'
           }}
         >
@@ -86,8 +86,8 @@ export const InteractionLayer = React.memo(
           tabIndex={0}
           className={s.mapLayer}
           style={{
-            width: `${tileSize * 64}px`,
-            height: `${tileSize * 64}px`,
+            width: `${tileSize * 48}px`,
+            height: `${tileSize * 48}px`,
             border: "1px solid rgba(0,0,0,0)",
           }}
           onKeyDown={keyDownHandler}

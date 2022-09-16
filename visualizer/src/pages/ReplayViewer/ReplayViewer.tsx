@@ -27,7 +27,7 @@ export function ReplayViewer() {
     return { x, y };
   };
   const outOfBounds = ({ x, y }: { x: number; y: number }) => {
-    return x < 0 || y < 0 || x >= 64 || y >= 64;
+    return x < 0 || y < 0 || x >= 48 || y >= 48;
   };
   const handleOnMouseEnterTile: MouseEventHandler<HTMLDivElement> = (e) => {
     const { x, y } = getTileXYFromEvent(e);

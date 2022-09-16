@@ -18,8 +18,8 @@ interface BottomProps {
   y: number;
   handleOnMouseEnterTile?: any;
 }
-const rows = Array.from({ length: 64 });
-const cols = Array.from({ length: 64 });
+const rows = Array.from({ length: 48 });
+const cols = Array.from({ length: 48 });
 export const GroundTile = React.memo(
   ({ rubble, lichen, ice, ore, x, y }: BottomProps) => {
     const { tileWidth } = useStoreKeys(

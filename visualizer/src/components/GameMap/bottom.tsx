@@ -14,8 +14,8 @@ interface BottomProps {
   frameZero: Frame;
   frame: Frame;
 }
-const rows = Array.from({ length: 64 });
-const cols = Array.from({ length: 64 });
+const rows = Array.from({ length: 48 });
+const cols = Array.from({ length: 48 });
 export const Bottom = React.memo(
   ({ frame, frameZero }: BottomProps) => {
     const mapWidth = frame.board.rubble.length;

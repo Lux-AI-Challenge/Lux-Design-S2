@@ -16,7 +16,7 @@ interface GameMapProps {
   viewedTilePos: any;
   handleClickTile: any;
 }
-const mapWidth = 64;
+const mapWidth = 48;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 export const GameMap = React.memo(
@@ -118,7 +118,7 @@ export const GameMap = React.memo(
       <>
         <div id="mapContainer" className={s.mapContainer}>
           {/* bottom layer (height map, rubble, etc) */}
-          {/* <Bottom frame={replay.states[1]} frameZero={frameZero} /> */}
+          <Bottom frame={replay.states[1]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}
           <div
             className={s.unitLayer}

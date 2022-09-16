@@ -7,7 +7,7 @@ interface TileViewProps {
   // setHoveredTilePos: any
   // handleOnMouseEnterTile: any;
 }
-const mapWidth = 64;
+const mapWidth = 48;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 export const TileView = ({ viewedTilePos }: TileViewProps) => {
@@ -18,8 +18,8 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
   }
   const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
   const { turn, speed, gameInfo } = useStoreKeys("turn", "speed", "gameInfo");
-  const frame = replay.states[turn];
-  const frameZero = replay.states[0];
+  const frame = replay.observations[turn];
+  const frameZero = replay.observations[0];
   if (!viewedTilePos) {
     return (
       <>
