@@ -120,7 +120,7 @@ export const Charts = () => {
     "updateGameInfo",
     "tileWidth"
   );
-  const frame = replay.states[turn];
+  const frame = replay.observations[turn];
   return (
     <>
       <div>

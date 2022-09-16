@@ -23,7 +23,7 @@ export function Controls ({}: ControlsProps) {
     speed, updateSpeed,
   } = useStoreKeys('turn', 'updateTurn', 'autoplay', 'toggleAutoplay', 'speed', 'updateSpeed')
   
-  const episodeLength = useMemo(() => replay.states.length, [replay.states.length])
+  const episodeLength = useMemo(() => replay.observations.length, [replay.observations.length])
 
   // stop autoplay when reaching the end
   useEffect(() => {

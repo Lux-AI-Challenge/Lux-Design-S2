@@ -32,8 +32,8 @@ export const GameMap = React.memo(
       "updateGameInfo",
       "tileWidth"
     );
-    const frame = replay.states[turn];
-    const frameZero = replay.states[0];
+    const frame = replay.observations[turn];
+    const frameZero = replay.observations[0];
     const mapWidth = frame.board.rubble.length;
 
     // const tileWidth = tileWidth;
@@ -118,7 +118,7 @@ export const GameMap = React.memo(
       <>
         <div id="mapContainer" className={s.mapContainer}>
           {/* bottom layer (height map, rubble, etc) */}
-          <Bottom frame={replay.states[1]} frameZero={frameZero} />
+          <Bottom frame={replay.observations[1]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}
           <div
             className={s.unitLayer}
