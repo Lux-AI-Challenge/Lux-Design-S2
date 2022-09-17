@@ -23,7 +23,7 @@ int main() {
 
         json output;
         // TODO determine value from board state
-        if (step <= 3) {
+        if (step <= obs.board.factories_per_team + 1) {
             output = agent.setup(obs, config, input);
         } else {
             output = agent.act(obs, config, input);
