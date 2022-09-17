@@ -8,8 +8,7 @@
 
 class Agent {
     int         step;
-    int         player;
-    std::string playerString;
+    std::string player;
     int         remainingOverageTime;
 
    public:

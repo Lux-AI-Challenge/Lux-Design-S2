@@ -2,13 +2,8 @@
 
 Agent::Agent(int currentStep, std::string playerName, int currentRemainingOverageTime)
     : step(currentStep),
-      player(0),
-      playerString(playerName),
-      remainingOverageTime(currentRemainingOverageTime) {
-    if (playerString == "player_1") {
-        player = 1;
-    }
-}
+      player(playerName),
+      remainingOverageTime(currentRemainingOverageTime) {}
 
 std::vector<json> Agent::setup(lux::Observation obs, lux::EnvConfig config, const json &raw) {
     (void) obs;
