@@ -43,6 +43,13 @@ namespace lux {
     struct UnitConfigs {
         UnitConfig HEAVY;
         UnitConfig LIGHT;
+
+        UnitConfig &operator[](const std::string &name) {
+            if (name == "HEAVY") {
+                return HEAVY;
+            }
+            return LIGHT;
+        }
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfigs, HEAVY, LIGHT)
 
@@ -59,7 +66,7 @@ namespace lux {
         WeatherConfig MARS_QUAKE;
         WeatherConfig SOLAR_FLARE;
 
-        WeatherConfig &operator[](std::string name) {
+        WeatherConfig &operator[](const std::string &name) {
             if (name == "COLD_SNAP") {
                 return COLD_SNAP;
             }
