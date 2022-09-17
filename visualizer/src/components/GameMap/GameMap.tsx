@@ -15,6 +15,7 @@ interface GameMapProps {
   handleOnMouseEnterTile: any;
   viewedTilePos: any;
   handleClickTile: any;
+  clickedTilePos: {x: number, y: number} | null;
 }
 const mapWidth = 48;
 const rows = Array.from({ length: mapWidth });
@@ -24,6 +25,7 @@ export const GameMap = React.memo(
     handleOnMouseEnterTile,
     viewedTilePos,
     handleClickTile,
+    clickedTilePos,
   }: GameMapProps) => {
     const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
     const { turn, speed, updateGameInfo, tileWidth } = useStoreKeys(
@@ -137,6 +139,7 @@ export const GameMap = React.memo(
             handleOnMouseEnterTile={handleOnMouseEnterTile}
             handleClickTile={handleClickTile}
             viewedTilePos={viewedTilePos}
+            clickedTilePos={clickedTilePos}
           />
         </div>
       </>

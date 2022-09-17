@@ -5,12 +5,9 @@ const mapWidth = 48;
 const rows = Array.from({ length: mapWidth });
 const cols = Array.from({ length: mapWidth });
 interface InteractionLayerProps {
-  // hoveredTilePos: {x: number, y: number};
-  // setHoveredTilePos: any
+  clickedTilePos: {x: number, y: number} | null;
   handleOnMouseEnterTile: any;
   viewedTilePos: { x: number; y: number } | null;
-  // dragTranslation: { x: number, y:number};
-  // setDragTranslation: any;
   handleClickTile: any;
 }
 export const InteractionLayer = React.memo(
@@ -18,8 +15,7 @@ export const InteractionLayer = React.memo(
     handleOnMouseEnterTile,
     viewedTilePos,
     handleClickTile,
-    // dragTranslation,
-    // setDragTranslation,
+    clickedTilePos
   }: InteractionLayerProps) => {
     const [dragTranslation, _setDragTranslation] = useState({x: 0, y: 0})
     const { tileWidth } = useStoreKeys("tileWidth");
@@ -57,6 +53,14 @@ export const InteractionLayer = React.memo(
       //   setLeft((left) => left + 10);
       // }
     };
+    let border = "1px solid white";
+    let xOffset = 0;
+    let yOffset = 0;
+    if (clickedTilePos) {
+      border = "3px solid white";
+      xOffset = 1.5;
+      yOffset = 1.5;
+    }
     
     return (
       <>
@@ -73,10 +77,10 @@ export const InteractionLayer = React.memo(
               style={{
                 width: `${tileWidth}px`,
                 height: `${tileWidth}px`,
-                border: "1px solid white",
+                border: border,
                 position: "absolute",
-                transform: `translate3d(${viewedTilePos.x * tileSize}px, ${
-                  viewedTilePos.y * tileSize
+                transform: `translate3d(${viewedTilePos.x * tileSize - xOffset}px, ${
+                  viewedTilePos.y * tileSize - yOffset
                 }px, 0)`,
               }}
             ></div>

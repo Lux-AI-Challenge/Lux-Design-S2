@@ -12,7 +12,6 @@ export function ReplayViewer() {
     x: number;
     y: number;
   } | null>(null);
-  const [hoveredTilePos, setHoveredTilePos] = useState({ x: 0, y: 0 });
   const [clickedTilePos, setClickedTilePos] = useState<{
     x: number;
     y: number;
@@ -35,7 +34,7 @@ export function ReplayViewer() {
     if (!clickedTilePos) {
       setViewedTilePos({ x, y });
     }
-    setHoveredTilePos({ x, y });
+    // setHoveredTilePos({ x, y });
   };
   const handleClickTile: MouseEventHandler<HTMLDivElement> = (e) => {
     const { x, y } = getTileXYFromEvent(e);
@@ -44,14 +43,10 @@ export function ReplayViewer() {
       setViewedTilePos({ x, y });
     } else if (outOfBounds({ x, y })) {
       return;
-    } else if (clickedTilePos.x === x && clickedTilePos.y === y) {
-      setClickedTilePos(null);
-      setViewedTilePos(null);
     } else {
-      // setClickedTilePos({ x, y });
-      // setViewedTilePos({ x, y });
+      setViewedTilePos({ x, y });
+      // setHoveredTilePos({ x, y });
       setClickedTilePos(null);
-      setViewedTilePos(null);
     }
   };
   return (
@@ -65,6 +60,7 @@ export function ReplayViewer() {
           <GameMap
             handleOnMouseEnterTile={handleOnMouseEnterTile}
             viewedTilePos={viewedTilePos}
+            clickedTilePos={clickedTilePos}
             handleClickTile={handleClickTile}
           />
           </div>
