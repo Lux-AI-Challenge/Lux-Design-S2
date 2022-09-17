@@ -57,7 +57,7 @@ export const InteractionLayer = React.memo(
       //   setLeft((left) => left + 10);
       // }
     };
-  
+    
     return (
       <>
         <div

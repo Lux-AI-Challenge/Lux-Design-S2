@@ -12,7 +12,7 @@ export function loadFromObject(replay: Replay): Replay {
   const firstBoard = replay.observations[0].board;
   for (let i = 1; i < replay.observations.length; i++) {
     const delta_board = replay.observations[i].board;
-    const board_i = JSON.parse(JSON.stringify(firstBoard));
+    const board_i = JSON.parse(JSON.stringify(replay.observations[i - 1].board));
     const delta_keys: ResourceTile[] = ["rubble", "lichen", "lichen_strains"];
     delta_keys.forEach((k: ResourceTile) => {
       for (const hash of Object.keys(delta_board[k])) {

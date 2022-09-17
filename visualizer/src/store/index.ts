@@ -68,7 +68,7 @@ export const useStore = create<Store>((set, get) => ({
         return set({ turn: initial.turn });
       }
       case "step": {
-        return set((state) => ({ turn: state.turn + 1 }));
+        return set((state) => ({ turn: Math.min(state.turn + action.steps, state.replay!.observations.length - 1) }));
       }
       // TODO: might have to do some stuff to prevent the css transitions from triggering when we do this? idk.
       //  we can probably stop the css transitions by making the transition a css variable and setting it or something? idk

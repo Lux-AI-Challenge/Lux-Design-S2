@@ -32,93 +32,104 @@ export const GameMap = React.memo(
       "updateGameInfo",
       "tileWidth"
     );
+    useEffect(() => {
+      // const rows = Array.from({ length: mapWidth });
+      // const cols = Array.from({ length: mapWidth });
+    }, []);
+
+
     const frame = replay.observations[turn];
     const frameZero = replay.observations[0];
+    console.log({turn, frame});
     const mapWidth = frame.board.rubble.length;
 
     // const tileWidth = tileWidth;
     const tileBorder = 1;
 
     const tileSize = tileWidth + tileBorder * 2;
-    // const factor = 20;
-    // for (let i = 0; i < 64; i++) {
-    //   for (let j = 0; j < 64; j++) {
-    //     const elem = document.getElementById(`lichen-${i*64+j}`)
-    //     const rubble = document.getElementById(`rubble-${i*64+j}`)
-    //     if (elem) {
-
-    //       const lichen = frame.board.lichen[i][j];
-    //       if (!elem.getAttribute("lichen")) {
-    //         elem.setAttribute("lichen", `${lichen}`)
-    //       }
-    //       //@ts-ignore
-    //       const oldLichen = parseFloat(elem.getAttribute("lichen"));
-    //       // console.log({lichen, oldLichen})
-    //     if (Math.round(lichen / factor) != Math.round(oldLichen / factor)) {
-    //       elem.style.opacity = `${lichen / 10}`;
-
-    //       }
-    //       elem.setAttribute("lichen", `${lichen}`)
-    //     }
-    //     if (rubble) {
-    //       rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
-    //     }
-    //   }
-    // }
+    useEffect(() => {
+      // faster tile by tile updating potentially
+      // const factor = 20;
+      // for (let i = 0; i < mapWidth; i++) {
+      //   for (let j = 0; j < mapWidth; j++) {
+      //     const elem = document.getElementById(`lichen-${i * mapWidth + j}`);
+      //     const rubble = document.getElementById(`rubble-${i * mapWidth + j}`);
+      //     if (elem) {
+      //       const lichen = frame.board.lichen[i][j];
+      //       if (!elem.getAttribute("lichen")) {
+      //         elem.setAttribute("lichen", `${lichen}`);
+      //       }
+      //       //@ts-ignore
+      //       const oldLichen = parseFloat(elem.getAttribute("lichen"));
+      //       // if (Math.round(lichen / factor) != Math.round(oldLichen / factor)) {
+      //       elem.style.opacity = `${lichen / 10}`;
+      //       // }
+      //       elem.setAttribute("lichen", `${lichen}`);
+      //     }
+      //     // if (rubble) {
+      //     //   rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
+      //     // }
+      //   }
+      // }
+    }, [turn]);
 
     // const [dragTranslation, setDragTranslation] = useState({x: 0, y: 0})
-    const unitRender: Array<JSX.Element> = [];
-    const posToUnit: Map<string, Unit> = new Map();
-    const posToFactory: Map<string, Unit> = new Map(); // TODO
-    const factoryCounts: Record<string, number> = {};
-    const unitCounts: Record<string, number> = {};
-
-    // Collect all statistics ahead of time, we should move this out somewhere.
-    {
-      ["player_0", "player_1"].forEach((agent: Player) => {
-        factoryCounts[agent] = Object.keys(frame.factories[agent]).length;
-        unitCounts[agent] = Object.keys(frame.units[agent]).length;
-        return Object.values(frame.units[agent]).forEach((unit) => {
-          // store units by position
-          posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
-          unitRender.push(
-            <div
-              key={unit.unit_id}
-              className={s.unit}
-              style={{
-                // @ts-ignore
-                "--x": `${unit.pos[0] * tileSize}px`,
-                "--y": `${unit.pos[1] * tileSize}px`,
-                "--t": `calc(1s / ${speed})`,
-              }}
-            >
-              {/* add back once we have assets */}
-              {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
-              <div
-                style={{
-                  width: tileWidth,
-                  height: tileWidth,
-                  borderRadius: "50%",
-                  backgroundColor:
-                    unit.unit_type === "HEAVY"
-                      ? "rgb(112,162,136)"
-                      : "rgb(193,215,204)",
-                  border: "1px solid black",
-                }}
-              ></div>
-            </div>
-          );
-        });
-      });
-    }
+    const [unitRender, setUnitRender] = useState< Array<JSX.Element>>([]);
     useEffect(() => {
-      updateGameInfo({ type: "set", data: { posToUnit, posToFactory, factoryCounts, unitCounts } });
+      const posToUnit: Map<string, Unit> = new Map();
+      const posToFactory: Map<string, Unit> = new Map(); // TODO
+      const factoryCounts: Record<string, number> = {};
+      const unitCounts: Record<string, number> = {};
+      const turnUnitRender: Array<JSX.Element> = []
+      // Collect all statistics ahead of time, we should move this out somewhere.
+      {
+        ["player_0", "player_1"].forEach((agent: Player) => {
+          factoryCounts[agent] = Object.keys(frame.factories[agent]).length;
+          unitCounts[agent] = Object.keys(frame.units[agent]).length;
+          return Object.values(frame.units[agent]).forEach((unit) => {
+            // store units by position
+            posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
+            turnUnitRender.push(
+              <div
+                key={unit.unit_id}
+                className={s.unit}
+                style={{
+                  // @ts-ignore
+                  "--x": `${unit.pos[0] * tileSize}px`,
+                  "--y": `${unit.pos[1] * tileSize}px`,
+                  "--t": `calc(1s / ${speed})`,
+                }}
+              >
+                {/* add back once we have assets */}
+                {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
+                <div
+                  style={{
+                    width: tileWidth,
+                    height: tileWidth,
+                    borderRadius: "50%",
+                    backgroundColor:
+                      unit.unit_type === "HEAVY"
+                        ? "rgb(112,162,136)"
+                        : "rgb(193,215,204)",
+                    border: "1px solid black",
+                  }}
+                ></div>
+              </div>
+            );
+          });
+        });
+      }
+      setUnitRender(turnUnitRender);
+      updateGameInfo({
+        type: "set",
+        data: { posToUnit, posToFactory, factoryCounts, unitCounts },
+      });
     }, [turn]);
     return (
       <>
         <div id="mapContainer" className={s.mapContainer}>
           {/* bottom layer (height map, rubble, etc) */}
-          <Bottom frame={replay.observations[1]} frameZero={frameZero} />
+          <Bottom frame={replay.observations[turn]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}
           <div
             className={s.unitLayer}

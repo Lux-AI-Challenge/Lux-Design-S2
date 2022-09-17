@@ -26,7 +26,6 @@ export const Bottom = React.memo(
 
     const tileSize = tileWidth + tileBorder * 2;
 
-    
     return (
       <>   
         {/* bottom layer (height map, rubble, etc) */}

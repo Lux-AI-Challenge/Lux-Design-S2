@@ -35,8 +35,12 @@ export function Controls ({}: ControlsProps) {
   // do the autoplaying
   useEffect(() => {
     if (!autoplay) { return }
+    let numSteps = 1;
+    if (speed > 64) {
+      numSteps = Math.round(speed / 64);
+    }
     const interval = setInterval(() => {
-      updateTurn({ type: 'step' })
+      updateTurn({ type: 'step', steps: numSteps })
     }, 1000 / speed)
 
     return () => { clearInterval(interval) }

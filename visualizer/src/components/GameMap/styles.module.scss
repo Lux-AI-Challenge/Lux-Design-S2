@@ -1,7 +1,7 @@
 .mapContainer {
   position: relative;
   width: max-content;
-  background-color: white;
+  background-color: transparent;
 }
 .unitLayer {
   position: absolute;
@@ -17,7 +17,7 @@
 
 .tile {
   display: flex;
-  border: .1px solid rgba(0,0,0,0.9);
+  border: 1px solid rgba(0,0,0,0);
 }
 
 .unit, .factory {
