@@ -1,4 +1,4 @@
-import type { Replay } from "@/types/replay"
+import type { Replay, ReplayStats } from "@/types/replay"
 import type { LoadReplayAction } from "./load-replay/types"
 import type { Speed, SpeedAction } from "./autoplay/types"
 import type { Turn, TurnAction } from "./turn/types"
@@ -13,6 +13,7 @@ export type Store = {
    */
   replay: Replay | null
 
+  replayStats: ReplayStats;
 
   /* replay loading */
 

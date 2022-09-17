@@ -16,6 +16,7 @@
     "chart.js": "^3.9.1",
     "preact": "^10.10.1",
     "react-chartjs-2": "^4.3.1",
+    "recharts": "^2.1.14",
     "zustand": "^4.0.0"
   },
   "devDependencies": {

@@ -7,6 +7,5 @@ export type ResourceTile =
   | 'ore'
   | 'rubble'
 
-export type ResourcePresence = 0 | 1
 
-export type ResourceMap = Grid<ResourcePresence>
+export type ResourceMap = Grid<number>

@@ -4,6 +4,7 @@ import {
   loadFromObject,
   loadFromString,
   loadFromFile,
+  computeStatistics,
 } from "./load-replay/utils";
 import { decreaseSpeed, increaseSpeed } from "./autoplay/utils";
 
@@ -12,11 +13,13 @@ import { initial } from "./initial";
 import type { Store } from "./types";
 
 import TEMPORARY_REPLAY_FOR_TESTING_ONLY from "@/assets/replay.json";
-
+const testReplay = loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY)
+const testReplayStats = computeStatistics(testReplay);
 export const useStore = create<Store>((set, get) => ({
   // replay: initial.replay,
   // TEMPORARY FOR FASTER TESTING ONLY. replace with the above commented out line for the actual app
-  replay: loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY),
+  replay: testReplay,
+  replayStats: testReplayStats,
 
   progress: initial.progress,
 

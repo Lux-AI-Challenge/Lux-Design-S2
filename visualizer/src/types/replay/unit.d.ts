@@ -27,4 +27,5 @@ export interface Factory {
   power: number
   team_id: TeamId
   unit_id: FactoryId
+  strain_id: number;
 }
