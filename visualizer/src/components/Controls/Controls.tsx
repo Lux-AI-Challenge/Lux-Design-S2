@@ -47,6 +47,7 @@ export function Controls ({}: ControlsProps) {
   }, [autoplay, speed])
 
   const onChangeSliderValue: ComponentProps<typeof Slider>['onChange'] = useCallback((e, val) => {
+    // TODO add some optimizations to reduce the cost of setting turn very frequently when scrubbing
     updateTurn({ type: 'set', data: val })
     toggleAutoplay(false)
   }, []) // the store's functions are stable references and never change so we don't need them in the dependency array here
@@ -64,7 +65,7 @@ export function Controls ({}: ControlsProps) {
   return (
     <>
       <div className={s.controls}>
-        <div className={s.turn}>{`Turn ${turn} / ${episodeLength}`}</div>
+        <div className={s.turn}>{`Turn ${turn} / ${episodeLength - 1}`}</div>
         <Slider
           className={s.slider}
           value={turn}

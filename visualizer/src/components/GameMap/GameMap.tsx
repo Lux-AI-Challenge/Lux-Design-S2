@@ -36,44 +36,12 @@ export const GameMap = React.memo(
       // const rows = Array.from({ length: mapWidth });
       // const cols = Array.from({ length: mapWidth });
     }, []);
-
-
     const frame = replay.observations[turn];
     const frameZero = replay.observations[0];
-    console.log({turn, frame});
     const mapWidth = frame.board.rubble.length;
-
-    // const tileWidth = tileWidth;
     const tileBorder = 1;
-
     const tileSize = tileWidth + tileBorder * 2;
-    useEffect(() => {
-      // faster tile by tile updating potentially
-      // const factor = 20;
-      // for (let i = 0; i < mapWidth; i++) {
-      //   for (let j = 0; j < mapWidth; j++) {
-      //     const elem = document.getElementById(`lichen-${i * mapWidth + j}`);
-      //     const rubble = document.getElementById(`rubble-${i * mapWidth + j}`);
-      //     if (elem) {
-      //       const lichen = frame.board.lichen[i][j];
-      //       if (!elem.getAttribute("lichen")) {
-      //         elem.setAttribute("lichen", `${lichen}`);
-      //       }
-      //       //@ts-ignore
-      //       const oldLichen = parseFloat(elem.getAttribute("lichen"));
-      //       // if (Math.round(lichen / factor) != Math.round(oldLichen / factor)) {
-      //       elem.style.opacity = `${lichen / 10}`;
-      //       // }
-      //       elem.setAttribute("lichen", `${lichen}`);
-      //     }
-      //     // if (rubble) {
-      //     //   rubble.style.opacity = `${1-Math.min(frame.board.rubble[i][j] / 125, 1)}`
-      //     // }
-      //   }
-      // }
-    }, [turn]);
 
-    // const [dragTranslation, setDragTranslation] = useState({x: 0, y: 0})
     const [unitRender, setUnitRender] = useState< Array<JSX.Element>>([]);
     useEffect(() => {
       const posToUnit: Map<string, Unit> = new Map();
