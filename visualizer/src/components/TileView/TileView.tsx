@@ -27,9 +27,9 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
       </>
     );
   }
-  let viewedUnit = gameInfo.posToUnit.get(
-    `${viewedTilePos.x},${viewedTilePos.y}`
-  );
+  // let viewedUnit = gameInfo.posToUnit.get(
+  //   `${viewedTilePos.x},${viewedTilePos.y}`
+  // );
   return (
     <>
       <div className={s.tileview}>
@@ -42,7 +42,7 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
             {frame.board.lichen_strains[viewedTilePos.y][viewedTilePos.x]}
           </p>
         </div>
-        {viewedUnit && (
+        {/* {viewedUnit && (
           <div>
             <h4>
               {toTitleCase(viewedUnit.unit_type)} unit: {viewedUnit.unit_id}
@@ -54,7 +54,7 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
             </p>
             <p>Team: {viewedUnit.team_id}</p>
           </div>
-        )}
+        )} */}
       </div>
     </>
   );

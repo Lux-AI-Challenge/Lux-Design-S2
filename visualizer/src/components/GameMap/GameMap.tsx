@@ -51,8 +51,8 @@ export const GameMap = React.memo(
     useEffect(() => {
       // Collect all per turn statistics ahead of time, we should move this out somewhere.
       // TODO Cache values? TODO Provide option to load all per turn values for a little smoother replay?
-      const posToUnit: Map<string, Unit> = new Map();
-      const posToFactory: Map<string, Unit> = new Map(); // TODO
+      const posToUnit: Store["gameInfo"]["posToUnit" ]= new Map();
+      const posToFactory: Store["gameInfo"]["posToFactory"] = new Map(); // TODO
       const factoryCounts: Record<string, number> = {};
       const unitCounts: Record<string, number> = {};
       // const factoryToLichen: Store["gameInfo"]["factoryToLichen"] = {};
@@ -66,9 +66,10 @@ export const GameMap = React.memo(
           Object.entries(frame.factories[agent]).forEach(([factory_id, factory]) => {
             playerToFactoryIds[agent].add(factory_id)
             factoryCounts[agent] += 1;
+            posToFactory.set(`${factory.pos[0]},${factory.pos[1]}`, factory);
           });
           unitCounts[agent] = Object.keys(frame.units[agent]).length;
-          return Object.values(frame.units[agent]).forEach((unit) => {
+          Object.values(frame.units[agent]).forEach((unit) => {
             // store units by position
             posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
             turnUnitRender.push(

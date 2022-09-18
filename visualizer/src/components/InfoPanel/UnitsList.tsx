@@ -2,13 +2,23 @@ import { Factory, Unit } from "../../types/replay/unit";
 import s from "./unitslist.module.scss";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { Box, Divider, ListItemButton, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  ListItemButton,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import React, { useState } from "react";
 import { Position } from "@/types/replay/position";
+import { FrameStats, ReplayStats } from "@/types/replay";
+import { Cargo } from "@/types/replay/cargo";
 type UnitsListProps = {
   units: Record<string, Unit>;
-  selectedUnit: string | null;
+  selectedUnits: Set<string>;
   factories: Record<string, Factory>;
+  frameStats: FrameStats["player_0"];
 };
 function a11yProps(index: number) {
   return {
@@ -34,7 +44,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 1.5 }}>
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -42,121 +52,193 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 function PosRep(pos: Position) {
-  return <>({pos[0]}, {pos[1]})</>
-}
-
-export const UnitsList = React.memo(({ units, selectedUnit, factories }: UnitsListProps) => {
-  const [value, setValue] = useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-  // <List>
-  //         <ListItem disablePadding>
-  //           <ListItemButton>
-  //             <ListItemText primary="Trash" />
-  //           </ListItemButton>
-  //         </ListItem>
-  //         <ListItem disablePadding>
-  //           <ListItemButton component="a" href="#simple-list">
-  //             <ListItemText primary="Spam" />
-  //           </ListItemButton>
-  //         </ListItem>
-  //       </List>
-  const lights: Unit[] = [];
-  const heavies: Unit[] = [];
-  const factories_list: Factory[] = [];
-  Object.entries(units).forEach(([unit_id, unit]) => {
-    if (unit.unit_type == "LIGHT") {
-      lights.push(unit);
-    } else{
-      heavies.push(unit);
-    }
-  });
-  Object.entries(factories).forEach(([unit_id, factory]) => {
-    factories_list.push(factory);
-  })
-  const tabsx = {minHeight: "12px"}
   return (
     <>
-      <div className={s.UnitsList}>
-        <Box
-          className={s.list}
-          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-        >
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="unit tabs"
-            sx={{
-              m:0,
-              minHeight: "12px"
-            }}
-          >
-            <Tab className={s.tabname} sx={tabsx} label={`Light (${lights.length})`} {...a11yProps(0)} />
-            <Tab className={s.tabname} sx={tabsx} label={`Heavies (${heavies.length})`} {...a11yProps(1)} />
-            <Tab className={s.tabname} sx={tabsx} label={`Factories (${factories_list.length})`} {...a11yProps(2)} />
-          </Tabs>
-          <TabPanel value={value} index={0}>
-            <List>
-              {lights
-                .map((unit) => {
-                  return (
-                    <>
-                      {/* <ListItemButton> */}
-                      <div className={s.listItem}>
-                        <div>{unit.unit_id} {PosRep(unit.pos)}</div>
-                        <div className={s.power}>Power: {unit.power}</div>
-                        <div></div>
-                        <div></div>
-                      </div>
-                      <Divider/>
-                      {/* </ListItemButton> */}
-                    </>
-                  );
-                })}
-            </List>
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <List>
-              {heavies
-                .map((unit) => {
-                  return (
-                    <>
-                      {/* <ListItemButton> */}
-                      <div className={s.listItem}>
-                        <div>{unit.unit_id} {PosRep(unit.pos)}</div>
-                        <div className={s.power}>{unit.power}</div>
-                        <div>{unit.pos}</div>
-                      </div>
-                      <Divider/>
-                      {/* </ListItemButton> */}
-                    </>
-                  );
-                })}
-            </List>
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <List>
-              {factories_list
-                .map((factory) => {
-                  return (
-                    <>
-                      {/* <ListItemButton> */}
-                      <div className={s.listItem}>
-                        <div>{factory.unit_id} {PosRep(factory.pos)}</div>
-                        <div className={s.power}>Power: {factory.power}</div>
-                        {/* <div>{factory.pos}</div> */}
-                      </div>
-                      <Divider/>
-                      {/* </ListItemButton> */}
-                    </>
-                  );
-                })}
-            </List>
-          </TabPanel>
-        </Box>
-      </div>
+      ({pos[0]}, {pos[1]})
     </>
   );
-});
+}
+function CargoRep(cargo: Cargo) {
+  return (
+    <>
+      <span>
+        Ice: {cargo.ice}, Water: {cargo.water}
+      </span>{" "}
+      |{" "}
+      <span>
+        Ore: {cargo.ore}, Metal: {cargo.metal}
+      </span>
+    </>
+  );
+}
+function None() {
+  return (
+    <><div className={s.noItem}>No units</div></>
+  )
+}
+const listsx = { padding: "0rem" };
+export const UnitsList = React.memo(
+  ({ frameStats, units, selectedUnits, factories }: UnitsListProps) => {
+    const [value, setValue] = useState(0);
+
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+      setValue(newValue);
+    };
+    const lights: Unit[] = [];
+    const heavies: Unit[] = [];
+    const factories_list: Factory[] = [];
+    Object.entries(units).forEach(([unit_id, unit]) => {
+      if (unit.unit_type == "LIGHT") {
+        if (selectedUnits.has(unit.unit_id)) {
+          lights.unshift(unit);
+        } else {
+          lights.push(unit);
+        }
+      } else {
+        if (selectedUnits.has(unit.unit_id)) {
+          heavies.unshift(unit);
+        } else {
+          heavies.push(unit);
+        }
+      }
+    });
+    Object.entries(factories).forEach(([unit_id, factory]) => {
+      if (selectedUnits.has(factory.unit_id)) {
+        factories_list.unshift(factory);
+      } else {
+        factories_list.push(factory);
+      }
+    });
+    const tabsx = { minHeight: "12px" };
+    return (
+      <>
+        <div className={s.UnitsList}>
+          <Box
+            className={s.list}
+            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+          >
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="unit tabs"
+              sx={{
+                m: 0,
+                minHeight: "12px",
+              }}
+            >
+              <Tab
+                className={s.tabname}
+                sx={tabsx}
+                label={`Light (${lights.length})`}
+                {...a11yProps(0)}
+              />
+              <Tab
+                className={s.tabname}
+                sx={tabsx}
+                label={`Heavies (${heavies.length})`}
+                {...a11yProps(1)}
+              />
+              <Tab
+                className={s.tabname}
+                sx={tabsx}
+                label={`Factories (${factories_list.length})`}
+                {...a11yProps(2)}
+              />
+            </Tabs>
+            <TabPanel value={value} index={0}>
+              <List sx={listsx}>
+                {lights.map((unit) => {
+                  const selected = selectedUnits.has(unit.unit_id);
+                  const classname = selected
+                    ? `${s.listItem} ${s.highlighted}`
+                    : s.listItem;
+                  return (
+                    <>
+                      {/* <ListItemButton> */}
+                      <div className={classname}>
+                        <div>
+                          {unit.unit_id} {PosRep(unit.pos)}
+                        </div>
+                        <div className={s.attrs}>
+                          Power: {unit.power} | {CargoRep(unit.cargo)}
+                        </div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                      </div>
+                      {!selected && <Divider />}
+                      {/* </ListItemButton> */}
+                    </>
+                  );
+                })}
+                {factories_list.length == 0 && None()}
+              </List>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <List sx={listsx}>
+                {heavies.map((unit) => {
+                  const selected = selectedUnits.has(unit.unit_id);
+                  const classname = selected
+                    ? `${s.listItem} ${s.highlighted}`
+                    : s.listItem;
+                  return (
+                    <>
+                      {/* <ListItemButton> */}
+                      <div className={classname}>
+                        <div>
+                          {unit.unit_id} {PosRep(unit.pos)}
+                        </div>
+                        <div className={s.attrs}>
+                          Power: {unit.power} | {CargoRep(unit.cargo)}
+                        </div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                      </div>
+                      {!selected && <Divider />}
+                      {/* </ListItemButton> */}
+                    </>
+                  );
+                })}
+                {factories_list.length == 0 && None()}
+              </List>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              <List sx={listsx}>
+                {factories_list.map((factory) => {
+                  const selected = selectedUnits.has(factory.unit_id);
+                  const classname = selected
+                    ? `${s.listItem} ${s.highlighted}`
+                    : s.listItem;
+                  return (
+                    <>
+                      {/* <ListItemButton> */}
+                      <div className={classname}>
+                        <div>
+                          {factory.unit_id} {PosRep(factory.pos)}
+                        </div>
+                        <div className={s.attrs}>
+                          <div>
+                            Power: {factory.power} | {CargoRep(factory.cargo)}
+                          </div>
+                          <div>
+                            Lichen: {frameStats.factoryLichen[factory.unit_id]},
+                            Connected Lichen Tiles:{" "}
+                            {frameStats.factoryLichenTiles[factory.unit_id]}
+                          </div>
+                        </div>
+                      </div>
+                      {!selected && <Divider />}
+                      {/* </ListItemButton> */}
+                    </>
+                  );
+                })}
+                {factories_list.length == 0 && None()}
+              </List>
+            </TabPanel>
+          </Box>
+        </div>
+      </>
+    );
+  }
+);

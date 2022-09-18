@@ -20,6 +20,8 @@ export type FrameStats = {
     ore: number;
     metal: number;
     storedPower: number;
+    factoryLichen: Record<string, number>;
+    factoryLichenTiles: Record<string, number>;
   }
 }
 

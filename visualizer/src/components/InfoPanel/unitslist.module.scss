@@ -3,22 +3,33 @@
   width: calc(50% - 1rem);
   padding: 0.5rem;
   .tabname {
-    font-size: .75rem;
+    font-size: .85rem;
     > div {
       padding: 4px;
     }
   }
   .list {
     max-height: 20rem;
-    
     overflow-y: scroll;
+    .noItem {
+      font-weight: 400;
+    }
+    .highlighted {
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      border-radius: 5px;
+    }
     .listItem {
+      padding: 0.25rem;
       div {
         font-weight: 400;
       }
       text-align: left;
-      .power {
+      .attrs {
         color: #787880;
+        font-size: 0.8rem;
+        span {
+          font-weight: 400;
+        }
       }
     }
   }

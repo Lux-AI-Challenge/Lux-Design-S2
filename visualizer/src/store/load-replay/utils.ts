@@ -56,6 +56,8 @@ export function computeStatistics(replay: Replay): ReplayStats {
         water: 0,
         ice: 0,
         storedPower: 0,
+        factoryLichen: {},
+        factoryLichenTiles: {},
       }
       Object.entries(units).forEach(([_, unit]) => {
         if (unit.unit_type == "LIGHT") {
@@ -77,6 +79,8 @@ export function computeStatistics(replay: Replay): ReplayStats {
           frameStats[player][resourcetype] += x
         });
         frameStats[player].storedPower += factory.power;
+        frameStats[player].factoryLichen[factory.unit_id] = 0;
+        frameStats[player].factoryLichenTiles[factory.unit_id] = 0;
         ownedLichenStrains.add(factory.strain_id);
       });
       playerToLichenStrains[player] = ownedLichenStrains
@@ -88,6 +92,8 @@ export function computeStatistics(replay: Replay): ReplayStats {
         for (const [playerId, strains] of Object.entries(playerToLichenStrains)) {
           if (strains.has(strain_id)) {
             frameStats[playerId].lichen += frame.board.lichen[y][x];
+            frameStats[playerId].factoryLichen[`factory_${strain_id}`] += frame.board.lichen[y][x];
+            frameStats[playerId].factoryLichenTiles[`factory_${strain_id}`] += 1;
             break;
           }
         }

@@ -53,7 +53,7 @@ export function ReplayViewer() {
     <>
       <div className={s.viewer}>
       <div className={s.leftPanel}>
-          <InfoPanel viewedTilePos={viewedTilePos} />
+          <InfoPanel viewedTilePos={viewedTilePos} clickedTilePos={clickedTilePos} />
         </div>
         <div className={s.gameWrapper}>
           <div className={s.gameMapWrapper}>

@@ -3,12 +3,13 @@ import { UnitsList } from "@/components/InfoPanel/UnitsList";
 import { TileView } from "@/components/TileView/TileView";
 import { useStore, useStoreKeys } from "@/store";
 import { Player } from "@/types/replay/player";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 
 import s from "./styles.module.scss";
 type InfoPanelProps = {
   viewedTilePos: { x: number; y: number } | null;
+  clickedTilePos: { x: number; y: number } | null;
 }
 
 // move out later
@@ -18,11 +19,30 @@ const colors = {
 
 export const InfoPanel = React.memo(
   ({
-    viewedTilePos
+    viewedTilePos, clickedTilePos
   }: InfoPanelProps) => {
-    const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
+    const replay = useStore((state: any) => state.replay)!; // game map should only get rendered when replay is non-null
     const { gameInfo, turn, replayStats } = useStoreKeys("gameInfo", "replayStats", "turn");
+    const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
     const frame = replay.observations[turn];
+    const frameStats = replayStats.frameStats[turn];
+    useEffect(() => {
+      let selectedUnits = new Set<string>();
+      if (clickedTilePos !== null) {
+        // TODO, allow shift clicks
+        const unit = gameInfo.posToUnit.get(
+        `${clickedTilePos.x},${clickedTilePos.y}`
+        );
+        const factory = gameInfo.posToFactory.get(
+          `${clickedTilePos.x},${clickedTilePos.y}`
+          );
+        if (unit) { selectedUnits.add(unit.unit_id)}
+        if (factory) { selectedUnits.add(factory.unit_id)}
+        console.log({selectedUnits, gameInfo})
+      }
+      setSelectedUnits(selectedUnits);
+    }, [clickedTilePos])
+    
     return (
       <>
       <div className={s.infoPanel}>
@@ -53,8 +73,8 @@ export const InfoPanel = React.memo(
             </div>
           </div>
           <div className={s.liststats}>
-            <UnitsList units={frame.units["player_0"]} factories={frame.factories["player_0"]} selectedUnit={null}/>
-            <UnitsList units={frame.units["player_1"]} factories={frame.factories["player_1"]} selectedUnit={null}/>
+            <UnitsList selectedUnits={selectedUnits} frameStats={frameStats["player_0"]} units={frame.units["player_0"]} factories={frame.factories["player_0"]}/>
+            <UnitsList selectedUnits={selectedUnits} frameStats={frameStats["player_1"]} units={frame.units["player_1"]} factories={frame.factories["player_1"]}/>
           </div>
           <TileView viewedTilePos={viewedTilePos} />
           <div className={s.chartWrapper}><Charts /></div>
