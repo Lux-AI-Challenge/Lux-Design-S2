@@ -1,25 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// import {
-//   Chart as ChartJS,
-//   CategoryScale,
-//   LinearScale,
-//   PointElement,
-//   LineElement,
-//   Title,
-//   Tooltip,
-//   Legend,
-//   ChartOptions,
-//   LineOptions,
-// } from 'chart.js';
-// ChartJS.register(
-//   CategoryScale,
-//   LinearScale,
-//   PointElement,
-//   LineElement,
-//   Title,
-//   Tooltip,
-//   Legend
-// );
 import {
   CartesianGrid,
   Legend,
@@ -30,30 +9,25 @@ import {
   ResponsiveContainer,
   Tooltip,
   Label,
+  ReferenceLine,
 } from 'recharts';
-import s from "./charts.module.scss"
 import { useStore, useStoreKeys } from '@/store';
+const LineChartMemo = LineChart; //React.memo(LineChart);
+const margin = { top: 15, right: 20, left: 10, bottom: 25 };
 export const Charts = React.memo(() => {
-  // const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
-  const { turn, replayStats } = useStoreKeys(
-    "turn",
-
+  const replay = useStore((state) => state.replay)!; // game map should only get rendered when replay is non-null
+  const { replayStats } = useStoreKeys(
     "replayStats"
   );
-  const [labels, setLabels] = useState<Array<number>>([]);
   const [data, setData]= useState<any>([]);
-  console.log("render")
   useEffect(() => {
-    const d = replayStats.frameStats.slice(0, turn + 1).map((v, i) => {
+    // .slice(0, turn + 1)
+    const d = replayStats.frameStats.map((v, i) => {
       return {name: `Turn ${i}`, p0light:v["player_0"].units.light, p1light:v["player_1"].units.light};
     });
     const labels = [];
-    for (let i = 0; i < data.length; i++) {
-      labels.push(i);
-    }
-    setLabels(labels);
     setData(d);
-  }, [turn]);
+  }, []);
   const xlabel = "Turn"
   const ylabel = "Count";
   const TEAM_A_COLOR_STR = "#007D51";
@@ -66,13 +40,14 @@ export const Charts = React.memo(() => {
       </div> */}
       <div className="Graph">
       <ResponsiveContainer width={'100%'} height={240}>
-        <LineChart
+        <LineChartMemo
           // width={200}
-          onClick={() => {}}
+          // onClick={() => {}}
           // height={150}
           data={data}
-          margin={{ top: 15, right: 20, left: 10, bottom: 25 }}
+          margin={margin}
         >
+          
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name">
             <Label
@@ -115,7 +90,7 @@ export const Charts = React.memo(() => {
             isAnimationActive={false}
             stroke={TEAM_B_COLOR_STR}
           />
-        </LineChart>
+        </LineChartMemo>
       </ResponsiveContainer>
     </div>
     </>
