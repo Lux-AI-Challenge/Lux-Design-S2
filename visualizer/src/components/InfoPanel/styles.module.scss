@@ -14,6 +14,12 @@ $p1-secondary: #0082FB;
   .chartWrapper {
     padding: 1rem;
   }
+  .liststats {
+    display: flex;
+    margin: auto;
+    width: calc(100% - 2rem);
+    justify-content: center;
+  }
   .globalStats {
     margin: auto;
     display: flex;

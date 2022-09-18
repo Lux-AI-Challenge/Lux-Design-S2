@@ -9,6 +9,7 @@ import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Bottom } from "./bottom";
 import { InteractionLayer } from "@/components/GameMap/interactor";
 import { Unit } from "@/types/replay/unit";
+import { Store } from "@/store/types";
 interface GameMapProps {
   // hoveredTilePos: {x: number, y: number};
   // setHoveredTilePos: any
@@ -45,16 +46,27 @@ export const GameMap = React.memo(
     const tileSize = tileWidth + tileBorder * 2;
 
     const [unitRender, setUnitRender] = useState< Array<JSX.Element>>([]);
+    
+    
     useEffect(() => {
+      // Collect all per turn statistics ahead of time, we should move this out somewhere.
+      // TODO Cache values? TODO Provide option to load all per turn values for a little smoother replay?
       const posToUnit: Map<string, Unit> = new Map();
       const posToFactory: Map<string, Unit> = new Map(); // TODO
       const factoryCounts: Record<string, number> = {};
       const unitCounts: Record<string, number> = {};
+      // const factoryToLichen: Store["gameInfo"]["factoryToLichen"] = {};
+      // const lichen: Store["gameInfo"]["lichen"] = {};
+      const playerToFactoryIds: Record<string, Set<string>> = {}
       const turnUnitRender: Array<JSX.Element> = []
-      // Collect all statistics ahead of time, we should move this out somewhere.
       {
         ["player_0", "player_1"].forEach((agent: Player) => {
-          factoryCounts[agent] = Object.keys(frame.factories[agent]).length;
+          factoryCounts[agent] = 0
+          playerToFactoryIds[agent] = new Set();
+          Object.entries(frame.factories[agent]).forEach(([factory_id, factory]) => {
+            playerToFactoryIds[agent].add(factory_id)
+            factoryCounts[agent] += 1;
+          });
           unitCounts[agent] = Object.keys(frame.units[agent]).length;
           return Object.values(frame.units[agent]).forEach((unit) => {
             // store units by position
@@ -90,6 +102,21 @@ export const GameMap = React.memo(
         });
       }
       setUnitRender(turnUnitRender);
+      
+      // for (let y = 0; y < frame.board.lichen_strains.length; y ++ ) {
+      //   for (let x = 0; x < frame.board.lichen_strains[0].length; x ++ ) {
+      //     const lichen_strain = frame.board.lichen_strains[y][x];
+      //     if 
+      //     const factory_id = `factory_${lichen_strain}`;
+      //     for (const agent of ["player_0", "player_1"]) {
+      //       if (playerToFactoryIds[agent].has(factory_id)) {
+      //         break
+      //       }
+      //   }
+      //   }
+      // }
+
+
       updateGameInfo({
         type: "set",
         data: { posToUnit, posToFactory, factoryCounts, unitCounts },

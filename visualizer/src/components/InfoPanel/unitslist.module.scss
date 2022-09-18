@@ -1,0 +1,25 @@
+.UnitsList {
+  color: #373740;
+  width: calc(50% - 1rem);
+  padding: 0.5rem;
+  .tabname {
+    font-size: .75rem;
+    > div {
+      padding: 4px;
+    }
+  }
+  .list {
+    max-height: 20rem;
+    
+    overflow-y: scroll;
+    .listItem {
+      div {
+        font-weight: 400;
+      }
+      text-align: left;
+      .power {
+        color: #787880;
+      }
+    }
+  }
+}

@@ -12,7 +12,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@mui/base": "^5.0.0-alpha.91",
+    "@mui/material": "^5.10.5",
     "chart.js": "^3.9.1",
     "preact": "^10.10.1",
     "react-chartjs-2": "^4.3.1",

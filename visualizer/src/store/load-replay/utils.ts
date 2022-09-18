@@ -2,6 +2,7 @@ import { FrameStats, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
 
 export function loadFromObject(replay: Replay): Replay {
+  const stime = (new Date()).getTime();
   // TODO: validate that the replay is in the right format (?)
   // re-generate all board frames as necessary
   const hashToPos = (hash: string) => {
@@ -11,7 +12,7 @@ export function loadFromObject(replay: Replay): Replay {
   const firstBoard = replay.observations[0].board;
   for (let i = 1; i < replay.observations.length; i++) {
     const delta_board = replay.observations[i].board;
-    // console.log(Object.keys(delta_board))
+    // TODO: optimize the deep copy.
     const board_i = JSON.parse(JSON.stringify(replay.observations[i - 1].board));
     const delta_keys: ResourceTile[] = ["rubble", "lichen", "lichen_strains"];
     delta_keys.forEach((k: ResourceTile) => {
@@ -23,12 +24,13 @@ export function loadFromObject(replay: Replay): Replay {
     });
     replay.observations[i].board = board_i;
   }
-  console.log(JSON.parse(JSON.stringify(replay)));
+  const etime = (new Date()).getTime();
+  console.log(`Loading replay + regeneration took ${(etime - stime)}ms`)
   return replay;
 }
 
 export function computeStatistics(replay: Replay): ReplayStats {
-  console.log("COMPUTE")
+  const stime = (new Date()).getTime();
   const stats: ReplayStats = {
     frameStats: [],
     mapStats: {
@@ -94,6 +96,8 @@ export function computeStatistics(replay: Replay): ReplayStats {
     }
     stats.frameStats.push(frameStats);
   });
+  const etime = (new Date()).getTime();
+  console.log(`Precomputation of per-step stats took ${(etime - stime)}ms`)
   return stats as ReplayStats;
 }
 
