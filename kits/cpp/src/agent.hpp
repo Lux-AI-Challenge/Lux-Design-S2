@@ -6,19 +6,20 @@
 #include "lux/json.hpp"
 #include "lux/observation.hpp"
 
-class Agent {
-    int         step;
-    std::string player;
-    int         remainingOverageTime;
+struct Agent {
+    int              step;
+    std::string      player;
+    int              remainingOverageTime;
+    lux::Observation obs;
+    lux::EnvConfig   config;
 
-   public:
-    explicit Agent(int currentStep, std::string playerName, int currentRemainingOverageTime);
-    Agent(const Agent &other) = delete;
-    Agent(Agent &&other)      = delete;
+    Agent()                             = default;
+    Agent(const Agent &other)           = delete;
+    Agent(Agent &&other)                = delete;
     Agent operator=(const Agent &other) = delete;
     Agent operator=(Agent &&other)      = delete;
     ~Agent()                            = default;
 
-    std::vector<json> setup(lux::Observation obs, lux::EnvConfig config, const json &raw);
-    std::vector<json> act(lux::Observation obs, lux::EnvConfig config, const json &raw);
+    json setup();
+    json act();
 };

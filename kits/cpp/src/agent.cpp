@@ -1,20 +1,25 @@
 #include "agent.hpp"
 
-Agent::Agent(int currentStep, std::string playerName, int currentRemainingOverageTime)
-    : step(currentStep),
-      player(playerName),
-      remainingOverageTime(currentRemainingOverageTime) {}
-
-std::vector<json> Agent::setup(lux::Observation obs, lux::EnvConfig config, const json &raw) {
-    (void) obs;
-    (void) config;
-    (void) raw;
-    return {};
+json Agent::setup() {
+    if (step == 0) {
+        std::string faction = "MotherMars";
+        if (player == "player_1") {
+            faction = "AlphaStrike";
+        }
+        return {
+            {"faction", faction},
+            {    "bid",      10}
+        };
+    }
+    return {
+        {"spawn", obs.board.spawns[0]},
+        {"metal",                   2},
+        {"water",                   2},
+    };
 }
 
-std::vector<json> Agent::act(lux::Observation obs, lux::EnvConfig config, const json &raw) {
-    (void) obs;
-    (void) config;
-    (void) raw;
-    return {};
+json Agent::act() {
+    return {
+        {"unit_0", {0, 0, 0, 0, 0}}
+    };
 }
