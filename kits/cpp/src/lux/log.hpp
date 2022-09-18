@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "lux/json.hpp"
+
 /**
  * \brief Simple macro to write logs in debug mode.
  *
@@ -18,3 +20,13 @@
 #else
 #    define LOG(...)
 #endif
+
+namespace lux {
+    /**
+     * \brief Dumps contents of json to a file.
+     *
+     * Will only create file and dump contents in debug mode.
+     * The destination will always be truncated before writing.
+     */
+    void dumpJsonToFile(const char *path, json data);
+}  // namespace lux
