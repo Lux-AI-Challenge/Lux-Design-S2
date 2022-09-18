@@ -42,6 +42,7 @@ endif()
 include(sources.cmake)
 
 set(LUX_SRC_FILES
+    src/lux/action.cpp
     src/lux/config.cpp
     src/lux/log.cpp
 )
