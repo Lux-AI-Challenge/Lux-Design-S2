@@ -44,12 +44,7 @@ namespace lux {
         UnitConfig HEAVY;
         UnitConfig LIGHT;
 
-        UnitConfig &operator[](const std::string &name) {
-            if (name == "HEAVY") {
-                return HEAVY;
-            }
-            return LIGHT;
-        }
+        UnitConfig &operator[](const std::string &name);
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfigs, HEAVY, LIGHT)
 
@@ -66,21 +61,7 @@ namespace lux {
         WeatherConfig MARS_QUAKE;
         WeatherConfig SOLAR_FLARE;
 
-        WeatherConfig &operator[](const std::string &name) {
-            if (name == "COLD_SNAP") {
-                return COLD_SNAP;
-            }
-            if (name == "DUST_STORM") {
-                return DUST_STORM;
-            }
-            if (name == "MARS_QUAKE") {
-                return MARS_QUAKE;
-            }
-            if (name == "SOLAR_FLARE") {
-                return SOLAR_FLARE;
-            }
-            return NONE;
-        }
+        WeatherConfig &operator[](const std::string &name);
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeatherConfigs, COLD_SNAP, DUST_STORM, MARS_QUAKE, SOLAR_FLARE)
 

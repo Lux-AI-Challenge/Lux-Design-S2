@@ -42,6 +42,8 @@ endif()
 include(sources.cmake)
 
 set(LUX_SRC_FILES
+    src/lux/config.cpp
+    src/lux/log.cpp
 )
 
 add_executable(${BINARY} ${AGENT_SRC_FILES} ${LUX_SRC_FILES})
