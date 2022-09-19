@@ -1,5 +1,6 @@
 #include "agent.hpp"
 
+#include "lux/action.hpp"
 #include "lux/log.hpp"
 
 json Agent::setup() {
@@ -8,16 +9,10 @@ json Agent::setup() {
         if (player == "player_1") {
             faction = "AlphaStrike";
         }
-        return {
-            {"faction", faction},
-            {    "bid",      10}
-        };
+        return lux::BidAction(faction, 10);
     }
-    return {
-        {"spawn", obs.board.spawns[player][0]},
-        {"metal",                           2},
-        {"water",                           2},
-    };
+    static size_t index = 0;
+    return lux::SpawnAction(obs.board.spawns[player][index++], obs.teams[player].metal / 2, obs.teams[player].water);
 }
 
 json Agent::act() {

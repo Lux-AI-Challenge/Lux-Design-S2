@@ -90,4 +90,25 @@ namespace lux {
     void to_json(json &j, const FactoryAction a);
     void from_json(const json &j, FactoryAction &a);
 
+    struct BidAction {
+        std::string faction;
+        int64_t     bid;
+
+        BidAction() = default;
+        BidAction(std::string owningFaction, int64_t bidAmount) : faction(owningFaction), bid(bidAmount) {}
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(BidAction, faction, bid)
+
+    struct SpawnAction {
+        std::array<int64_t, 2> spawn;
+        int64_t                metal;
+        int64_t                water;
+
+        SpawnAction() = default;
+        SpawnAction(std::array<int64_t, 2> spawnLoc, int64_t initialMetal, int64_t initialWater)
+            : spawn(spawnLoc),
+              metal(initialMetal),
+              water(initialWater) {}
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(SpawnAction, spawn, metal, water)
 }  // namespace lux
