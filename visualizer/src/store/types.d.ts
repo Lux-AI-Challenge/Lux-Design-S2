@@ -13,7 +13,7 @@ export type Store = {
    */
   replay: Replay | null;
 
-  replayStats: ReplayStats;
+  replayStats: ReplayStats | null;
 
   /* replay loading */
 

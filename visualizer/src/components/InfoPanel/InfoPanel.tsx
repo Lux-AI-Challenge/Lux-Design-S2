@@ -23,6 +23,7 @@ export const InfoPanel = React.memo(
   }: InfoPanelProps) => {
     const replay = useStore((state: any) => state.replay)!; // game map should only get rendered when replay is non-null
     const { gameInfo, turn, replayStats } = useStoreKeys("gameInfo", "replayStats", "turn");
+    if (!replay || !replayStats) return <></>;
     const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
     const frame = replay.observations[turn];
     const frameStats = replayStats.frameStats[turn];

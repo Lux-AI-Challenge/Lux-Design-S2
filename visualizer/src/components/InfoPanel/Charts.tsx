@@ -21,13 +21,14 @@ export const Charts = React.memo(() => {
   );
   const [data, setData]= useState<any>([]);
   useEffect(() => {
-    // .slice(0, turn + 1)
-    const d = replayStats.frameStats.map((v, i) => {
-      return {name: `Turn ${i}`, p0light:v["player_0"].units.light, p1light:v["player_1"].units.light};
-    });
-    const labels = [];
-    setData(d);
-  }, []);
+    if (replayStats) {
+      const d = replayStats.frameStats.map((v, i) => {
+        return {name: `Turn ${i}`, p0light:v["player_0"].units.light, p1light:v["player_1"].units.light};
+      });
+      const labels = [];
+      setData(d);
+    }
+  }, [replayStats]);
   const xlabel = "Turn"
   const ylabel = "Count";
   const TEAM_A_COLOR_STR = "#007D51";

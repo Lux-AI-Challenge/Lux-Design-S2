@@ -13,13 +13,13 @@ import { initial } from "./initial";
 import type { Store } from "./types";
 
 import TEMPORARY_REPLAY_FOR_TESTING_ONLY from "@/assets/replay.json";
-const testReplay = loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY)
-const testReplayStats = computeStatistics(testReplay);
+// const testReplay = loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY)
+// const testReplayStats = computeStatistics(testReplay);
 export const useStore = create<Store>((set, get) => ({
   // replay: initial.replay,
   // TEMPORARY FOR FASTER TESTING ONLY. replace with the above commented out line for the actual app
-  replay: testReplay,
-  replayStats: testReplayStats,
+  replay: null,//testReplay,
+  replayStats: null,//testReplayStats,
 
   progress: initial.progress,
 
@@ -31,7 +31,9 @@ export const useStore = create<Store>((set, get) => ({
   loadReplay: async (action) => {
     switch (action.type) {
       case "object": {
-        set({ replay: loadFromObject(action.data), progress: null });
+        const replay = loadFromObject(action.data);
+        const replayStats = computeStatistics(replay);
+        set({ replay: replay, replayStats, progress: null });
         break;
       }
       case "string": {
@@ -41,7 +43,11 @@ export const useStore = create<Store>((set, get) => ({
       case "file": {
         set({ progress: 0 });
         const replay = await loadFromFile(action.data);
-        set({ replay, progress: null });
+        const replayStats = computeStatistics(replay);
+        // figure out tile width
+        const tileWidth = Math.floor((window.innerHeight - 200) / 48) - 2;
+        console.log(`Estimated tile width: ${tileWidth}`)
+        set({ replay, replayStats, tileWidth, progress: null });
         break;
       }
       default: {
