@@ -41,7 +41,7 @@ The kits folder in this repository holds all of the available starter kits you c
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our CONTRIBUTING.md document for more information on this.
 
-To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See https://github.com/Lux-AI-Challenge/Lux-Design-2021/blob/master/ChangeLog.md for a full change log.
+To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/master/ChangeLog.md for a full change log.
 
 
 ## Citation
