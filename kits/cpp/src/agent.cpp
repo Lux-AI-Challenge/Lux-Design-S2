@@ -12,11 +12,18 @@ json Agent::setup() {
         return lux::BidAction(faction, 10);
     }
     static size_t index = 0;
-    return lux::SpawnAction(obs.board.spawns[player][index++], obs.teams[player].metal / 2, obs.teams[player].water);
+    return lux::SpawnAction(obs.board.spawns[player][index += 7], obs.teams[player].metal / 2, obs.teams[player].water);
 }
 
 json Agent::act() {
-    return {
-        {"unit_0", {0, 0, 0, 0, 0}}
-    };
+    json actions;
+    for (auto [unitId, _] : obs.factories[player]) {
+        if (step % 5 == 0) {
+            actions[unitId] = lux::FactoryAction::BuildLight();
+        }
+    }
+    for (auto [unitId, unit] : obs.units[player]) {
+        actions[unitId].push_back(lux::UnitAction::Move(lux::UnitAction::Direction::UP, false));
+    }
+    return actions;
 }

@@ -6,51 +6,112 @@
 #include "lux/exception.hpp"
 
 namespace lux {
-    void populateUnitActionData(UnitAction &a) {
-        a.data[0] = std::underlying_type_t<UnitAction::Type>(a.type);
-        a.data[1] = std::underlying_type_t<UnitAction::Direction>(a.direction);
-        a.data[2] = a.distance;
-        if (a.isTransferAction() || a.isPickupAction()) {
-            a.data[2] = std::underlying_type_t<UnitAction::Resource>(a.resource);
-        }
-        a.data[3] = a.amount;
-        a.data[4] = a.repeat ? 1 : 0;
+    UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
+
+    UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, bool repeat_)
+        : type(type_),
+          direction(direction_),
+          distance(distance_),
+          amount(amount_),
+          repeat(repeat_) {}
+
+    UnitAction::UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, bool repeat_)
+        : type(type_),
+          direction(direction_),
+          resource(resource_),
+          amount(amount_),
+          repeat(repeat_) {}
+
+    UnitAction UnitAction::Move(Direction direction, bool repeat) {
+        return UnitAction(Type::MOVE, direction, 1, 0, repeat);
     }
 
-    void populateUnitActionMember(UnitAction &a) {
-        if (a.data[0] < 0 || a.data[0] > 5) {
-            throw lux::Exception("got invalid UnitAction type " + std::to_string(a.data[0]));
+    UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, bool repeat) {
+        return UnitAction(Type::TRANSFER, direction, resource, amount, repeat);
+    }
+
+    UnitAction UnitAction::Pickup(Resource resource, int64_t amount, bool repeat) {
+        return UnitAction(Type::PICKUP, Direction::CENTER, resource, amount, repeat);
+    }
+
+    UnitAction UnitAction::Dig(bool repeat) { return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat); }
+
+    UnitAction UnitAction::SelfDestruct(bool repeat) {
+        return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, 0, repeat);
+    }
+
+    UnitAction UnitAction::Recharge(int64_t amount, bool repeat) {
+        return UnitAction(Type::RECHARGE, Direction::CENTER, 0, amount, repeat);
+    }
+
+    void UnitAction::populateRaw() {
+        raw[0] = std::underlying_type_t<UnitAction::Type>(type);
+        raw[1] = std::underlying_type_t<UnitAction::Direction>(direction);
+        raw[2] = distance;
+        if (isTransferAction() || isPickupAction()) {
+            raw[2] = std::underlying_type_t<UnitAction::Resource>(resource);
         }
-        if (a.data[1] < 0 || a.data[1] > 4) {
-            throw lux::Exception("got invalid UnitAction direction " + std::to_string(a.data[1]));
+        raw[3] = amount;
+        raw[4] = repeat ? 1 : 0;
+    }
+
+    void UnitAction::populateMember() {
+        if (raw[0] < 0 || raw[0] > 5) {
+            throw lux::Exception("got invalid UnitAction type " + std::to_string(raw[0]));
         }
-        a.type      = static_cast<UnitAction::Type>(a.data[0]);
-        a.direction = static_cast<UnitAction::Direction>(a.data[1]);
-        if (a.isTransferAction() || a.isPickupAction()) {
-            if (a.data[2] < 0 || a.data[2] > 5) {
-                throw lux::Exception("got invalid UnitAction resource type " + std::to_string(a.data[2]));
+        if (raw[1] < 0 || raw[1] > 4) {
+            throw lux::Exception("got invalid UnitAction direction " + std::to_string(raw[1]));
+        }
+        type      = static_cast<UnitAction::Type>(raw[0]);
+        direction = static_cast<UnitAction::Direction>(raw[1]);
+        if (isTransferAction() || isPickupAction()) {
+            if (raw[2] < 0 || raw[2] > 5) {
+                throw lux::Exception("got invalid UnitAction resource type " + std::to_string(raw[2]));
             }
-            a.resource = static_cast<UnitAction::Resource>(a.data[2]);
+            resource = static_cast<UnitAction::Resource>(raw[2]);
         }
-        a.distance  = a.data[2];
-        a.amount    = a.data[3];
-        a.repeat    = a.data[4] != 0;
+        distance = raw[2];
+        amount   = raw[3];
+        repeat   = raw[4] != 0;
     }
 
-    void to_json(json &j, const UnitAction a) { j = a.data; }
-
-    void from_json(const json &j, UnitAction &a) {
-        j.get_to(a.data);
-        populateUnitActionMember(a);
+    void to_json(json &j, const UnitAction a) {
+        UnitAction copy = a;
+        copy.toJson(j);
     }
 
-    void to_json(json &j, const FactoryAction a) { j = a.data; }
+    void from_json(const json &j, UnitAction &a) { a.fromJson(j); }
 
-    void from_json(const json &j, FactoryAction &a) {
-        j.get_to(a.data);
-        a.type = static_cast<FactoryAction::Type>(a.data);
-        if (!a.isBuildAction() && !a.isWaterAction()) {
-            throw lux::Exception("got invalid FactoryAction type " + std::to_string(a.data));
+    FactoryAction::FactoryAction(FactoryAction::RawType raw_) : Action(raw_) { populateMember(); }
+
+    FactoryAction::FactoryAction(Type type_) : Action(), type(type_) { populateRaw(); }
+
+    FactoryAction FactoryAction::BuildLight() { return FactoryAction(Type::BUILD_LIGHT); }
+
+    FactoryAction FactoryAction::BuildHeavy() { return FactoryAction(Type::BUILD_HEAVY); }
+
+    FactoryAction FactoryAction::Water() { return FactoryAction(Type::WATER); }
+
+    void FactoryAction::populateRaw() { raw = std::underlying_type_t<FactoryAction::Type>(type); }
+
+    void FactoryAction::populateMember() {
+        type = static_cast<FactoryAction::Type>(raw);
+        if (!isBuildAction() && !isWaterAction()) {
+            throw lux::Exception("got invalid FactoryAction type " + std::to_string(raw));
         }
     }
+
+    void to_json(json &j, const FactoryAction a) {
+        FactoryAction copy = a;
+        copy.toJson(j);
+    }
+
+    void from_json(const json &j, FactoryAction &a) { a.fromJson(j); }
+
+    BidAction::BidAction(std::string faction_, int64_t bid_) : faction(faction_), bid(bid_) {}
+
+    SpawnAction::SpawnAction(std::array<int64_t, 2> spawn_, int64_t metal_, int64_t water_)
+        : spawn(spawn_),
+          metal(metal_),
+          water(water_) {}
 }  // namespace lux
