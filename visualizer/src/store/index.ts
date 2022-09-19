@@ -36,7 +36,8 @@ export const useStore = create<Store>((set, get) => ({
         const replay = loadFromObject(action.data);
         const replayStats = computeStatistics(replay);
         const tileWidth = estimateGoodTileWidth();
-        set({ replay: replay, replayStats, tileWidth, progress: null });
+        console.log("Set replay", replay);
+        set({ replay, replayStats, tileWidth, progress: null });
         break;
       }
       case "string": {

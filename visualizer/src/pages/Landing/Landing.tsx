@@ -6,7 +6,7 @@ import uploadIcon from "@/assets/generic-icons/upload.svg";
 import s from "./styles.module.scss";
 import { Box, CircularProgress } from "@mui/material";
 
-export function Landing() {
+export function Landing({setReplay}: any) {
   const { progress, loadReplay } = useStoreKeys("progress", "loadReplay");
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,12 +25,12 @@ export function Landing() {
     const extension = split.at(-1)!; // `String.split` always returns at least 1 length array
     if (extension === "json") {
       loadReplay({ type: "file", data: file });
+      setReplay(replay);
     }
   }, []);
 
   //kaggle replay loader
   useEffect(() => {
-    console.log("LOAD KAGGLE INFO?", {window}, window.kaggle)
     //@ts-ignore
     if (window.kaggle) {
       // check if window.kaggle.environment is valid and usable
@@ -44,6 +44,7 @@ export function Landing() {
         //@ts-ignore
         let replay = window.kaggle.environment;
         loadReplay({type: "object", data: replay});
+        setReplay(replay);
       } else {
         console.log(
           "Kaggle detected, but no replay, listening for postMessage"
@@ -61,6 +62,7 @@ export function Landing() {
                 console.log("post message:");
                 console.log(event.data);
                 loadReplay({type: "object", data: replay});
+                setReplay(replay);
                 // const el = document.getElementsByTagName("html");
                 // if (window.innerWidth * 0.65 <= 768) {
                 //   el[0].style.fontSize = "6pt";
