@@ -23,6 +23,8 @@ namespace lux {
         j.get_to(a.data);
     }
 
+    // TODO convenience functions to create actions
+
     struct UnitAction : public Action<std::array<int64_t, 5>> {
         enum class Type {
             MOVE,

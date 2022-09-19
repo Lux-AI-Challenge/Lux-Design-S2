@@ -1,5 +1,7 @@
 #include "agent.hpp"
 
+#include "lux/log.hpp"
+
 json Agent::setup() {
     if (step == 0) {
         std::string faction = "MotherMars";
@@ -12,9 +14,9 @@ json Agent::setup() {
         };
     }
     return {
-        {"spawn", obs.board.spawns[0]},
-        {"metal",                   2},
-        {"water",                   2},
+        {"spawn", obs.board.spawns[player][0]},
+        {"metal",                           2},
+        {"water",                           2},
     };
 }
 

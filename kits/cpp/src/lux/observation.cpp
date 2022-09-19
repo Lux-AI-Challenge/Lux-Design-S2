@@ -1,0 +1,73 @@
+#include "lux/observation.hpp"
+
+#include <string>
+
+#include "lux/exception.hpp"
+
+namespace lux {
+
+    void applyMappedDelta(std::vector<std::vector<int64_t>> &dest, const std::map<std::string, int64_t> &delta) {
+        for (auto [k, v] : delta) {
+            size_t offset = k.find_first_of(',');
+            if (offset == k.npos) {
+                throw lux::Exception("mapping key not separated by comma");
+            }
+            auto x     = static_cast<size_t>(std::stol(k.substr(0, offset)));
+            auto y     = static_cast<size_t>(std::stol(k.substr(offset + 1)));
+            dest[y][x] = v;
+        }
+    }
+
+    void to_json(json &j, const Board b) {
+        j["ice"]                = b.ice;
+        j["lichen"]             = b.lichen;
+        j["lichen_strains"]     = b.lichen_strains;
+        j["ore"]                = b.ore;
+        j["rubble"]             = b.rubble;
+        j["spawns"]             = b.spawns;
+        j["factories_per_team"] = b.factories_per_team;
+    }
+
+    void from_json(const json &j, Board &b) {
+        if (!b.initialized) {
+            b.initialized = true;
+            // set initial board state
+            j.at("ice").get_to(b.ice);
+            j.at("lichen").get_to(b.lichen);
+            j.at("lichen_strains").get_to(b.lichen_strains);
+            j.at("ore").get_to(b.ore);
+            j.at("rubble").get_to(b.rubble);
+            j.at("spawns").get_to(b.spawns);
+        } else {
+            // apply delta for step > 0
+            j.at("lichen").get_to(b.lichen_delta);
+            j.at("lichen_strains").get_to(b.lichen_strains_delta);
+            j.at("rubble").get_to(b.rubble_delta);
+            applyMappedDelta(b.lichen, b.lichen_delta);
+            applyMappedDelta(b.lichen_strains, b.lichen_strains_delta);
+            applyMappedDelta(b.rubble, b.rubble_delta);
+        }
+        j.at("factories_per_team").get_to(b.factories_per_team);
+    }
+
+    void to_json(json &j, const Observation o) {
+        j["board"]            = o.board;
+        j["units"]            = o.units;
+        j["teams"]            = o.teams;
+        j["factories"]        = o.factories;
+        j["weather_schedule"] = o.weather_schedule;
+        j["real_env_steps"]   = o.real_env_steps;
+    }
+    void from_json(const json &j, Observation &o) {
+        if (!o.initialized) {
+            o.initialized = true;
+            // weather only provided on step 0
+            j.at("weather_schedule").get_to(o.weather_schedule);
+        }
+        j.at("board").get_to(o.board);
+        j.at("units").get_to(o.units);
+        j.at("teams").get_to(o.teams);
+        j.at("factories").get_to(o.factories);
+        j.at("real_env_steps").get_to(o.real_env_steps);
+    }
+}  // namespace lux

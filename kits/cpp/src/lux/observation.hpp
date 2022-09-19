@@ -47,7 +47,14 @@ namespace lux {
         int64_t                    team_id;
         std::vector<FactoryAction> action_queue;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Factory, pos, power, cargo, unit_id, strain_id, team_id, action_queue)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Factory,
+                                                    pos,
+                                                    power,
+                                                    cargo,
+                                                    unit_id,
+                                                    strain_id,
+                                                    team_id,
+                                                    action_queue)
 
     struct Board {
         std::vector<std::vector<int64_t>>                          ice;
@@ -57,16 +64,17 @@ namespace lux {
         std::vector<std::vector<int64_t>>                          rubble;
         std::map<std::string, std::vector<std::array<int64_t, 2>>> spawns;
         int64_t                                                    factories_per_team;
+
+       private:
+        bool                           initialized = false;
+        std::map<std::string, int64_t> lichen_delta;
+        std::map<std::string, int64_t> lichen_strains_delta;
+        std::map<std::string, int64_t> rubble_delta;
+        friend void from_json(const json &j, Board &b);
     };
-    // TODO custom implementation to switch between array and delta parsing
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Board,
-                                                    ice,
-                                                    lichen,
-                                                    lichen_strains,
-                                                    ore,
-                                                    rubble,
-                                                    spawns,
-                                                    factories_per_team)
+
+    void to_json(json &j, const Board b);
+    void from_json(const json &j, Board &b);
 
     struct Observation {
         Board                                                 board;
@@ -75,12 +83,12 @@ namespace lux {
         std::map<std::string, std::map<std::string, Factory>> factories;
         std::vector<int64_t>                                  weather_schedule;
         int64_t                                               real_env_steps;
+
+       private:
+        bool initialized = false;
+        friend void from_json(const json &j, Observation &o);
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Observation,
-                                                    board,
-                                                    units,
-                                                    teams,
-                                                    factories,
-                                                    weather_schedule,
-                                                    real_env_steps)
+
+    void to_json(json &j, const Observation o);
+    void from_json(const json &j, Observation &o);
 }  // namespace lux

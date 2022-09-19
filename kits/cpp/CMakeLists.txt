@@ -45,6 +45,7 @@ set(LUX_SRC_FILES
     src/lux/action.cpp
     src/lux/config.cpp
     src/lux/log.cpp
+    src/lux/observation.cpp
 )
 
 add_executable(${BINARY} ${AGENT_SRC_FILES} ${LUX_SRC_FILES})
