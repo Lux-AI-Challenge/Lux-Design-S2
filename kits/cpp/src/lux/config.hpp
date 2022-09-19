@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -9,20 +10,20 @@
 namespace lux {
 
     struct UnitConfig {
-        int BATTERY_CAPACITY;
-        int CARGO_SPACE;
-        int CHARGE;
-        int DIG_COST;
-        int DIG_LICHEN_REMOVED;
-        int DIG_RESOURCE_GAIN;
-        int DIG_RUBBLE_REMOVED;
-        int INIT_POWER;
-        int METAL_COST;
-        int MOVE_COST;
-        int POWER_COST;
-        int RUBBLE_AFTER_DESTRUCTION;
-        int RUBBLE_MOVEMENT_COST;
-        int SELF_DESTRUCT_COST;
+        int64_t BATTERY_CAPACITY;
+        int64_t CARGO_SPACE;
+        int64_t CHARGE;
+        int64_t DIG_COST;
+        int64_t DIG_LICHEN_REMOVED;
+        int64_t DIG_RESOURCE_GAIN;
+        int64_t DIG_RUBBLE_REMOVED;
+        int64_t INIT_POWER;
+        int64_t METAL_COST;
+        int64_t MOVE_COST;
+        int64_t POWER_COST;
+        int64_t RUBBLE_AFTER_DESTRUCTION;
+        int64_t RUBBLE_MOVEMENT_COST;
+        int64_t SELF_DESTRUCT_COST;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfig,
                                        BATTERY_CAPACITY,
@@ -50,7 +51,7 @@ namespace lux {
 
     struct WeatherConfig {
         // TODO: handle updated values for POWER_GAIN, RUBBLE and POWER_CONSUMPTION
-        std::array<int, 2> TIME_RANGE;
+        std::array<int64_t, 2> TIME_RANGE;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeatherConfig, TIME_RANGE)
 
@@ -67,35 +68,35 @@ namespace lux {
 
     struct EnvConfig {
         bool                     BIDDING_SYSTEM;
-        int                      CYCLE_LENGTH;
-        int                      DAY_LENGTH;
-        int                      FACTORY_CHARGE;
-        int                      FACTORY_PROCESSING_RATE_METAL;
-        int                      FACTORY_PROCESSING_RATE_WATER;
-        int                      FACTORY_RUBBLE_AFTER_DESTRUCTION;
-        int                      FACTORY_WATER_CONSUMPTION;
-        int                      ICE_WATER_RATIO;
-        int                      INIT_POWER_PER_FACTORY;
-        int                      INIT_WATER_METAL_PER_FACTORY;
-        int                      LICHEN_GAINED_WITH_WATER;
-        int                      LICHEN_LOST_WITHOUT_WATER;
-        int                      LICHEN_WATERING_COST_FACTOR;
-        int                      MAX_FACTORIES;
-        int                      MAX_RUBBLE;
-        int                      MIN_FACTORIES;
-        int                      MIN_LICHEN_TO_SPREAD;
-        std::vector<int>         NUM_WEATHER_EVENTS_RANGE;
-        int                      ORE_METAL_RATIO;
+        int64_t                  CYCLE_LENGTH;
+        int64_t                  DAY_LENGTH;
+        int64_t                  FACTORY_CHARGE;
+        int64_t                  FACTORY_PROCESSING_RATE_METAL;
+        int64_t                  FACTORY_PROCESSING_RATE_WATER;
+        int64_t                  FACTORY_RUBBLE_AFTER_DESTRUCTION;
+        int64_t                  FACTORY_WATER_CONSUMPTION;
+        int64_t                  ICE_WATER_RATIO;
+        int64_t                  INIT_POWER_PER_FACTORY;
+        int64_t                  INIT_WATER_METAL_PER_FACTORY;
+        int64_t                  LICHEN_GAINED_WITH_WATER;
+        int64_t                  LICHEN_LOST_WITHOUT_WATER;
+        int64_t                  LICHEN_WATERING_COST_FACTOR;
+        int64_t                  MAX_FACTORIES;
+        int64_t                  MAX_RUBBLE;
+        int64_t                  MIN_FACTORIES;
+        int64_t                  MIN_LICHEN_TO_SPREAD;
+        std::vector<int64_t>     NUM_WEATHER_EVENTS_RANGE;
+        int64_t                  ORE_METAL_RATIO;
         UnitConfigs              ROBOTS;
-        int                      UNITS_CONTROLLED;
-        int                      UNIT_ACTION_QUEUE_SIZE;
+        int64_t                  UNITS_CONTROLLED;
+        int64_t                  UNIT_ACTION_QUEUE_SIZE;
         WeatherConfigs           WEATHER;
         std::vector<std::string> WEATHER_ID_TO_NAME;
-        int                      map_size;
-        int                      max_episode_length;
-        int                      max_transfer_amount;
+        int64_t                  map_size;
+        int64_t                  max_episode_length;
+        int64_t                  max_transfer_amount;
         bool                     validate_action_space;
-        int                      verbose;
+        int64_t                  verbose;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnvConfig,
                                        BIDDING_SYSTEM,

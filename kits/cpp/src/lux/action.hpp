@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <string>
 
 #include "lux/exception.hpp"
@@ -22,8 +23,8 @@ namespace lux {
         j.get_to(a.data);
     }
 
-    struct UnitAction : public Action<std::array<unsigned int, 5>> {
-        enum class Type : unsigned int {
+    struct UnitAction : public Action<std::array<int64_t, 5>> {
+        enum class Type {
             MOVE,
             TRANSFER,
             PICKUP,
@@ -31,7 +32,7 @@ namespace lux {
             SELF_DESTRUCT,
             RECHARGE,
         } type;
-        enum class Direction : unsigned int {
+        enum class Direction {
             CENTER,
             UP,
             RIGHT,
@@ -39,7 +40,7 @@ namespace lux {
             LEFT,
         } direction;
         // TODO figure out solution for distance/resource_type
-        unsigned int amount;
+        int64_t amount;
         bool  repeat;
 
         inline bool isMoveAction() const { return type == Type::MOVE; }
@@ -58,8 +59,8 @@ namespace lux {
     void to_json(json &j, const UnitAction a);
     void from_json(const json &j, UnitAction &a);
 
-    struct FactoryAction : public Action<unsigned int> {
-        enum class Type : unsigned int {
+    struct FactoryAction : public Action<int64_t> {
+        enum class Type {
             BUILD_LIGHT,
             BUILD_HEAVY,
             WATER,

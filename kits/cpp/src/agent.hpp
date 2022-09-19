@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 #include "lux/config.hpp"
@@ -7,9 +8,9 @@
 #include "lux/observation.hpp"
 
 struct Agent {
-    int              step;
+    int64_t          step;
     std::string      player;
-    int              remainingOverageTime;
+    int64_t          remainingOverageTime;
     lux::Observation obs;
     lux::EnvConfig   config;
 

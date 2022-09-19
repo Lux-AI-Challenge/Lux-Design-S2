@@ -14,16 +14,16 @@ namespace lux {
     }
 
     void populateUnitActionMember(UnitAction &a) {
-        if (a.data[0] > 5) {
+        if (a.data[0] < 0 || a.data[0] > 5) {
             throw lux::Exception("got invalid UnitAction type " + std::to_string(a.data[0]));
         }
-        if (a.data[1] > 4) {
+        if (a.data[1] < 0 || a.data[1] > 4) {
             throw lux::Exception("got invalid UnitAction direction " + std::to_string(a.data[1]));
         }
         a.type      = static_cast<UnitAction::Type>(a.data[0]);
         a.direction = static_cast<UnitAction::Direction>(a.data[1]);
         a.amount    = a.data[3];
-        a.repeat    = a.data[4] == 1;
+        a.repeat    = a.data[4] != 0;
     }
 
     void to_json(json &j, const UnitAction a) { j = a.data; }
