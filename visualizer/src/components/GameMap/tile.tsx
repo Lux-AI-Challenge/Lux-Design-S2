@@ -44,7 +44,7 @@ export const GroundTile = React.memo(
         <div key={`ore-${y * mapWidth + x}`} className={s.tile}>
           <div
             style={{
-              backgroundColor: "#9F856A",
+              backgroundColor: "#DAA730",
               width: tileWidth,
               height: tileWidth,
             }}
@@ -54,7 +54,7 @@ export const GroundTile = React.memo(
     }
     
     let opacity = 0.2 + Math.min(rubble / 100, 1) * 0.8
-    let bgColor = "#8A2908"
+    let bgColor = "#602009"
     if (rubble == 0) {
       opacity = 0.2;
       bgColor ="#fff"

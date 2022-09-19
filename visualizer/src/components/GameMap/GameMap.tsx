@@ -78,8 +78,8 @@ export const GameMap = React.memo(
                 className={s.unit}
                 style={{
                   // @ts-ignore
-                  "--x": `${unit.pos[0] * tileSize}px`,
-                  "--y": `${unit.pos[1] * tileSize}px`,
+                  "--x": `${unit.pos[0] * tileSize + 1}px`,
+                  "--y": `${unit.pos[1] * tileSize + 1}px`,
                   "--t": `calc(1s / ${speed})`,
                 }}
               >
@@ -87,14 +87,14 @@ export const GameMap = React.memo(
                 {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
                 <div
                   style={{
-                    width: tileWidth,
-                    height: tileWidth,
-                    borderRadius: "50%",
+                    width: tileWidth - 2,
+                    height: tileWidth - 2,
+                    borderRadius:unit.unit_type == "HEAVY" ? "0" : "50%",
                     backgroundColor:
-                      unit.unit_type === "HEAVY"
-                        ? "rgb(112,162,136)"
-                        : "rgb(193,215,204)",
-                    border: "1px solid black",
+                      unit.unit_type == "HEAVY"
+                        ? "#39804E" // TODO replace with constants colors
+                        : "#8EE66E",
+                    border: "1px solid white",
                   }}
                 ></div>
               </div>
