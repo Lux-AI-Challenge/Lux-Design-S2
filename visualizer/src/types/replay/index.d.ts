@@ -4,7 +4,21 @@ import { Frame } from "./frame"
 import { Player } from "./player"
 
 // export type Replay = any // unknown
-
+export type KaggleReplay = {
+  configuration: any;
+  description: any;
+  steps: Array<Array<{
+    action: any;
+    info: any;
+    observation: {
+      obs: string;
+      remainingOverageTime: number;
+      player: string;
+    };
+    reward: number;
+    status: string;
+  }>>;
+}
 export type Replay = {
   observations: Frame[]
   actions: any[] // TODO

@@ -1,8 +1,34 @@
-import { FrameStats, Replay, ReplayStats } from "@/types/replay";
+import { FrameStats, KaggleReplay, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
 
-export function loadFromObject(replay: Replay): Replay {
+export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
+  const replay: Replay = {
+    observations: [],
+    actions: [],
+  }
+  for (let i = 0; i < kaggleReplay.steps.length; i++) {
+    const kframe = kaggleReplay.steps[i];
+    const obs_str = kframe[0].observation.obs;
+    const obs = JSON.parse(obs_str);
+    replay.observations.push(obs);
+    if (i > 0) {
+      replay.actions.push({
+        "player_0": kframe[0].action,
+        "player_1": kframe[1].action
+      })
+    }
+  }
+  return replay;
+}
+function isKaggleReplay(replay: Replay | KaggleReplay): replay is KaggleReplay {
+  return (replay as KaggleReplay).steps !== undefined;
+}
+export function loadFromObject(replay: Replay | KaggleReplay): Replay {
   const stime = (new Date()).getTime();
+  if (isKaggleReplay(replay)) {
+    replay = convertFromKaggle(replay);
+  }
+  
   // TODO: validate that the replay is in the right format (?)
   // re-generate all board frames as necessary
   const hashToPos = (hash: string) => {
