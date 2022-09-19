@@ -18,21 +18,20 @@ interface BottomProps {
   y: number;
   handleOnMouseEnterTile?: any;
 }
-const rows = Array.from({ length: 64 });
-const cols = Array.from({ length: 64 });
-let i =0;
+const mapWidth = 48;
 export const GroundTile = React.memo(
   ({ rubble, lichen, ice, ore, x, y }: BottomProps) => {
-    const tileWidth = 12;
+    const { tileWidth } = useStoreKeys(
+      "tileWidth"
+    );
     const tileBorder = 1;
-    console.log("render", {x,y})
     const tileSize = tileWidth + tileBorder * 2;
     if (ice > 0) {
       return (
-        <div key={`ice-${y * cols.length + x}`} className={s.tile}>
+        <div key={`ice-${y * mapWidth + x}`} className={s.tile}>
           <div
             style={{
-              backgroundColor: "blue",
+              backgroundColor: "#2C9ED3",
               width: tileWidth,
               height: tileWidth,
             }}
@@ -42,10 +41,10 @@ export const GroundTile = React.memo(
     }
     if (ore > 0) {
       return (
-        <div key={`ore-${y * cols.length + x}`} className={s.tile}>
+        <div key={`ore-${y * mapWidth + x}`} className={s.tile}>
           <div
             style={{
-              backgroundColor: "red",
+              backgroundColor: "#DAA730",
               width: tileWidth,
               height: tileWidth,
             }}
@@ -53,7 +52,14 @@ export const GroundTile = React.memo(
         </div>
       );
     }
-
+    
+    let opacity = 0.2 + Math.min(rubble / 100, 1) * 0.8
+    let bgColor = "#602009"
+    if (rubble == 0) {
+      opacity = 0.2;
+      bgColor ="#fff"
+    }
+    // console.log("change")
     return (
       <div
         
@@ -64,40 +70,25 @@ export const GroundTile = React.memo(
         // onMouseEnter={handleOnMouseEnterTile}
       >
         <div
-          id={`lichen-${y * cols.length + x}`}
+          id={`lichen-${y * mapWidth + x}`}
           style={{
-            position: "absolute",
-            width: tileWidth,
-            height: tileWidth,
-            backgroundColor: "green",
+            position: 'absolute',
+            width: tileWidth, height: tileWidth,
+            backgroundColor: "#7FCE98",
+            willChange: 'opacity',
             opacity: lichen / 10,
-            willChange: 'opacity'
           }}
-        ></div>
-        <img
-          id={`rubble-${y * cols.length + x}`}
-          src={groundSvg}
-          width={tileWidth}
-          height={tileWidth}
+        />
+        <div
+          id={`rubble-${y * mapWidth + x}`}
           style={{
-            opacity: 1 - Math.min(rubble / 125, 1),
+            width: tileWidth, height: tileWidth,
+            backgroundColor: bgColor,
+            willChange: 'opacity',
+            opacity: opacity,
           }}
         />
       </div>
     );
-  },
-  (prevProps, nextProps) => {
-    // TODO don't change if lichen doesn't enter a new bracket
-    // console.log("CHECK", i)
-    i += 1;
-    if (prevProps.rubble !== nextProps.rubble || prevProps.lichenStrain !== nextProps.lichenStrain || prevProps.handleOnMouseEnterTile !== nextProps.handleOnMouseEnterTile) {
-      return false;
-    }
-    // if (prevProps.lichen !== nextProps.lichen) {
-    //   if (nextProps.lichen > 20 && prevProps.lichen < 20) {
-    //     return false;
-    //   }
-    // }
-    return true;
   }
 );

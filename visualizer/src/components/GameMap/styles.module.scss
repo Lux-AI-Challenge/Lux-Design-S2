@@ -1,24 +1,23 @@
 .mapContainer {
   position: relative;
+  width: max-content;
+  // padding: 1rem
 }
 .unitLayer {
   position: absolute;
-  text-align: center;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  top: 0;
 }
 .mapLayer {
   position: absolute;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  top: 0;
   // TODO: THIS IS CURRENTLY A TEMPORARY HARDCODED LENGTH FOR TESTING
   display: grid;
-  grid-template-columns: repeat(64, 1fr);
+  grid-template-columns: repeat(48, 1fr);
 }
 
 .tile {
   display: flex;
-  border: .1px solid rgba(0,0,0,0.9);
+  border: 1px solid rgba(0,0,0,0);
 }
 
 .unit, .factory {

@@ -14,22 +14,22 @@ interface BottomProps {
   frameZero: Frame;
   frame: Frame;
 }
-const rows = Array.from({ length: 64 });
-const cols = Array.from({ length: 64 });
+const rows = Array.from({ length: 48 });
+const cols = Array.from({ length: 48 });
 export const Bottom = React.memo(
   ({ frame, frameZero }: BottomProps) => {
     const mapWidth = frame.board.rubble.length;
-
-    const tileWidth = 12;
+    const { tileWidth } = useStoreKeys(
+      "tileWidth"
+    );
     const tileBorder = 1;
 
     const tileSize = tileWidth + tileBorder * 2;
 
-    
     return (
       <>   
         {/* bottom layer (height map, rubble, etc) */}
-        <div className={s.mapLayer}>
+        <div className={s.mapLayer} style={{position: 'relative'}}>
           {rows.map((_, i) =>
             cols.map((_, j) => {
               return (

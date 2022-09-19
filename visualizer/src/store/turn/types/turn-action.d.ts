@@ -11,7 +11,8 @@ type ResetTurnAction = {
 }
 
 type StepTurnAction = {
-  type: 'step'
+  type: 'step',
+  steps: number
 }
 
 type SetTurnAction = {

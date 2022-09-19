@@ -23,7 +23,7 @@ export function Controls ({}: ControlsProps) {
     speed, updateSpeed,
   } = useStoreKeys('turn', 'updateTurn', 'autoplay', 'toggleAutoplay', 'speed', 'updateSpeed')
   
-  const episodeLength = useMemo(() => replay.states.length, [replay.states.length])
+  const episodeLength = useMemo(() => replay.observations.length, [replay.observations.length])
 
   // stop autoplay when reaching the end
   useEffect(() => {
@@ -35,14 +35,19 @@ export function Controls ({}: ControlsProps) {
   // do the autoplaying
   useEffect(() => {
     if (!autoplay) { return }
+    let numSteps = 1;
+    if (speed > 64) {
+      numSteps = Math.round(speed / 64);
+    }
     const interval = setInterval(() => {
-      updateTurn({ type: 'step' })
+      updateTurn({ type: 'step', steps: numSteps })
     }, 1000 / speed)
 
     return () => { clearInterval(interval) }
   }, [autoplay, speed])
 
   const onChangeSliderValue: ComponentProps<typeof Slider>['onChange'] = useCallback((e, val) => {
+    // TODO add some optimizations to reduce the cost of setting turn very frequently when scrubbing
     updateTurn({ type: 'set', data: val })
     toggleAutoplay(false)
   }, []) // the store's functions are stable references and never change so we don't need them in the dependency array here
@@ -60,7 +65,7 @@ export function Controls ({}: ControlsProps) {
   return (
     <>
       <div className={s.controls}>
-        <div className={s.turn}>{`Turn ${turn} / ${episodeLength}`}</div>
+        <div className={s.turn}>{`Turn ${turn} / ${episodeLength - 1}`}</div>
         <Slider
           className={s.slider}
           value={turn}
@@ -71,7 +76,7 @@ export function Controls ({}: ControlsProps) {
         />
         <div className={s.buttons}>
           {/* restart replay button */}
-          <button onClick={onClickRestartButton}><img src={reloadIcon} /></button>
+          {/* <button onClick={onClickRestartButton}><img src={reloadIcon} /></button> */}
 
           {/* decrease speed button */}
           <button onClick={() => updateSpeed({ type: 'decrease' })} disabled={speed === SPEEDS[0]}>
@@ -89,7 +94,7 @@ export function Controls ({}: ControlsProps) {
           </button>
 
           {/* speed display */}
-          <span>{`${speed}x`}</span>
+          <span className={s.speed}>{`${speed}x`}</span>
         </div>
       </div>
     </>

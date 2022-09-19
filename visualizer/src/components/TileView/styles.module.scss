@@ -1,0 +1,10 @@
+.tileview {
+  // background-color: rgba(0,0,0, 0.1);
+  // box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  z-index: 10;
+  right: 0.5rem;
+  div p {
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+}

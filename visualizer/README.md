@@ -11,3 +11,13 @@ Run `npm run dev` to start the server and go to `http://localhost:5173`
 Make sure whenever a change is made, the version is bumped in `package.json`.
 
 Whenever the game engine has a breaking change, update the major version number.
+
+## Production
+
+```
+npx vite build --base=https://unpkg.com/@lux-ai/lux-viewer-2022@latest/dist/
+
+npm publish --access public
+```
+
+for kaggle version
