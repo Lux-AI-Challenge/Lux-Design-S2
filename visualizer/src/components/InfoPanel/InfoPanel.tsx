@@ -38,7 +38,6 @@ export const InfoPanel = React.memo(
           );
         if (unit) { selectedUnits.add(unit.unit_id)}
         if (factory) { selectedUnits.add(factory.unit_id)}
-        console.log({selectedUnits, gameInfo})
       }
       setSelectedUnits(selectedUnits);
     }, [clickedTilePos])
