@@ -5,6 +5,7 @@ import {
   loadFromString,
   loadFromFile,
   computeStatistics,
+  estimateGoodTileWidth,
 } from "./load-replay/utils";
 import { decreaseSpeed, increaseSpeed } from "./autoplay/utils";
 
@@ -31,9 +32,11 @@ export const useStore = create<Store>((set, get) => ({
   loadReplay: async (action) => {
     switch (action.type) {
       case "object": {
+        set({ progress: 0 });
         const replay = loadFromObject(action.data);
         const replayStats = computeStatistics(replay);
-        set({ replay: replay, replayStats, progress: null });
+        const tileWidth = estimateGoodTileWidth();
+        set({ replay: replay, replayStats, tileWidth, progress: null });
         break;
       }
       case "string": {
@@ -44,20 +47,7 @@ export const useStore = create<Store>((set, get) => ({
         set({ progress: 0 });
         const replay = await loadFromFile(action.data);
         const replayStats = computeStatistics(replay);
-        // figure out tile width
-        let bound = window.innerHeight;
-        // if (window.innerWidth * 0.7 < bound) { 
-        //   bound = window.innerWidth * 0.7;
-        // }
-        let tileWidth = Math.floor((bound - 200) / 48) - 2;
-        let approxMapWidth = (tileWidth+3) * 48;
-        if (approxMapWidth / window.innerWidth > 0.65) {
-          // tileWidth -= 1;
-          tileWidth = Math.floor(window.innerWidth * 0.65 / 48) - 3;
-        }
-        approxMapWidth = (tileWidth+3) * 48;
-        
-        console.log(`Estimated tile width: ${tileWidth}. ${approxMapWidth / window.innerWidth}`)
+        const tileWidth = estimateGoodTileWidth();
         set({ replay, replayStats, tileWidth, progress: null });
         break;
       }

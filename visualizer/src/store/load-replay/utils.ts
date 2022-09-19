@@ -1,6 +1,21 @@
 import { FrameStats, KaggleReplay, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
-
+export function estimateGoodTileWidth(): number {
+  let bound = window.innerHeight;
+  // if (window.innerWidth * 0.7 < bound) { 
+  //   bound = window.innerWidth * 0.7;
+  // }
+  let tileWidth = Math.floor((bound - 200) / 48) - 2;
+  let approxMapWidth = (tileWidth+3) * 48;
+  if (approxMapWidth / window.innerWidth > 0.65) {
+    // tileWidth -= 1;
+    tileWidth = Math.floor(window.innerWidth * 0.65 / 48) - 3;
+  }
+  approxMapWidth = (tileWidth+3) * 48;
+  
+  console.log(`Estimated tile width: ${tileWidth}. ${approxMapWidth / window.innerWidth}`)
+  return tileWidth;
+}
 export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
   const replay: Replay = {
     observations: [],
@@ -35,7 +50,13 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     const info = hash.split(",");
     return { x: parseInt(info[0]), y: parseInt(info[1]) };
   };
+  const loadedReplay: Replay = {
+    observations: [],
+    actions: [],
+  }
   const firstBoard = replay.observations[0].board;
+  loadedReplay.observations[0] = replay.observations[0];
+  loadedReplay.actions = replay.actions;
   for (let i = 1; i < replay.observations.length; i++) {
     const delta_board = replay.observations[i].board;
     // TODO: optimize the deep copy.
@@ -49,10 +70,11 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
       }
     });
     replay.observations[i].board = board_i;
+    loadedReplay.observations[i] = replay.observations[i];
   }
   const etime = (new Date()).getTime();
   console.log(`Loading replay + regeneration took ${(etime - stime)}ms`)
-  return replay;
+  return loadedReplay;
 }
 
 export function computeStatistics(replay: Replay): ReplayStats {

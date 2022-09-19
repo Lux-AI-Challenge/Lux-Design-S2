@@ -30,6 +30,7 @@ export function Landing() {
 
   //kaggle replay loader
   useEffect(() => {
+    console.log("LOAD KAGGLE INFO?", {window}, window.kaggle)
     //@ts-ignore
     if (window.kaggle) {
       // check if window.kaggle.environment is valid and usable
@@ -52,6 +53,7 @@ export function Landing() {
           "message",
           (event) => {
             // Ensure the environment names match before updating.
+            console.log({event});
             try {
               if (event.data.environment.name == "lux_ai_2022") {
                 // updateContext(event.data);
