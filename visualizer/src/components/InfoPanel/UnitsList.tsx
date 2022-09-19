@@ -2,6 +2,8 @@ import { Factory, Unit } from "../../types/replay/unit";
 import s from "./unitslist.module.scss";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 import {
   Box,
   Divider,
@@ -19,6 +21,7 @@ type UnitsListProps = {
   selectedUnits: Set<string>;
   factories: Record<string, Factory>;
   frameStats: FrameStats["player_0"];
+  flex: boolean;
 };
 function a11yProps(index: number) {
   return {
@@ -78,7 +81,7 @@ function None() {
 }
 const listsx = { padding: "0rem" };
 export const UnitsList = React.memo(
-  ({ frameStats, units, selectedUnits, factories }: UnitsListProps) => {
+  ({ flex, frameStats, units, selectedUnits, factories }: UnitsListProps) => {
     const [value, setValue] = useState(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -112,9 +115,9 @@ export const UnitsList = React.memo(
     const tabsx = { minHeight: "12px" };
     return (
       <>
-        <div className={s.UnitsList}>
+        <div className={s.UnitsList} style={{width: flex ? "0" : "auto"}}>
           <Box
-            className={s.list}
+            className={s.box}
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
           >
             <Tabs
@@ -146,7 +149,7 @@ export const UnitsList = React.memo(
               />
             </Tabs>
             <TabPanel value={value} index={0}>
-              <List sx={listsx}>
+              <List sx={listsx} className={s.listWrapper}>
                 {lights.map((unit) => {
                   const selected = selectedUnits.has(unit.unit_id);
                   const classname = selected
@@ -175,7 +178,7 @@ export const UnitsList = React.memo(
               </List>
             </TabPanel>
             <TabPanel value={value} index={1}>
-              <List sx={listsx}>
+              <List sx={listsx} className={s.listWrapper}>
                 {heavies.map((unit) => {
                   const selected = selectedUnits.has(unit.unit_id);
                   const classname = selected
@@ -204,7 +207,7 @@ export const UnitsList = React.memo(
               </List>
             </TabPanel>
             <TabPanel value={value} index={2}>
-              <List sx={listsx}>
+              <List sx={listsx} className={s.listWrapper}>
                 {factories_list.map((factory) => {
                   const selected = selectedUnits.has(factory.unit_id);
                   const classname = selected

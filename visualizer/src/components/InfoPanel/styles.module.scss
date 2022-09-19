@@ -1,5 +1,6 @@
 .infoPanel {
-
+  width: 100%;height:100%;
+  
 }
 $p0-primary: #007D51;
 $p0-secondary: #1EB980;
@@ -7,18 +8,28 @@ $p1-primary: #0082FB;
 $p1-secondary: #0082FB;
 
 .body {
+  overflow: hidden;
   position: relative;
   background-color: #373740;
   padding-top: 1rem;
   padding-bottom: 1rem;
+  
   .chartWrapper {
     padding: 1rem;
   }
   .liststats {
     display: flex;
     margin: auto;
-    width: calc(100% - 2rem);
+    width: calc(100% - 1rem);
     justify-content: center;
+    // width: 100%;
+    // text-align: center;
+    position: relative;
+    .liststatHeader { 
+      margin-left: 0.5rem;
+      text-align: left;
+      margin-top: 0.5rem;
+    }
   }
   .globalStats {
     margin: auto;

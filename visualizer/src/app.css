@@ -3,13 +3,17 @@
   margin: 0 auto;
   text-align: center;
   width: 100%;
-  background-color: #EF784F;
+  /* background-color: #EF784F; */
+  background-color: #373740;
   color: white;
 }
-
+html {
+  
+}
 html, body, #app {
   font-family: sans-serif;
   height: 100%;
+  background-color: #373740;
 }
 p, span, div {
   font-family: sans-serif;

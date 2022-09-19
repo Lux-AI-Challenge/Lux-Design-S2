@@ -1,34 +1,42 @@
 .UnitsList {
+  flex-basis: 0px;
+  flex-grow: 1;
+  flex-shrink: 1;
   color: #373740;
-  width: calc(50% - 1rem);
-  padding: 0.5rem;
+  width: 0;//why?
   .tabname {
     font-size: .85rem;
     > div {
       padding: 4px;
     }
   }
-  .list {
-    max-height: 20rem;
-    overflow-y: scroll;
+  .box {
+    margin: auto;
+    max-width: calc(100% - 1rem);
+    
     .noItem {
       font-weight: 400;
     }
     .highlighted {
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
       border-radius: 5px;
+      border: 1px solid rgba(0,0,0,0.24)
     }
-    .listItem {
-      padding: 0.25rem;
-      div {
-        font-weight: 400;
-      }
-      text-align: left;
-      .attrs {
-        color: #787880;
-        font-size: 0.8rem;
-        span {
+    .listWrapper {
+      max-height: 12rem;
+      overflow-y: scroll;
+      .listItem {
+        padding: 0.25rem;
+        div {
           font-weight: 400;
+        }
+        text-align: left;
+        .attrs {
+          color: #787880;
+          font-size: 0.8rem;
+          span {
+            font-weight: 400;
+          }
         }
       }
     }

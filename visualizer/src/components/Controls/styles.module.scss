@@ -15,7 +15,8 @@ $slider-width: 38rem;
 }
 
 .slider {
-  width: $slider-width;
+  max-width: $slider-width;
+  width: calc(100% - 10rem);
 }
 .buttons:hover {
   text-decoration: none;

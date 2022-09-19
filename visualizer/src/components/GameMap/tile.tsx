@@ -31,7 +31,7 @@ export const GroundTile = React.memo(
         <div key={`ice-${y * mapWidth + x}`} className={s.tile}>
           <div
             style={{
-              backgroundColor: "blue",
+              backgroundColor: "#2C9ED3",
               width: tileWidth,
               height: tileWidth,
             }}
@@ -44,7 +44,7 @@ export const GroundTile = React.memo(
         <div key={`ore-${y * mapWidth + x}`} className={s.tile}>
           <div
             style={{
-              backgroundColor: "red",
+              backgroundColor: "#9F856A",
               width: tileWidth,
               height: tileWidth,
             }}

@@ -52,19 +52,22 @@ export function ReplayViewer() {
   return (
     <>
       <div className={s.viewer}>
-      <div className={s.leftPanel}>
-          <InfoPanel viewedTilePos={viewedTilePos} clickedTilePos={clickedTilePos} />
-        </div>
         <div className={s.gameWrapper}>
           <div className={s.gameMapWrapper}>
-          <GameMap
-            handleOnMouseEnterTile={handleOnMouseEnterTile}
-            viewedTilePos={viewedTilePos}
-            clickedTilePos={clickedTilePos}
-            handleClickTile={handleClickTile}
-          />
+            <GameMap
+              handleOnMouseEnterTile={handleOnMouseEnterTile}
+              viewedTilePos={viewedTilePos}
+              clickedTilePos={clickedTilePos}
+              handleClickTile={handleClickTile}
+            />
           </div>
           <Controls />
+        </div>
+        <div className={s.leftPanel}>
+          <InfoPanel
+            viewedTilePos={viewedTilePos}
+            clickedTilePos={clickedTilePos}
+          />
         </div>
       </div>
     </>

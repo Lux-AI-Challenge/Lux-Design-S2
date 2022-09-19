@@ -42,7 +42,12 @@ export const InfoPanel = React.memo(
       }
       setSelectedUnits(selectedUnits);
     }, [clickedTilePos])
-    
+
+    // if some ratio is not met, do not display: flex the units lists as they can't fit on a single row
+    let flexUnitsTab = true;
+    if (window.innerWidth / window.innerHeight < 1.65) {
+      flexUnitsTab = false;
+    }
     return (
       <>
       <div className={s.infoPanel}>
@@ -72,12 +77,14 @@ export const InfoPanel = React.memo(
               <div>{gameInfo.unitCounts["player_1"]}</div>
             </div>
           </div>
-          <div className={s.liststats}>
-            <UnitsList selectedUnits={selectedUnits} frameStats={frameStats["player_0"]} units={frame.units["player_0"]} factories={frame.factories["player_0"]}/>
-            <UnitsList selectedUnits={selectedUnits} frameStats={frameStats["player_1"]} units={frame.units["player_1"]} factories={frame.factories["player_1"]}/>
+          <div className={s.liststats} style={{display: flexUnitsTab ? 'flex' : 'block'}}>
+            {!flexUnitsTab && <div className={s.liststatHeader}>P0 Units</div>}
+            <UnitsList flex={flexUnitsTab} selectedUnits={selectedUnits} frameStats={frameStats["player_0"]} units={frame.units["player_0"]} factories={frame.factories["player_0"]}/>
+            {!flexUnitsTab && <div className={s.liststatHeader}>P1 Units</div>}
+            <UnitsList flex={flexUnitsTab} selectedUnits={selectedUnits} frameStats={frameStats["player_1"]} units={frame.units["player_1"]} factories={frame.factories["player_1"]}/>
           </div>
           <TileView viewedTilePos={viewedTilePos} />
-          <div className={s.chartWrapper}><Charts /></div>
+          {/* <div className={s.chartWrapper}><Charts /></div> */}
         </div>
       </div>
       </>

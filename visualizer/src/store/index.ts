@@ -45,8 +45,19 @@ export const useStore = create<Store>((set, get) => ({
         const replay = await loadFromFile(action.data);
         const replayStats = computeStatistics(replay);
         // figure out tile width
-        const tileWidth = Math.floor((window.innerHeight - 200) / 48) - 2;
-        console.log(`Estimated tile width: ${tileWidth}`)
+        let bound = window.innerHeight;
+        // if (window.innerWidth * 0.7 < bound) { 
+        //   bound = window.innerWidth * 0.7;
+        // }
+        let tileWidth = Math.floor((bound - 200) / 48) - 2;
+        let approxMapWidth = (tileWidth+3) * 48;
+        if (approxMapWidth / window.innerWidth > 0.65) {
+          // tileWidth -= 1;
+          tileWidth = Math.floor(window.innerWidth * 0.65 / 48) - 3;
+        }
+        approxMapWidth = (tileWidth+3) * 48;
+        
+        console.log(`Estimated tile width: ${tileWidth}. ${approxMapWidth / window.innerWidth}`)
         set({ replay, replayStats, tileWidth, progress: null });
         break;
       }

@@ -57,10 +57,11 @@ export const InteractionLayer = React.memo(
     let xOffset = 0;
     let yOffset = 0;
     if (clickedTilePos) {
-      border = "3px solid white";
-      xOffset = 1.5;
-      yOffset = 1.5;
+      border = "2px solid white";
+      xOffset = 1;
+      yOffset = 1;
     }
+    const padding_offset = "0rem";
     
     return (
       <>
@@ -79,9 +80,9 @@ export const InteractionLayer = React.memo(
                 height: `${tileWidth}px`,
                 border: border,
                 position: "absolute",
-                transform: `translate3d(${viewedTilePos.x * tileSize - xOffset}px, ${
+                transform: `translate3d(${viewedTilePos.x * tileSize - xOffset}px, calc(${
                   viewedTilePos.y * tileSize - yOffset
-                }px, 0)`,
+                }px + ${padding_offset}), 0)`,
               }}
             ></div>
           )}

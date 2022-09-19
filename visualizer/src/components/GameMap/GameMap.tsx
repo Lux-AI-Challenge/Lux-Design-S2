@@ -123,9 +123,17 @@ export const GameMap = React.memo(
         data: { posToUnit, posToFactory, factoryCounts, unitCounts },
       });
     }, [turn]);
+    let bgColor = "#EF784F"
+    // let bgColor = "#373740"
+    // console.log({turn, },(turn - 6) % 50 < 30)
+    if ((turn - 6) % 50 < 30) {
+      
+    } else {
+      // bgColor = "rgba(0,0,0,0.25)"
+    }
     return (
       <>
-        <div id="mapContainer" className={s.mapContainer}>
+        <div id="mapContainer" className={s.mapContainer} style={{backgroundColor: bgColor}}>
           {/* bottom layer (height map, rubble, etc) */}
           <Bottom frame={replay.observations[turn]} frameZero={frameZero} />
           {/* top layer (units, buildings, etc) */}

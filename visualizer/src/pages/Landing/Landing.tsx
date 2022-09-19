@@ -4,6 +4,7 @@ import { useStoreKeys } from "@/store"
 import uploadIcon from "@/assets/generic-icons/upload.svg"
 
 import s from "./styles.module.scss"
+import { Box, CircularProgress } from "@mui/material"
 
 export function Landing () {
   const { progress, loadReplay } = useStoreKeys('progress', 'loadReplay')
@@ -36,7 +37,7 @@ export function Landing () {
         <img src={uploadIcon} />
         upload replay
       </button>
-      {progress !== null && <span>loading...</span>}
+      {progress !== null && <span><Box sx={{ display: 'flex', }}>Loading... <CircularProgress sx={{color: 'white', ml: '0.5rem'}} size={24}/></Box></span>}
     </div>
   )
 }
