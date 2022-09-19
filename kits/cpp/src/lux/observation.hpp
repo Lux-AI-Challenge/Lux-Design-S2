@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "lux/action.hpp"
 #include "lux/json.hpp"
 
 namespace lux {
@@ -23,7 +24,7 @@ namespace lux {
         std::string            unit_type;
         std::array<int64_t, 2> pos;
         Cargo                  cargo;
-        // TODO add action_queue
+        std::vector<UnitAction> action_queue;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo)
 
@@ -38,13 +39,13 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Team, team_id, faction, water, metal, factories_to_place, factory_strains)
 
     struct Factory {
-        std::array<int64_t, 2> pos;
-        int64_t                power;
-        Cargo                  cargo;
-        std::string            unit_id;
-        int64_t                strain_id;
-        int64_t                team_id;
-        std::vector<int64_t>   action_queue;
+        std::array<int64_t, 2>     pos;
+        int64_t                    power;
+        Cargo                      cargo;
+        std::string                unit_id;
+        int64_t                    strain_id;
+        int64_t                    team_id;
+        std::vector<FactoryAction> action_queue;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Factory, pos, power, cargo, unit_id, strain_id, team_id, action_queue)
 
