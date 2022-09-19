@@ -41,7 +41,14 @@ namespace lux {
             DOWN,
             LEFT,
         } direction;
-        // TODO figure out solution for distance/resource_type
+        int64_t distance;
+        enum class Resource {
+            ICE,
+            ORE,
+            WATER,
+            METAL,
+            POWER,
+        } resource;
         int64_t amount;
         bool  repeat;
 

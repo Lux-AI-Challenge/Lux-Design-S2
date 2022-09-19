@@ -9,6 +9,10 @@ namespace lux {
     void populateUnitActionData(UnitAction &a) {
         a.data[0] = std::underlying_type_t<UnitAction::Type>(a.type);
         a.data[1] = std::underlying_type_t<UnitAction::Direction>(a.direction);
+        a.data[2] = a.distance;
+        if (a.isTransferAction() || a.isPickupAction()) {
+            a.data[2] = std::underlying_type_t<UnitAction::Resource>(a.resource);
+        }
         a.data[3] = a.amount;
         a.data[4] = a.repeat ? 1 : 0;
     }
@@ -22,6 +26,13 @@ namespace lux {
         }
         a.type      = static_cast<UnitAction::Type>(a.data[0]);
         a.direction = static_cast<UnitAction::Direction>(a.data[1]);
+        if (a.isTransferAction() || a.isPickupAction()) {
+            if (a.data[2] < 0 || a.data[2] > 5) {
+                throw lux::Exception("got invalid UnitAction resource type " + std::to_string(a.data[2]));
+            }
+            a.resource = static_cast<UnitAction::Resource>(a.data[2]);
+        }
+        a.distance  = a.data[2];
         a.amount    = a.data[3];
         a.repeat    = a.data[4] != 0;
     }
