@@ -140,6 +140,7 @@ export const useStore = create<Store>((set, get) => ({
     // lichen: {},
   },
   updateGameInfo: (action) =>
+    //@ts-ignore
     set((state) => {
       switch (action.type) {
         case "set":
