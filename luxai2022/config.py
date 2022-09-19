@@ -67,9 +67,9 @@ class EnvConfig:
 
     #### Factores ####
     FACTORY_PROCESSING_RATE_WATER: int = 50
-    ICE_WATER_RATIO: int = 2
+    ICE_WATER_RATIO: int = 1
     FACTORY_PROCESSING_RATE_METAL: int = 50
-    ORE_METAL_RATIO: int = 2
+    ORE_METAL_RATIO: int = 1
     FACTORY_CHARGE: int = 50
     FACTORY_WATER_CONSUMPTION: int = 1
 

@@ -25,8 +25,10 @@ class Board:
 
         # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)
+        self.map.ore = self.map.ore.astype(int)
+        self.map.ice = self.map.ice.astype(int)
 
-        self.lichen = np.zeros((self.height, self.width))
+        self.lichen = np.zeros((self.height, self.width), dtype=int)
         # ownership of lichen by factory id, a simple mask
         # -1 = no ownership
         self.lichen_strains = -np.ones((self.height, self.width), dtype=int)

@@ -31,9 +31,9 @@ class Bot:
 
         self.log = Logger(identifier=f"{self.agent}, {self.main_file_path}",verbosity=verbose)
 
-    async def step(self, obs, step: int, reward: int = 0, info=dict()):
+    async def step(self, obs, step: int, reward: float = 0, info=dict()):
         stime = time.time()
-        data = json.dumps(dict(obs=obs, step=step, remainingOverageTime=self.remainingOverageTime, player=self.agent, reward=reward, info=info))
+        data = json.dumps(dict(obs=obs, step=step, remainingOverageTime=self.remainingOverageTime, player=self.agent, reward=float(reward), info=info))
         try:
             action, stderr = await asyncio.wait_for(self.proc.write(f"{data}\n"), timeout=self.remainingOverageTime + self.time_per_step)
         except asyncio.TimeoutError:
