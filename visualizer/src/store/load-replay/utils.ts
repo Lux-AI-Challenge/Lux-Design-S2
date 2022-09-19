@@ -168,5 +168,3 @@ export async function loadFromFile(replay: File): Promise<Replay> {
   return loadFromString(contents);
 }
 
-// not implemented yet. exists for reference to do in the future (maybe)
-export function loadFromKaggle() {}
