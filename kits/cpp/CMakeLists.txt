@@ -43,6 +43,7 @@ include(sources.cmake)
 
 set(LUX_SRC_FILES
     src/lux/action.cpp
+    src/lux/common.cpp
     src/lux/config.cpp
     src/lux/log.cpp
     src/lux/observation.cpp

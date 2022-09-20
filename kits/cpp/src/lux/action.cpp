@@ -6,6 +6,7 @@
 #include "lux/exception.hpp"
 
 namespace lux {
+
     UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
 
     UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, bool repeat_)
@@ -46,10 +47,10 @@ namespace lux {
 
     void UnitAction::populateRaw() {
         raw[0] = std::underlying_type_t<UnitAction::Type>(type);
-        raw[1] = std::underlying_type_t<UnitAction::Direction>(direction);
+        raw[1] = std::underlying_type_t<Direction>(direction);
         raw[2] = distance;
         if (isTransferAction() || isPickupAction()) {
-            raw[2] = std::underlying_type_t<UnitAction::Resource>(resource);
+            raw[2] = std::underlying_type_t<Resource>(resource);
         }
         raw[3] = amount;
         raw[4] = repeat ? 1 : 0;
@@ -59,16 +60,10 @@ namespace lux {
         if (raw[0] < 0 || raw[0] > 5) {
             throw lux::Exception("got invalid UnitAction type " + std::to_string(raw[0]));
         }
-        if (raw[1] < 0 || raw[1] > 4) {
-            throw lux::Exception("got invalid UnitAction direction " + std::to_string(raw[1]));
-        }
         type      = static_cast<UnitAction::Type>(raw[0]);
-        direction = static_cast<UnitAction::Direction>(raw[1]);
+        direction = directionFromInt(raw[1]);
         if (isTransferAction() || isPickupAction()) {
-            if (raw[2] < 0 || raw[2] > 5) {
-                throw lux::Exception("got invalid UnitAction resource type " + std::to_string(raw[2]));
-            }
-            resource = static_cast<UnitAction::Resource>(raw[2]);
+            resource = resourceFromInt(raw[2]);
         }
         distance = raw[2];
         amount   = raw[3];
@@ -110,8 +105,9 @@ namespace lux {
 
     BidAction::BidAction(std::string faction_, int64_t bid_) : faction(faction_), bid(bid_) {}
 
-    SpawnAction::SpawnAction(std::array<int64_t, 2> spawn_, int64_t metal_, int64_t water_)
+    SpawnAction::SpawnAction(Position spawn_, int64_t metal_, int64_t water_)
         : spawn(spawn_),
           metal(metal_),
           water(water_) {}
+
 }  // namespace lux

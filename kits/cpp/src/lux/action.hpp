@@ -1,9 +1,9 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <string>
 
+#include "lux/common.hpp"
 #include "lux/exception.hpp"
 #include "lux/json.hpp"
 
@@ -39,23 +39,11 @@ namespace lux {
             SELF_DESTRUCT,
             RECHARGE,
         } type;
-        enum class Direction {
-            CENTER,
-            UP,
-            RIGHT,
-            DOWN,
-            LEFT,
-        } direction;
-        int64_t distance;
-        enum class Resource {
-            ICE,
-            ORE,
-            WATER,
-            METAL,
-            POWER,
-        } resource;
-        int64_t amount;
-        bool  repeat;
+        Direction direction;
+        int64_t   distance;
+        Resource  resource;
+        int64_t   amount;
+        bool      repeat;
 
         UnitAction() = default;
         UnitAction(UnitAction::RawType raw_);
@@ -125,12 +113,12 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(BidAction, faction, bid)
 
     struct SpawnAction {
-        std::array<int64_t, 2> spawn;
-        int64_t                metal;
-        int64_t                water;
+        Position spawn;
+        int64_t  metal;
+        int64_t  water;
 
         SpawnAction() = default;
-        SpawnAction(std::array<int64_t, 2> spawn_, int64_t metal_, int64_t water_);
+        SpawnAction(Position spawn_, int64_t metal_, int64_t water_);
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(SpawnAction, spawn, metal, water)
 }  // namespace lux

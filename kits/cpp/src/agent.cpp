@@ -23,7 +23,7 @@ json Agent::act() {
         }
     }
     for (auto [unitId, unit] : obs.units[player]) {
-        actions[unitId].push_back(lux::UnitAction::Move(lux::UnitAction::Direction::UP, false));
+        actions[unitId].push_back(lux::UnitAction::Move(lux::Direction::UP, false));
     }
     return actions;
 }

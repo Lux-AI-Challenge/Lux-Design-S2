@@ -6,9 +6,11 @@
 #include <vector>
 
 #include "lux/action.hpp"
+#include "lux/common.hpp"
 #include "lux/json.hpp"
 
 namespace lux {
+
     struct Cargo {
         int64_t ice;
         int64_t ore;
@@ -18,12 +20,12 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Cargo, ice, ore, water, metal)
 
     struct Unit {
-        int64_t                team_id;
-        std::string            unit_id;
-        int64_t                power;
-        std::string            unit_type;
-        std::array<int64_t, 2> pos;
-        Cargo                  cargo;
+        int64_t                 team_id;
+        std::string             unit_id;
+        int64_t                 power;
+        std::string             unit_type;
+        Position                pos;
+        Cargo                   cargo;
         std::vector<UnitAction> action_queue;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo)
@@ -39,7 +41,7 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Team, team_id, faction, water, metal, factories_to_place, factory_strains)
 
     struct Factory {
-        std::array<int64_t, 2>     pos;
+        Position                   pos;
         int64_t                    power;
         Cargo                      cargo;
         std::string                unit_id;
@@ -57,13 +59,13 @@ namespace lux {
                                                     action_queue)
 
     struct Board {
-        std::vector<std::vector<int64_t>>                          ice;
-        std::vector<std::vector<int64_t>>                          lichen;
-        std::vector<std::vector<int64_t>>                          lichen_strains;
-        std::vector<std::vector<int64_t>>                          ore;
-        std::vector<std::vector<int64_t>>                          rubble;
-        std::map<std::string, std::vector<std::array<int64_t, 2>>> spawns;
-        int64_t                                                    factories_per_team;
+        std::vector<std::vector<int64_t>>            ice;
+        std::vector<std::vector<int64_t>>            lichen;
+        std::vector<std::vector<int64_t>>            lichen_strains;
+        std::vector<std::vector<int64_t>>            ore;
+        std::vector<std::vector<int64_t>>            rubble;
+        std::map<std::string, std::vector<Position>> spawns;
+        int64_t                                      factories_per_team;
 
        private:
         bool                           initialized = false;
@@ -91,4 +93,5 @@ namespace lux {
 
     void to_json(json &j, const Observation o);
     void from_json(const json &j, Observation &o);
+
 }  // namespace lux
