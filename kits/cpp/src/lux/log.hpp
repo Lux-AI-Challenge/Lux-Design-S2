@@ -13,12 +13,12 @@
  * included in the error log of the agent. It is for debugging
  * purposes only.
  *
- * Example usage: LOG("this should be 5: " << aValue);
+ * Example usage: LUX_LOG("this should be 5: " << aValue);
  */
 #ifdef DEBUG_BUILD
-#    define LOG(...) std::cerr << __VA_ARGS__ << std::endl
+#    define LUX_LOG(...) std::cerr << __VA_ARGS__ << std::endl
 #else
-#    define LOG(...)
+#    define LUX_LOG(...)
 #endif
 
 namespace lux {

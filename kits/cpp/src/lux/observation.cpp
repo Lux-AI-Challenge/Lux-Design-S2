@@ -1,9 +1,5 @@
 #include "lux/observation.hpp"
 
-#include <string>
-
-#include "lux/exception.hpp"
-
 namespace lux {
     void to_json(json &j, const Observation o) {
         j["board"]            = o.board;
