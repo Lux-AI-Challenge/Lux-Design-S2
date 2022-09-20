@@ -32,6 +32,13 @@ namespace lux {
 
     struct Position {
         int64_t x, y;
+
+        Position() = default;
+        Position(int64_t x_, int64_t y_);
+
+        Position        operator+(const Position &pos) const;
+        bool            operator==(const Position &pos) const;
+        static Position Delta(Direction direction);
     };
 
     void to_json(json &j, const Position a);

@@ -44,7 +44,7 @@ namespace lux {
         UnitConfig HEAVY;
         UnitConfig LIGHT;
 
-        UnitConfig &operator[](const std::string &name);
+        const UnitConfig &operator[](const std::string &name) const;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfigs, HEAVY, LIGHT)
 
@@ -53,8 +53,8 @@ namespace lux {
             {"LIGHT", 0},
             {"HEAVY", 0}
         };
-        float                  POWER_GAIN        = 1.0f;
-        float                  POWER_CONSUMPTION = 1.0f;
+        double                 POWER_GAIN        = 1.0f;
+        double                 POWER_CONSUMPTION = 1.0f;
         std::array<int64_t, 2> TIME_RANGE;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeatherConfig, RUBBLE, POWER_GAIN, POWER_CONSUMPTION, TIME_RANGE)
@@ -66,7 +66,7 @@ namespace lux {
         WeatherConfig MARS_QUAKE;
         WeatherConfig SOLAR_FLARE;
 
-        WeatherConfig &operator[](const std::string &name);
+        const WeatherConfig &operator[](const std::string &name) const;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeatherConfigs, COLD_SNAP, DUST_STORM, MARS_QUAKE, SOLAR_FLARE)
 
@@ -101,6 +101,8 @@ namespace lux {
         int64_t                  max_transfer_amount;
         bool                     validate_action_space;
         int64_t                  verbose;
+
+        const WeatherConfig &getWeatherForId(int64_t id) const;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnvConfig,
                                        BIDDING_SYSTEM,

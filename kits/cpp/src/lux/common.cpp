@@ -16,6 +16,23 @@ namespace lux {
         return static_cast<Resource>(raw);
     }
 
+    Position::Position(int64_t x_, int64_t y_) : x(x_), y(y_) {}
+
+    Position Position::operator+(const Position &pos) const { return Position(x + pos.x, y + pos.y); }
+
+    bool Position::operator==(const Position &pos) const { return x == pos.x && y == pos.y; }
+
+    Position Position::Delta(Direction direction) {
+        static std::array<Position, 5> deltas = {
+            Position(0, 0),
+            Position(0, -1),
+            Position(1, 0),
+            Position(0, 1),
+            Position(-1, 0),
+        };
+        return deltas[std::underlying_type_t<Direction>(direction)];
+    }
+
     void to_json(json &j, const Position a) {
         j.push_back(a.x);
         j.push_back(a.y);

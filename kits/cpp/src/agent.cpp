@@ -1,6 +1,7 @@
 #include "agent.hpp"
 
 #include "lux/action.hpp"
+#include "lux/common.hpp"
 #include "lux/log.hpp"
 
 json Agent::setup() {
@@ -23,7 +24,13 @@ json Agent::act() {
         }
     }
     for (auto [unitId, unit] : obs.units[player]) {
-        actions[unitId].push_back(lux::UnitAction::Move(lux::Direction::UP, false));
+        for (int64_t i = 0; i < 5; ++i) {
+            auto direction = lux::directionFromInt(i);
+            if (unit.canMove(obs, config, direction)) {
+                actions[unitId].push_back(lux::UnitAction::Move(direction, false));
+                break;
+            }
+        }
     }
     return actions;
 }
