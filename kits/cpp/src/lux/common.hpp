@@ -22,6 +22,14 @@ namespace lux {
     };
     Resource resourceFromInt(int64_t raw);
 
+    struct Cargo {
+        int64_t ice;
+        int64_t ore;
+        int64_t water;
+        int64_t metal;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Cargo, ice, ore, water, metal)
+
     struct Position {
         int64_t x, y;
     };
