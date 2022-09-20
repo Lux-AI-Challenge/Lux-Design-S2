@@ -32,7 +32,6 @@ if(${BUILD_WARNINGS})
         -Werror
         -Wextra
         -Wpedantic
-        -Wconversion
         -Wcast-align
         -Wunused
         -Wshadow
@@ -46,8 +45,10 @@ set(LUX_SRC_FILES
     src/lux/board.cpp
     src/lux/common.cpp
     src/lux/config.cpp
+    src/lux/factory.cpp
     src/lux/log.cpp
     src/lux/observation.cpp
+    src/lux/unit.cpp
 )
 
 add_executable(${BINARY} ${AGENT_SRC_FILES} ${LUX_SRC_FILES})

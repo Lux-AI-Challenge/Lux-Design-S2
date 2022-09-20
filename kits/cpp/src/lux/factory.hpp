@@ -8,6 +8,8 @@
 #include "lux/json.hpp"
 
 namespace lux {
+    struct Observation;
+    struct EnvConfig;
     struct Factory {
         Position                   pos;
         int64_t                    power;
@@ -16,6 +18,20 @@ namespace lux {
         int64_t                    strain_id;
         int64_t                    team_id;
         std::vector<FactoryAction> action_queue;
+
+        int64_t buildHeavyMetalCost(const Observation &obs, const EnvConfig &config) const;
+        int64_t buildHeavyPowerCost(const Observation &obs, const EnvConfig &config) const;
+        bool    canBuildHeavy(const Observation &obs, const EnvConfig &config) const;
+        int64_t buildLightMetalCost(const Observation &obs, const EnvConfig &config) const;
+        int64_t buildLightPowerCost(const Observation &obs, const EnvConfig &config) const;
+        bool    canBuildLight(const Observation &obs, const EnvConfig &config) const;
+        int64_t waterCost(const Observation &obs, const EnvConfig &config) const;
+        bool    canWater(const Observation &obs, const EnvConfig &config) const;
+
+       private:
+        int64_t buildMetalCost(const Observation &obs, const EnvConfig &config, const std::string &unitType) const;
+        int64_t buildPowerCost(const Observation &obs, const EnvConfig &config, const std::string &unitType) const;
+        bool    canBuild(const Observation &obs, const EnvConfig &config, const std::string &unitType) const;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Factory,
                                                     pos,

@@ -18,9 +18,14 @@ json Agent::setup() {
 
 json Agent::act() {
     json actions;
-    for (auto [unitId, _] : obs.factories[player]) {
-        if (step % 5 == 0) {
+    for (auto [unitId, factory] : obs.factories[player]) {
+        if (step % 4 < 3 && factory.canBuildLight(obs, config)) {
             actions[unitId] = lux::FactoryAction::BuildLight();
+        } else if (factory.canBuildHeavy(obs, config)) {
+            actions[unitId] = lux::FactoryAction::BuildHeavy();
+        }
+        if (factory.canWater(obs, config)) {
+            actions[unitId] = lux::FactoryAction::Water();
         }
     }
     for (auto [unitId, unit] : obs.units[player]) {
