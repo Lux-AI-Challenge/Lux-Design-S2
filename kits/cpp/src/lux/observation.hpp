@@ -10,7 +10,6 @@
 #include "lux/json.hpp"
 
 namespace lux {
-
     struct Cargo {
         int64_t ice;
         int64_t ore;
@@ -93,5 +92,4 @@ namespace lux {
 
     void to_json(json &j, const Observation o);
     void from_json(const json &j, Observation &o);
-
 }  // namespace lux

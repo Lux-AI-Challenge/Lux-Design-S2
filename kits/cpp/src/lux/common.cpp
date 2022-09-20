@@ -7,16 +7,12 @@
 namespace lux {
 
     Direction directionFromInt(int64_t raw) {
-        if (raw < 0 || raw > 4) {
-            throw lux::Exception("got invalid UnitAction direction " + std::to_string(raw));
-        }
+        LUX_ASSERT(raw >= 0 && raw <= 4, "got invalid UnitAction direction " + std::to_string(raw));
         return static_cast<Direction>(raw);
     }
 
     Resource resourceFromInt(int64_t raw) {
-        if (raw < 0 || raw > 5) {
-            throw lux::Exception("got invalid UnitAction resource type " + std::to_string(raw));
-        }
+        LUX_ASSERT(raw >= 0 && raw <= 5, "got invalid UnitAction resource type " + std::to_string(raw));
         return static_cast<Resource>(raw);
     }
 

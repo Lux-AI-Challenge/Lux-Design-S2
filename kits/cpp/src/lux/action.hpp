@@ -89,12 +89,7 @@ namespace lux {
         inline bool isWaterAction() const { return type == Type::WATER; }
         inline bool isBuildAction() const { return type == Type::BUILD_HEAVY || type == Type::BUILD_LIGHT; }
 
-        std::string getUnitType() const {
-            if (!isBuildAction()) {
-                throw lux::Exception("cannot get build type from non-BuildAction");
-            }
-            return type == Type::BUILD_HEAVY ? "HEAVY" : "LIGHT";
-        }
+        std::string getUnitType() const;
 
        private:
         void populateRaw() override;

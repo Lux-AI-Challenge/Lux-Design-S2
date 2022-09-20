@@ -6,7 +6,6 @@
 #include "lux/exception.hpp"
 
 namespace lux {
-
     UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
 
     UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, bool repeat_)
@@ -57,9 +56,7 @@ namespace lux {
     }
 
     void UnitAction::populateMember() {
-        if (raw[0] < 0 || raw[0] > 5) {
-            throw lux::Exception("got invalid UnitAction type " + std::to_string(raw[0]));
-        }
+        LUX_ASSERT(raw[0] >= 0 && raw[0] <= 5, "got invalid UnitAction type " + std::to_string(raw[0]));
         type      = static_cast<UnitAction::Type>(raw[0]);
         direction = directionFromInt(raw[1]);
         if (isTransferAction() || isPickupAction()) {
@@ -87,13 +84,16 @@ namespace lux {
 
     FactoryAction FactoryAction::Water() { return FactoryAction(Type::WATER); }
 
+    std::string FactoryAction::getUnitType() const {
+        LUX_ASSERT(isBuildAction(), "cannot get build type from non-BuildAction");
+        return type == Type::BUILD_HEAVY ? "HEAVY" : "LIGHT";
+    }
+
     void FactoryAction::populateRaw() { raw = std::underlying_type_t<FactoryAction::Type>(type); }
 
     void FactoryAction::populateMember() {
         type = static_cast<FactoryAction::Type>(raw);
-        if (!isBuildAction() && !isWaterAction()) {
-            throw lux::Exception("got invalid FactoryAction type " + std::to_string(raw));
-        }
+        LUX_ASSERT(isBuildAction() || isWaterAction(), "got invalid FactoryAction type " + std::to_string(raw));
     }
 
     void to_json(json &j, const FactoryAction a) {
@@ -109,5 +109,4 @@ namespace lux {
         : spawn(spawn_),
           metal(metal_),
           water(water_) {}
-
 }  // namespace lux

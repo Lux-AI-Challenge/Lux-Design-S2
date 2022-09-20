@@ -8,7 +8,6 @@
 #include "lux/json.hpp"
 
 namespace lux {
-
     struct UnitConfig {
         int64_t BATTERY_CAPACITY;
         int64_t CARGO_SPACE;
@@ -134,5 +133,4 @@ namespace lux {
                                        max_transfer_amount,
                                        validate_action_space,
                                        verbose)
-
 }  // namespace lux
