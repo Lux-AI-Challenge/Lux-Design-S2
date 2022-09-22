@@ -24,6 +24,8 @@ namespace lux {
         j.at("units").get_to(o.units);
         j.at("teams").get_to(o.teams);
         j.at("factories").get_to(o.factories);
+        j.at("real_env_steps").get_to(o.real_env_steps);
+        // set factory_occupancy map
         if (o.board.factory_occupancy.size() != o.board.rubble.size()) {
             std::vector<int64_t> baseVec(o.board.rubble[0].size(), -1);
             o.board.factory_occupancy.resize(o.board.rubble.size(), baseVec);
@@ -42,6 +44,11 @@ namespace lux {
                 o.board.factory_occupancy[factory.pos.y + 1][factory.pos.x + 1] = factory.team_id;
             }
         }
-        j.at("real_env_steps").get_to(o.real_env_steps);
+        // set unit configs
+        for (auto [_, units] : o.units) {
+            for (auto [__, unit] : units) {
+                unit.unitConfig = o.config.ROBOTS[unit.unit_type];
+            }
+        }
     }
 }  // namespace lux

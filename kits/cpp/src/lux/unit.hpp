@@ -5,6 +5,7 @@
 
 #include "lux/action.hpp"
 #include "lux/common.hpp"
+#include "lux/config.hpp"
 #include "lux/json.hpp"
 
 namespace lux {
@@ -17,6 +18,7 @@ namespace lux {
         Position                pos;
         Cargo                   cargo;
         std::vector<UnitAction> action_queue;
+        UnitConfig              unitConfig;  // is populated in Observation deserialization
 
         int64_t moveCost(const Observation &obs, Direction direction) const;
         bool    canMove(const Observation &obs, Direction direction) const;

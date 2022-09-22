@@ -18,9 +18,7 @@ namespace lux {
         }
         auto rubble  = obs.board.rubble[target.y][target.x];
         auto weather = obs.getCurrentWeather();
-        return std::ceil(
-            (obs.config.ROBOTS[unit_type].MOVE_COST + obs.config.ROBOTS[unit_type].RUBBLE_MOVEMENT_COST * rubble)
-            * weather.POWER_CONSUMPTION);
+        return std::ceil((unitConfig.MOVE_COST + unitConfig.RUBBLE_MOVEMENT_COST * rubble) * weather.POWER_CONSUMPTION);
     }
 
     bool Unit::canMove(const Observation &obs, Direction direction) const {
@@ -33,14 +31,14 @@ namespace lux {
 
     int64_t Unit::digCost(const Observation &obs) const {
         auto weather = obs.getCurrentWeather();
-        return std::ceil(obs.config.ROBOTS[unit_type].DIG_COST * weather.POWER_CONSUMPTION);
+        return std::ceil(unitConfig.DIG_COST * weather.POWER_CONSUMPTION);
     }
 
     bool Unit::canDig(const Observation &obs) const { return power >= digCost(obs); }
 
     int64_t Unit::selfDestructCost(const Observation &obs) const {
         auto weather = obs.getCurrentWeather();
-        return std::ceil(obs.config.ROBOTS[unit_type].SELF_DESTRUCT_COST * weather.POWER_CONSUMPTION);
+        return std::ceil(unitConfig.SELF_DESTRUCT_COST * weather.POWER_CONSUMPTION);
     }
 
     bool Unit::canSelfDestruct(const Observation &obs) const { return power >= selfDestructCost(obs); }
