@@ -6,7 +6,7 @@
 
 json Agent::setup() {
     if (step == 0) {
-        return lux::BidAction(obs.teams[player].faction, 10);
+        return lux::BidAction(player == "player_1" ? "AlphaStrike" : "MotherMars", 10);
     }
     static size_t index = 0;
     return lux::SpawnAction(obs.board.spawns[player][index += 7], obs.teams[player].metal / 2, obs.teams[player].water);
