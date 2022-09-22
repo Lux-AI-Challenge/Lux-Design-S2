@@ -23,6 +23,7 @@ namespace lux {
         EnvConfig                                             config;  // is populated in main
 
         const WeatherConfig &getCurrentWeather() const;
+        bool                 isDay() const;
 
        private:
         bool initialized = false;

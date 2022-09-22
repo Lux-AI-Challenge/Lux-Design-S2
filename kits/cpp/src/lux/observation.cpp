@@ -6,6 +6,8 @@ namespace lux {
         return config.getWeatherForId(weather_schedule[real_env_steps]);
     }
 
+    bool Observation::isDay() const { return real_env_steps % config.CYCLE_LENGTH < config.DAY_LENGTH; }
+
     void to_json(json &j, const Observation o) {
         j["board"]            = o.board;
         j["units"]            = o.units;
