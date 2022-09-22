@@ -1,3 +1,4 @@
+import math
 from sys import stderr
 import numpy as np
 from dataclasses import dataclass
@@ -25,7 +26,7 @@ class Factory:
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         unit_cfg = self.env_cfg.ROBOTS["HEAVY"]
-        return unit_cfg.POWER_COST * weather_cfg["power_loss_factor"]
+        return math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
     def can_build_heavy(self, game_state):
         return self.power >= self.build_heavy_power_cost(game_state) and self.cargo.metal >= self.build_heavy_metal_cost(game_state)
     def build_heavy(self):
@@ -38,7 +39,7 @@ class Factory:
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         unit_cfg = self.env_cfg.ROBOTS["LIGHT"]
-        return unit_cfg.POWER_COST * weather_cfg["power_loss_factor"]
+        return math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
     def can_build_light(self, game_state):
         return self.power >= self.build_light_power_cost(game_state) and self.cargo.metal >= self.build_light_metal_cost(game_state)
 
@@ -52,6 +53,6 @@ class Factory:
         owned_lichen_tiles = (game_state.board.lichen_strains == self.strain_id).sum()
         return np.ceil(owned_lichen_tiles / self.env_cfg.LICHEN_WATERING_COST_FACTOR) + 1
     def can_water(self):
-        return self.power >= self.water_cost()
+        return self.cargo.water >= self.water_cost()
     def water(self):
         return 2
