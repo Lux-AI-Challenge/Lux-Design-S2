@@ -12,16 +12,8 @@ namespace lux {
             || static_cast<size_t>(target.y) >= obs.board.rubble.size()) {
             return -1;
         }
-        // TODO only detect opposing facories and improve performance
-        bool occupiedByFactory = false;
-        for (auto [player, factories] : obs.factories) {
-            for (auto [_, factory] : factories) {
-                if (factory.pos == target) {
-                    occupiedByFactory = true;
-                }
-            }
-        }
-        if (occupiedByFactory) {
+        auto factoryTeam = obs.board.factory_occupancy[target.y][target.x];
+        if (factoryTeam != -1 && team_id != factoryTeam) {
             return -1;
         }
         auto rubble  = obs.board.rubble[target.y][target.x];

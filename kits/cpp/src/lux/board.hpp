@@ -14,6 +14,7 @@ namespace lux {
         std::vector<std::vector<int64_t>>            lichen_strains;
         std::vector<std::vector<int64_t>>            ore;
         std::vector<std::vector<int64_t>>            rubble;
+        std::vector<std::vector<int64_t>>            factory_occupancy;  // populated in Observation deserialization
         std::map<std::string, std::vector<Position>> spawns;
         int64_t                                      factories_per_team;
 

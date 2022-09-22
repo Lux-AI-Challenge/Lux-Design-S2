@@ -19,6 +19,24 @@ namespace lux {
         j.at("units").get_to(o.units);
         j.at("teams").get_to(o.teams);
         j.at("factories").get_to(o.factories);
+        if (o.board.factory_occupancy.size() != o.board.rubble.size()) {
+            std::vector<int64_t> baseVec(o.board.rubble[0].size(), -1);
+            o.board.factory_occupancy.resize(o.board.rubble.size(), baseVec);
+        }
+        for (auto [_, factories] : o.factories) {
+            for (auto [__, factory] : factories) {
+                // TODO Is there a guarantee, that the factories are not placed on the edge??
+                o.board.factory_occupancy[factory.pos.y - 1][factory.pos.x - 1] = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y - 1][factory.pos.x]     = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y - 1][factory.pos.x + 1] = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y][factory.pos.x - 1]     = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y][factory.pos.x]         = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y][factory.pos.x + 1]     = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y + 1][factory.pos.x - 1] = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y + 1][factory.pos.x]     = factory.team_id;
+                o.board.factory_occupancy[factory.pos.y + 1][factory.pos.x + 1] = factory.team_id;
+            }
+        }
         j.at("real_env_steps").get_to(o.real_env_steps);
     }
 }  // namespace lux

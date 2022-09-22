@@ -1,5 +1,7 @@
 #include "lux/factory.hpp"
 
+#include <numeric>
+
 #include "lux/config.hpp"
 #include "lux/observation.hpp"
 
@@ -46,14 +48,11 @@ namespace lux {
     }
 
     int64_t Factory::waterCost(const Observation &obs, const EnvConfig &config) const {
-        int64_t sum = 0;
-        for (auto row : obs.board.lichen_strains) {
-            for (auto strain : row) {
-                if (strain == strain_id) {
-                    ++sum;
-                }
-            }
-        }
+        auto countMatchingStrains = [&](int64_t sum, auto row) {
+            return sum + std::count(row.begin(), row.end(), strain_id);
+        };
+        int64_t sum =
+            std::accumulate(obs.board.lichen_strains.begin(), obs.board.lichen_strains.end(), 0, countMatchingStrains);
         return std::ceil(sum / config.LICHEN_WATERING_COST_FACTOR) + 1;
     }
 
