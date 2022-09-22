@@ -1,6 +1,11 @@
 #include "lux/observation.hpp"
 
 namespace lux {
+
+    const WeatherConfig &Observation::getCurrentWeather() const {
+        return config.getWeatherForId(weather_schedule[real_env_steps]);
+    }
+
     void to_json(json &j, const Observation o) {
         j["board"]            = o.board;
         j["units"]            = o.units;

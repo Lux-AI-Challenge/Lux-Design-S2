@@ -12,7 +12,6 @@ struct Agent {
     std::string      player;
     int64_t          remainingOverageTime;
     lux::Observation obs;
-    lux::EnvConfig   config;
 
     Agent()                             = default;
     Agent(const Agent &other)           = delete;

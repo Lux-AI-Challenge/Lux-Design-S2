@@ -15,19 +15,19 @@ json Agent::setup() {
 json Agent::act() {
     json actions;
     for (auto [unitId, factory] : obs.factories[player]) {
-        if (step % 4 < 3 && factory.canBuildLight(obs, config)) {
+        if (step % 4 < 3 && factory.canBuildLight(obs)) {
             actions[unitId] = lux::FactoryAction::BuildLight();
-        } else if (factory.canBuildHeavy(obs, config)) {
+        } else if (factory.canBuildHeavy(obs)) {
             actions[unitId] = lux::FactoryAction::BuildHeavy();
         }
-        if (factory.canWater(obs, config)) {
+        if (factory.canWater(obs)) {
             actions[unitId] = lux::FactoryAction::Water();
         }
     }
     for (auto [unitId, unit] : obs.units[player]) {
         for (int64_t i = 0; i < 5; ++i) {
             auto direction = lux::directionFromInt(i);
-            if (unit.canMove(obs, config, direction)) {
+            if (unit.canMove(obs, direction)) {
                 actions[unitId].push_back(lux::UnitAction::Move(direction, false));
                 break;
             }

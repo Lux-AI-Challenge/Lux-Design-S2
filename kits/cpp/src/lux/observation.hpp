@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "lux/board.hpp"
+#include "lux/config.hpp"
 #include "lux/factory.hpp"
 #include "lux/json.hpp"
 #include "lux/team.hpp"
@@ -19,6 +20,9 @@ namespace lux {
         std::map<std::string, std::map<std::string, Factory>> factories;
         std::vector<int64_t>                                  weather_schedule;
         int64_t                                               real_env_steps;
+        EnvConfig                                             config;  // is populated in main
+
+        const WeatherConfig &getCurrentWeather() const;
 
        private:
         bool initialized = false;

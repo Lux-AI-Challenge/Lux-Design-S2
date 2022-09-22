@@ -20,7 +20,7 @@ int main() {
         input.at("obs").get_to(agent.obs);
 
         if (agent.step == 0) {
-            input.at("info").at("env_cfg").get_to(agent.config);
+            input.at("info").at("env_cfg").get_to(agent.obs.config);
         }
 
         json output;
