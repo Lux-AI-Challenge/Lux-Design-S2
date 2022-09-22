@@ -28,11 +28,21 @@ namespace lux {
 
     bool Factory::canBuildHeavy(const Observation &obs) const { return canBuild(obs, "HEAVY"); }
 
+    FactoryAction Factory::buildHeavy(const Observation &obs) const {
+        LUX_ASSERT(canBuildHeavy(obs), "factory cannot build HEAVY, make sure to check beforehand with canBuildHeavy");
+        return FactoryAction::BuildHeavy();
+    }
+
     int64_t Factory::buildLightMetalCost(const Observation &obs) const { return buildMetalCost(obs, "LIGHT"); }
 
     int64_t Factory::buildLightPowerCost(const Observation &obs) const { return buildPowerCost(obs, "LIGHT"); }
 
     bool Factory::canBuildLight(const Observation &obs) const { return canBuild(obs, "LIGHT"); }
+
+    FactoryAction Factory::buildLight(const Observation &obs) const {
+        LUX_ASSERT(canBuildLight(obs), "factory cannot build LIGHT, make sure to check beforehand with canBuildLight");
+        return FactoryAction::BuildLight();
+    }
 
     int64_t Factory::waterCost(const Observation &obs) const {
         auto countMatchingStrains = [&](int64_t sum, auto row) {
@@ -44,4 +54,9 @@ namespace lux {
     }
 
     bool Factory::canWater(const Observation &obs) const { return cargo.water >= waterCost(obs); }
+
+    FactoryAction Factory::water(const Observation &obs) const {
+        LUX_ASSERT(canWater(obs), "factory cannot water, make sure to check beforehand with canWater");
+        return FactoryAction::Water();
+    }
 }  // namespace lux

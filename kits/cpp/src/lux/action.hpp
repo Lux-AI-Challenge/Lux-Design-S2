@@ -50,12 +50,12 @@ namespace lux {
         UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, bool repeat_);
         UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, bool repeat_);
 
-        static UnitAction Move(Direction direction, bool repeat = true);
-        static UnitAction Transfer(Direction direction, Resource resource, int64_t amount, bool repeat = true);
-        static UnitAction Pickup(Resource resource, int64_t amount, bool repeat = true);
-        static UnitAction Dig(bool repeat = true);
-        static UnitAction SelfDestruct(bool repeat = true);
-        static UnitAction Recharge(int64_t amount, bool repeat = true);
+        static UnitAction Move(Direction direction, bool repeat);
+        static UnitAction Transfer(Direction direction, Resource resource, int64_t amount, bool repeat);
+        static UnitAction Pickup(Resource resource, int64_t amount, bool repeat);
+        static UnitAction Dig(bool repeat);
+        static UnitAction SelfDestruct(bool repeat);
+        static UnitAction Recharge(int64_t amount, bool repeat);
 
         inline bool isMoveAction() const { return type == Type::MOVE; }
         inline bool isTransferAction() const { return type == Type::TRANSFER; }
