@@ -31,6 +31,7 @@ namespace lux {
     }
 
     UnitAction Unit::move(const Observation &obs, Direction direction, bool repeat) const {
+        UNUSED(obs);
         LUX_ASSERT(canMove(obs, direction), "unit cannot move there, make sure to check beforehand with canMove");
         return UnitAction::Move(direction, repeat);
     }
@@ -55,6 +56,7 @@ namespace lux {
     bool Unit::canDig(const Observation &obs) const { return power >= digCost(obs); }
 
     UnitAction Unit::dig(const Observation &obs, bool repeat) const {
+        UNUSED(obs);
         LUX_ASSERT(canDig(obs), "unit cannot dig here, make sure to check beforehand with canDig");
         return UnitAction::Dig(repeat);
     }
@@ -67,6 +69,7 @@ namespace lux {
     bool Unit::canSelfDestruct(const Observation &obs) const { return power >= selfDestructCost(obs); }
 
     UnitAction Unit::selfDestruct(const Observation &obs, bool repeat) const {
+        UNUSED(obs);
         LUX_ASSERT(canSelfDestruct(obs),
                    "unit cannot self destruct, make sure to check beforehand with canSelfDestruct");
         return UnitAction::SelfDestruct(repeat);

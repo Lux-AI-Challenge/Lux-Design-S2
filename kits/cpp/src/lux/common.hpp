@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <lux/json.hpp>
 
+#define UNUSED(x) (void) x
+
 namespace lux {
     enum class Direction {
         CENTER,

@@ -29,6 +29,7 @@ namespace lux {
     bool Factory::canBuildHeavy(const Observation &obs) const { return canBuild(obs, "HEAVY"); }
 
     FactoryAction Factory::buildHeavy(const Observation &obs) const {
+        UNUSED(obs);
         LUX_ASSERT(canBuildHeavy(obs), "factory cannot build HEAVY, make sure to check beforehand with canBuildHeavy");
         return FactoryAction::BuildHeavy();
     }
@@ -40,6 +41,7 @@ namespace lux {
     bool Factory::canBuildLight(const Observation &obs) const { return canBuild(obs, "LIGHT"); }
 
     FactoryAction Factory::buildLight(const Observation &obs) const {
+        UNUSED(obs);
         LUX_ASSERT(canBuildLight(obs), "factory cannot build LIGHT, make sure to check beforehand with canBuildLight");
         return FactoryAction::BuildLight();
     }
@@ -56,6 +58,7 @@ namespace lux {
     bool Factory::canWater(const Observation &obs) const { return cargo.water >= waterCost(obs); }
 
     FactoryAction Factory::water(const Observation &obs) const {
+        UNUSED(obs);
         LUX_ASSERT(canWater(obs), "factory cannot water, make sure to check beforehand with canWater");
         return FactoryAction::Water();
     }
