@@ -3,15 +3,17 @@
 #include "lux/exception.hpp"
 
 namespace lux {
-    void applyMappedDelta(std::vector<std::vector<int64_t>> &dest, const std::map<std::string, int64_t> &delta) {
-        for (auto [k, v] : delta) {
-            size_t offset = k.find_first_of(',');
-            LUX_ASSERT(offset != k.npos, "mapping key not separated by comma");
-            auto x     = static_cast<size_t>(std::stol(k.substr(0, offset)));
-            auto y     = static_cast<size_t>(std::stol(k.substr(offset + 1)));
-            dest[y][x] = v;
+    namespace {
+        void applyMappedDelta(std::vector<std::vector<int64_t>> &dest, const std::map<std::string, int64_t> &delta) {
+            for (auto [k, v] : delta) {
+                size_t offset = k.find_first_of(',');
+                LUX_ASSERT(offset != k.npos, "mapping key not separated by comma");
+                auto x     = static_cast<size_t>(std::stol(k.substr(0, offset)));
+                auto y     = static_cast<size_t>(std::stol(k.substr(offset + 1)));
+                dest[y][x] = v;
+            }
         }
-    }
+    }  // namespace
 
     void to_json(json &j, const Board b) {
         j["ice"]                = b.ice;
