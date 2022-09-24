@@ -25,4 +25,6 @@ docker exec -w /root $container_name bash ./compile.sh -b docker_build
 
 [ $? -ne 0 ] && abort "error during build inside docker container"
 
-tar -czvf submission.tar.gz * && echo "successfully built submission"
+submisson_archive="submission.tar.gz"
+[ -f "$submisson_archive" ] && rm "$submisson_archive"
+tar -czvf "$submisson_archive" * && echo "successfully built submission"
