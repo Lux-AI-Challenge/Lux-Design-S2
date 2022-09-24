@@ -45,6 +45,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+json_header_path="./src/lux/nlohmann_json.hpp"
+[ -f "$json_header_path" ] || curl -o "$json_header_path" "https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp"
+
 mkdir -p $build_dir
 
 cmake -B $build_dir -DBUILD_WARNINGS=$build_warnings -DBUILD_DEBUG=$build_debug
