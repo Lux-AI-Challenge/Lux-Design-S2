@@ -32,8 +32,8 @@ namespace lux {
             std::vector<int64_t> baseVec(o.board.rubble[0].size(), -1);
             o.board.factory_occupancy.resize(o.board.rubble.size(), baseVec);
         }
-        for (auto [_, factories] : o.factories) {
-            for (auto [__, factory] : factories) {
+        for (const auto &[_, factories] : o.factories) {
+            for (const auto &[__, factory] : factories) {
                 // TODO Is there a guarantee, that the factories are not placed on the edge??
                 o.board.factory_occupancy[factory.pos.y - 1][factory.pos.x - 1] = factory.team_id;
                 o.board.factory_occupancy[factory.pos.y - 1][factory.pos.x]     = factory.team_id;
@@ -47,8 +47,8 @@ namespace lux {
             }
         }
         // set unit configs
-        for (auto [_, units] : o.units) {
-            for (auto [__, unit] : units) {
+        for (auto &[_, units] : o.units) {
+            for (auto &[__, unit] : units) {
                 unit.unitConfig = o.config.ROBOTS[unit.unit_type];
             }
         }

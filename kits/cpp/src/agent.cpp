@@ -9,12 +9,14 @@ json Agent::setup() {
         return lux::BidAction(player == "player_1" ? "AlphaStrike" : "MotherMars", 10);
     }
     static size_t index = 0;
-    return lux::SpawnAction(obs.board.spawns[player][index += 7], obs.teams[player].metal / 2, obs.teams[player].water);
+    return lux::SpawnAction(obs.board.spawns[player][index += 7],
+                            obs.teams[player].metal / 2,
+                            obs.teams[player].water / 2);
 }
 
 json Agent::act() {
     json actions;
-    for (auto [unitId, factory] : obs.factories[player]) {
+    for (const auto &[unitId, factory] : obs.factories[player]) {
         if (step % 4 < 3 && factory.canBuildLight(obs)) {
             actions[unitId] = factory.buildLight(obs);
         } else if (factory.canBuildHeavy(obs)) {
@@ -24,7 +26,7 @@ json Agent::act() {
             actions[unitId] = factory.water(obs);  // Alternatively set it to lux::FactoryAction::Water()
         }
     }
-    for (auto [unitId, unit] : obs.units[player]) {
+    for (const auto &[unitId, unit] : obs.units[player]) {
         for (int64_t i = 0; i < 5; ++i) {
             auto direction = lux::directionFromInt(i);
             if (unit.canMove(obs, direction)) {
