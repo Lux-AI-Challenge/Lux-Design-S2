@@ -34,7 +34,7 @@ def agent(observation, configuration):
             cwd = os.path.dirname(configuration["__raw_path__"])
         else:
             cwd = os.path.dirname(__file__)
-        agent_process = Popen(["./main.out"], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+        agent_process = Popen(["./docker_build/agent.out"], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
         agent_processes[observation.player] = agent_process
         atexit.register(cleanup_process)
 

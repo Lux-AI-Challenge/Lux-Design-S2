@@ -1,3 +1,4 @@
+import math
 import sys
 from typing import List
 import numpy as np
@@ -36,7 +37,7 @@ class Unit:
         
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return (self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target) * weather_cfg["power_loss_factor"]
+        return math.ceil((self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target) * weather_cfg["power_loss_factor"])
     def can_move(self, game_state, direction):
         move_cost = self.move_cost(game_state, direction)
         if move_cost is None:
@@ -61,7 +62,7 @@ class Unit:
     def dig_cost(self, game_state):
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return self.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"]
+        return math.ceil(self.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"])
     def can_dig(self, game_state):
         return self.power >= self.dig_cost(game_state)
     def dig(self, repeat=True):
@@ -70,7 +71,7 @@ class Unit:
     def self_destruct_cost(self, game_state):
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return self.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"]
+        return math.ceil(self.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"])
     def can_self_destruct(self, game_state):
         return self.power >= self.self_destruct_cost(game_state)
     def self_destruct(self, repeat=True):
