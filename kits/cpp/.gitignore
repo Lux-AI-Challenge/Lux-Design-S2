@@ -1,0 +1,6 @@
+build/
+docker_build/
+compile_commands.json
+.clang-format
+submission.tar.gz
+nlohmann_json.hpp
