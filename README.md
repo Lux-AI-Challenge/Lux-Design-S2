@@ -29,19 +29,29 @@ To run a match, run
 python -m luxai_runner.cli my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
 ```
 
-This will turn on logging to level 2, and store the replay file at `replay.json`. For a full list of commands, type
+This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai_runner tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/master/docs/cli.md [TODO replace with web version]
 
-```
-python -m luxai_runner.cli --help
-```
-
-Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/master/kits
+Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits
 
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our CONTRIBUTING.md document for more information on this.
 
 To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/master/ChangeLog.md for a full change log.
+
+## Community Tools
+As the community builds tools for the competition, we will post them here!
+
+## Contributing
+See the [guide on contributing]()
+
+## Sponsors
+
+Stay tuned for the official release.
+
+## Core Contributors
+
+We like to extend thanks to some of our early core contributors [TODO]
 
 
 ## Citation
