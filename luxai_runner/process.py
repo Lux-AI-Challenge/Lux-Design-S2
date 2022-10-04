@@ -20,6 +20,8 @@ class BotProcess:
 
     async def start(self):
         cwd = os.path.dirname(self.file_path)
+        if cwd == "":
+            cwd = "."
         self.log.info(f"Beginning {self.command} {self.file_path}")
         # self._agent_process = Popen([self.command, os.path.basename(self.file_path)], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
         self._agent_process = await asyncio.create_subprocess_exec(

@@ -83,9 +83,6 @@ class Agent():
         """
         actions = dict()
 
-        with open("log.json", "w") as f:
-            f.write(json.dumps(to_json(obs)))
-
         env_cfg: EnvConfig = self.env_cfg # the current env configuration for the episode
         game_state = obs_to_game_state(step=self.step, env_cfg=env_cfg, obs=obs)
 

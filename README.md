@@ -26,13 +26,13 @@ To run a match, run
 
 
 ```
-python luxai_runner/runner.py my_bot/main.py my_bot/main.py -v 2 -o replay.json
+python -m luxai_runner.cli my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
 ```
 
 This will turn on logging to level 2, and store the replay file at `replay.json`. For a full list of commands, type
 
 ```
-python luxai_runner/runner.py --help
+python -m luxai_runner.cli --help
 ```
 
 Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/master/kits

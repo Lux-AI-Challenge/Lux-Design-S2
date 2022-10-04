@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from luxai2022.config import EnvConfig
-from luxai2022.globals import TERM_COLORS
+from lux.config import EnvConfig
+TERM_COLORS = False
 try:
     from termcolor import colored
+    TERM_COLORS=True
 except: 
     pass
 @dataclass

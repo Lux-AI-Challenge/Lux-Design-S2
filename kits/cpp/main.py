@@ -59,6 +59,3 @@ def agent(observation, configuration):
     if agent1res == "":
         return {}
     return json.loads(agent1res)
-
-# def agent2(observation, configuration):
-#     return {}

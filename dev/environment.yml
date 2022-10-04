@@ -1,21 +1,33 @@
-name: luxai2022
+name: luxai2022-dev
 channels:
   - conda-forge
+  - pytorch
 dependencies:
   - python=3.8
   - numpy
+  - numba
   - matplotlib
+  - dill
+  - pandas
+  - seaborn
   - scipy
+  - jupyterlab
   - pip
+  - ipdb
   - cython
+  - scikit-learn
   - tqdm
   - yaml
+  - ipywidgets
+  - black
+  - isort
+
   - gym=0.19
 
   - pip:
     - pettingzoo
     - termcolor
+    - opensimplex
     - pygame
     - vec_noise
-    - omegaconf
 
