@@ -388,7 +388,6 @@ class LuxAI2022(ParallelEnv):
                     factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
                     factory.sub_resource(4, math.ceil(self.env_cfg.ROBOTS["LIGHT"].POWER_COST * weather_cfg["power_loss_factor"]))
 
-            # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
             heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
             light_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
@@ -424,7 +423,6 @@ class LuxAI2022(ParallelEnv):
                 # add in all the stationary units
                 new_units_map[pos_hash] += units
 
-            # TODO test collisions
             destroyed_units: Set[Unit] = set()
             new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list)
             for pos_hash, units in new_units_map.items():
@@ -540,7 +538,6 @@ class LuxAI2022(ParallelEnv):
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations
-        # TODO add info for bidding here
         obs = self.state.get_obs()
         observations = {}
         for k in self.agents:
