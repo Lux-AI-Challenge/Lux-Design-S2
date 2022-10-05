@@ -75,7 +75,6 @@ class EnvConfig:
 
 
     #### Units ####
-    # TODO FILL IN POWER COSTS FOR ACTIONS
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
         default_factory=lambda: dict(
         LIGHT=UnitConfig(

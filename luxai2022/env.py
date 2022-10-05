@@ -388,7 +388,6 @@ class LuxAI2022(ParallelEnv):
                     factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
                     factory.sub_resource(4, math.ceil(self.env_cfg.ROBOTS["LIGHT"].POWER_COST * weather_cfg["power_loss_factor"]))
 
-            # TODO execute movement and recharge/wait actions, then resolve collisions
             new_units_map: Dict[str, List[Unit]] = defaultdict(list)
             heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
             light_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
