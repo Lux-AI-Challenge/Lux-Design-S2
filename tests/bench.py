@@ -67,9 +67,9 @@ if __name__ == "__main__":
     import time
     np.random.seed(0)
 
-    env: LuxAI2022 = LuxAI2022(verbose=1, validate_action_space=False)
+    env: LuxAI2022 = LuxAI2022(verbose=0, validate_action_space=False)
     o = env.reset(seed=0)
-    render = True
+    render = False
     if render: 
         env.render()
         time.sleep(0.1)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     
     s_time = time.time_ns()
     foward_pass_time = 0
-    N = 2000
+    N = 10000
     step = 0
     for i in range(N):
         all_actions = dict()
@@ -105,6 +105,7 @@ if __name__ == "__main__":
             print(f"FPS={step / ((e_time - s_time) * 1e-9)}")
             s_time = time.time_ns()
             step = 0
+            break
         if render:
             env.render()
             # time.sleep(0.1)

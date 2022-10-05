@@ -52,7 +52,7 @@ class Factory:
         """
         owned_lichen_tiles = (game_state.board.lichen_strains == self.strain_id).sum()
         return np.ceil(owned_lichen_tiles / self.env_cfg.LICHEN_WATERING_COST_FACTOR) + 1
-    def can_water(self):
-        return self.cargo.water >= self.water_cost()
+    def can_water(self, game_state):
+        return self.cargo.water >= self.water_cost(game_state)
     def water(self):
         return 2
