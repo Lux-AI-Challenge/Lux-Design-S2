@@ -51,7 +51,7 @@ class EnvConfig:
     MAX_FACTORIES: int = 5
     CYCLE_LENGTH: int = 50
     DAY_LENGTH: int = 30
-    UNIT_ACTION_QUEUE_SIZE: int = 10 # when set to 1, then no action queue is used
+    UNIT_ACTION_QUEUE_SIZE: int = 20 # when set to 1, then no action queue is used
     UNIT_ACTION_QUEUE_POWER_COST: Dict[str, int] = dataclasses.field(default_factory=lambda: dict(
         LIGHT=1,
         HEAVY=10
