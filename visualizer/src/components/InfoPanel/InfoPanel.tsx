@@ -94,7 +94,7 @@ export const InfoPanel =
           </div>
           
         <div className={s.weather}>
-          <div>Weather: {cur_weather}</div>
+          <h3 className={s.title}>Weather: {cur_weather}</h3>
           <span className={s.slidertick} style={{left: `${get_turn_percent(turn)}%`}}></span>
           <span className={s.slider}></span>
           {replay.meta.weather_events.map((weather) => {

@@ -33,7 +33,7 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
   return (
     <>
       <div className={s.tileview}>
-        <h2>Tile ({viewedTilePos.x}, {viewedTilePos.y})</h2>
+        <h3>Tile ({viewedTilePos.x}, {viewedTilePos.y})</h3>
         <div>
           <p>Rubble: {frame.board.rubble[viewedTilePos.y][viewedTilePos.x]}</p>
           <p>Lichen: {frame.board.lichen[viewedTilePos.y][viewedTilePos.x]}</p>

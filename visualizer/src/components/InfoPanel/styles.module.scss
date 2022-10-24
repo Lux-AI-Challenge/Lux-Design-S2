@@ -99,9 +99,12 @@ $slider-width: 38rem;
   position: relative;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
-  opacity: 0.75;
   max-width: 38rem;
   width: calc(100% - 10rem);
+  margin-bottom: 2.5rem;
+  .title {
+    margin-bottom: 0.5rem;
+  }
   .slidertick {
     height: 16px;
     margin-top: -6px;
