@@ -41,9 +41,7 @@ In code, actions can be given to units as so
 actions[unit_id] = [action_0, action_1, ...]
 ```
 
-Importantly, each turn you can only set the action queue of up to `env_cfg.UNITS_CONTROLLED` units. Trying to set more will result in some acton queues being ignored.
-
-You may still compete by giving a single action to every unit but be aware that this can be inefficient as each turn only up to `env_cfg.UNITS_CONTROLLED` units will be performing actions.
+Importantly, whenever you submit a new action queue, it incurs an additional power cost for communication of `env_cfg.UNIT_ACTION_QUEUE_POWER_COST` power to the unit. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous.
 
 See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
 

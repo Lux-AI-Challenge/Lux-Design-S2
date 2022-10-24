@@ -50,7 +50,14 @@ class EnvConfig:
     CYCLE_LENGTH: int = 50
     DAY_LENGTH: int = 30
     UNIT_ACTION_QUEUE_SIZE: int = 10 # when set to 1, then no action queue is used
-    UNITS_CONTROLLED: int = 20 # when set to -1, all units can be controlled at once
+    UNIT_ACTION_QUEUE_POWER_COST: Dict[str, int] = dataclasses.field(default_factory=lambda: dict(
+        LIGHT=1,
+        HEAVY=10
+    ))
+    # DEPRECATED
+    # UNITS_CONTROLLED: int = 20 # when set to -1, all units can be controlled at once
+
+
     MAX_RUBBLE: int = 100
     FACTORY_RUBBLE_AFTER_DESTRUCTION: int = 50
     INIT_WATER_METAL_PER_FACTORY: int = 100 # amount of water and metal units given to each factory
