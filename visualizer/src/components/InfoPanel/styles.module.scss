@@ -59,21 +59,21 @@ $teamborderradius: 8rem;
   position: relative;
   width: 100%;
   font-weight: 600;
-  height: fit-content;
+  height: 4rem;
   .teamname {
     font-size: 1.5rem;
   }
   p {
     margin: 0rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
   }
   p:last-child {
-    margin-bottom: 0rem;
+    margin-bottom: 0.5rem;
   }
   .p0 {
     left: 0;
     top: 0;
-    position: relative;
+    position: absolute;
     width: 50%;
     background-color: $p0-primary;
     border-top-right-radius: $teamborderradius;

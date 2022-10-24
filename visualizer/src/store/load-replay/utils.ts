@@ -18,9 +18,15 @@ export function estimateGoodTileWidth(): number {
 }
 export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
   const replay: Replay = {
+    meta: {
+      teams: [{name: 'Player 0'}, {name: 'Player 1'}]
+    },
     observations: [],
     actions: [],
   }
+  console.log({kaggleReplay});
+  replay.meta.teams[0].name = kaggleReplay.info.TeamNames[0];
+  replay.meta.teams[1].name = kaggleReplay.info.TeamNames[1];
   for (let i = 0; i < kaggleReplay.steps.length; i++) {
     const kframe = kaggleReplay.steps[i];
     const obs_str = kframe[0].observation.obs;
@@ -39,11 +45,7 @@ function isKaggleReplay(replay: Replay | KaggleReplay): replay is KaggleReplay {
   return (replay as KaggleReplay).steps !== undefined;
 }
 export function loadFromObject(replay: Replay | KaggleReplay): Replay {
-  const stime = (new Date()).getTime();
-  if (isKaggleReplay(replay)) {
-    replay = convertFromKaggle(replay);
-  }
-  
+  const stime = (new Date()).getTime();  
   // TODO: validate that the replay is in the right format (?)
   // re-generate all board frames as necessary
   const hashToPos = (hash: string) => {
@@ -51,8 +53,15 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     return { x: parseInt(info[0]), y: parseInt(info[1]) };
   };
   const loadedReplay: Replay = {
+    meta: {
+      teams: [{name: 'Player 0'}, {name: 'Player 1'}]
+    },
     observations: [],
     actions: [],
+  }
+  if (isKaggleReplay(replay)) {
+    replay = convertFromKaggle(replay);
+    loadedReplay.meta = replay.meta;
   }
   const firstBoard = replay.observations[0].board;
   loadedReplay.observations[0] = replay.observations[0];
