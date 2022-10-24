@@ -1,6 +1,7 @@
 import { Charts } from "@/components/InfoPanel/Charts";
 import { UnitsList } from "@/components/InfoPanel/UnitsList";
 import { TileView } from "@/components/TileView/TileView";
+import { WEATHER_ID_TO_NAME, WEATHER_NAME_TO_COLOR } from "@/constants";
 import { useStore, useStoreKeys } from "@/store";
 import { Replay } from "@/types/replay";
 import { Player } from "@/types/replay/player";
@@ -23,6 +24,7 @@ export const InfoPanel =
     viewedTilePos, clickedTilePos
   }: InfoPanelProps) => {
     const replay: Replay = useStore((state: any) => state.replay)!; // game map should only get rendered when replay is non-null
+    //@ts-ignore
     const { gameInfo, turn, replayStats } = useStoreKeys("gameInfo", "replayStats", "turn");
     if (!replay || !replayStats) return <></>;
     const [selectedUnits, setSelectedUnits] = useState<Set<string>>(new Set());
@@ -48,6 +50,10 @@ export const InfoPanel =
     let flexUnitsTab = true;
     if (window.innerWidth / window.innerHeight < 1.65) {
       flexUnitsTab = false;
+    }
+    const cur_weather = WEATHER_ID_TO_NAME[replay.observations[0].weather_schedule[turn]]
+    const get_turn_percent = (turn: number) => {
+      return (turn * 100 / (replay.observations.length - replay.meta.real_start))
     }
     return (
       <>
@@ -86,6 +92,25 @@ export const InfoPanel =
             {!flexUnitsTab && <div className={s.liststatHeader}>P1 Units</div>}
             <UnitsList flex={flexUnitsTab} selectedUnits={selectedUnits} frameStats={frameStats["player_1"]} units={frame.units["player_1"]} factories={frame.factories["player_1"]}/>
           </div>
+          
+        <div className={s.weather}>
+          <div>Weather: {cur_weather}</div>
+          <span className={s.slidertick} style={{left: `${get_turn_percent(turn)}%`}}></span>
+          <span className={s.slider}></span>
+          {replay.meta.weather_events.map((weather) => {
+            // TODO add functionlaity for computing start of game excluding place+bid rounds and length of game
+            //@ts-ignore
+            const styles = {left: `${get_turn_percent(weather.start)}%`, width: `${get_turn_percent(weather.end - weather.start)}%`, backgroundColor: WEATHER_NAME_TO_COLOR[weather.name]};
+            // if (weather.name == "MARS_QUAKE") {
+            //   styles.width = "12px";
+            //   styles.left = `calc(${get_turn_percent(weather.start)}% - 6px)`
+            //   styles.marginTop = `-4px`;
+            //   styles.height = "13px";
+            //   styles.borderRadius = "4px";
+            // }
+            return <span className={s.weatherevent} style={styles}></span>
+          })}
+        </div>
           <TileView viewedTilePos={viewedTilePos} />
           {/* <div className={s.chartWrapper}><Charts /></div> */}
         </div>

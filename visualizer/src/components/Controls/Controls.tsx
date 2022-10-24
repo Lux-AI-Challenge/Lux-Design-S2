@@ -10,6 +10,7 @@ import reloadIcon from "@/assets/generic-icons/reload.svg"
 
 import s from "./styles.module.scss"
 import { SPEEDS } from "@/store/autoplay/constants"
+import { WEATHER_ID_TO_NAME, WEATHER_NAME_TO_COLOR } from "@/constants"
 
 interface ControlsProps {
 
@@ -61,7 +62,6 @@ export function Controls ({}: ControlsProps) {
     if (turn === episodeLength - 1) { return }
     toggleAutoplay()
   }
-
   return (
     <>
       <div className={s.controls}>

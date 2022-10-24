@@ -91,3 +91,44 @@ $teamborderradius: 8rem;
     padding-right: 1rem;
   }
 }
+$slider-width: 38rem;
+.weather {
+  height: 4px;
+  padding: 13px 0;
+  display: inline-block;
+  position: relative;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0.75;
+  max-width: 38rem;
+  width: calc(100% - 10rem);
+  .slidertick {
+    height: 16px;
+    margin-top: -6px;
+    width: 2px;
+    margin-left: -1px;
+    position: absolute;
+    display: block;
+    background-color: white;
+  }
+  .slider {
+    max-width: $slider-width;
+    width: calc(100% - 10rem);
+    width: 100%;
+    height: 4px;
+    display: block;
+    opacity: 0.38;
+    position: absolute;
+    border-radius: 1px;
+    background-color: currentColor;
+  }
+  .weatherevent {
+    width: 100%;
+    height: 4px;
+    display: block;
+    opacity: 1;
+    position: absolute;
+    border-radius: 1px;
+    background-color: red;
+  }
+}

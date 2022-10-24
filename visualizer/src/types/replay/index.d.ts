@@ -25,6 +25,8 @@ export type KaggleReplay = {
 export type Replay = {
   meta: {
     teams: {name: string}[];
+    weather_events: {start: number, end: number, name: string}[];
+    real_start: number;
   }
   observations: Frame[]
   actions: any[] // TODO
