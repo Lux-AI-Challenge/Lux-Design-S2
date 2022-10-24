@@ -468,7 +468,7 @@ class LuxAI2022(ParallelEnv):
 
             # 1. Check for malformed actions
             if self.env_cfg.validate_action_space:
-                # This part is not absolutely necessary
+                # This part is not absolutely necessary if you know for sure your actions are well formatted
                 for agent, unit_actions in actions.items():
                     valid_acts, err_reason = self.action_space(agent).contains(unit_actions)
                     if not valid_acts:

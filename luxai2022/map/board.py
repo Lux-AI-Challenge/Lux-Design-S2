@@ -74,7 +74,7 @@ class Board:
 
             else:
                 spawns_mask = yy > (self.height + 2) / 2
-        import ipdb;ipdb.set_trace()
+
         # if self.map.symmetry == "rotational":
         #     if team_id == 0:
         #         spawns_mask = xx < (self.width - 1) / 2
