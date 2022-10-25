@@ -1,8 +1,12 @@
 import json
 import sys
 from typing import Dict
-from lux.config import EnvConfig
-from lux.kit import GameState, process_obs, to_json, from_json, process_action, obs_to_game_state
+if __package__ == "":
+    from lux.config import EnvConfig
+    from lux.kit import GameState, process_obs, to_json, from_json, process_action, obs_to_game_state
+else:
+    from .lux.config import EnvConfig
+    from .lux.kit import GameState, process_obs, to_json, from_json, process_action, obs_to_game_state
 import numpy as np
 class Agent():
     def __init__(self, player: str) -> None:

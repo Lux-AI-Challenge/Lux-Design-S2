@@ -28,8 +28,10 @@ export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
     actions: [],
   }
   console.log({kaggleReplay});
-  replay.meta.teams[0].name = kaggleReplay.info.TeamNames[0];
-  replay.meta.teams[1].name = kaggleReplay.info.TeamNames[1];
+  if (kaggleReplay.info.TeamNames) {
+    replay.meta.teams[0].name = kaggleReplay.info.TeamNames[0];
+    replay.meta.teams[1].name = kaggleReplay.info.TeamNames[1];
+  }
   for (let i = 0; i < kaggleReplay.steps.length; i++) {
     const kframe = kaggleReplay.steps[i];
     const obs_str = kframe[0].observation.obs;
