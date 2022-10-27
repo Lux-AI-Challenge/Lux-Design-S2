@@ -29,7 +29,8 @@ json Agent::act() {
     for (const auto &[unitId, unit] : obs.units[player]) {
         for (int64_t i = 0; i < 5; ++i) {
             auto direction = lux::directionFromInt(i);
-            if (unit.canMove(obs, direction)) {
+            auto moveCost = unit.moveCost(obs, direction);
+            if (moveCost >= 0 && unit.power >= moveCost + unit.actionQueueCost(obs)) {
                 actions[unitId].push_back(
                     unit.move(obs, direction, false));  // Alternatively push lux::UnitAction::Move(direction, false)
                 break;
