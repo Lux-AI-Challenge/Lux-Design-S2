@@ -65,7 +65,7 @@ export function Controls ({}: ControlsProps) {
   return (
     <>
       <div className={s.controls}>
-        <div className={s.turn}>{`Turn ${turn} / ${episodeLength - 1}`}</div>
+        <div className={s.turn}>{`Turn ${turn - replay.meta.real_start} / ${episodeLength - 1 - replay.meta.real_start}`}</div>
         <Slider
           className={s.slider}
           value={turn}

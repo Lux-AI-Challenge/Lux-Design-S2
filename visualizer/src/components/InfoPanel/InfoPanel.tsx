@@ -51,7 +51,7 @@ export const InfoPanel =
     if (window.innerWidth / window.innerHeight < 1.65) {
       flexUnitsTab = false;
     }
-    const cur_weather = WEATHER_ID_TO_NAME[replay.observations[0].weather_schedule[turn]]
+    const cur_weather = WEATHER_ID_TO_NAME[replay.observations[0].weather_schedule[turn - replay.meta.real_start]]
     const get_turn_percent = (turn: number) => {
       return (turn * 100 / (replay.observations.length - replay.meta.real_start))
     }
