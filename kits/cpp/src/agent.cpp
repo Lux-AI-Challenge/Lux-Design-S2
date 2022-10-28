@@ -31,8 +31,8 @@ json Agent::act() {
             auto direction = lux::directionFromInt(i);
             auto moveCost = unit.moveCost(obs, direction);
             if (moveCost >= 0 && unit.power >= moveCost + unit.actionQueueCost(obs)) {
-                actions[unitId].push_back(
-                    unit.move(obs, direction, false));  // Alternatively push lux::UnitAction::Move(direction, false)
+                // Alternatively, push lux::UnitAction::Move(direction, false)
+                actions[unitId].push_back(unit.move(direction, false));
                 break;
             }
         }
