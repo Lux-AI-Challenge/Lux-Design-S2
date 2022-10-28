@@ -10,6 +10,13 @@ namespace lux {
         return LIGHT;
     }
 
+    int64_t ActionQueuePowerConfigs::operator[](const std::string &name) const {
+        if (name == "HEAVY") {
+            return HEAVY;
+        }
+        return LIGHT;
+    }
+
     const WeatherConfig &WeatherConfigs::operator[](const std::string &name) const {
         if (name == "COLD_SNAP") {
             return COLD_SNAP;
