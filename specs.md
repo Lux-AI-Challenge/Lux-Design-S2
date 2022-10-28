@@ -18,16 +18,11 @@ The rest of the document will go through the key features of this game.
 
 ## The Map
 
-The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left.
+The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). The map also includes a schedule of martian weather events impacting the environment discussed below.
 
-The map has various features including Raw Resources (Martian Ice, Metal Ore), Refined Resources (Water, Metal), Robots (Light, Heavy), Factories, Rubble, and Lichen. The map also includes a schedule of martian weather events impacting the environment discussed below.
+In order to prevent maps from favoring one player over another, it is guaranteed that maps are always symmetric by vertical or horizontal reflection. Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more details.
 
-In order to prevent maps from favoring one player over another, it is guaranteed that maps are always symmetric by vertical or horizontal reflection.
-
-Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more detail.
-
-
-### Weather Events
+## Weather Events
 
 There are 4 kinds of weather events that occur on a predetermined schedule (given to the players at the start of the game, between 3 and 5 events). These events last 1 - 30 turns with marsquakes lasting 1 - 5 turns.
 
@@ -40,10 +35,9 @@ There are 4 kinds of weather events that occur on a predetermined schedule (give
 
 The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all robots but during the night robots power is not recharged. Factories generate power each turn regardless.
 
-
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. 
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots.
 
 [TODO] Factories will process an integer amount of ice and ore at a time such that ...
 
@@ -80,7 +74,6 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
   </tr>
 </table>
 
-
 ## Starting Phase
 
 During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*100` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and receives an extra factory to place. If both players tie, neither player is awarded an extra factory. Players that do not win the bid do not lose any starting resources.
@@ -98,58 +91,7 @@ Robots always execute actions in the order of their current action queue. Robot 
 
 Submitting a new action queue for a robot costs power to communicate to the robot. Once given, the action queue is stored and wipes out what was stored previously. 
 
-The next few sections describe the Robots and Factories in detail.
-
-
-## Factories
-
-A factory is a building that takes up 3x3 tiles of space. Robots created from the factory will appear at the center of the factory. Allied robots can move onto one of the factory's 9 tiles, but enemies cannot.
-
-Each factory requires 1 water a turn to cool down the nuclear reactor that powers the factories. Should the factory end a turn with no water, the factory will then overheat and meltdown spewing 50 rubble in a 3x3 area.
-
-Each turn a factory will automatically:
-
-* Gain 50 power and consume 1 water (day and night)
-* Convert up to 100 martian ice to 20 water 
-* Convert up to 50 metal ore to 10 metal 
-
-Each factory can perform one of the following actions
-
-* Build a light robot
-* Build a heavy robot
-* Grow lichen - Waters lichen around the factory, costing `ceil(connected lichen tiles / 10)` water
-
-The following is the cost to build the two classes of robots.
-
-<table>
-  <tr>
-   <td>
-Robot Type
-   </td>
-   <td>Metal Cost
-   </td>
-   <td>Power Cost
-   </td>
-  </tr>
-  <tr>
-   <td>Light Robot
-   </td>
-   <td>10
-   </td>
-   <td>50
-   </td>
-  </tr>
-  <tr>
-   <td>Heavy Robot
-   </td>
-   <td>100
-   </td>
-   <td>500
-   </td>
-  </tr>
-</table>
-
-
+The next few sections describe the [Robots](#robots) and [Factories](#factories) in detail.
 
 ## Robots
 
@@ -197,7 +139,6 @@ There are two robot types, Light and Heavy. Every robot has an action queue and 
    </td>
   </tr>
 </table>
-
 
 ### Light and Heavy Robots
 
@@ -279,6 +220,7 @@ Action
    </td>
   </tr>
 </table>
+
 ### Movement, Collisions and Rubble
 
 Each square on the map has a rubble value which affects how difficult that square is to move onto. Rubble value is an integer ranging from 0 to 100 inclusive. The exact power required to move into a square with rubble can be found on the table above. Rubble can be removed from a square by a light or heavy robot by executing the dig action while occupying the square.
@@ -290,6 +232,53 @@ This environment also has robot collisions. Robots which move onto the same squa
 
 Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed in this way adds 10 rubble. (same values as marsquakes and self destructs).
 
+## Factories
+
+A factory is a building that takes up 3x3 tiles of space. Robots created from the factory will appear at the center of the factory. Allied robots can move onto one of the factory's 9 tiles, but enemies cannot.
+
+Each factory requires 1 water a turn to cool down the nuclear reactor that powers the factories. Should the factory end a turn with no water, the factory will then overheat and meltdown spewing 50 rubble in a 3x3 area.
+
+Each turn a factory will automatically:
+
+* Gain 50 power and consume 1 water (day and night)
+* Convert up to 100 martian ice to 20 water 
+* Convert up to 50 metal ore to 10 metal 
+
+Each factory can perform one of the following actions
+
+* Build a light robot
+* Build a heavy robot
+* Grow lichen - Waters lichen around the factory, costing `ceil(connected lichen tiles / 10)` water
+
+The following is the cost to build the two classes of robots.
+
+<table>
+  <tr>
+   <td>
+Robot Type
+   </td>
+   <td>Metal Cost
+   </td>
+   <td>Power Cost
+   </td>
+  </tr>
+  <tr>
+   <td>Light Robot
+   </td>
+   <td>10
+   </td>
+   <td>50
+   </td>
+  </tr>
+  <tr>
+   <td>Heavy Robot
+   </td>
+   <td>100
+   </td>
+   <td>500
+   </td>
+  </tr>
+</table>
 
 ## Lichen
 
