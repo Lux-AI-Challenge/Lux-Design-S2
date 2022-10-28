@@ -85,9 +85,9 @@ _Strategy Tip_: The player who lost the bid has an extra turn where they don’t
 
 ## Actions
 
-Robots and Factories can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
+[Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
 
-Robots always execute actions in the order of their current action queue. Robot actions can also be configured to be repeated, meaning once the action is executed the action is replaced to the back of the action queue instead of being removed.
+[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated, meaning once the action is executed the action is replaced to the back of the action queue instead of being removed.
 
 Submitting a new action queue for a robot costs power to communicate to the robot. Once given, the action queue is stored and wipes out what was stored previously. 
 
@@ -156,7 +156,7 @@ Light and Heavy Robots share the same set of actions / action space. However, in
     * Rubble - reduce rubble by 1 if light, 10 if heavy
     * Lichen - reduce lichen value by 10 if light, 100 if heavy
 * Self destruct - Destroys the robot on the spot, which creates rubble.
-* Recharge X - the robot waits until it has X power
+* Recharge X - the robot waits until it has X power. In code, the recharge X command is not removed from the action queue until the robot has X power.
 * Repeat - This is not an explicit action but is a boolean/bit that can be added to each action. It tells the robot to append the action the robot just took to the end of the action queue. When set to False, executed actions are not appended back and are removed from the queue.
 
 The following table summarizes the configurations.
@@ -311,11 +311,9 @@ Actions in the game are first all validated against the current game state to se
 8. Factories refine resources and consume water
 9. Power gain (if started during day for robots)
 
-
 ## Win Conditions
 
 After 1000 turns, the winner is whichever team has the most lichen value on the map. At the moment the game does not end early even if one team has no units left.
-
 
 ## Note on Game Rule Changes
 
