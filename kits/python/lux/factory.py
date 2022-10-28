@@ -2,10 +2,14 @@ import math
 from sys import stderr
 import numpy as np
 from dataclasses import dataclass
-from lux.weather import get_weather_config
-
-from lux.cargo import UnitCargo
-from lux.config import EnvConfig
+if __package__ == "":
+    from lux.weather import get_weather_config
+    from lux.cargo import UnitCargo
+    from lux.config import EnvConfig
+else:
+    from .weather import get_weather_config
+    from .cargo import UnitCargo
+    from .config import EnvConfig
 @dataclass
 class Factory:
     team_id: int
@@ -52,7 +56,7 @@ class Factory:
         """
         owned_lichen_tiles = (game_state.board.lichen_strains == self.strain_id).sum()
         return np.ceil(owned_lichen_tiles / self.env_cfg.LICHEN_WATERING_COST_FACTOR) + 1
-    def can_water(self):
-        return self.cargo.water >= self.water_cost()
+    def can_water(self, game_state):
+        return self.cargo.water >= self.water_cost(game_state)
     def water(self):
         return 2

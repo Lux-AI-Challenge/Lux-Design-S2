@@ -214,6 +214,12 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
                 f"Invalid Dig Action for unit {unit} - Tried to dig requiring ceil({unit.unit_cfg.DIG_COST} x {weather_cfg['power_loss_factor']}) = {dig_cost} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
             )
             continue
+        # verify not digging over a factory which is not allowed
+        if state.board.factory_occupancy_map[unit.pos.y, unit.pos.x] != -1:
+            invalidate_action(
+                f"Invalid Dig Action for unit {unit} - Tried to dig on top of a factory"
+            )
+            continue
         if valid_action:
             actions_by_type_validated["dig"].append((unit, dig_action))
 
@@ -292,7 +298,6 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
             continue
         if valid_action:
             actions_by_type_validated["move"].append((unit, move_action))
-    #TODO self destruct
 
     for unit, self_destruct_action in actions_by_type["self_destruct"]:
         valid_action = True

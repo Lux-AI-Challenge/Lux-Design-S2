@@ -3,6 +3,7 @@ import type { ResourceTile, ResourceMap } from "./resource-map"
 import { Factory, FactoryId, Unit, UnitId } from "./unit"
 
 export type Frame = {
+  real_env_steps: number;
   board: {
     [K in ResourceTile]: ResourceMap
   }

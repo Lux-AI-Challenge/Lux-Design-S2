@@ -1,3 +1,4 @@
+import { WEATHER_ID_TO_NAME } from "@/constants";
 import { FrameStats, KaggleReplay, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
 export function estimateGoodTileWidth(): number {
@@ -18,8 +19,18 @@ export function estimateGoodTileWidth(): number {
 }
 export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
   const replay: Replay = {
+    meta: {
+      teams: [{name: 'Player 0'}, {name: 'Player 1'}],
+      weather_events: [],
+      real_start: 0,
+    },
     observations: [],
     actions: [],
+  }
+  console.log({kaggleReplay});
+  if (kaggleReplay.info.TeamNames) {
+    replay.meta.teams[0].name = kaggleReplay.info.TeamNames[0];
+    replay.meta.teams[1].name = kaggleReplay.info.TeamNames[1];
   }
   for (let i = 0; i < kaggleReplay.steps.length; i++) {
     const kframe = kaggleReplay.steps[i];
@@ -39,11 +50,7 @@ function isKaggleReplay(replay: Replay | KaggleReplay): replay is KaggleReplay {
   return (replay as KaggleReplay).steps !== undefined;
 }
 export function loadFromObject(replay: Replay | KaggleReplay): Replay {
-  const stime = (new Date()).getTime();
-  if (isKaggleReplay(replay)) {
-    replay = convertFromKaggle(replay);
-  }
-  
+  const stime = (new Date()).getTime();  
   // TODO: validate that the replay is in the right format (?)
   // re-generate all board frames as necessary
   const hashToPos = (hash: string) => {
@@ -51,9 +58,19 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     return { x: parseInt(info[0]), y: parseInt(info[1]) };
   };
   const loadedReplay: Replay = {
+    meta: {
+      teams: [{name: 'Player 0'}, {name: 'Player 1'}],
+      weather_events: [],
+      real_start: 0,
+    },
     observations: [],
     actions: [],
   }
+  if (isKaggleReplay(replay)) {
+    replay = convertFromKaggle(replay);
+    loadedReplay.meta = replay.meta;
+  }
+  loadedReplay.meta.real_start = -replay.observations[1].real_env_steps + 1;
   const firstBoard = replay.observations[0].board;
   loadedReplay.observations[0] = replay.observations[0];
   loadedReplay.actions = replay.actions;
@@ -73,6 +90,28 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     loadedReplay.observations[i] = replay.observations[i];
   }
   const etime = (new Date()).getTime();
+
+  let prev_weather = -2;
+  let cur_weather = -1;
+   // copied from config.py
+  loadedReplay.observations[0].weather_schedule.forEach((v, idx) => {
+    if (v !== 0) {
+      if (cur_weather != prev_weather) {
+        // if new weather encountered, add new weather event
+        prev_weather = cur_weather
+        cur_weather = v;
+        loadedReplay.meta.weather_events.push({start: idx, end: idx, name: WEATHER_ID_TO_NAME[v]});
+      }
+      else {
+        loadedReplay.meta.weather_events[loadedReplay.meta.weather_events.length - 1].end = idx;
+      }
+    } else {
+      prev_weather = -2;
+      cur_weather = -1;
+    }
+  });
+
+
   console.log(`Loading replay + regeneration took ${(etime - stime)}ms`)
   return loadedReplay;
 }
