@@ -70,6 +70,13 @@ namespace lux {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeatherConfigs, COLD_SNAP, DUST_STORM, MARS_QUAKE, SOLAR_FLARE)
 
+    struct ActionQueuePowerConfigs {
+        int64_t HEAVY;
+        int64_t LIGHT;
+        int64_t operator[](const std::string &name) const;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ActionQueuePowerConfigs, HEAVY, LIGHT)
+
     struct EnvConfig {
         bool                     BIDDING_SYSTEM;
         int64_t                  CYCLE_LENGTH;
@@ -92,8 +99,8 @@ namespace lux {
         std::vector<int64_t>     NUM_WEATHER_EVENTS_RANGE;
         int64_t                  ORE_METAL_RATIO;
         UnitConfigs              ROBOTS;
-        int64_t                  UNITS_CONTROLLED;
         int64_t                  UNIT_ACTION_QUEUE_SIZE;
+        ActionQueuePowerConfigs  UNIT_ACTION_QUEUE_POWER_COST;
         WeatherConfigs           WEATHER;
         std::vector<std::string> WEATHER_ID_TO_NAME;
         int64_t                  map_size;
@@ -126,8 +133,8 @@ namespace lux {
                                        NUM_WEATHER_EVENTS_RANGE,
                                        ORE_METAL_RATIO,
                                        ROBOTS,
-                                       UNITS_CONTROLLED,
                                        UNIT_ACTION_QUEUE_SIZE,
+                                       UNIT_ACTION_QUEUE_POWER_COST,
                                        WEATHER,
                                        WEATHER_ID_TO_NAME,
                                        map_size,

@@ -122,11 +122,11 @@ Just as the Python kit, this kit also provides some additional information not d
 - each unit contains its respective `lux::UnitConfiguration`
 - the `lux::Board` contains a `factory_occupancy` map (a 2D array, like the `rubble`) where `factory_occupancy[y][x]` contains either the team id of the team that owns a factory there or -1 if there is no factory
 - `lux::Observation` provides `getCurrentWeather()` to get the current `lux::WeatherConfig` as well as `isDay()` to determine if it is day or not
-- `lux::Unit` and `lux::Factory` provide functionality to calculate the cost of each action as well as a simple function to determine if an action can be performed or not
+- `lux::Unit` and `lux::Factory` provide functionality to calculate the cost of each action
 - `lux::Position` provides a static function `Delta(dir)` which will return a delta position for a given direction
 
 Besides that is also has a few unique features (in `lux/log.hpp` and `lux/exception.hpp`):
-- `lux::dumpToJsonFile` will write content of a `json` to an actual JSON file (every step the input is written to `input.json` in the build directory
+- `lux::dumpToJsonFile` will write content of a `json` to an actual JSON file (every step the input is written to `input.json` in the build directory)
 - `LUX_LOG` macro can be used to log something (debug build only). It will simply be forwarded to `stderr`.
 - `LUX_ASSERT` macro can be used to perform assertions (debug build only). If an assertion fails, it will throw a `lux::Exception`.
 
