@@ -9,8 +9,8 @@ def read(fname):
 
 setup(
     name="luxai2022",
-    version="0.0.1",
-    author="TODO",
+    version="0.1.0",
+    author="Lux AI Challenge Nonprofit",
     description="The Lux AI Challenge Season 2",
     license="MIT",
     keywords="reinforcement-learning machine-learning ai",
