@@ -1,26 +1,30 @@
+# Lux AI Challenge Season 2 Beta Specifications
+
+For documentation on the API, see [this document](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/master/kits/). To get started developing a bot, see our [Github](https://github.com/Lux-AI-Challenge/Lux-Design-2022)
+
+
 ## Background
 
-As the sun set on the world an array of lights dotted the once dark horizon. With the help of a brigade of toads, Lux had made it past the terrors in the night to see the dawn of a new age. Seeking new challenges, plans were made to send a forward force with one mission: colonize Mars!
+As the sun set on the world an array of lights dotted the once dark horizon. With the help of a [brigade of toads](https://www.kaggle.com/competitions/lux-ai-2021/discussion/294993), Lux had made it past the terrors in the night to see the dawn of a new age. Seeking new challenges, plans were made to send a forward force with one mission: terraform Mars!
 
 
 ## Environment
 
-In the Lux AI Challenge Season 2, two competing teams control a team of Factory and Robots that collect resources and plant lichen, with the main objective to own as much lichen as possible at the end of the turn-based game. Both teams have complete information about the entire board state (but not any queued actions) and will need to make use of that information to optimize resource collection, compete for scarce resources against the opponent, and build lichen to score points.
+In the Lux AI Challenge Season 2, two competing teams control a team of Factory and Robots that collect resources and plant lichen, with the main objective to own as much lichen as possible at the end of the turn-based game. Both teams have complete information about the entire game state and will need to make use of that information to optimize resource collection, compete for scarce resources against the opponent, and grow lichen to score points.
 
 Each competitor must program their own agent in their language of choice. Each turn, each agent gets 3 seconds to submit their actions, excess time is not saved across turns. In each game, each player is given a pool of 60 seconds that is tapped into each time the agent goes over a turn's 3-second limit. Upon using up all 60 seconds and going over the 3-second limit, the agent freezes and loses automatically.
 
 The rest of the document will go through the key features of this game.
 
-
 ## The Map
 
-The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and can be 64 tiles long. The (0, 0) coordinate is at the top left.
+The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left.
 
-The map has various features including Raw Resources (Martian Ice, Metal Ore), Refined Resources (Water, Metal), Robots (Light, Heavy), Factories, Rubble, and Lichen. The map also includes a schedule of martian weather events discussed below.
+The map has various features including Raw Resources (Martian Ice, Metal Ore), Refined Resources (Water, Metal), Robots (Light, Heavy), Factories, Rubble, and Lichen. The map also includes a schedule of martian weather events impacting the environment discussed below.
 
 In order to prevent maps from favoring one player over another, it is guaranteed that maps are always symmetric by vertical or horizontal or diagonal (TBD) reflection.
 
-Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the Starting Phase for more detail.
+Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more detail.
 
 
 ### Weather Events
