@@ -9,7 +9,7 @@ from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.logger import Logger
 from omegaconf import OmegaConf
 
-if __name__ == "__main__":
+def main():
     np.random.seed(0)
     import argparse
 
@@ -59,3 +59,6 @@ if __name__ == "__main__":
         cfg=cfg
     )
     asyncio.run(eps.run())
+
+if __name__ == "__main__":
+    main()

@@ -56,7 +56,7 @@ def env():
 
 
 class LuxAI2022(ParallelEnv):
-    metadata = {"render.modes": ["human", "html"], "name": "luxai2022_v0"}
+    metadata = {"render.modes": ["human", "html", "rgb_array"], "name": "luxai2022_v0"}
 
     def __init__(self, **kwargs):
         default_config = EnvConfig(**kwargs)
@@ -78,7 +78,7 @@ class LuxAI2022(ParallelEnv):
         return get_obs_space(config=self.env_cfg, agent_names=self.possible_agents, agent=agent)
 
     # @functools.lru_cache(maxsize=None)
-    def action_space(self, agent):
+    def action_space(self, agent: str):
         if self.env_cfg.BIDDING_SYSTEM:
             if self.env_steps == 0:
                 # bid first, then place factories
@@ -91,6 +91,12 @@ class LuxAI2022(ParallelEnv):
                 return get_act_space_init(config=self.env_cfg, agent=agent)
             return get_act_space(self.state.units, self.state.factories, config=self.env_cfg, agent=agent)
 
+    def _init_render(self):
+        if self.py_visualizer is None:
+            self.py_visualizer = Visualizer(self.state)
+            return True
+        return False
+
     def render(self, mode="human"):
         """
         Renders the environment. In human mode, it can print to terminal, open
@@ -102,10 +108,24 @@ class LuxAI2022(ParallelEnv):
         #     string = "Game over"
 
         if mode == "human":
-            if self.py_visualizer is None:
-                self.py_visualizer = Visualizer(self.state)
+            if self._init_render():
+                self.py_visualizer.init_window()
+            
             self.py_visualizer.update_scene(self.state)
             self.py_visualizer.render()
+        elif mode == "rgb_array":
+            self._init_render()
+            self.py_visualizer.update_scene(self.state)
+            VIDEO_W = 400
+            VIDEO_H = 400
+            return self.py_visualizer._create_image_array(self.py_visualizer.surf, (VIDEO_W, VIDEO_H))
+        elif mode == "rgb_array":
+            self._init_render()
+            self.py_visualizer.update_scene(self.state)
+            VIDEO_W = 400
+            VIDEO_H = 400
+            return self.py_visualizer._create_image_array(self.py_visualizer.surf, (VIDEO_W, VIDEO_H))
+
 
     def close(self):
         """
@@ -113,6 +133,12 @@ class LuxAI2022(ParallelEnv):
         or any other environment data which should not be kept around after the
         user is no longer using the environment.
         """
+        try:
+            import pygame
+            pygame.display.quit()
+            pygame.quit()
+        except:
+            print("No pygame installed, ignoring import")
         pass
 
     def get_state(self):
@@ -429,6 +455,7 @@ class LuxAI2022(ParallelEnv):
                     unit.action_queue = unit.action_queue[:-1]
     def _handle_factory_water_actions(self, actions_by_type: ActionsByType):
         for factory, factory_water_action in actions_by_type["factory_water"]:
+            factory_water_action: FactoryWaterAction
             water_cost = factory.water_cost(self.env_cfg)
             factory.cargo.water -= water_cost # earlier validation ensures this is always possible.
             indexable_positions = ([v[1] for v in factory.grow_lichen_positions], [v[0] for v in factory.grow_lichen_positions])

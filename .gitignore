@@ -8,3 +8,6 @@ visualizer/src/assets/replay.json
 kaggle-environments
 tests/private_agents
 map_samples
+
+dist
+build
