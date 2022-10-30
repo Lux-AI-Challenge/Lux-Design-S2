@@ -11,4 +11,3 @@ if __name__ == "__main__":
             "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])),
         }
     )
-    # TODO

@@ -164,7 +164,6 @@ def agent_fn(observation, configurations):
     if step == 0:
         agent_dict[player] = Agent(player)
         agent = agent_dict[player]
-        # TODO verify this works with kaggle input and add logic to fix that
         agent.env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
     agent = agent_dict[player]
     new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
