@@ -37,9 +37,7 @@ The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day tu
 
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots.
-
-[TODO] Factories will process an integer amount of ice and ore at a time such that ...
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ice, it will refine 5 ice into 1 water and leave 3 ice leftover.
 
 <table>
   <tr>
