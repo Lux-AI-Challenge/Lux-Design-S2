@@ -16,28 +16,33 @@ Interested in Season 1? Check out [last year's repository](https://github.com/Lu
 
 ## Getting Started
 
-You will need python 3.8 or above installed on your system. Once installed, you can install the Lux AI season 2 environment with
+You will need python 3.7 or above installed on your system. Once installed, you can install the Lux AI season 2 environment with
 
 ```
-pip install lux-ai-2022
+pip install --upgrade luxai2022
 ```
 
-To run a match, run
-
+To run a match with the CLI tool, run
 
 ```
-python -m luxai_runner.cli my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
+luxai2022 my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
 ```
 
-This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai_runner tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/luxai_runner/README.md
+This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxia2022 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/luxai_runner/README.md
 
 Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits
 
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
-Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our CONTRIBUTING.md document for more information on this.
+- [Python](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits/python/)
+- [C++](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits/cpp/)
+- Javascript - TBA
+- Typescript - TBA
+- Java - TBA
 
-To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/ChangeLog.md for a full change log.
+Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/CONTRIBUTING.md) document for more information on this.
+
+To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/ChangeLog.md) for a full change log.
 
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
@@ -47,11 +52,11 @@ See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-2
 
 ## Sponsors
 
-Stay tuned for the official release.
+To be announced at the official release.
 
 ## Core Contributors
 
-We like to extend thanks to some of our early core contributors [TODO]
+We like to extend thanks to some of our early core contributors @duanwilliam (Frontend), @programjames (Map generation), and @themmj (C++ kit).
 
 
 ## Citation
