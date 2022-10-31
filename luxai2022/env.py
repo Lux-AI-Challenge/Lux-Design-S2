@@ -96,7 +96,6 @@ class LuxAI2022(ParallelEnv):
             self.py_visualizer = Visualizer(self.state)
             return True
         return False
-
     def render(self, mode="human"):
         """
         Renders the environment. In human mode, it can print to terminal, open

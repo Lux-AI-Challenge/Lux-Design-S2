@@ -5,20 +5,16 @@ from lux.config import EnvConfig
 from lux.kit import GameState, process_obs, to_json, from_json, process_action, obs_to_game_state
 import numpy as np
 class Agent():
-    def __init__(self, player: str) -> None:
+    def __init__(self, player: str, env_cfg: EnvConfig) -> None:
         self.player = player
         self.opp_player = ""
         self.game_state: GameState = None
-        if self.player == "player_0":
-            self.opp_player = "player_1"
-        else:
-            self.opp_player = "player_0"
+        if self.player == "player_0": self.opp_player = "player_1"
+        else: self.opp_player = "player_0"
         np.random.seed(0)
         self.step = -1
         self.factories_owned = 0
-        self.init_metal_left = 0
-        self.init_water_left = 0
-        self.env_cfg: EnvConfig = None
+        self.env_cfg: EnvConfig = env_cfg
 
     def early_setup(self, step, obs, remainingOverageTime: int):
         """
@@ -144,31 +140,3 @@ class Agent():
                 # here, we tell this unit to move in a direction once and stay still until controlled again
                 actions[unit_id] = [unit.move(move_dir, repeat=False)]
         return actions
-
-### DO NOT REMOVE THE FOLLOWING CODE ###
-agent_dict = dict() # store potentially multiple dictionaries as kaggle imports code directly
-def agent_fn(observation, configurations):
-    """
-    agent definition for kaggle submission.
-    """
-    global agent_dict
-    step = observation.step
-    
-    
-    player = observation.player
-    remainingOverageTime = observation.remainingOverageTime
-    if step == 0:
-        agent_dict[player] = Agent(player)
-        agent = agent_dict[player]
-        agent.env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
-    agent = agent_dict[player]
-    new_game_state = process_obs(player, agent.game_state, step, json.loads(observation.obs))
-    agent.game_state = new_game_state
-    agent.step = step
-    if step <= agent.game_state["board"]["factories_per_team"] + 1:
-        actions = agent.early_setup(step, new_game_state, remainingOverageTime)
-    else:
-        real_env_steps = new_game_state["real_env_steps"]
-        actions = agent.act(real_env_steps, new_game_state, remainingOverageTime)
-
-    return process_action(actions)
