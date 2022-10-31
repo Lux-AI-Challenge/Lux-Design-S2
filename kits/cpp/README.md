@@ -14,6 +14,20 @@ This is the C++ implementation of the Python kit. It *should* have feature parit
   - [3.3 Actions](#33-actions)
   - [3.4 Additional features](#34-additional-features)
 
+## Getting Started
+
+To get started, download this folder from this repository.
+
+Your core agent code will go into `agent.py`, and you can create and use more files to help you as well. You should leave `main.py` alone as that code enables your agent to compete against other agents locally and on Kaggle.
+
+To quickly test run your agent, run
+
+```
+luxai2022 build/agent.out build/agent.out --out=replay.json
+```
+
+This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`.
+
 ## 1 File structure
 
 This project is structured as a CMake project. This root folder contains setup and convenience functionality. The
@@ -54,7 +68,7 @@ can take additional flags to alter some aspects of the process. E.g. disable ped
 
 Run `./compile.sh` to run the script. Add `--help` to see available options for it.
 
-### 2.2 Using Docker
+### 2.2 Using Docker and Submitting to Kaggle
 
 Requirements:  
 - Docker (if docker requires elevated privileges, then the script has to run with elevated privileges)
@@ -65,7 +79,7 @@ create an Ubuntu docker container to build your agent. The compiled content can 
 `docker_build` folder.
 
 Additionally, this script will create a `submission.tar.gz` file containing everything in this folder. This archive
-should be used to submit your bot to Kaggle.
+should be used to submit your bot to Kaggle in the My Submissions Tab.
 
 ## 3 Notes about the code
 
