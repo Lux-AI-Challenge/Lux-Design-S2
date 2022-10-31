@@ -10,7 +10,7 @@ To run a episode with verbosity level 2 (higher is more verbose), seed 42, and s
 luxai2022 kits/python/main.py kits/js/main.js -s 42 -v 2 -o replay.json
 ```
 
-To then watch the replay, upload it to http://2022vis.lux-ai.org/
+To then watch the replay, upload replay.json to http://2022vis.lux-ai.org/
 
 For an in-depth tutorial detailing how to start writing an agent, there is a [online Jupyter Notebook](https://www.kaggle.com/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial) that you can follow (only in python). We highly recommend at least skimming over this as season 2 has some specific quirks that make it different than your standard AI gym environments. Specifically they affect the [environment actions](#environment-actions) mostly.
 
@@ -95,3 +95,37 @@ The general observation given to your bot in the kits will look like below. `Arr
 ```
 
 Every kit has an `Agent` class that defines two functions, `early_setup` and `act` with parameters `step`, `obs` and `remainingOverageTime` corresponding to the values in the definition above. Note that for the `act` function, `obs["real_env_steps"]` is used instead. This subtracts the time spent bidding and placing factories in `early_setup` and so the first call to `act` will be with `step = 0` and `act` will be called `max_episode_length` times (default 1000).
+
+## Kit API
+
+All kits come with a interactable API to get data about the current state/observation of the environment. The game state or formatted observation looks as so
+```python
+class GameState:
+    env_steps: int # number of env steps passed
+    env_cfg: dict # current env configuration
+    board: Board # the game board
+    weather_schedule: Array # the weather ID at each time step
+    units: Dict[str, Dict[str, Unit]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to unit objects
+    factories: Dict[str, Dict[str, Factory]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to factory objects
+    teams: Dict[str, Team] # maps agent ID (player_0, player_1) to a Team object
+```
+
+The board object looks as so
+
+```python
+class Board:
+    rubble: Array
+    ice: Array
+    ore: Array
+    lichen: Array
+    lichen_strains: Array # the id of the lichen planted at each tile, corresponds with factory.strain_id
+    factory_occupancy_map: Array # -1 everywhere. Otherwise has the numerical ID of the factory (equivalent to factory.strain_id) that occupies that tile
+    factories_per_team: int # number of factories each team gets to place initially
+    spawns: Array # possible spawn locations on your team's half of the map
+```
+
+Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions (and also factors weather into that cost)
+
+Each `Factory` object comes with functions to generate actions as well as compute the cost of building robots and watering lichen.
+
+Finally, the `Team` object holds the initial pool of water and metal the team has during the early phase, the number of factories left to place, and the strain ids of the owned factories.
