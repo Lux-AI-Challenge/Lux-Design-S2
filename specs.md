@@ -140,7 +140,7 @@ There are two robot types, Light and Heavy. Every robot has an action queue and 
 
 ### Light and Heavy Robots
 
-Light and Heavy Robots share the same set of actions / action space. However, in general, heavy robots generally accomplish 10x more with their actions but their actions will cost 10x more power.
+Light and Heavy Robots share the same set of actions / action space. However, in general, heavy robots generally accomplish 10x more with their actions but their actions will cost 20x more power.
 
 
 ### Actions
