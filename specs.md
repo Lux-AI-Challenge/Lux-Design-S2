@@ -1,6 +1,6 @@
 # Lux AI Challenge Season 2 Beta Specifications
 
-For documentation on the API, see [this document](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/). To get started developing a bot, see our [Github](https://github.com/Lux-AI-Challenge/Lux-Design-2022)
+For documentation on the API, see [this document](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/). To get started developing a bot, see our [Github](https://github.com/Lux-AI-Challenge/Lux-Design-2022). This is currently in Beta, so we are looking for feedback and bug reports, if you find any issues with the code, specifications etc. please ping us on [Discord](https://discord.gg/aWJt3UAcgn) or post a [GitHub Issue](https://github.com/Lux-AI-Challenge/Lux-Design-2022/issues)
 
 
 ## Background
@@ -148,9 +148,9 @@ Light and Heavy Robots share the same set of actions / action space. However, in
 ### Actions
 
 * Move - Move the robot in one of 5 directions, North, East, South, West, Center. Moving center costs no power.
-* Transfer -  Send any amount of a single resource-type (including power) from a robot’s cargo to an orthogonally adjacent tile. If a robot is on the adjacent tile, it will receive the transferred resources up to the robot’s cargo capacity. If the adjacent tile is a friendly factory tile, the factory receives all the transferred resources. If the receiving entity can't receive all transferred resources due to space limitations, then the overflow resources are wasted.
+* Transfer -  Send any amount of a single resource-type (including power) from a robot’s cargo to an orthogonally adjacent tile or to the tile it is standing on. If a robot is on the target tile, it will receive the transferred resources up to the robot’s cargo capacity. If the target tile is a friendly factory tile, the factory receives all the transferred resources. If the receiving entity can't receive all transferred resources due to space limitations, then the overflow resources are wasted. Factories are given preference over other robots in receiving resources from transfers.
     * Algorithmically, we perform the following procedure. The environment creates transfer requests for every robot that wants to transfer and remove the specified resources from the robot’s cargo. All transfer requests are attempted to be fulfilled, and any excess caused by not enough cargo space (either robot has no space, or too many robots transferring to the same robot and go over the max capacity), is then wasted.
-* Pickup - When on top of a factory, can pick up any amount of power or any resources. Preference is given to robots with lower robot IDs.
+* Pickup - When on top of any factory tile (there are 3x3 per factory), can pick up any amount of power or any resources. Preference is given to robots with lower robot IDs.
 * Dig - Does a number of things depending on what tile the robot is on top of
     * Rubbleless resource tile - gain raw resources (ice or ore)
     * Rubble - reduce rubble by 1 if light, 10 if heavy
@@ -236,13 +236,11 @@ Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed
 
 A factory is a building that takes up 3x3 tiles of space. Robots created from the factory will appear at the center of the factory. Allied robots can move onto one of the factory's 9 tiles, but enemies cannot.
 
-Each factory requires 1 water a turn to cool down the nuclear reactor that powers the factories. Should the factory end a turn with no water, the factory will then overheat and meltdown spewing 50 rubble in a 3x3 area.
-
 Each turn a factory will automatically:
 
-* Gain 50 power and consume 1 water (day and night)
-* Convert up to 100 martian ice to 20 water 
-* Convert up to 50 metal ore to 10 metal 
+* Gain 50 power (regardless of day or night)
+* Convert up to 100 ice to 20 water 
+* Convert up to 50 ore to 10 metal 
 
 Each factory can perform one of the following actions
 
@@ -250,7 +248,7 @@ Each factory can perform one of the following actions
 * Build a heavy robot
 * Grow lichen - Waters lichen around the factory, costing `ceil(connected lichen tiles / 10)` water
 
-The following is the cost to build the two classes of robots.
+The following is the cost to build the two classes of robots. Note that also robots when built will have their battery charged up to the power cost.
 
 <table>
   <tr>
@@ -308,7 +306,7 @@ Actions in the game are first all validated against the current game state to se
 5. Movement and recharge actions execute, then collisions are resolved
 6. Factories that watered their tiles grow lichen
 7. Robot Building
-8. Factories refine resources and consume water
+8. Factories refine resources
 9. Power gain (if started during day for robots)
 
 ## Win Conditions
