@@ -63,7 +63,7 @@ class Agent():
                 adjacent_to_factory = np.mean((closest_factory_tile - unit.pos) ** 2) == 0
 
                 # previous ice mining code
-                if unit.cargo.ice < 100:
+                if unit.cargo.ice < 40:
                     ice_tile_distances = np.mean((ice_tile_locations - unit.pos) ** 2, 1)
                     closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
                     if np.all(closest_ice_tile == unit.pos):
@@ -75,7 +75,7 @@ class Agent():
                         if move_cost is not None and unit.power >= move_cost + unit.action_queue_cost(game_state):
                             actions[unit_id] = [unit.move(direction, repeat=False)]
                 # else if we have enough ice, we go back to the factory and dump it.
-                elif unit.cargo.ice >= 100:
+                elif unit.cargo.ice >= 40:
                     direction = direction_to(unit.pos, closest_factory_tile)
                     if adjacent_to_factory:
                         if unit.power >= unit.action_queue_cost(game_state):

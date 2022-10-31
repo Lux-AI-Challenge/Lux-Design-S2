@@ -14,10 +14,11 @@ class FactionInfo:
     faction_id: int = -1
 
 class FactionTypes(Enum):
-    AlphaStrike = FactionInfo(color="yellow", faction_id=0)
-    MotherMars = FactionInfo(color="green", faction_id=1)
-    TheBuilders = FactionInfo(color="blue", faction_id=2)
-    FirstMars = FactionInfo(color="red", faction_id=3)
+    Null = FactionInfo(color="gray", faction_id=0)
+    AlphaStrike = FactionInfo(color="yellow", faction_id=1)
+    MotherMars = FactionInfo(color="green", faction_id=2)
+    TheBuilders = FactionInfo(color="blue", faction_id=3)
+    FirstMars = FactionInfo(color="red", faction_id=4)
 
 class Team:
     def __init__(self, team_id: int, agent: str, faction: FactionTypes = None, water=0, metal=0, factories_to_place=0, factory_strains=[]) -> None:
