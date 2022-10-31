@@ -62,11 +62,13 @@ We like to extend thanks to some of our early core contributors @duanwilliam (Fr
 ## Citation
 If you use the Lux AI Season 2 environment in your work, please cite this repository as so
 
+```
 @software{Lux_AI_Challenge_S1,
   author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
-  month = {9},
+  month = {10},
   title = {{Lux AI Challenge Season 2}},
   url = {https://github.com/Lux-AI-Challenge/Lux-Design-2022},
   version = {1.0.0},
   year = {2022}
 }
+```
