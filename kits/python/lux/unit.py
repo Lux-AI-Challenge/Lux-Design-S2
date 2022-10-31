@@ -75,3 +75,7 @@ class Unit:
 
     def recharge(self, x, repeat=True):
         return np.array([5, 0, 0, x, 1 if repeat else 0])
+
+    def __str__(self) -> str:
+        out = f"[{self.team_id}] {self.unit_id} {self.unit_type} at {self.pos}"
+        return out

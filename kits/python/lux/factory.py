@@ -17,7 +17,6 @@ class Factory:
     # lichen_tiles: np.ndarray
     env_cfg: EnvConfig
 
-
     def build_heavy_metal_cost(self, game_state):
         unit_cfg = self.env_cfg.ROBOTS["HEAVY"]
         return unit_cfg.METAL_COST

@@ -80,7 +80,7 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
             )
             factory.cargo = cargo
             factories[agent][unit_id] = factory
-            factory_occupancy_map[factory.pos[1] - 1:factory.pos[1] + 1, factory.pos[0] - 1:factory.pos[0] + 1] = factory.team_id
+            factory_occupancy_map[factory.pos[1] - 1:factory.pos[1] + 2, factory.pos[0] - 1:factory.pos[0] + 2] = factory.team_id
     teams = dict()
     for agent in obs["teams"]:
         team_data = obs["teams"][agent]

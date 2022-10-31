@@ -311,7 +311,7 @@ class LuxAI2022(ParallelEnv):
     def _handle_pickup_actions(self, actions_by_type: ActionsByType):
         for unit, pickup_action in actions_by_type["pickup"]:
             pickup_action: PickupAction
-            factory = self.state.board.get_factory_at(unit.pos)
+            factory = self.state.board.get_factory_at(self.state, unit.pos)
             pickup_amount = factory.sub_resource(pickup_action.resource, pickup_action.pickup_amount)
             # may waste resources if tried to pickup more than one can hold.
             actually_pickedup = unit.add_resource(pickup_action.resource, pickup_amount)

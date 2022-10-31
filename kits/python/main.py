@@ -8,6 +8,7 @@ from lux.config import EnvConfig
 from lux.kit import GameState, process_obs, to_json, from_json, process_action, obs_to_game_state
 ### DO NOT REMOVE THE FOLLOWING CODE ###
 agent_dict = dict() # store potentially multiple dictionaries as kaggle imports code directly
+agent_prev_obs = dict()
 def agent_fn(observation, configurations):
     """
     agent definition for kaggle submission.
@@ -19,11 +20,13 @@ def agent_fn(observation, configurations):
     player = observation.player
     remainingOverageTime = observation.remainingOverageTime
     if step == 0:
-        agent_dict[player] = Agent(player)
+        env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
+        agent_dict[player] = Agent(player, env_cfg)
+        agent_prev_obs[player] = dict()
         agent = agent_dict[player]
-        agent.env_cfg = EnvConfig.from_dict(configurations["env_cfg"])
     agent = agent_dict[player]
-    obs = process_obs(player, agent.game_state, step, json.loads(observation.obs))
+    obs = process_obs(player, agent_prev_obs[player], step, json.loads(observation.obs))
+    agent_prev_obs[player] = obs
     agent.step = step
     if step <= obs["board"]["factories_per_team"] + 1:
         actions = agent.early_setup(step, obs, remainingOverageTime)
