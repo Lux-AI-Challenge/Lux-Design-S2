@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-if __package__ == "":
-    from lux.config import EnvConfig
-else:
-    from .config import EnvConfig
+from lux.config import EnvConfig
 TERM_COLORS = False
 try:
     from termcolor import colored
@@ -37,7 +34,7 @@ class Team:
         return dict(
             team_id=self.team_id,
             faction=self.faction.name,
-            # TODO for optimization, water,metal, factories_to_place doesn't change after the early game.
+            # note for optimization, water,metal, factories_to_place doesn't change after the early game.
             water=self.init_water,
             metal=self.init_metal,
             factories_to_place=self.factories_to_place

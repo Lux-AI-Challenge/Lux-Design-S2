@@ -9,7 +9,7 @@ from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.logger import Logger
 from omegaconf import OmegaConf
 
-if __name__ == "__main__":
+def main():
     np.random.seed(0)
     import argparse
 
@@ -29,11 +29,6 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--seed", help="Random seed for episode(s)", type=int)
 
     # env configs
-
-    # TODO None of these are actually being used yet.
-    parser.add_argument("-map", "--map_type", help="Map type ('Cave', 'Craters', 'Island', 'Mountain')")
-    parser.add_argument("--size", help="Size (32-64)", type=int)
-    parser.add_argument("-sym", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
 
     parser.add_argument("--render", help="Render...", action="store_true", default=False)
 
@@ -64,3 +59,6 @@ if __name__ == "__main__":
         cfg=cfg
     )
     asyncio.run(eps.run())
+
+if __name__ == "__main__":
+    main()

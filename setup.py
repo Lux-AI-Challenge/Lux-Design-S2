@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -9,12 +9,14 @@ def read(fname):
 
 setup(
     name="luxai2022",
-    version="0.1.0",
-    author="Lux AI Challenge Nonprofit",
+    version="0.0.5",
+    author="Lux AI Challenge",
     description="The Lux AI Challenge Season 2",
     license="MIT",
     keywords="reinforcement-learning machine-learning ai",
     url="https://github.com/Lux-AI-Challenge/Lux-Design-2022",
-    packages=["luxai2022", "tests", "luxai_runner"],
+    packages=find_packages(exclude="kits"),
     long_description=read("README.md"),
+    entry_points={'console_scripts': [
+        'luxai2022 = luxai_runner.cli:main']},
 )

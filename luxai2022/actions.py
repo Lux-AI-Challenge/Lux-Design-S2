@@ -168,7 +168,6 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
             )
             continue
         # if transfer_action.transfer_amount < 0: do not need to check as action space permits range of [0, max_transfer_amount] anyway
-        # TODO - check what happens if transferring with direction center?
         resource_id = transfer_action.resource
         amount = transfer_action.transfer_amount
         if resource_id == 0:
@@ -227,7 +226,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         valid_action = True
         pickup_action: PickupAction
         unit: luxai_unit.Unit
-        factory = state.board.get_factory_at(unit.pos)
+        factory = state.board.get_factory_at(state, unit.pos)
         if factory is None:
             invalidate_action(f"No factory to pickup from for unit {unit}")
             continue

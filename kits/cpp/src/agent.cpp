@@ -15,7 +15,7 @@ json Agent::setup() {
 }
 
 json Agent::act() {
-    json actions;
+    json actions = json::object();
     for (const auto &[unitId, factory] : obs.factories[player]) {
         if (step % 4 < 3 && factory.canBuildLight(obs)) {
             actions[unitId] = factory.buildLight(obs);

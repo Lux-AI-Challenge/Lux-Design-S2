@@ -3,14 +3,9 @@ import sys
 from typing import List
 import numpy as np
 from dataclasses import dataclass
-if __package__ == "":
-    from lux.weather import get_weather_config
-    from lux.cargo import UnitCargo
-    from lux.config import EnvConfig
-else:
-    from .weather import get_weather_config
-    from .cargo import UnitCargo
-    from .config import EnvConfig
+from lux.weather import get_weather_config
+from lux.cargo import UnitCargo
+from lux.config import EnvConfig
 
 # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
@@ -80,3 +75,7 @@ class Unit:
 
     def recharge(self, x, repeat=True):
         return np.array([5, 0, 0, x, 1 if repeat else 0])
+
+    def __str__(self) -> str:
+        out = f"[{self.team_id}] {self.unit_id} {self.unit_type} at {self.pos}"
+        return out

@@ -1,18 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Dict
 import numpy as np
-if __package__ == "":
-    from lux.cargo import UnitCargo
-    from lux.config import EnvConfig
-    from lux.team import Team, FactionTypes
-    from lux.unit import Unit
-    from lux.factory import Factory
-else:
-    from .cargo import UnitCargo
-    from .config import EnvConfig
-    from .team import Team, FactionTypes
-    from .unit import Unit
-    from .factory import Factory
+from lux.cargo import UnitCargo
+from lux.config import EnvConfig
+from lux.team import Team, FactionTypes
+from lux.unit import Unit
+from lux.factory import Factory
 def process_action(action):
     return to_json(action)
 def to_json(state):
@@ -65,13 +58,14 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
         for unit_id in obs["units"][agent]:
             unit_data = obs["units"][agent][unit_id]
             cargo = UnitCargo(**unit_data["cargo"])
-            del unit_data["cargo"]
-            units[agent][unit_id] = Unit(
+            unit = Unit(
                 **unit_data,
-                cargo=cargo,
                 unit_cfg=env_cfg.ROBOTS[unit_data["unit_type"]],
                 env_cfg=env_cfg
             )
+            unit.cargo = cargo
+            units[agent][unit_id] = unit
+            
 
     factory_occupancy_map = np.ones_like(obs["board"]["rubble"], dtype=int) * -1
     factories = dict()
@@ -80,20 +74,18 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
         for unit_id in obs["factories"][agent]:
             f_data = obs["factories"][agent][unit_id]
             cargo = UnitCargo(**f_data["cargo"])
-            del f_data["cargo"]
             factory = Factory(
                 **f_data,
-                cargo=cargo,
                 env_cfg=env_cfg
             )
+            factory.cargo = cargo
             factories[agent][unit_id] = factory
-            factory_occupancy_map[factory.pos[1] - 1:factory.pos[1] + 1, factory.pos[0] - 1:factory.pos[0] + 1] = factory.team_id
+            factory_occupancy_map[factory.pos[1] - 1:factory.pos[1] + 2, factory.pos[0] - 1:factory.pos[0] + 2] = factory.team_id
     teams = dict()
     for agent in obs["teams"]:
         team_data = obs["teams"][agent]
         faction = FactionTypes[team_data["faction"]]
-        del team_data["faction"]
-        teams[agent] = Team(**team_data, faction=faction, agent=agent)
+        teams[agent] = Team(**team_data, agent=agent)
 
     return GameState(
         env_cfg=env_cfg,
@@ -105,7 +97,8 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
             lichen=obs["board"]["lichen"],
             lichen_strains=obs["board"]["lichen_strains"],
             factory_occupancy_map=factory_occupancy_map,
-            factories_per_team=obs["board"]["factories_per_team"]
+            factories_per_team=obs["board"]["factories_per_team"],
+            spawns=obs["board"]["spawns"]
         ),
         weather_schedule=obs["weather_schedule"],
         units=units,
@@ -123,6 +116,7 @@ class Board:
     lichen_strains: np.ndarray
     factory_occupancy_map: np.ndarray
     factories_per_team: int
+    spawns: np.ndarray
 @dataclass
 class GameState:
     """
