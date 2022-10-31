@@ -53,11 +53,11 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
   <tr>
    <td>Ice
    </td>
-   <td>100/turn
+   <td>50/turn
    </td>
    <td>Water
    </td>
-   <td>5:1
+   <td>2:1
    </td>
   </tr>
   <tr>
@@ -121,7 +121,7 @@ There are two robot types, Light and Heavy. Every robot has an action queue and 
    </td>
    <td>150
    </td>
-   <td>1500
+   <td>3000
    </td>
    <td>Infinite
    </td>
@@ -172,7 +172,7 @@ Action
   <tr>
    <td>Move
    </td>
-   <td>1 power + rubble value of target square
+   <td>1 power
    </td>
    <td>20 power + rubble value of target square
    </td>
@@ -237,7 +237,7 @@ A factory is a building that takes up 3x3 tiles of space. Robots created from th
 Each turn a factory will automatically:
 
 * Gain 50 power (regardless of day or night)
-* Convert up to 100 ice to 20 water 
+* Convert up to 50 ice to 25 water 
 * Convert up to 50 ore to 10 metal 
 
 Each factory can perform one of the following actions
@@ -280,7 +280,7 @@ Robot Type
 
 At the end of the game, the amount of lichen on each square that a player owns is summed and whoever has a higher value wins the game. 
 
-At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present. Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`.
+At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present. Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. Algorithmically, if a tile can be expanded to by two lichen strains, neither strain expands to there. This is for determinism and simplified water costs.
 
@@ -289,7 +289,6 @@ When rubble is added to a tile, that tile loses all lichen.
 If a number of lichen tiles get disconnected from your factory (due to some rubble being added to a tile or being digged out), they cannot be watered (and thus will lose 1 lichen value) until connected again through lichen tiles.
 
 At the end of each turn, all tiles that have not been watered lose 1 lichen.
-
 
 ## Game Resolution order
 
@@ -309,7 +308,7 @@ Actions in the game are first all validated against the current game state to se
 
 ## Win Conditions
 
-After 1000 turns, the winner is whichever team has the most lichen value on the map. At the moment the game does not end early even if one team has no units left.
+After 1000 turns, the winner is whichever team has the most lichen value on the map. If any team loses all of their factories, they automatically lose and the other team wins. If the lichen value is tied or both teams lose all their factories at the same time, then the game ends in a draw.
 
 ## Note on Game Rule Changes
 
