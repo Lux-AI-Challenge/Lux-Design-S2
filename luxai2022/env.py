@@ -118,13 +118,6 @@ class LuxAI2022(ParallelEnv):
             VIDEO_W = 400
             VIDEO_H = 400
             return self.py_visualizer._create_image_array(self.py_visualizer.surf, (VIDEO_W, VIDEO_H))
-        elif mode == "rgb_array":
-            self._init_render()
-            self.py_visualizer.update_scene(self.state)
-            VIDEO_W = 400
-            VIDEO_H = 400
-            return self.py_visualizer._create_image_array(self.py_visualizer.surf, (VIDEO_W, VIDEO_H))
-
 
     def close(self):
         """
