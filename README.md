@@ -28,7 +28,7 @@ To run a match with the CLI tool, run
 luxai2022 my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
 ```
 
-This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxia2022 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/luxai_runner/README.md
+This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxia2022 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/luxai_runner/README.md, which includes details on how to run a local tournament to mass evaluate your agents.
 
 Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits
 
