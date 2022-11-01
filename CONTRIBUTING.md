@@ -1,4 +1,4 @@
-# Lux AI Challenge Season 1 Contributing Guide
+# Lux AI Challenge Season 2 Contributing Guide
 
 If you find a bug or have a feature request, please open an issue [here](https://github.com/Lux-AI-Challenge/Lux-Design-2022/issues) or let us know on our discord, the forums etc.
 
