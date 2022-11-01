@@ -2,12 +2,12 @@
 
 This folder contains all official kits provided by the Lux AI team for the Lux AI Challenge Season 1.
 
-In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, this will be recorded and saved into a errorlogs [TODO] folder for the match for each agent and will be recorded by the competition servers.
+In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
 To run a episode with verbosity level 2 (higher is more verbose), seed 42, and save a replay to replay.json:
 
 ```
-luxai2022 kits/python/main.py kits/js/main.js -s 42 -v 2 -o replay.json
+luxai2022 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
 ```
 
 To then watch the replay, upload replay.json to http://2022vis.lux-ai.org/
