@@ -59,7 +59,6 @@ export const GroundTile = React.memo(
       opacity = 0.2;
       bgColor ="#fff"
     }
-    // console.log("change")
     return (
       <div
         
