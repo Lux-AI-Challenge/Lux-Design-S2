@@ -10,6 +10,7 @@ import { Bottom } from "./bottom";
 import { InteractionLayer } from "@/components/GameMap/interactor";
 import { Unit } from "@/types/replay/unit";
 import { Store } from "@/store/types";
+import { getColor } from "@/utils/colors";
 interface GameMapProps {
   // hoveredTilePos: {x: number, y: number};
   // setHoveredTilePos: any
@@ -69,6 +70,7 @@ export const GameMap = React.memo(
             posToFactory.set(`${factory.pos[0]},${factory.pos[1]}`, factory);
           });
           unitCounts[agent] = Object.keys(frame.units[agent]).length;
+          console.log(frame.team)
           Object.values(frame.units[agent]).forEach((unit) => {
             // store units by position
             posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
@@ -83,17 +85,12 @@ export const GameMap = React.memo(
                   "--t": `calc(1s / ${speed})`,
                 }}
               >
-                {/* add back once we have assets */}
-                {/* <img src={factorySvg} width={tileSize} height={tileSize} /> */}
                 <div
                   style={{
                     width: tileWidth - 2,
                     height: tileWidth - 2,
                     borderRadius:unit.unit_type == "HEAVY" ? "0" : "50%",
-                    backgroundColor:
-                      unit.unit_type == "HEAVY"
-                        ? "#39804E" // TODO replace with constants colors
-                        : "#8EE66E",
+                    backgroundColor: getColor(agent, ""),
                     border: "1px solid white",
                   }}
                 ></div>
@@ -103,33 +100,20 @@ export const GameMap = React.memo(
         });
       }
       setUnitRender(turnUnitRender);
-      
-      // for (let y = 0; y < frame.board.lichen_strains.length; y ++ ) {
-      //   for (let x = 0; x < frame.board.lichen_strains[0].length; x ++ ) {
-      //     const lichen_strain = frame.board.lichen_strains[y][x];
-      //     if 
-      //     const factory_id = `factory_${lichen_strain}`;
-      //     for (const agent of ["player_0", "player_1"]) {
-      //       if (playerToFactoryIds[agent].has(factory_id)) {
-      //         break
-      //       }
-      //   }
-      //   }
-      // }
-
-
       updateGameInfo({
         type: "set",
         data: { posToUnit, posToFactory, factoryCounts, unitCounts },
       });
     }, [turn]);
+    
+    // switch dark to day
     let bgColor = "#EF784F"
-    // let bgColor = "#373740"
-    // console.log({turn, },(turn - 6) % 50 < 30)
-    if ((turn - 6) % 50 < 30) {
-      
-    } else {
-      // bgColor = "rgba(0,0,0,0.25)"
+    if (speed < 200) {
+      if (frame.real_env_steps % 50 < 30) {
+        // bgColor = "#EF784F"
+      } else {
+        bgColor = "rgba(0,0,0,0.25)"
+      }
     }
     return (
       <>

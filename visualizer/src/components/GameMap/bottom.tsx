@@ -7,7 +7,7 @@ import factorySvg from "@/assets/factory.svg";
 import { Player } from "@/types/replay/player";
 import React, { MouseEventHandler, useState } from "react";
 import { Frame } from "@/types/replay/frame";
-import { GroundTile } from "@/components/GameMap/tile";
+import { GroundTile } from "@/components/GameMap/GroundTile";
 
 interface BottomProps {
   // setHoveredTilePos: any;
