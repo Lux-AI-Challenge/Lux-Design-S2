@@ -44,8 +44,6 @@ class Tournament:
     async def run(self):
         episodes = set()
         async def _run_episode_cb(a):
-            # print("DONE", a)
-            print("Episode", self.episode_id)
             if a in episodes: episodes.discard(a)
             next_players = self.match_making_sys.next_match()
             eps_cfg = copy.deepcopy(self.eps_cfg)
@@ -59,6 +57,7 @@ class Tournament:
                 players[f"player_{i}"] = self.players[next_players[i]]
 
             task = asyncio.Task(self._run_episode(players, eps_cfg))
+            episodes.add(task)
             await task
             await _run_episode_cb(task)
         async def print_results():
@@ -79,12 +78,14 @@ class Tournament:
                 for p in players_sorted:
                     rank = p.rank
                     lines.append(f"{p.id:36.36}| {str(rank.rating):8.8}| {str(rank.episodes):14.14}")
+                lines.append("-"*62)
+                lines.append(f"{len(episodes)} episodes are running")
 
 
-                # for _ in range(len(lines)):
-                #     sys.stdout.write("\x1b[1A\x1b[2K")
-                # for i in range(len(lines)):
-                #     sys.stdout.write(lines[i] + "\n")
+                for _ in range(len(lines)):
+                    sys.stdout.write("\x1b[1A\x1b[2K")
+                for i in range(len(lines)):
+                    sys.stdout.write(lines[i] + "\n")
                 await asyncio.sleep(1)
         await asyncio.gather(_run_episode_cb(None), _run_episode_cb(None), print_results())
 
