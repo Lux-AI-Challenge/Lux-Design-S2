@@ -12,13 +12,26 @@ from luxai_runner.logger import Logger
 
 
 class BotProcess:
-    def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = True) -> None:
+    def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = True, direct_import_python_bots = False) -> None:
         self.command = command
         self.file_path = file_path
         self.log = Logger(identifier="", verbosity=verbose)
         self.live_log = live_log
+        self.direct_import_python_bots = direct_import_python_bots
+
+        if self.direct_import_python_bots and self.command == "python":
+            import importlib.util
+            import sys
+            sys.path.append(os.path.dirname(file_path))
+            spec = importlib.util.spec_from_file_location("bot", file_path)
+            foo = importlib.util.module_from_spec(spec)
+            sys.modules["bot"] = foo
+            spec.loader.exec_module(foo)
+            # only use this locally with trusted agents!
+            self.agent_fn = foo.agent_fn
 
     async def start(self):
+        if self.direct_import_python_bots and self.command == "python": return
         cwd = os.path.dirname(self.file_path)
         if cwd == "":
             cwd = "."
