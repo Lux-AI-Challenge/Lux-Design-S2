@@ -59,7 +59,9 @@ To be announced at the official release.
 
 ## Core Contributors
 
-We like to extend thanks to some of our early core contributors [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Engine optimization).
+We like to extend thanks to some of our early core contributors: [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Engine optimization).
+
+We further like to extend thanks to contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture).
 
 
 ## Citation
