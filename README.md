@@ -24,7 +24,8 @@ You will need python 3.7 or above installed on your system. Once installed, you 
 pip install --upgrade luxai2022
 ```
 
-To run a match with the CLI tool, run
+
+To verify your installation, you can run a match with the CLI tool with
 
 ```
 luxai2022 my_bot/main.py my_other_bot/main.py -v 2 -o replay.json
