@@ -9,12 +9,12 @@ luxai2022 path/to/main.py path/to_another/main.py -o replay.json
 
 For additional help run `luxai2022 --help`
 
-To run a tournament style leaderboard, run 
+To run a tournament style leaderboard with all kinds of agents, run 
 
 ```
 python -m luxai_runner.cli \
   path/to/bot1/main.py path/to/bot2/main.py \
-  path/to/bot3/main.py path/to/bot4/main.py \
+  path/to/bot3/main.py path/to/bot4_cpp/build/agent.out \
   -o replays/replay.json --tournament -v 0
 ```
 
@@ -24,9 +24,9 @@ or specify a folder where each sub-folder contains a main.py file e.g.
 python -m luxai_runner.cli path/to/ -o replays/replay.json --tournament -v 0
 ```
 
-which will find agents `path/to/bot1/main.py`, `path/to/bot2/main.py` etc.
+which will find agents `path/to/bot1/main.py`, `path/to/bot2/main.py` etc. Note that this feature currently only works for python agents so it won't find the C++ agent for example.
 
-This will live print a running leaderboard like below, showing the bot/player, the ELO rating, and number of episodes its been in. At the moment it only computes an ELO rating (with K factor 32) and does random matchmaking. All replays are saved to `replays/replay_<episode_id>.json` as specified to the `-o` argument in the script above.
+The above scripts will live print a running leaderboard like below, showing the bot/player, the ELO rating, and number of episodes its been in. At the moment it only computes an ELO rating (with K factor 32) and does random matchmaking. All replays are saved to `replays/replay_<episode_id>.json` as specified to the `-o` argument in the script above.
 
 ```
 ==== luxai2022_tourney ====
