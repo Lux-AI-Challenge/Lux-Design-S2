@@ -5,7 +5,7 @@ from luxai2022 import LuxAI2022
 import numpy as np
 import json
 from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
-
+from luxai_runner.tournament import Tournament
 from luxai_runner.logger import Logger
 from omegaconf import OmegaConf
 
@@ -30,9 +30,11 @@ def main():
 
     # env configs
 
-    parser.add_argument("--render", help="Render...", action="store_true", default=False)
+    parser.add_argument("--render", help="Render with a window", action="store_true", default=False)
 
-    # parser.add_argument("--tournament", type=bool)
+    parser.add_argument("--tournament", action="store_true", default=False)
+    parser.add_argument("--skip_validate_action_space", action="store_true", default=False)
+
 
     args = parser.parse_args()
 
@@ -43,7 +45,7 @@ def main():
             seed=args.seed,
             env_cfg=dict(
                 verbose=args.verbose,
-                validate_action_space=True,
+                validate_action_space=not args.skip_validate_action_space,
                 max_episode_length=args.len,
             ),
             verbosity=args.verbose,
@@ -54,11 +56,21 @@ def main():
             ),
             render=args.render
         )
-    print(cfg)
-    eps = Episode(
-        cfg=cfg
-    )
-    asyncio.run(eps.run())
+
+    if args.tournament:
+        tourney = Tournament(tournament_config_kwargs=dict(agents=args.players), episode_cfg=cfg)
+        # import ipdb;ipdb.set_trace()
+        asyncio.run(tourney.run())
+        # exit()
+    else:
+        import time
+        stime = time.time()
+        eps = Episode(
+            cfg=cfg
+        )
+        asyncio.run(eps.run())
+        etime = time.time()
+        print(etime - stime)
 
 if __name__ == "__main__":
     main()
