@@ -14,13 +14,15 @@ import { initial } from "./initial";
 import type { Store } from "./types";
 
 import TEMPORARY_REPLAY_FOR_TESTING_ONLY from "@/assets/replay.json";
-// const testReplay = loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY)
-// const testReplayStats = computeStatistics(testReplay);
+const testReplay = loadFromObject(TEMPORARY_REPLAY_FOR_TESTING_ONLY)
+const testReplayStats = computeStatistics(testReplay);
 export const useStore = create<Store>((set, get) => ({
   // replay: initial.replay,
   // TEMPORARY FOR FASTER TESTING ONLY. replace with the above commented out line for the actual app
-  replay: null,//testReplay,
-  replayStats: null,//testReplayStats,
+  // replay: testReplay,
+  // replayStats: testReplayStats,
+  replay: null,
+  replayStats: null,
 
   progress: initial.progress,
 
