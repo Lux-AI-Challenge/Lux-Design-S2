@@ -609,8 +609,9 @@ class LuxAI2022(ParallelEnv):
 
         self.env_steps += 1
         self.state.env_steps += 1
+        print(self.state.real_env_steps, self.env_cfg.max_episode_length)
         env_done = self.state.real_env_steps >= self.state.env_cfg.max_episode_length
-        env_done = failed_agents["player_0"] or failed_agents["player_1"] # env is done if any agent fails.
+        env_done = env_done or failed_agents["player_0"] or failed_agents["player_1"] # env is done if any agent fails.
         dones = {agent: env_done or failed_agents[agent] for agent in self.agents}
 
         # generate observations

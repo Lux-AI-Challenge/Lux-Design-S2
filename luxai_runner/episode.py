@@ -10,7 +10,7 @@ from luxai_runner.bot import Bot
 import numpy as np
 import dataclasses
 from luxai_runner.utils import to_json
-
+import os.path as osp
 
 @dataclass 
 class ReplayConfig:
@@ -43,6 +43,10 @@ class Episode:
             del replay["dones"]
             del replay["rewards"]
             ext = ".json"
+            from pathlib import Path
+            dir_name = osp.dirname(self.cfg.save_replay_path)
+            if dir_name != "":
+                Path(dir_name).mkdir(parents=True, exist_ok=True)
             if self.cfg.save_replay_path[-5:] == ".json":
                 ext = ""
             with open(f"{self.cfg.save_replay_path}{ext}", "w") as f:
@@ -140,3 +144,5 @@ class Episode:
         self.log.info(f"Final Scores: {rewards}")
         if save_replay:
             self.save_replay(replay)
+
+        return rewards
