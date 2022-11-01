@@ -43,13 +43,13 @@ $p1-secondary: #0082FB;
       width: 20%;
       height: 8rem;
       div {
-        background-color: $p0-secondary;
+        background-color: var(--p0_c);
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
       }
     }
     .value:last-child div {
-      background-color: $p1-secondary;
+      background-color: var(--p1_c);
     }
     
   }
@@ -75,7 +75,7 @@ $teamborderradius: 8rem;
     top: 0;
     position: absolute;
     width: 50%;
-    background-color: $p0-primary;
+    background-color: var(--p0_c);
     border-top-right-radius: $teamborderradius;
     text-align: left;
     padding-left: 1rem;
@@ -85,7 +85,7 @@ $teamborderradius: 8rem;
     top: 0;
     position: absolute;
     width: 50%;
-    background-color: $p1-primary;
+    background-color: var(--p1_c);
     border-top-left-radius: $teamborderradius;
     text-align: right;
     padding-right: 1rem;

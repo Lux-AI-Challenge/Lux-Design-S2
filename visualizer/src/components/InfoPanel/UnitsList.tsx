@@ -22,6 +22,7 @@ type UnitsListProps = {
   factories: Record<string, Factory>;
   frameStats: FrameStats["player_0"];
   flex: boolean;
+  agent: string;
 };
 function a11yProps(index: number) {
   return {
@@ -81,7 +82,7 @@ function None() {
 }
 const listsx = { padding: "0rem" };
 export const UnitsList = React.memo(
-  ({ flex, frameStats, units, selectedUnits, factories }: UnitsListProps) => {
+  ({ flex, frameStats, units, selectedUnits, factories, agent }: UnitsListProps) => {
     const [value, setValue] = useState(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -112,6 +113,10 @@ export const UnitsList = React.memo(
         factories_list.push(factory);
       }
     });
+    let color = "var(--p0_c)"
+    if (agent == "player_1") {
+      color = "var(--p1_c)"
+    }
     const tabsx = { minHeight: "12px" };
     return (
       <>
@@ -124,6 +129,7 @@ export const UnitsList = React.memo(
               value={value}
               onChange={handleChange}
               aria-label="unit tabs"
+              TabIndicatorProps={{style:{background:color}}}
               sx={{
                 m: 0,
                 minHeight: "12px",
@@ -132,18 +138,21 @@ export const UnitsList = React.memo(
               <Tab
                 className={s.tabname}
                 sx={tabsx}
+                style={{color: color}}
                 label={`Light (${lights.length})`}
                 {...a11yProps(0)}
               />
               <Tab
                 className={s.tabname}
                 sx={tabsx}
+                style={{color: color}}
                 label={`Heavies (${heavies.length})`}
                 {...a11yProps(1)}
               />
               <Tab
                 className={s.tabname}
                 sx={tabsx}
+                style={{color: color}}
                 label={`Factories (${factories_list.length})`}
                 {...a11yProps(2)}
               />
