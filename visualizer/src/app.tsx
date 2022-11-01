@@ -37,8 +37,8 @@ export function App() {
               if (event.data.environment.name == "lux_ai_2022") {
                 // updateContext(event.data);
                 let replay = event.data.environment;
-                console.log("post message:");
-                console.log(event.data);
+                // console.log("post message:");
+                // console.log(event.data);
                 loadReplay({type: "object", data: replay});
               }
             } catch (err) {
