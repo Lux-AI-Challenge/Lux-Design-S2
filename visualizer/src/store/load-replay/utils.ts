@@ -1,6 +1,7 @@
 import { WEATHER_ID_TO_NAME } from "@/constants";
 import { FrameStats, KaggleReplay, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
+import { Unit } from "@/types/replay/unit";
 export function estimateGoodTileWidth(): number {
   let bound = window.innerHeight;
   // if (window.innerWidth * 0.7 < bound) { 
@@ -26,6 +27,7 @@ export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
     },
     observations: [],
     actions: [],
+    unitToActions: {},
   }
   console.log({kaggleReplay});
   if (kaggleReplay.info.TeamNames) {
@@ -65,12 +67,14 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     },
     observations: [],
     actions: [],
+    unitToActions: {},
   }
   if (isKaggleReplay(replay)) {
     replay = convertFromKaggle(replay);
     loadedReplay.meta = replay.meta;
   }
   loadedReplay.meta.real_start = -replay.observations[1].real_env_steps + 1;
+  
   const firstBoard = replay.observations[0].board;
   loadedReplay.observations[0] = replay.observations[0];
   loadedReplay.actions = replay.actions;
@@ -89,6 +93,20 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     replay.observations[i].board = board_i;
     loadedReplay.observations[i] = replay.observations[i];
   }
+
+  replay.actions.forEach((action_obj, step) => {
+    for (const agent of ["player_0", "player_1"]) {
+      const action = action_obj[agent]
+      for (const unit_id of Object.keys(action)) {
+        if (!loadedReplay.unitToActions[unit_id]) {
+          loadedReplay.unitToActions[unit_id] = [];
+        }
+        loadedReplay.unitToActions[unit_id].push({action: action[unit_id], step: step})
+      }
+    }    
+  });
+
+
   const etime = (new Date()).getTime();
 
   let prev_weather = -2;
@@ -111,7 +129,7 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     }
   });
 
-
+  console.log({loadedReplay})
   console.log(`Loading replay + regeneration took ${(etime - stime)}ms`)
   return loadedReplay;
 }

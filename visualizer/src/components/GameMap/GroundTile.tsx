@@ -76,7 +76,7 @@ export const GroundTile = React.memo(
             width: tileWidth, height: tileWidth,
             backgroundColor: "#7FCE98",
             willChange: 'opacity',
-            opacity: lichen / 10,
+            opacity: lichen / 100,
           }}
         />
         <div

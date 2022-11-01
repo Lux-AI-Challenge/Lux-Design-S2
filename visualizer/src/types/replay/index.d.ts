@@ -30,6 +30,7 @@ export type Replay = {
   }
   observations: Frame[]
   actions: any[] // TODO
+  unitToActions: Record<string, Array<{action: any[], step: number}>>
 }
 export type FrameStats = {
   [x: Player]: {
