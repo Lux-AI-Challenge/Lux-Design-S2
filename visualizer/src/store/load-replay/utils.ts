@@ -1,6 +1,7 @@
 import { WEATHER_ID_TO_NAME } from "@/constants";
 import { FrameStats, KaggleReplay, Replay, ReplayStats } from "@/types/replay";
 import { ResourceTile } from "@/types/replay/resource-map";
+import { Unit } from "@/types/replay/unit";
 export function estimateGoodTileWidth(): number {
   let bound = window.innerHeight;
   // if (window.innerWidth * 0.7 < bound) { 
@@ -26,6 +27,7 @@ export function convertFromKaggle(kaggleReplay: KaggleReplay): Replay {
     },
     observations: [],
     actions: [],
+    unitToActions: {},
   }
   console.log({kaggleReplay});
   if (kaggleReplay.info.TeamNames) {
@@ -65,6 +67,7 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     },
     observations: [],
     actions: [],
+    unitToActions: {},
   }
   if (isKaggleReplay(replay)) {
     replay = convertFromKaggle(replay);
@@ -90,6 +93,20 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     replay.observations[i].board = board_i;
     loadedReplay.observations[i] = replay.observations[i];
   }
+
+  replay.actions.forEach((action_obj, step) => {
+    for (const agent of ["player_0", "player_1"]) {
+      const action = action_obj[agent]
+      for (const unit_id of Object.keys(action)) {
+        if (!loadedReplay.unitToActions[unit_id]) {
+          loadedReplay.unitToActions[unit_id] = [];
+        }
+        loadedReplay.unitToActions[unit_id].push({action: action[unit_id], step: step})
+      }
+    }    
+  });
+
+
   const etime = (new Date()).getTime();
 
   let prev_weather = -2;
