@@ -8,7 +8,7 @@ The Lux AI Challenge is a competition where competitors design agents to tackle 
 
 **We are currently in beta**, so expect unpolished parts and bugs of the engine and visuals.
 
-To get started, go to our [Getting Started](#getting-started) section. The Beta competition runs until December 1 and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/c/lux-ai-2022-beta/
+To get started, go to our [Getting Started](#getting-started) section. The Beta competition runs until December 6 and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/c/lux-ai-2022-beta/
 
 Make sure to join our community discord at https://discord.gg/aWJt3UAcgn to chat, strategize, and learn with other competitors! We will be posting announcements on the Kaggle Forums and on the discord.
 
