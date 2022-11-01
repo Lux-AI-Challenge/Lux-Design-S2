@@ -19,8 +19,10 @@ const testReplayStats = computeStatistics(testReplay);
 export const useStore = create<Store>((set, get) => ({
   // replay: initial.replay,
   // TEMPORARY FOR FASTER TESTING ONLY. replace with the above commented out line for the actual app
-  replay: testReplay,
-  replayStats: testReplayStats,
+  // replay: testReplay,
+  // replayStats: testReplayStats,
+  replay: null,
+  replayStats: null,
 
   progress: initial.progress,
 

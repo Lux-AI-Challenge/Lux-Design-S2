@@ -3,18 +3,19 @@ import s from "./unitslist.module.scss";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import useMediaQuery from '@mui/material/useMediaQuery';
-
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Divider,
-  ListItemButton,
+  IconButton,
   Tab,
   Tabs,
   Typography,
+  Modal
 } from "@mui/material";
 import React, { useState } from "react";
 import { Position } from "@/types/replay/position";
-import { FrameStats, ReplayStats } from "@/types/replay";
+import { FrameStats } from "@/types/replay";
 import { Cargo } from "@/types/replay/cargo";
 type UnitsListProps = {
   units: Record<string, Unit>;
@@ -24,6 +25,19 @@ type UnitsListProps = {
   flex: boolean;
   agent: string;
 };
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  color: 'black',
+  p: 4,
+};
+
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
@@ -62,6 +76,68 @@ function PosRep(pos: Position) {
     </>
   );
 }
+function DirectionRep(direction: number) {
+  switch (direction) {
+    case 0: return "center"
+    case 1: return "up"
+    case 2: return "right"
+    case 3: return "down"
+    case 4: return "left"
+    default: return "unknown"
+  }
+}
+function ResourceRep(resource: number) {
+  switch (resource) {
+    case 0:
+      return "ice"
+    case 1: return "ore"
+    case 2: return "water"
+    case 3: return "metal"
+    case 4: return "power"
+    default: return "unknown"
+  }
+}
+function ActionRep(action: Array<number>) {
+  const tp = action[0];
+  let actionType = "";
+  let contents = "";
+  switch(tp) {
+    case 0:
+      actionType = "Move"
+      contents = DirectionRep(action[1])
+      break
+    case 1:
+      actionType = "Transfer"
+      contents = `${action[3]} units of ${ResourceRep(action[2])} ${DirectionRep(action[1])}`
+      break
+    case 2:
+      actionType = "Pickup"
+      contents = `${action[3]} units of ${ResourceRep(action[2])}`
+      break
+    case 3:
+      actionType = "Dig"
+      break
+    case 4:
+      actionType = "Self Destruct"
+      break
+    case 5:
+      actionType = "Recharge"
+      contents = `until ${action[3]} power`
+      break
+    default:
+      actionType = "Unknown"
+  }
+  if (action[4] == 1) {
+    contents += " (repeat)"
+  } else {
+    contents += " (no repeat)"
+  }
+  return (
+    <>
+    {actionType} {contents}
+    </>
+  )
+}
 function CargoRep(cargo: Cargo) {
   return (
     <>
@@ -84,7 +160,8 @@ const listsx = { padding: "0rem" };
 export const UnitsList = React.memo(
   ({ flex, frameStats, units, selectedUnits, factories, agent }: UnitsListProps) => {
     const [value, setValue] = useState(0);
-
+    const [unitInfoOpen, setUnitInfoOpen] = useState(false);
+    const [viewedUnitInfo, setViewedUnitInfo] = useState<Unit | Factory>();
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
       setValue(newValue);
     };
@@ -118,9 +195,56 @@ export const UnitsList = React.memo(
       color = "var(--p1_c)"
     }
     const tabsx = { minHeight: "12px" };
+    const handleOpen = () => setUnitInfoOpen(true);
+    const handleClose = () => setUnitInfoOpen(false);
+
+    const infoButtonFactory = (unit_type: string, unit_id: string) => {
+      
+      return <IconButton sx={{p:.5, mt: -0.25}} onClick={() => {
+        if (unit_type == "robot") {
+          setViewedUnitInfo(units[unit_id])
+          if (units[unit_id] && unit_id == "unit_13") {
+            console.log({u:units[unit_id]})
+          }
+        } else {
+          setViewedUnitInfo(factories[unit_id])
+        }
+        
+        handleOpen()}
+      } ><InfoIcon sx={{width:"1.25rem", height:"1.25rem"}} /></IconButton>
+    }
     return (
       <>
         <div className={s.UnitsList} style={{width: flex ? "0" : "auto"}}>
+        <Modal
+          open={unitInfoOpen}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            {viewedUnitInfo &&
+            <>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Unit {viewedUnitInfo.unit_id} {PosRep(viewedUnitInfo.pos)}
+            </Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              Action Queue: 
+              <div>
+              {
+              //@ts-ignore
+              viewedUnitInfo.action_queue.map((action: Array<number>, i: number) => {
+                return <div>
+                {i}: {ActionRep(action)}
+                </div>
+              })}
+              </div>
+            </Typography>
+            </>
+            }
+            {/* ActionRep */}
+          </Box>
+        </Modal>
           <Box
             className={s.box}
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
@@ -169,7 +293,7 @@ export const UnitsList = React.memo(
                       {/* <ListItemButton> */}
                       <div className={classname}>
                         <div>
-                          {unit.unit_id} {PosRep(unit.pos)}
+                          {unit.unit_id} {PosRep(unit.pos)} <IconButton><InfoIcon /></IconButton>
                         </div>
                         <div className={s.attrs}>
                           Power: {unit.power} | {CargoRep(unit.cargo)}
@@ -198,7 +322,7 @@ export const UnitsList = React.memo(
                       {/* <ListItemButton> */}
                       <div className={classname}>
                         <div>
-                          {unit.unit_id} {PosRep(unit.pos)}
+                          {unit.unit_id} {PosRep(unit.pos)} {infoButtonFactory("robot", unit.unit_id)}
                         </div>
                         <div className={s.attrs}>
                           Power: {unit.power} | {CargoRep(unit.cargo)}

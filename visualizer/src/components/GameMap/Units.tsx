@@ -30,7 +30,7 @@ export const Units = React.memo(
         ["player_0", "player_1"].forEach((agent: Player) => {
           Object.values(frame.units[agent]).forEach((unit) => {
             let render_shrink = 2;
-            const isHeavy =  Math.random() > 0.5;
+            const isHeavy = unit.unit_type == "HEAVY" //Math.random() > 0.5;
             if (!isHeavy) {
               render_shrink = 4;
             }
