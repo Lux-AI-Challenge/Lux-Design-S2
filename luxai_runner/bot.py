@@ -20,7 +20,7 @@ class Bot:
         if self.file_ext not in ext_to_command:
             raise ValueError(
                 f"{self.file_ext} is not a known file extension, we don't know what command to use. \
-                Edit https://github.com/Lux-AI-Challenge/Lux-Design-2021/blob/master/luxai_runner/ext_to_command.py \
+                Edit https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/luxai_runner/ext_to_command.py \
                     to support a new extension"
             )
         self.command = ext_to_command[self.file_ext]

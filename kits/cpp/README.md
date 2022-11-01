@@ -1,18 +1,8 @@
 # Lux AI Season 2 C++ Kit
 
-This is the C++ implementation of the Python kit. It *should* have feature parity.
+This is the C++ implementation of the Python kit. It *should* have feature parity. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition.
 
-- [1 File structure](#1-file-structure)
-  - [1.1 Code file structure](#11-code-file-structure)
-  - [1.2 Adding source files](#12-adding-source-files)
-- [2 Building the agent](#2-building-the-agent)
-  - [2.1 Locally](#21-locally)
-  - [2.2 Using Docker](#22-using-docker)
-- [3 Notes about the code](#3-notes-about-the-code)
-  - [3.1 Observation](#31-observation)
-  - [3.2 Agent](#32-agent)
-  - [3.3 Actions](#33-actions)
-  - [3.4 Additional features](#34-additional-features)
+Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-2022-beta/discussion) for announcements if there are any breaking changes.
 
 ## Getting Started
 
@@ -27,6 +17,49 @@ luxai2022 build/agent.out build/agent.out --out=replay.json
 ```
 
 This will run the compiled `agent.cpp` code and generate a replay file saved to `replay.json`.
+
+## Developing
+
+Now that you have the code up and running, you are ready to start programming and having some fun!
+
+If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-2022-beta). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/starter_python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial#Lux-AI-Season-2-Jupyter-Notebook-Tutorial---Python-Kit)
+
+All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
+
+## Submitting to Kaggle
+
+Submissions need to be a .tar.gz bundle with main.py at the top level directory (not nested). To create a submission, first create a binary compiled on Ubuntu (through docker or your computer). We provide a script to do so, for people working on a OS that is not Ubuntu, run
+
+```
+./create_submission.sh
+```
+
+And if you are running Ubuntu 18.04 natively run
+
+```
+./compile.sh -b docker_build
+```
+
+to skip using docker.
+
+If it has not been created already, then create a submission.tar.gz file with `tar -czvf submission.tar.gz *`. Upload this under the My Submissions tab and you should be good to go! Your submission will start with a scheduled game vs itself to ensure everything is working before being entered into the matchmaking pool against the rest of the leaderboard.
+
+## Additional Details
+
+See the rest for more in-depth details regarding the C++ starter kit.
+
+- [1 File structure](#1-file-structure)
+  - [1.1 Code file structure](#11-code-file-structure)
+  - [1.2 Adding source files](#12-adding-source-files)
+- [2 Building the agent](#2-building-the-agent)
+  - [2.1 Locally](#21-locally)
+  - [2.2 Using Docker](#22-using-docker)
+- [3 Notes about the code](#3-notes-about-the-code)
+  - [3.1 Observation](#31-observation)
+  - [3.2 Agent](#32-agent)
+  - [3.3 Actions](#33-actions)
+  - [3.4 Additional features](#34-additional-features)
+
 
 ## 1 File structure
 

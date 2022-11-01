@@ -2,7 +2,7 @@
 
 This is the folder for the Python kit. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition.
 
-Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums]() for announcements if there are any breaking changes.
+Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-2022-beta/discussion) for announcements if there are any breaking changes.
 
 ## Requirements
 
