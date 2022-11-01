@@ -31,8 +31,7 @@ def agent_fn(observation, configurations):
     if step <= obs["board"]["factories_per_team"] + 1:
         actions = agent.early_setup(step, obs, remainingOverageTime)
     else:
-        real_env_steps = obs["real_env_steps"]
-        actions = agent.act(real_env_steps, obs, remainingOverageTime)
+        actions = agent.act(step, obs, remainingOverageTime)
 
     return process_action(actions)
 
