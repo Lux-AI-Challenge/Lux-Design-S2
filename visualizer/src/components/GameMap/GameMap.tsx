@@ -3,7 +3,8 @@ import { useStore, useStoreKeys } from "@/store";
 import s from "./styles.module.scss";
 
 import groundSvg from "@/assets/ground.svg";
-import factorySvg from "@/assets/factory.svg";
+import factory_greenSvg from "@/assets/factory_green.svg";
+import factory_redSvg from "@/assets/factory_red.svg";
 import { Player } from "@/types/replay/player";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Bottom } from "./bottom";
@@ -91,6 +92,10 @@ export const GameMap = React.memo(
           >
             {["player_0", "player_1"].map((agent: Player) => {
               return Object.values(frame.factories[agent]).map((factory) => {
+                let factorySvg = factory_greenSvg;
+                if (agent == "player_0") {
+                  factorySvg = factory_redSvg;
+                }
                 return (
                   <div
                     key={factory.unit_id}
