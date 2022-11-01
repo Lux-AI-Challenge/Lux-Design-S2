@@ -92,6 +92,7 @@ namespace lux {
         int64_t                  LICHEN_GAINED_WITH_WATER;
         int64_t                  LICHEN_LOST_WITHOUT_WATER;
         double                   LICHEN_WATERING_COST_FACTOR;
+        int64_t                  MAX_LICHEN_PER_TILE;
         int64_t                  MAX_FACTORIES;
         int64_t                  MAX_RUBBLE;
         int64_t                  MIN_FACTORIES;
@@ -126,6 +127,7 @@ namespace lux {
                                        LICHEN_GAINED_WITH_WATER,
                                        LICHEN_LOST_WITHOUT_WATER,
                                        LICHEN_WATERING_COST_FACTOR,
+                                       MAX_LICHEN_PER_TILE,
                                        MAX_FACTORIES,
                                        MAX_RUBBLE,
                                        MIN_FACTORIES,
