@@ -1,3 +1,4 @@
+from argparse import Namespace
 import asyncio
 import json
 import os.path as osp
@@ -10,7 +11,10 @@ from luxai_runner.process import BotProcess
 
 
 class Bot:
-    def __init__(self, main_file_path: str, agent: str, agent_idx: str, verbose: int = 1) -> None:
+    def __init__(self, main_file_path: str, agent: str, agent_idx: str, verbose: int = 1, direct_import_python_bots = False) -> None:
+        """
+        if direct_import_python_bots is True, will directly import the python agents and call their agent_fn functions.
+        """
         self.main_file_path = main_file_path
         self.file_ext = osp.splitext(self.main_file_path)[-1]
         if self.file_ext not in ext_to_command:
@@ -24,7 +28,8 @@ class Bot:
         self.agent = agent
         self.agent_idx = agent_idx
         self.verbose = verbose
-        self.proc = BotProcess(self.command, self.main_file_path, verbose=verbose)
+        self.direct_import_python_bots = direct_import_python_bots
+        self.proc = BotProcess(self.command, self.main_file_path, verbose=verbose, direct_import_python_bots=direct_import_python_bots)
         # timing
         self.remainingOverageTime = 10
         self.time_per_step = 2
@@ -33,9 +38,20 @@ class Bot:
 
     async def step(self, obs, step: int, reward: float = 0, info=dict()):
         stime = time.time()
-        data = json.dumps(dict(obs=obs, step=step, remainingOverageTime=self.remainingOverageTime, player=self.agent, reward=float(reward), info=info))
+        import copy
+        observations = copy.deepcopy(dict(obs=obs, step=step, remainingOverageTime=self.remainingOverageTime, player=self.agent, reward=float(reward), info=info))
+        stderr = None
         try:
-            action, stderr = await asyncio.wait_for(self.proc.write(f"{data}\n"), timeout=self.remainingOverageTime + self.time_per_step)
+            if self.direct_import_python_bots and self.command == "python":
+                env_cfg = None
+                if "env_cfg" in info:
+                    env_cfg = observations["info"]["env_cfg"]
+                observations = Namespace(**observations)
+                observations.obs = json.dumps(observations.obs)
+                action = self.proc.agent_fn(observations, dict(env_cfg=env_cfg))
+            else:
+                data = json.dumps(observations)
+                action, stderr = await asyncio.wait_for(self.proc.write(f"{data}\n"), timeout=self.remainingOverageTime + self.time_per_step)
         except asyncio.TimeoutError:
             action, stderr = None, None
         time_used = time.time() - stime
@@ -52,6 +68,7 @@ class Bot:
             action = None
         else:
             try:
+                if isinstance(action, dict): return action
                 action = json.loads(action)
                 if not isinstance(action, dict):
                     raise ValueError("")
