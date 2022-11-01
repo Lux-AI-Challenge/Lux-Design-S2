@@ -18,15 +18,15 @@ This is the C++ implementation of the Python kit. It *should* have feature parit
 
 To get started, download this folder from this repository.
 
-Your core agent code will go into `agent.py`, and you can create and use more files to help you as well. You should leave `main.py` alone as that code enables your agent to compete against other agents locally and on Kaggle.
+Your core agent code will go into `src/agent.cpp`, and you can create and use more files to help you as well. You should leave `main.py, src/main.cpp` alone as that code enables your agent to compete against other agents on Kaggle.
 
-To quickly test run your agent, run
+To quickly test run your agent, first compile your agent by running `./compile.sh` and then run
 
 ```
 luxai2022 build/agent.out build/agent.out --out=replay.json
 ```
 
-This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`.
+This will run the compiled `agent.cpp` code and generate a replay file saved to `replay.json`.
 
 ## 1 File structure
 
