@@ -11,6 +11,7 @@ import { InteractionLayer } from "@/components/GameMap/interactor";
 import { Unit } from "@/types/replay/unit";
 import { Store } from "@/store/types";
 import { getColor } from "@/utils/colors";
+import { Units } from "@/components/GameMap/Units";
 interface GameMapProps {
   // hoveredTilePos: {x: number, y: number};
   // setHoveredTilePos: any
@@ -36,70 +37,31 @@ export const GameMap = React.memo(
       "updateGameInfo",
       "tileWidth"
     );
-    useEffect(() => {
-      // const rows = Array.from({ length: mapWidth });
-      // const cols = Array.from({ length: mapWidth });
-    }, []);
     const frame = replay.observations[turn];
     const frameZero = replay.observations[0];
     const mapWidth = frame.board.rubble.length;
     const tileBorder = 1;
     const tileSize = tileWidth + tileBorder * 2;
-
-    const [unitRender, setUnitRender] = useState< Array<JSX.Element>>([]);
-    
-    
+  
     useEffect(() => {
       // Collect all per turn statistics ahead of time, we should move this out somewhere.
-      // TODO Cache values? TODO Provide option to load all per turn values for a little smoother replay?
       const posToUnit: Store["gameInfo"]["posToUnit" ]= new Map();
-      const posToFactory: Store["gameInfo"]["posToFactory"] = new Map(); // TODO
+      const posToFactory: Store["gameInfo"]["posToFactory"] = new Map();
       const factoryCounts: Record<string, number> = {};
       const unitCounts: Record<string, number> = {};
-      // const factoryToLichen: Store["gameInfo"]["factoryToLichen"] = {};
-      // const lichen: Store["gameInfo"]["lichen"] = {};
-      const playerToFactoryIds: Record<string, Set<string>> = {}
-      const turnUnitRender: Array<JSX.Element> = []
       {
         ["player_0", "player_1"].forEach((agent: Player) => {
           factoryCounts[agent] = 0
-          playerToFactoryIds[agent] = new Set();
           Object.entries(frame.factories[agent]).forEach(([factory_id, factory]) => {
-            playerToFactoryIds[agent].add(factory_id)
             factoryCounts[agent] += 1;
             posToFactory.set(`${factory.pos[0]},${factory.pos[1]}`, factory);
           });
           unitCounts[agent] = Object.keys(frame.units[agent]).length;
-          console.log(frame.team)
           Object.values(frame.units[agent]).forEach((unit) => {
-            // store units by position
             posToUnit.set(`${unit.pos[0]},${unit.pos[1]}`, unit);
-            turnUnitRender.push(
-              <div
-                key={unit.unit_id}
-                className={s.unit}
-                style={{
-                  // @ts-ignore
-                  "--x": `${unit.pos[0] * tileSize + 1}px`,
-                  "--y": `${unit.pos[1] * tileSize + 1}px`,
-                  "--t": `calc(1s / ${speed})`,
-                }}
-              >
-                <div
-                  style={{
-                    width: tileWidth - 2,
-                    height: tileWidth - 2,
-                    borderRadius:unit.unit_type == "HEAVY" ? "0" : "50%",
-                    backgroundColor: getColor(agent, ""),
-                    border: "1px solid white",
-                  }}
-                ></div>
-              </div>
-            );
           });
         });
       }
-      setUnitRender(turnUnitRender);
       updateGameInfo({
         type: "set",
         data: { posToUnit, posToFactory, factoryCounts, unitCounts },
@@ -153,7 +115,7 @@ export const GameMap = React.memo(
                 );
               });
             })}
-            {unitRender}
+            <Units />
           </div>
           <InteractionLayer
             handleOnMouseEnterTile={handleOnMouseEnterTile}

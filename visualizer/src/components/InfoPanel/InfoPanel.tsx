@@ -5,6 +5,7 @@ import { WEATHER_ID_TO_NAME, WEATHER_NAME_TO_COLOR } from "@/constants";
 import { useStore, useStoreKeys } from "@/store";
 import { Replay } from "@/types/replay";
 import { Player } from "@/types/replay/player";
+import { getColor } from "@/utils/colors";
 import React, { useEffect, useState } from "react";
 
 
@@ -55,16 +56,18 @@ export const InfoPanel =
     const get_turn_percent = (turn: number) => {
       return (turn * 100 / (replay.observations.length - replay.meta.real_start))
     }
+    const p0_c = getColor("player_0", "")
+    const p1_c = getColor("player_1", "")
     return (
       <>
       <div className={s.infoPanel}>
         <div className={s.teams}>
-          <div className={s.p0}>
+          <div className={s.p0} style={{backgroundColor: p0_c}}>
             <p className={s.player}>P0</p>
             <p className={s.teamname}>{replay.meta.teams[0].name}</p>
             {/* <p className={s.factioname}>FACTION NAME</p> */}
           </div>
-          <div className={s.p1}>
+          <div className={s.p1} style={{backgroundColor: p1_c}}>
             <p className={s.player}>P1</p>
             <p className={s.teamname}>{replay.meta.teams[1].name}</p>
             {/* <p className={s.factioname}>FACTION NAME</p> */}

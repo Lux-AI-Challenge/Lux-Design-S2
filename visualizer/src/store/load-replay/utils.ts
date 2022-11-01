@@ -71,6 +71,7 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     loadedReplay.meta = replay.meta;
   }
   loadedReplay.meta.real_start = -replay.observations[1].real_env_steps + 1;
+  
   const firstBoard = replay.observations[0].board;
   loadedReplay.observations[0] = replay.observations[0];
   loadedReplay.actions = replay.actions;
@@ -111,7 +112,7 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
     }
   });
 
-
+  console.log({loadedReplay})
   console.log(`Loading replay + regeneration took ${(etime - stime)}ms`)
   return loadedReplay;
 }
