@@ -2,26 +2,23 @@
 
 This folder contains all official kits provided by the Lux AI team for the Lux AI Challenge Season 1.
 
-In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, this will be recorded and saved into a errorlogs folder for the match for each agent and will be recorded by the competition servers.
+In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
-To run a episode with verbosity level 2 (higher is more verbose), and seed 42:
+To run a episode with verbosity level 2 (higher is more verbose), seed 42, and save a replay to replay.json:
 
 ```
-python luxai_runner/runner.py kits/python/main.py kits/js/main.js -s 42 -v 2
+luxai2022 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
 ```
 
-<!-- TODO: add instructions on watching replay either live or through visualizer -->
-<!-- TODO: add instructions on gym interface -->
+To then watch the replay, upload replay.json to http://2022vis.lux-ai.org/
 
-For submission to the kaggle challenge, you can first test your submission by running
-
-
+For an in-depth tutorial detailing how to start writing an agent, there is a [online Jupyter Notebook](https://www.kaggle.com/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial) that you can follow (only in python). We highly recommend at least skimming over this as season 2 has some specific quirks that make it different than your standard AI gym environments. Specifically they affect the [environment actions](#environment-actions) mostly.
 
 ## Kit Structure
 
 Each agent is a folder of files with a `main.py` file and a language dependent `agent.py/agent.js/agent...` file. You can generally ignore `main.py` and focus on the `agent` file. For the rest of this document we will use a python based syntax and assume you are working with the python kit but the instructions apply to all kits.
 
-In the `agent.py` file, we define a simple class that holds your agent, you can modify as you wish but be aware of the two functions given. By default, the kit calls the `early_setup` function for when the agent is bidding and placing down all its factories. It then calls the `act` function for the rest of the game. These functions have parameters `step` equal to the environment time step, `obs` equal to the actual observations, and `remainingOverageTime` representing how much extra time you have left before having to make a decision. See [here] for details on how bots are timed and limited.
+In the `agent.py` file, we define a simple class that holds your agent, you can modify as you wish but be aware of the two functions given. By default, the kit calls the `early_setup` function for when the agent is bidding and placing down all its factories. It then calls the `act` function for the rest of the game. These functions have parameters `step` equal to the environment time step, `obs` equal to the actual observations, and `remainingOverageTime` representing how much extra time you have left before having to make a decision.
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
 
@@ -29,11 +26,11 @@ These two functions are where you define your agent's logic for both the early p
 
 In each episode there are two competing teams, both of which control factories and units.
 
-Factories have 3 possible actions, `build_light`, `build_heavy`, and `water`.
+In the early phase, the action space is different than the actual game phase. See the starter kit codes (agent.py file) for how they are different.
 
-Units (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
+During the actual game phase, factories have 3 possible actions, `build_light`, `build_heavy`, and `water`. Units/Robots (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
 
-In Lux AI Season 2, the unit's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control units. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated, it is replaced to the back of the queue.
+In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated (the default), it is replaced to the back of the queue.
 
 In code, actions can be given to units as so
 
@@ -49,7 +46,7 @@ See the example code in the corresponding `agent.py` file for how to give action
 
 First, the environment configuration being run is given to your agent. It will be stored under `self.env_cfg`, see the code for details on how to access for different languages.
 
-The general observation given to your bot in the kits will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. Note that the gym interface returns just the "obs" key as the observation.
+The general observation given to your bot in the kits will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. Note that the gym interface returns just the "obs" key as the observation. For a concrete version of the env configurations and observations with numbers, see `sample_obs.json` and `sample_env_cfg.json` in this folder.
 
 ```
 {
@@ -98,3 +95,37 @@ The general observation given to your bot in the kits will look like below. `Arr
 ```
 
 Every kit has an `Agent` class that defines two functions, `early_setup` and `act` with parameters `step`, `obs` and `remainingOverageTime` corresponding to the values in the definition above. Note that for the `act` function, `obs["real_env_steps"]` is used instead. This subtracts the time spent bidding and placing factories in `early_setup` and so the first call to `act` will be with `step = 0` and `act` will be called `max_episode_length` times (default 1000).
+
+## Kit API
+
+All kits come with a interactable API to get data about the current state/observation of the environment. The game state or formatted observation looks as so
+```python
+class GameState:
+    env_steps: int # number of env steps passed
+    env_cfg: dict # current env configuration
+    board: Board # the game board
+    weather_schedule: Array # the weather ID at each time step
+    units: Dict[str, Dict[str, Unit]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to unit objects
+    factories: Dict[str, Dict[str, Factory]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to factory objects
+    teams: Dict[str, Team] # maps agent ID (player_0, player_1) to a Team object
+```
+
+The board object looks as so
+
+```python
+class Board:
+    rubble: Array
+    ice: Array
+    ore: Array
+    lichen: Array
+    lichen_strains: Array # the id of the lichen planted at each tile, corresponds with factory.strain_id
+    factory_occupancy_map: Array # -1 everywhere. Otherwise has the numerical ID of the factory (equivalent to factory.strain_id) that occupies that tile
+    factories_per_team: int # number of factories each team gets to place initially
+    spawns: Array # possible spawn locations on your team's half of the map
+```
+
+Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions (and also factors weather into that cost)
+
+Each `Factory` object comes with functions to generate actions as well as compute the cost of building robots and watering lichen.
+
+Finally, the `Team` object holds the initial pool of water and metal the team has during the early phase, the number of factories left to place, and the strain ids of the owned factories.

@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name="luxai2022",
-    version="1.0.0",
+    version="1.0.3",
     author="Lux AI Challenge",
     description="The Lux AI Challenge Season 2",
     license="MIT",
@@ -20,4 +20,5 @@ setup(
     long_description_content_type='text/markdown',
     entry_points={'console_scripts': [
         'luxai2022 = luxai_runner.cli:main']},
+    install_requires=['numpy', 'pygame', 'termcolor', 'matplotlib', 'pettingzoo', 'vec_noise', 'omegaconf', 'gym==0.19', 'scipy'],
 )
