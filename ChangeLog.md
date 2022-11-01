@@ -1,5 +1,5 @@
 # ChangeLog
 
-### v0.1.0
+### v1.0.4
 
 Initial beta release. Good luck!
