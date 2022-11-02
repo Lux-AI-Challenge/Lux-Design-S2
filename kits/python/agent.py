@@ -5,9 +5,7 @@ import sys
 class Agent():
     def __init__(self, player: str, env_cfg: EnvConfig) -> None:
         self.player = player
-        self.opp_player = ""
-        if self.player == "player_0": self.opp_player = "player_1"
-        else: self.opp_player = "player_0"
+        self.opp_player = "player_1" if self.player == "player_0" else "player_0"
         np.random.seed(0)
         self.env_cfg: EnvConfig = env_cfg
 
