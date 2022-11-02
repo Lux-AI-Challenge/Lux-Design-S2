@@ -68,7 +68,7 @@ class Agent():
                     closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
                     if np.all(closest_ice_tile == unit.pos):
                         if unit.power >= unit.dig_cost(game_state) + unit.action_queue_cost(game_state):
-                            actions[unit_id] = unit.dig(repeat=False)
+                            actions[unit_id] = [unit.dig(repeat=False)]
                     else:
                         direction = direction_to(unit.pos, closest_ice_tile)
                         move_cost = unit.move_cost(game_state, direction)
