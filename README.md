@@ -18,7 +18,7 @@ Interested in Season 1? Check out [last year's repository](https://github.com/Lu
 
 ## Getting Started
 
-You will need Python 3.7 or above installed on your system. Once installed, you can install the Lux AI season 2 environment with
+You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment with
 
 ```
 pip install --upgrade luxai2022
