@@ -37,7 +37,7 @@ The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day tu
 
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ice, it will refine 5 ice into 1 water and leave 3 ice leftover.
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
 
 <table>
   <tr>
@@ -87,7 +87,7 @@ _Strategy Tip_: The player who lost the bid has an extra turn where they don’t
 
 [Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated, meaning once the action is executed the action is replaced to the back of the action queue instead of being removed.
 
-Submitting a new action queue for a robot costs power to communicate to the robot. Once given, the action queue is stored and wipes out what was stored previously. 
+Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies. The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
 
 The next few sections describe the [Robots](#robots) and [Factories](#factories) in detail.
 
@@ -239,6 +239,9 @@ Each turn a factory will automatically:
 * Gain 50 power (regardless of day or night)
 * Convert up to 50 ice to 25 water 
 * Convert up to 50 ore to 10 metal 
+* Consume 1 water
+
+If there is no water to, the nuclear reactor that powers the factory will explode, destroying the factory and leaving behind 50 rubble on each of the 3x3 tiles.
 
 Each factory can perform one of the following actions
 
