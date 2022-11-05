@@ -580,6 +580,7 @@ class LuxAI2022(ParallelEnv):
                 for agent in self.agents:
                     for u in self.state.units[agent].values():
                         u.power = u.power + math.ceil(self.env_cfg.ROBOTS[u.unit_type.name].CHARGE * weather_cfg["power_gain_factor"])
+                        u.power = min(u.power, u.unit_cfg.BATTERY_CAPACITY)
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
                     # Factories are immune to weather thanks to using nuclear reactors instead
