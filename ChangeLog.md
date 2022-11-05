@@ -5,6 +5,7 @@
 Environment:
 - Fixed bug with weather events potentially overlapping
 - Fixed bug where units were not capped by their battery capacity
+- Fixed bug where we do not invalidate off map transfers
 
 Visualizer:
 - Fixed small offset bug in weather schedule display
