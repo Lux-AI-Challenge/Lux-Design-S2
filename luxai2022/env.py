@@ -649,7 +649,7 @@ class LuxAI2022(ParallelEnv):
         if not self.state.board.spawn_masks[team.agent][pos[0], pos[1]]:
             self._log(f"{team.agent} cannot place factory at {pos[0]}, {pos[1]} as it is on the other half of map.")
             return None
-        if self.state.board.factory_occupancy_map[factory.pos_slice].sum() >= 0:
+        if self.state.board.factory_occupancy_map[factory.pos_slice].max() >= 0:
             self._log(f"{team.agent} cannot overlap factory placement. Existing factory at {factory.pos} already.")
             return None
         
