@@ -512,15 +512,17 @@ class LuxAI2022(ParallelEnv):
                             # if unit does not have more than UNIT_ACTION_QUEUE_POWER_COST[unit.unit_type.name] power, we skip updating the action queue and print warning
                             update_power_req = self.state.env_cfg.UNIT_ACTION_QUEUE_POWER_COST[unit.unit_type.name] * weather_cfg["power_loss_factor"]
                             if unit.power < update_power_req:
-                                self._log(f"Tried to update action queue for {unit} requiring ({self.state.env_cfg.UNIT_ACTION_QUEUE_POWER_COST[unit.unit_type.name]} x {weather_cfg['power_loss_factor']}) = {update_power_req} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']} ")
+                                self._log(f"{agent} Tried to update action queue for {unit} requiring ({self.state.env_cfg.UNIT_ACTION_QUEUE_POWER_COST[unit.unit_type.name]} x {weather_cfg['power_loss_factor']}) = {update_power_req} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']} ")
                                 continue
-                            unit.power -= update_power_req
                             formatted_actions = []
                             if type(action) == list or (type(action) == np.ndarray and len(action.shape) == 2):
                                 trunked_actions = action[: self.env_cfg.UNIT_ACTION_QUEUE_SIZE]
                                 formatted_actions = [format_action_vec(a) for a in trunked_actions]
                             else:
-                                formatted_actions = [format_action_vec(action)]
+                                self._log(f"{agent} Tried to update action queue for {unit} but did not provide an action queue, provided {action}")
+                                failed_agents[agent] = True
+                                continue
+                            unit.power -= update_power_req
                             self.state.units[agent][unit_id].action_queue = formatted_actions
                 except ValueError as e:
                     # catch errors when trying to format unit or factory actions
