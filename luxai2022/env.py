@@ -348,10 +348,10 @@ class LuxAI2022(ParallelEnv):
             )
             if factory_build_action.unit_type == UnitType.HEAVY:
                 factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
-                factory.sub_resource(4, math.ceil(self.env_cfg.ROBOTS["HEAVY"].POWER_COST * weather_cfg["power_loss_factor"]))
+                factory.sub_resource(4, factory_build_action.power_cost)
             else:
                 factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
-                factory.sub_resource(4, math.ceil(self.env_cfg.ROBOTS["LIGHT"].POWER_COST * weather_cfg["power_loss_factor"]))
+                factory.sub_resource(4, factory_build_action.power_cost)
     def _handle_movement_actions(self, actions_by_type: ActionsByType, weather_cfg):
         new_units_map: Dict[str, List[Unit]] = defaultdict(list)
         heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
@@ -364,9 +364,7 @@ class LuxAI2022(ParallelEnv):
                 continue
             old_pos_hash = self.state.board.pos_hash(unit.pos)
             target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
-            rubble = self.state.board.rubble[target_pos.y, target_pos.x]
-            power_required = unit.unit_cfg.MOVE_COST + unit.unit_cfg.RUBBLE_MOVEMENT_COST * rubble
-            power_required = math.ceil(power_required * weather_cfg["power_loss_factor"])
+            power_required = move_action.power_cost
             unit.pos = target_pos
             new_pos_hash = self.state.board.pos_hash(unit.pos)
 
@@ -549,7 +547,7 @@ class LuxAI2022(ParallelEnv):
                     # update information for lichen growing and cache it
                     factory.cache_water_info(self.state.board, self.env_cfg)
 
-            # 3. validate all actions against current state, throw away impossible actions TODO
+            # 3. validate all actions against current state, throw away impossible actions
             actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type, verbose=self.env_cfg.verbose, weather_cfg=weather_cfg)
 
             self._handle_transfer_actions(actions_by_type)
