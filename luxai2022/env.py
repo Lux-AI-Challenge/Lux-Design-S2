@@ -403,7 +403,7 @@ class LuxAI2022(ParallelEnv):
                 for u in units:
                     if u.unit_id != surviving_unit.unit_id:
                         destroyed_units.add(u)
-                self._log(f"{len(destroyed_units)} Units collided at {pos_hash} with {surviving_unit} surviving")
+                self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving")
                 new_units_map_after_collision[pos_hash].append(surviving_unit)
             else:
                 # check for stationary heavy unit there
