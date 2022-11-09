@@ -319,7 +319,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
             )
             continue
         if valid_action:
-            actions_by_type_validated["self_destruct"].append((unit, move_action))
+            actions_by_type_validated["self_destruct"].append((unit, self_destruct_action))
 
     for factory, build_action in actions_by_type["factory_build"]:
         valid_action = True
