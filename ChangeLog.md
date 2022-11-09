@@ -1,5 +1,11 @@
 # ChangeLog
 
+### v1.0.6
+- Fix bug where game ends at turns < 1000 (kaggle-environments bug)
+- Fixed bug with self-destruct actions not being validated or added
+- Log unit ids that collided. E.g. `14: 1 Units: (unit_11) collided at 33,44 with [1] unit_9 UnitType.HEAVY at (33, 44) surviving`
+- Fixed bug where power costs were recomputed after state change in a single step, causing potentially negative energy in edge cases
+
 ### v1.0.5
 
 Environment:
