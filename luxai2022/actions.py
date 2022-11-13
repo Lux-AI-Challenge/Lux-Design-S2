@@ -307,7 +307,13 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
                 )
                 continue
         rubble = state.board.rubble[target_pos.y, target_pos.x]
-        power_required = math.ceil(unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"])
+        power_required = (
+            0
+            if move_action.move_dir == 0
+            else math.ceil(
+                unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"]
+            )
+        )
 
         if power_required > unit.power:
             invalidate_action(
