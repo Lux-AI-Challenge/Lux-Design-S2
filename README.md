@@ -25,7 +25,7 @@ pip install --upgrade luxai2022
 ```
 
 
-To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the `starter kit in kits/python/main.py`) and run
+To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
 
 ```
 luxai2022 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
