@@ -18,7 +18,7 @@ agent.initialize().then(async () => {
       // submit turn 0 actions
       console.log(JSON.stringify(actions));
     } else {
-      actions = agent.act(agent.real_env_step);
+      actions = agent.act(agent.real_env_steps);
       // submit turn 0 actions
       console.log(JSON.stringify(actions));
     }
