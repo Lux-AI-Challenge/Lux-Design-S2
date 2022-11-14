@@ -133,9 +133,10 @@ class Agent {
 
     // iterate over all active factories
     for (const [unit_id, factory] of Object.entries(factories)) {
-      if(this.player === 'player_0') {
-        // console.error(this.player, step, factory.cargo, factory.power, factory.canBuildHeavy(obs));
-      }
+      // logging
+      // if(this.player === 'player_0') {
+      //   console.error(this.player, step, factory.cargo, factory.power, factory.canBuildHeavy(obs));
+      // }
       if (step % 10 == 0 && step > 1 && factory.cargo['water'] > 500) {
         actions[unit_id] = 2;
       } else if (factory.canBuildHeavy(obs)) {
@@ -150,9 +151,10 @@ class Agent {
       const [unitX, unitY] = unit.pos;
       const onIce = ice[unitY][unitX] ? true : false;
       const onFactory = factoryPositionMap[`${unitX}-${unitY}`] ? true : false;
-      if(this.player === 'player_0') {
-        console.error(this.player, step, unit.pos, 'power', unit.power, 'ice', unit.cargo.ice, 'onice', onIce ? 'Y':'N', 'onFactory', onFactory ? 'Y':'N', unit.actionQueue.length);
-      }
+      // logging
+      // if(this.player === 'player_0') {
+      //   console.error(this.player, step, unit.pos, 'power', unit.power, 'ice', unit.cargo.ice, 'onice', onIce ? 'Y':'N', 'onFactory', onFactory ? 'Y':'N', unit.actionQueue.length);
+      // }
       if(unit.actionQueue.length === 0){
         if(onFactory) {
           const factroy = factoryPositionMap[`${unitX}-${unitY}`];
@@ -218,20 +220,6 @@ class Agent {
     }
     this.gameState = processObs(this, this.last_input, this.step);
   }
-}
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getOppositeDir(direction) {
-  if(direction === 0) return 0;
-  if(direction === 1) return 3;
-  if(direction === 2) return 4;
-  if(direction === 3) return 1;
-  if(direction === 4) return 2;
 }
 
 // direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
