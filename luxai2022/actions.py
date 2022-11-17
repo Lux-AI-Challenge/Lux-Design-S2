@@ -44,7 +44,7 @@ class FactoryWaterAction(Action):
         super().__init__("factory_water")
         self.water_cost = None
         self.power_cost = 0
-    def state_dict():
+    def state_dict(self):
         return 2
 
 
