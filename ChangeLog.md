@@ -1,5 +1,7 @@
 # ChangeLog
 
+### v1.1.0
+
 ### v1.0.6
 - Fix bug where game ends at turns < 1000 (kaggle-environments bug)
 - Fixed bug with self-destruct actions not being validated or added
