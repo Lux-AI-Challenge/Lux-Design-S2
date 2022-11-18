@@ -31,11 +31,14 @@ json Agent::act() {
             auto direction = lux::directionFromInt(i);
             auto moveCost = unit.moveCost(obs, direction);
             if (moveCost >= 0 && unit.power >= moveCost + unit.actionQueueCost(obs)) {
+                LUX_LOG("ordering unit " << unit.unit_id << " to move in direction " << i);
                 // Alternatively, push lux::UnitAction::Move(direction, false)
                 actions[unitId].push_back(unit.move(direction, false));
                 break;
             }
         }
     }
+    // dump your created actions in a file by uncommenting this line
+    lux::dumpJsonToFile("last_actions.json", actions);
     return actions;
 }
