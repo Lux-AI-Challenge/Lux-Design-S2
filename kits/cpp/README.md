@@ -172,8 +172,36 @@ Just as the Python kit, this kit also provides some additional information not d
 - `lux::Unit` and `lux::Factory` provide functionality to calculate the cost of each action
 - `lux::Position` provides a static function `Delta(dir)` which will return a delta position for a given direction
 
-Besides that is also has a few unique features (in `lux/log.hpp` and `lux/exception.hpp`):
-- `lux::dumpToJsonFile` will write content of a `json` to an actual JSON file (every step the input is written to `input.json` in the build directory)
-- `LUX_LOG` macro can be used to log something (debug build only). It will simply be forwarded to `stderr`.
-- `LUX_ASSERT` macro can be used to perform assertions (debug build only). If an assertion fails, it will throw a `lux::Exception`.
+Besides that is also has a few unique features intended for debugging. To create a debug build, run `compile.sh` with the `-d` flag.  
+- inluding `lux/log.hpp` will give you access to:
+    - `lux::dumpToJsonFile` which will write the content of a `json` type variable to an actual JSON file (e.g. in `main.cpp` the input is written to `input.json` in the build directory every step) As of now, it will also do this in non-debug builds.
+    - `LUX_LOG` which can be used to log something in debug build only. It will simply be forwarded to `stderr`. In non-debug builds, this statement will not produce any code.
+- including `lux/exception.hpp` will give you access to:
+    - `LUX_ASSERT` which can be used to perform assertions in debug build only. If an assertion fails, it will throw a `lux::Exception`. In non-debug builds, this statement will not produce any code so don't perform any logic-critical function calls in the assertion expression!
+
+The following is a truncated example of the additional features:
+```cpp
+#include "lux/log.hpp"
+#include "lux/exception.hpp"
+
+// ...
+
+json Agent::act() {
+    json actions = json::object();
+
+    // ...
+
+    if (moveCost < unit.power) {
+        LUX_ASSERT(unit.power > 0, "unit must have some power at this point");
+        // ...
+    } else {
+        LUX_LOG("unit " << unit.unit_id << " does not have enough power");
+    }
+
+    // ...
+
+    lux::dumpToJsonFile("last_actions.json", actions);
+    return actions;
+}
+```
 
