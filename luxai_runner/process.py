@@ -63,8 +63,9 @@ class BotProcess:
             while not stream.at_eof():
                 data = await stream.readline()
                 line = data.decode()
+
                 if stream.at_eof() and len(line) == 0: break
-                elif self.live_log: self.log.err(line)
+                elif self.live_log: self.log.err(line, end="")
                 else: self.stderr_queue.append(line)
         asyncio.create_task(log_stream(self._agent_process.stderr))
         # await asyncio.gather(watch(self._agent_process.stderr, 'E:'))
