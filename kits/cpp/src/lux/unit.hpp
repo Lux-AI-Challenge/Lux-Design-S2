@@ -37,5 +37,5 @@ namespace lux {
 
         UnitAction recharge(int64_t amount, bool repeat = true) const;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo, action_queue)
 }  // namespace lux
