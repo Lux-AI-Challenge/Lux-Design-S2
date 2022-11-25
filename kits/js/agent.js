@@ -41,20 +41,6 @@ class Agent {
     } else {
       // decide on where to spawn the next factory. Returning an empty dict() will skip your factory placement
 
-      const factories = obs["factories"][this.player];
-      const factoryMap = {}
-      // iterate over all active factories
-      for (const [unit_id, factory] of Object.entries(factories)) {
-        factoryMap[`${factory.pos[0]}-${factory.pos[1]}`] = true;
-        factoryMap[`${factory.pos[0]-1}-${factory.pos[1]}`] = true;
-        factoryMap[`${factory.pos[0]+1}-${factory.pos[1]}`] = true;
-        factoryMap[`${factory.pos[0]}-${factory.pos[1]+1}`] = true;
-        factoryMap[`${factory.pos[0]}-${factory.pos[1]-1}`] = true;
-        factoryMap[`${factory.pos[0]-1}-${factory.pos[1]-1}`] = true;
-        factoryMap[`${factory.pos[0]-1}-${factory.pos[1]+1}`] = true;
-        factoryMap[`${factory.pos[0]+1}-${factory.pos[1]+1}`] = true;
-        factoryMap[`${factory.pos[0]+1}-${factory.pos[1]-1}`] = true;
-      }
       // how much water and metal you have in your starting pool to give to new factories
       const water_left = obs["teams"][this.player]["water"];
       const metal_left = obs["teams"][this.player]["metal"];
@@ -62,18 +48,14 @@ class Agent {
       const factories_to_place = obs["teams"][this.player]["factories_to_place"];
       // obs["teams"][this.opp_player] has the same information but for the other team
       // potential spawnable locations in your half of the map
-      const potential_spawns = obs["board"]["spawns"][this.player];
+      const potential_spawns = obs["board"]["spawns"][this.player]
 
       // as a naive approach we randomly select a spawn location and spawn a factory there
-      let spawn_loc = potential_spawns[parseInt(Math.floor(Math.random() * potential_spawns.length))];
-      let tries = 0;
-      let [x, y] = spawn_loc;
-      while(tries < 10 && factoryMap[`${x}-${y}`]) {
-        spawn_loc = potential_spawns[parseInt(Math.floor(Math.random() * potential_spawns.length))];
-        [x, y] = spawn_loc;
-        tries++;
-      }
-      return { spawn: spawn_loc, metal: 100, water: 100 };
+      const spawn_loc =
+        potential_spawns[
+          parseInt(Math.floor(Math.random() * potential_spawns.length))
+        ];
+      return { spawn: spawn_loc, metal: 62, water: 62 };
     }
   }
 
@@ -104,102 +86,16 @@ class Agent {
     const factories = obs["factories"][this.player];
     const opp_factories = obs["factories"][this.opp_player];
 
-    // pre compute useful information
-    const icePositions = [];
-    for (let y = 0; y < ice.length; y++) {
-      for (let x = 0; x < ice[y].length; x++) {
-        const iceExist = ice[y][x];
-        if(iceExist) {
-          icePositions.push([x, y]);
-        }
-      }
-    }
-
-    const factoryPositions = [];
-    const factoryPositionMap = {};
-    for (const [unit_id, factory] of Object.entries(factories)) {
-      factoryPositions.push(factory.pos);
-      factoryPositionMap[`${factory.pos[0]}-${factory.pos[1]}`] = factory;
-      factoryPositionMap[`${factory.pos[0]}-${factory.pos[1]}`] = factory;
-      factoryPositionMap[`${factory.pos[0]-1}-${factory.pos[1]}`] = factory;
-      factoryPositionMap[`${factory.pos[0]+1}-${factory.pos[1]}`] = factory;
-      factoryPositionMap[`${factory.pos[0]}-${factory.pos[1]+1}`] = factory;
-      factoryPositionMap[`${factory.pos[0]}-${factory.pos[1]-1}`] = factory;
-      factoryPositionMap[`${factory.pos[0]-1}-${factory.pos[1]-1}`] = factory;
-      factoryPositionMap[`${factory.pos[0]-1}-${factory.pos[1]+1}`] = factory;
-      factoryPositionMap[`${factory.pos[0]+1}-${factory.pos[1]+1}`] = factory;
-      factoryPositionMap[`${factory.pos[0]+1}-${factory.pos[1]-1}`] = factory;
-    }
-
     // iterate over all active factories
     for (const [unit_id, factory] of Object.entries(factories)) {
-      // logging
-      // if(this.player === 'player_0') {
-      //   console.error(this.player, step, factory.cargo, factory.power, factory.canBuildHeavy(obs));
-      // }
-      if (step % 10 == 0 && step > 1 && factory.cargo['water'] > 500) {
+      if (step % 4 == 0 && step > 1) {
+        actions[unit_id] = Math.floor(Math.random() * 2);
+      } else {
         actions[unit_id] = 2;
-      } else if (factory.canBuildHeavy(obs)) {
-        actions[unit_id] = factory.buildHeavy();
       }
     }
-
-    const chargeToAmount = 1000;
-    const mineIceAmount = 40;
-
     for (const [unit_id, unit] of Object.entries(units)) {
-      const [unitX, unitY] = unit.pos;
-      const onIce = ice[unitY][unitX] ? true : false;
-      const onFactory = factoryPositionMap[`${unitX}-${unitY}`] ? true : false;
-      // logging
-      // if(this.player === 'player_0') {
-      //   console.error(this.player, step, unit.pos, 'power', unit.power, 'ice', unit.cargo.ice, 'onice', onIce ? 'Y':'N', 'onFactory', onFactory ? 'Y':'N', unit.actionQueue.length);
-      // }
-      if(unit.actionQueue.length === 0){
-        if(onFactory) {
-          const factroy = factoryPositionMap[`${unitX}-${unitY}`];
-          if(unit.cargo.ice >= mineIceAmount) {
-            // transfer ice if has more than mineIceAmount
-            actions[unit_id] = [unit.transfer(0, 0, 10, false)];
-          } else if(unit.power < chargeToAmount) {
-            // charge if no power
-            const powerNeeded = chargeToAmount - unit.power;
-            if(factroy.power >= powerNeeded) {
-              actions[unit_id] = [unit.pickup(4, powerNeeded, false)];
-            } else if(factroy.power >= 50) {
-              actions[unit_id] = [unit.pickup(4, factroy.power, false)];
-            } else {
-              actions[unit_id] = [unit.recharge(chargeToAmount, false)];
-            }
-          } else {
-            // else go mine
-            const closestIce = getClosestTo(unit.pos, icePositions);
-            const direction = getDirectionTo(unit.pos, closestIce);
-            actions[unit_id] = [unit.move(direction, false)];
-          }
-        } else if(onIce) {
-          if(unit.cargo.ice >= mineIceAmount) {
-            // go back to factory
-            const closestFactory = getClosestTo(unit.pos, factoryPositions);
-            const direction = getDirectionTo(unit.pos, closestFactory);
-            actions[unit_id] = [unit.move(direction, false)];
-          } else {
-            actions[unit_id] = [unit.dig(false)];
-          }
-        } else {
-          if(unit.cargo.ice >= mineIceAmount) {
-            // go back to factory
-            const closestFactory = getClosestTo(unit.pos, factoryPositions);
-            const direction = getDirectionTo(unit.pos, closestFactory);
-            actions[unit_id] = [unit.move(direction, false)];
-          } else {
-            // go mine
-            const closestIce = getClosestTo(unit.pos, icePositions);
-            const direction = getDirectionTo(unit.pos, closestIce);
-            actions[unit_id] = [unit.move(direction, false)];
-          }
-        }
-      }
+      const pos = unit["pos"];
     }
     return actions;
   }

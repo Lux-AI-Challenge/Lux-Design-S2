@@ -3,6 +3,7 @@ from subprocess import Popen, PIPE
 from threading  import Thread
 from queue import Queue, Empty
 from collections import defaultdict
+from argparse import Namespace
 import atexit
 import os
 import sys
@@ -43,7 +44,7 @@ def agent(observation, configuration):
         t = Thread(target=enqueue_output, args=(agent_process.stderr, q_stderr))
         t.daemon = True # thread dies with the program
         t.start()
-    data = json.dumps(dict(obs=json.loads(observation.obs), step=observation.step, remainingOverageTime=observation.remainingOverageTime, player=observation.player, reward=observation.reward, info=configuration))
+    data = json.dumps(dict(obs=json.loads(observation.obs), step=observation.step, remainingOverageTime=observation.remainingOverageTime, player=observation.player, info=configuration))
     agent_process.stdin.write(f"{data}\n".encode())
     agent_process.stdin.flush()
 
@@ -60,5 +61,28 @@ def agent(observation, configuration):
         return {}
     return json.loads(agent1res)
 
-# def agent2(observation, configuration):
-#     return {}
+if __name__ == "__main__":
+    
+    def read_input():
+        """
+        Reads input from stdin
+        """
+        try:
+            return input()
+        except EOFError as eof:
+            raise SystemExit(eof)
+    step = 0
+    player_id = 0
+    configurations = None
+    i = 0
+    while True:
+        inputs = read_input()
+        obs = json.loads(inputs)
+        
+        observation = Namespace(**dict(step=obs["step"], obs=json.dumps(obs["obs"]), remainingOverageTime=obs["remainingOverageTime"], player=obs["player"], info=obs["info"]))
+        if i == 0:
+            configurations = obs["info"]["env_cfg"]
+        i += 1
+        actions = agent(observation, dict(env_cfg=configurations))
+        # send actions to engine
+        print(json.dumps(actions))
