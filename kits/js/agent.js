@@ -118,40 +118,6 @@ class Agent {
   }
 }
 
-// direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
-function getDirectionTo(source, dist) {
-  const [sourceX, sourceY] = source;
-  const [distX, distY] = dist;
-  if(distX < sourceX) {
-    return 4
-  } else if(distX > sourceX) {
-    return 2
-  } else {
-    if(distY < sourceY) {
-      return 1
-    } else if(distY > sourceY) {
-      return 3
-    }
-    return 0
-  }
-}
-
-function getClosestTo(pos, candidates) {
-  let min = Infinity;
-  let result = candidates[0];
-  const [x, y] = pos;
-  for (let i = 0; i < candidates.length; i++) {
-    const [cx, cy] = candidates[i];
-    // Manhattan distance for grid
-    const dist = Math.abs(x - cx) + Math.abs(y - cy);
-    if(dist < min) {
-      min = dist;
-      result = candidates[i];
-    }
-  }
-  return result;
-}
-
 module.exports = {
   Agent,
 };
