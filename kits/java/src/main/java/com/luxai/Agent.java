@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class Agent {
 
-    //private State state;
+    private Random random = new Random(2022);
 
     public Obs obs;
     public int step;
@@ -27,9 +27,8 @@ public class Agent {
         if (this.step == 0)
             return Mapper.getJson(new BidAction("AlphaStrike", 0));
         if (this.obs.teams.get(this.me()).factories_to_place > 0) {
-            Random random = new Random();
             ArrayList<ArrayList<Integer>> mySpawn = this.obs.board.spawns.get(me());
-            int randomSpawnIndex = random.nextInt(mySpawn.size());
+            int randomSpawnIndex = this.random.nextInt(mySpawn.size());
 
             SpawnAction spawnAction = new SpawnAction(new int[]{mySpawn.get(randomSpawnIndex).get(0), mySpawn.get(randomSpawnIndex).get(1)},
                                                         100,//this.getObs().teams.get(this.me()).metal / 2,
@@ -44,16 +43,88 @@ public class Agent {
     public String act() throws JsonProcessingException {
         UnitAction unitAction = new UnitAction();
 
-        Map<String, Factory> factories = obs.factories.get(this.me());
-        for (String unitId : factories.keySet()) {
-            Factory factory = factories.get(unitId);
+        Map<String, Factory> myFactories = obs.factories.get(this.me());
+        for (String unitId : myFactories.keySet()) {
+            Factory factory = myFactories.get(unitId);
             if (factory.canBuildHeavy(this.env_cfg))
                 unitAction.add(factory.unit_id, Factory.BUILD_HEAVY);
         }
 
         Map<String, Robot> units = obs.units.get(this.me());
         for (Robot robot : units.values()) {
-
+            int xRobot = robot.pos[MoveUtils.X];
+            int yRobot = robot.pos[MoveUtils.Y];
+            int factoryDistance = 100000;
+            Factory nearestFactory = null;
+            // Find nearest factory
+            for (Factory factory : obs.factories.get(this.me()).values()) {
+                int manhattan = MoveUtils.getManhattanDistance(xRobot, yRobot, factory.pos[MoveUtils.X], factory.pos[MoveUtils.Y]);
+                if (manhattan < factoryDistance) {
+                    factoryDistance = manhattan;
+                    nearestFactory = factory;
+                }
+            }
+            if (nearestFactory != null) {
+                int factoryDirection = MoveUtils.getDirection(xRobot, yRobot, nearestFactory.pos[MoveUtils.X], nearestFactory.pos[MoveUtils.Y]);
+                // Cargo full
+                if (robot.cargo.ice > 40) {
+                    // Factory orthogonally adjacent
+                    if (factoryDistance <= 3) {
+                        if (robot.power > robot.getActionQueueCost(obs, env_cfg))
+                            unitAction.actions.put(robot.unit_id, robot.transfer(factoryDirection, 0, robot.cargo.ice, false));
+                    }
+                    // Factory long away
+                    else {
+                        int moveCost = robot.getMoveCost(obs, env_cfg, this.me(), factoryDirection);
+                        if (moveCost != MoveUtils.MOVE_UNAVAILABLE
+                                && robot.power >= (moveCost + robot.getActionQueueCost(obs, env_cfg)))
+                            unitAction.actions.put(robot.unit_id, robot.move(factoryDirection, false));
+                    }
+                }
+                // Need to mine recourses
+                else {
+                    // Find closest ice tile
+                    int iceDistance = 100000;
+                    int xIce = -1;
+                    int yIce = -1;
+                    for (int x = 0; x < env_cfg.map_size; x++) {
+                        for (int y = 0; y < env_cfg.map_size; y++) {
+                            // Tile has ice
+                            if (obs.board.ice[y][x] > 0) {
+                                boolean isMyFactoryArea = false;
+                                for (String unitId : myFactories.keySet()) {
+                                    Factory factory = myFactories.get(unitId);
+                                    if (factory.isFactoryArea(x, y))
+                                        isMyFactoryArea = true;
+                                }
+                                if (!isMyFactoryArea) {
+                                    int manhattan = MoveUtils.getManhattanDistance(xRobot, yRobot, x, y);
+                                    if (manhattan < iceDistance) {
+                                        iceDistance = manhattan;
+                                        xIce = x;
+                                        yIce = y;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Robot on ice position
+                    if (xIce != -1 && yIce != -1) {
+                        if (xIce == xRobot && yIce == yRobot) {
+                            if (robot.power >= (robot.getDigCost(obs, env_cfg) + robot.getActionQueueCost(obs, env_cfg)))
+                                unitAction.actions.put(robot.unit_id, robot.dig(false));
+                        }
+                        // Ice long away
+                        else {
+                            int iceDirection = MoveUtils.getDirection(xRobot, yRobot, xIce, yIce);
+                            int moveCost = robot.getMoveCost(obs, env_cfg, this.me(), iceDirection);
+                            if (moveCost != MoveUtils.MOVE_UNAVAILABLE
+                                    && robot.power >= (moveCost + robot.getActionQueueCost(obs, env_cfg)))
+                                unitAction.actions.put(robot.unit_id, robot.move(iceDirection, false));
+                        }
+                    }
+                }
+            }
         }
 
         if (unitAction.actions.size() > 0)
@@ -117,37 +188,5 @@ public class Agent {
     public String me() {
         return this.player;
     }
-
-//    public Obs getObs() {
-//        return obs;
-//    }
-
-//    public int getStep() {
-//        return step;
-//    }
-//
-//    public void setObs(Obs obs) {
-//        this.obs = obs;
-//    }
-//
-//    public void setStep(int step) {
-//        this.step = step;
-//    }
-//
-//    public void setRemainingOverageTime(int remainingOverageTime) {
-//        this.remainingOverageTime = remainingOverageTime;
-//    }
-//
-//    public void setPlayer(String player) {
-//        this.player = player;
-//    }
-//
-//    public void setEnv_cfg(Environment env_cfg) {
-//        this.env_cfg = env_cfg;
-//    }
-//
-//    public void setReward(double reward) {
-//        this.reward = reward;
-//    }
 
 }

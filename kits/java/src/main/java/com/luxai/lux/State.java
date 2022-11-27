@@ -1,5 +1,8 @@
 package com.luxai.lux;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class State {
 
     public Obs obs;

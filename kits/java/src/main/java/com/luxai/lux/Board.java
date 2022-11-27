@@ -8,13 +8,13 @@ import java.util.Map;
 public class Board {
     // step = 0
     @JsonProperty("rubble_init")
-    public int[][] rubble;
-    public int[][] ore;
-    public int[][] ice;
+    public int[][] rubble;          // Mixed up X and Y. I don`t know it is my bad or json-feature
+    public int[][] ore;             // Mixed up X and Y. I don`t know it is my bad or json-feature
+    public int[][] ice;             // Mixed up X and Y. I don`t know it is my bad or json-feature
     @JsonProperty("lichen_init")
-    public int[][] lichen;
+    public int[][] lichen;          // Mixed up X and Y. I don`t know it is my bad or json-feature
     @JsonProperty("strains_init")
-    public int[][] lichen_strains;
+    public int[][] lichen_strains;  // Mixed up X and Y. I don`t know it is my bad or json-feature
     public Map<String, ArrayList<ArrayList<Integer>>> spawns;
 
     // step > 0

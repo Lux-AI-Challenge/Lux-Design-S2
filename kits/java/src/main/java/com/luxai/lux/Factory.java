@@ -6,6 +6,9 @@ public class Factory {
     public static final int BUILD_HEAVY = 1;
     public static final int WATER = 2;
 
+    public static final int X = 0;
+    public static final int Y = 1;
+
     public int[] pos;
     public int power;
     public int strain_id;
@@ -21,5 +24,26 @@ public class Factory {
     public boolean canBuildLight(Environment environment) {
         RobotInfo robot = environment.ROBOTS.get("LIGHT");
         return this.power >= robot.POWER_COST && this.cargo.metal >= robot.METAL_COST;
+    }
+
+    public int waterCost(Obs obs, Environment environment) {
+        int lichenCounter = 0;
+        for (int[] row : obs.board.lichen_strains) {
+            for (int lichenStrain : row) {
+                if (lichenStrain == this.strain_id)
+                    lichenCounter++;
+            }
+        }
+        // Conflict logic: python kit vs specs
+        return (int) (Math.ceil(lichenCounter / 10.0) * environment.LICHEN_WATERING_COST_FACTOR);   //specs
+//        return (int) (Math.ceil(lichenCounter / environment.LICHEN_WATERING_COST_FACTOR) + 1);      //python
+    }
+
+    public boolean canWater(Obs obs, Environment environment) {
+        return this.cargo.water >= waterCost(obs, environment);
+    }
+
+    public boolean isFactoryArea(int x, int y) {
+        return Math.max(Math.abs(this.pos[X] - x), Math.abs(this.pos[Y] - y)) <= 1;
     }
 }
