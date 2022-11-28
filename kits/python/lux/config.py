@@ -60,8 +60,8 @@ class EnvConfig:
 
     MAX_RUBBLE: int = 100
     FACTORY_RUBBLE_AFTER_DESTRUCTION: int = 50
-    INIT_WATER_METAL_PER_FACTORY: int = 100 # amount of water and metal units given to each factory
-    INIT_POWER_PER_FACTORY: int = 100
+    INIT_WATER_METAL_PER_FACTORY: int = 150 # amount of water and metal units given to each factory
+    INIT_POWER_PER_FACTORY: int = 1000
 
     #### LICHEN ####
     MIN_LICHEN_TO_SPREAD: int = 1

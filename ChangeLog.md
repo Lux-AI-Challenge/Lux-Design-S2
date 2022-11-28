@@ -3,11 +3,13 @@
 ### v1.1.0
 
 Environment:
-- Assymmetric Maps
+- Assymmetric Maps are used now
 - Bids are now for who goes first, not who gets an extra factory. If bid is tied, player 0 goes first. This early phase is kept parallel for simplicity. Instead, when it is not your turn to place a factory you must skip your turn. Subsequent turns after the starting phase are still in parallel.
 - renamed `board.spawns` -> `board.valid_spawns_mask`. Stores the same information (locations on map that you can spawn a factory on). This changes over time based on where new factories are placed.
 - Factories can spawn anywhere, but must not overlap any resource or factory.
 - Switch to x,y indexing for all map and position related data
+- Bumped up initial water/metal resources per factory to 150 each (old: 100)
+- Bumped up initial power per factory to 1000 (old: 100)
 
 Python Kits:
 - Updated to accept some new observation entires (`teams[player].place_first`, `board.valid_spawns_mask`), and removed old ones (`board.spawns`)
