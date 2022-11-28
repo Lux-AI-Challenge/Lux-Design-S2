@@ -192,36 +192,6 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         # if transfer_action.transfer_amount < 0: do not need to check as action space permits range of [0, max_transfer_amount] anyway
         resource_id = transfer_action.resource
         amount = transfer_action.transfer_amount
-        if resource_id == 0:
-            if unit.cargo.ice < amount:
-                invalidate_action(
-                    f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} ice but only had {unit.cargo.ice}"
-                )
-                continue
-        elif resource_id == 1:
-            if unit.cargo.ore < amount:
-                invalidate_action(
-                    f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} ore but only had {unit.cargo.ore}"
-                )
-                continue
-        elif resource_id == 2:
-            if unit.cargo.water < amount:
-                invalidate_action(
-                    f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} water but only had {unit.cargo.water}"
-                )
-                continue
-        elif resource_id == 3:
-            if unit.cargo.metal < amount:
-                invalidate_action(
-                    f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} metal but only had {unit.cargo.metal}"
-                )
-                continue
-        elif resource_id == 4:
-            if unit.power < amount:
-                invalidate_action(
-                    f"Invalid Transfer Action for unit {unit} - Tried to transfer {amount} power but only had {unit.power}"
-                )
-                continue
 
         if valid_action:
             actions_by_type_validated["transfer"].append((unit, transfer_action))
