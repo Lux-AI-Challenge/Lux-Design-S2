@@ -10,6 +10,8 @@ Environment:
 - Switch to x,y indexing for all map and position related data
 - Bumped up initial water/metal resources per factory to 150 each (old: 100)
 - Bumped up initial power per factory to 1000 (old: 100)
+- Lichen requires 20 units before being able to expand now
+- Lichen grows from any square cardinally adjacent to a factory tile now
 
 Python Kits:
 - Updated to accept some new observation entires (`teams[player].place_first`, `board.valid_spawns_mask`), and removed old ones (`board.spawns`)
