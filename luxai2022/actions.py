@@ -310,6 +310,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
             self_destruct_action.power_cost = power_required
             actions_by_type_validated["self_destruct"].append((unit, self_destruct_action))
 
+    for unit, recharge_action in actions_by_type["recharge"]:
+        actions_by_type_validated["recharge"].append((unit, recharge_action))
+
     for factory, build_action in actions_by_type["factory_build"]:
         valid_action = True
         build_action: FactoryBuildAction
