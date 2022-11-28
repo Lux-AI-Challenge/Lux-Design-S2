@@ -145,4 +145,7 @@ class Episode:
         if save_replay:
             self.save_replay(replay)
 
+        for player in players.values():
+            await player.proc.cleanup()
+
         return rewards
