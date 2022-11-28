@@ -19,6 +19,7 @@ Bug Fixes:
 - Fix bug where move center costs power
 - Fix extra line in stderr logging
 - Potential fix of Windows issues with verbose error logging
+- Fix bug in lichen growth where lichen would grow to new tiles if there is just 1 lichen, it should be 20
 
 ### v1.0.6
 - Fix bug where game ends at turns < 1000 (kaggle-environments bug)
