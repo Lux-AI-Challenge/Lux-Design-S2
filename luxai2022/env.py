@@ -359,17 +359,34 @@ class LuxAI2022(ParallelEnv):
             factory: Factory
             factory_build_action: FactoryBuildAction
             team = self.state.teams[factory.team.agent]
+
+            # note that this happens after unit resource pickup. Thus we have to reverify these actions
+            # if self.state.env_cfg.validate_action_space:
+
+            if factory_build_action.unit_type == UnitType.HEAVY:
+                if factory.cargo.metal < self.env_cfg.ROBOTS["HEAVY"].METAL_COST:
+                    self._log(f"{factory} doesn't have enough metal to build a heavy despite having enough metal at the start of the turn. This is likely because a unit picked up some of the metal.")
+                    return
+                if factory.power < factory_build_action.power_cost:
+                    self._log(f"{factory} doesn't have enough power to build a heavy despite having enough power at the start of the turn. This is likely because a unit picked up some of the power.")
+                    return
+                factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
+                factory.sub_resource(4, factory_build_action.power_cost)
+            else:
+                if factory.cargo.metal < self.env_cfg.ROBOTS["LIGHT"].METAL_COST:
+                    self._log(f"{factory} doesn't have enough metal to build a light despite having enough metal at the start of the turn. This is likely because a unit picked up some of the metal.")
+                    return
+                if factory.power < factory_build_action.power_cost:
+                    self._log(f"{factory} doesn't have enough power to build a light despite having enough power at the start of the turn. This is likely because a unit picked up some of the power.")
+                    return
+                factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
+                factory.sub_resource(4, factory_build_action.power_cost)
+            
             self.add_unit(
                 team=team,
                 unit_type=factory_build_action.unit_type,
                 pos=factory.pos.pos,
             )
-            if factory_build_action.unit_type == UnitType.HEAVY:
-                factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
-                factory.sub_resource(4, factory_build_action.power_cost)
-            else:
-                factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
-                factory.sub_resource(4, factory_build_action.power_cost)
     def _handle_movement_actions(self, actions_by_type: ActionsByType, weather_cfg):
         new_units_map: Dict[str, List[Unit]] = defaultdict(list)
         heavy_entered_pos: Dict[str, List[Unit]] = defaultdict(list)
