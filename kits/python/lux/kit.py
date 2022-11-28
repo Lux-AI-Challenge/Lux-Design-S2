@@ -50,7 +50,7 @@ def process_obs(player, game_state, step, obs):
             for k, v in obs["board"][item].items():
                 k = k.split(",")
                 x, y = int(k[0]), int(k[1])
-                game_state["board"][item][y, x] = v
+                game_state["board"][item][x, y] = v
     return game_state
 
 def obs_to_game_state(step, env_cfg: EnvConfig, obs):

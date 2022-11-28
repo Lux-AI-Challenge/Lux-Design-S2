@@ -96,16 +96,16 @@ class State:
         data["board"]["lichen_strains"] = dict()
         change_indices = np.argwhere(self.board.rubble != prev_state["board"]["rubble"])
         for ind in change_indices:
-            y,x = ind[0], ind[1]
-            data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[y, x]
+            x,y = ind[0], ind[1]
+            data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[x, y]
         change_indices = np.argwhere(self.board.lichen != prev_state["board"]["lichen"])
         for ind in change_indices:
-            y,x = ind[0], ind[1]
-            data["board"]["lichen"][f"{x},{y}"] = self.board.lichen[y, x]
+            x,y = ind[0], ind[1]
+            data["board"]["lichen"][f"{x},{y}"] = self.board.lichen[x, y]
         change_indices = np.argwhere(self.board.lichen_strains != prev_state["board"]["lichen_strains"])
         for ind in change_indices:
-            y,x = ind[0], ind[1]
-            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[y, x]
+            x,y = ind[0], ind[1]
+            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[x, y]
         return data
 
     def from_obs(obs):

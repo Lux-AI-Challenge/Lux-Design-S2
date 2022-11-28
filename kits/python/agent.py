@@ -50,7 +50,7 @@ class Agent():
         factory_tiles = np.array(factory_tiles)
 
         units = game_state.units[self.player]
-        ice_map = game_state.board.ice.T
+        ice_map = game_state.board.ice
         ice_tile_locations = np.argwhere(ice_map == 1)
         for unit_id, unit in units.items():
 

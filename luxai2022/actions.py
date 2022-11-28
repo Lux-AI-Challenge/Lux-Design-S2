@@ -236,7 +236,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
             )
             continue
         # verify not digging over a factory which is not allowed
-        if state.board.factory_occupancy_map[unit.pos.y, unit.pos.x] != -1:
+        if state.board.factory_occupancy_map[unit.pos.x, unit.pos.y] != -1:
             invalidate_action(
                 f"Invalid Dig Action for unit {unit} - Tried to dig on top of a factory"
             )
