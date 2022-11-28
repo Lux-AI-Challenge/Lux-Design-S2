@@ -37,9 +37,13 @@ class BotProcess:
             cwd = "."
         self.log.info(f"Beginning {self.command} {self.file_path}")
         # self._agent_process = Popen([self.command, os.path.basename(self.file_path)], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+
+        base_file_path = os.path.basename(self.file_path)   
+        if self.command == "java" and base_file_path.endswith(".java"):
+            base_file_path = base_file_path[:-5]
         self._agent_process = await asyncio.create_subprocess_exec(
             self.command,
-            os.path.basename(self.file_path),
+            base_file_path,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
