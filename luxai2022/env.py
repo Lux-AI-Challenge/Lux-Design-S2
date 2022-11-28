@@ -263,7 +263,6 @@ class LuxAI2022(ParallelEnv):
                 if a["metal"] > self.state.teams[k].init_metal:
                     self._log(f"{k} does not have enough metal. Cancelled placement of factory")
                     continue
-                print(a["spawn"])
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None: continue
                 factory.cargo.water = a["water"]
@@ -665,7 +664,6 @@ class LuxAI2022(ParallelEnv):
         factory.cargo.water = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.cargo.metal = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
-        print(self.state.env_steps, self.state.board.valid_spawns_mask[15,32])
         if self.state.board.valid_spawns_mask[pos[0], pos[1]] == 0:
             # Check if any tiles under the factory are invalid spawn tile.
             # TODO - min distance between Factories? stone: I think it's a bad strategy to try and enclose a opponent factory anyway, 

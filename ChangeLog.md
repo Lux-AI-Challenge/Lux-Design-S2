@@ -12,6 +12,11 @@ Environment:
 - Bumped up initial power per factory to 1000 (old: 100)
 - Lichen requires 20 units before being able to expand now
 - Lichen grows from any square cardinally adjacent to a factory tile now
+- Units can transfer any amount and wont have an action cancelled. Environment will internally clip it so that unit only transfers as much as they can and target unit only receives as much as it can. Excess given to a unit is wasted. 
+
+Visualizer:
+- x,y indexing fixes
+- fix bug where slider over weather goes off the weather bar
 
 Python Kits:
 - Updated to accept some new observation entires (`teams[player].place_first`, `board.valid_spawns_mask`), and removed old ones (`board.spawns`)
