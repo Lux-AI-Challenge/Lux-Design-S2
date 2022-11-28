@@ -43,38 +43,38 @@ class Unit:
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         return math.ceil((self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target) * weather_cfg["power_loss_factor"])
-    def move(self, direction, repeat=True):
+    def move(self, direction, repeat=0):
         if isinstance(direction, int):
             direction = direction
         else:
             pass
-        return np.array([0, direction, 0, 0, 1 if repeat else 0])
+        return np.array([0, direction, 0, 0, repeat])
 
-    def transfer(self, transfer_direction, transfer_resource, transfer_amount, repeat=True):
+    def transfer(self, transfer_direction, transfer_resource, transfer_amount, repeat=0):
         assert transfer_resource < 5 and transfer_resource >= 0
         assert transfer_direction < 5 and transfer_direction >= 0
-        return np.array([1, transfer_direction, transfer_resource, transfer_amount, 1 if repeat else 0])
+        return np.array([1, transfer_direction, transfer_resource, transfer_amount, repeat])
     
-    def pickup(self, pickup_resource, pickup_amount, repeat=True):
+    def pickup(self, pickup_resource, pickup_amount, repeat=0):
         assert pickup_resource < 5 and pickup_resource >= 0
-        return np.array([2, 0, pickup_resource, pickup_amount, 1 if repeat else 0])
+        return np.array([2, 0, pickup_resource, pickup_amount, repeat])
     
     def dig_cost(self, game_state):
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         return math.ceil(self.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"])
-    def dig(self, repeat=True):
-        return np.array([3, 0, 0, 0, 1 if repeat else 0])
+    def dig(self, repeat=0):
+        return np.array([3, 0, 0, 0, repeat])
 
     def self_destruct_cost(self, game_state):
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         return math.ceil(self.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"])
-    def self_destruct(self, repeat=True):
-        return np.array([4, 0, 0, 0, 1 if repeat else 0])
+    def self_destruct(self, repeat=0):
+        return np.array([4, 0, 0, 0, repeat])
 
-    def recharge(self, x, repeat=True):
-        return np.array([5, 0, 0, x, 1 if repeat else 0])
+    def recharge(self, x, repeat=0):
+        return np.array([5, 0, 0, x, repeat])
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_id} {self.unit_type} at {self.pos}"

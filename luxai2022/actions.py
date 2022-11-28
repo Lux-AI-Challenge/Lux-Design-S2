@@ -20,11 +20,14 @@ import luxai2022.unit as luxai_unit
 class Action:
     def __init__(self, act_type: str) -> None:
         self.act_type = act_type
-        self.repeat = False
+        self.repeat = 0
         self.power_cost = 0
 
-    def state_dict():
+    def state_dict(self):
         raise NotImplementedError("")
+    @property
+    def repeating(self):
+        return self.repeat == -1 or self.repeat > 0
 
 
 class FactoryBuildAction(Action):
@@ -49,7 +52,7 @@ class FactoryWaterAction(Action):
 
 
 class MoveAction(Action):
-    def __init__(self, move_dir: int, dist: int = 1, repeat=False) -> None:
+    def __init__(self, move_dir: int, dist: int = 1, repeat=0) -> None:
         super().__init__("move")
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
         self.move_dir = move_dir
@@ -62,7 +65,7 @@ class MoveAction(Action):
 
 
 class TransferAction(Action):
-    def __init__(self, transfer_dir: int, resource: int, transfer_amount: int, repeat=False) -> None:
+    def __init__(self, transfer_dir: int, resource: int, transfer_amount: int, repeat=0) -> None:
         super().__init__("transfer")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.transfer_dir = transfer_dir
@@ -76,7 +79,7 @@ class TransferAction(Action):
 
 
 class PickupAction(Action):
-    def __init__(self, resource: int, pickup_amount: int, repeat=False) -> None:
+    def __init__(self, resource: int, pickup_amount: int, repeat=0) -> None:
         super().__init__("pickup")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.resource = resource
@@ -89,7 +92,7 @@ class PickupAction(Action):
 
 
 class DigAction(Action):
-    def __init__(self, repeat=False) -> None:
+    def __init__(self, repeat=0) -> None:
         super().__init__("dig")
         self.repeat = repeat
         self.power_cost = 0
@@ -99,7 +102,7 @@ class DigAction(Action):
 
 
 class SelfDestructAction(Action):
-    def __init__(self, repeat=False) -> None:
+    def __init__(self, repeat=0) -> None:
         super().__init__("self_destruct")
         self.repeat = repeat
         self.power_cost = 0
@@ -109,7 +112,7 @@ class SelfDestructAction(Action):
 
 
 class RechargeAction(Action):
-    def __init__(self, power: int, repeat=False) -> None:
+    def __init__(self, power: int, repeat=0) -> None:
         super().__init__("recharge")
         self.power = power
         self.repeat = repeat
@@ -132,7 +135,7 @@ def format_factory_action(a: int):
 
 
 def format_action_vec(a: np.ndarray):
-    # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
+    # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
     a_type = a[0]
     if a_type == 0:
         return MoveAction(a[1], dist=1, repeat=a[4])

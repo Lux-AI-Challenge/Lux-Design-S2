@@ -324,6 +324,8 @@ class LuxAI2022(ParallelEnv):
                 target_unit = units_there[0]
                 # add resources to target. This will waste (transfer_amount - actually_transferred) resources
                 actually_transferred = target_unit.add_resource(transfer_action.resource, transfer_amount)
+            unit.repeat_action(transfer_action)
+
     def _handle_pickup_actions(self, actions_by_type: ActionsByType):
         for unit, pickup_action in actions_by_type["pickup"]:
             pickup_action: PickupAction
@@ -331,6 +333,7 @@ class LuxAI2022(ParallelEnv):
             pickup_amount = factory.sub_resource(pickup_action.resource, pickup_action.pickup_amount)
             # may waste resources if tried to pickup more than one can hold.
             actually_pickedup = unit.add_resource(pickup_action.resource, pickup_amount)
+            unit.repeat_action(pickup_action)
 
     def _handle_dig_actions(self, actions_by_type: ActionsByType, weather_cfg):
         for unit, dig_action in actions_by_type["dig"]:
@@ -344,6 +347,7 @@ class LuxAI2022(ParallelEnv):
             elif self.state.board.ore[unit.pos.x, unit.pos.y] > 0:
                 unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
             unit.power -= math.ceil(self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_COST * weather_cfg["power_loss_factor"])
+            unit.repeat_action(dig_action)
     def _handle_self_destruct_actions(self, actions_by_type: ActionsByType):
         for unit, self_destruct_action in actions_by_type["self_destruct"]:
             unit: Unit
@@ -396,6 +400,8 @@ class LuxAI2022(ParallelEnv):
                 heavy_entered_pos[new_pos_hash].append(unit)
             else:
                 light_entered_pos[new_pos_hash].append(unit)
+
+            unit.repeat_action(move_action)
 
         for pos_hash, units in self.state.board.units_map.items():
             # add in all the stationary units
@@ -461,11 +467,10 @@ class LuxAI2022(ParallelEnv):
         for unit, recharge_action in actions_by_type["recharge"]:
             recharge_action: RechargeAction
             if unit.power < recharge_action.power:
-                unit.action_queue.insert(0, recharge_action)
-                # by default actions with repeat=True will be placed to the back of queue
-                # remove from back of queue if we re-inserted into the front
-                if recharge_action.repeat:
-                    unit.action_queue = unit.action_queue[:-1]
+                pass
+            else:
+                # if unit got enough power, handle the action and consider it for repeating
+                unit.repeat_action(recharge_action)
     def _handle_factory_water_actions(self, actions_by_type: ActionsByType):
         for factory, factory_water_action in actions_by_type["factory_water"]:
             factory_water_action: FactoryWaterAction
@@ -506,6 +511,7 @@ class LuxAI2022(ParallelEnv):
             weather_cfg = weather.apply_weather(self.state, self.agents, current_weather)
 
             # 1. Check for malformed actions
+            
             if self.env_cfg.validate_action_space:
                 # This part is not absolutely necessary if you know for sure your actions are well formatted
                 for agent, unit_actions in actions.items():
