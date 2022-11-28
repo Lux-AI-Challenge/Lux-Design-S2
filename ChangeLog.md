@@ -6,6 +6,7 @@ Environment:
 - Assymmetric Maps are used now
 - Bids are now for who goes first, not who gets an extra factory. If bid is tied, player 0 goes first. This early phase is kept parallel for simplicity. Instead, when it is not your turn to place a factory you must skip your turn. Subsequent turns after the starting phase are still in parallel.
 - renamed `board.spawns` -> `board.valid_spawns_mask`. Stores the same information (locations on map that you can spawn a factory on). This changes over time based on where new factories are placed.
+- moved `env_cfg.UNIT_ACTION_QUEUE_POWER_COST` to their respective spots under `env_cfg.ROBOTS` e.g. `env_cfg.ROBOTS["LIGHT"].ACTION_QUEUE_POWER_COST`
 - Factories can spawn anywhere, but must not overlap any resource or factory.
 - Switch to x,y indexing for all map and position related data
 - Bumped up initial water/metal resources per factory to 150 each (old: 100)
@@ -28,6 +29,7 @@ Bug Fixes:
 - Potential fix of Windows issues with verbose error logging
 - Fix bug in lichen growth where lichen would grow to new tiles if there is just 1 lichen, it should be 20
 - Fix bug where agent could create infinite robots without spending metal via repeated pickups and builds
+- Remove irrelevant rubble information stored in marsquake config.
 
 CLI Tool:
 - Fix bug where Java agents can't be run

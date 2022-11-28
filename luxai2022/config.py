@@ -27,6 +27,7 @@ class UnitConfig:
     DIG_LICHEN_REMOVED: int = 10
     SELF_DESTRUCT_COST: int = 10
     RUBBLE_AFTER_DESTRUCTION: int = 1
+    ACTION_QUEUE_POWER_COST: int = 1
 
 
 
@@ -52,10 +53,6 @@ class EnvConfig:
     CYCLE_LENGTH: int = 50
     DAY_LENGTH: int = 30
     UNIT_ACTION_QUEUE_SIZE: int = 20 # when set to 1, then no action queue is used
-    UNIT_ACTION_QUEUE_POWER_COST: Dict[str, int] = dataclasses.field(default_factory=lambda: dict(
-        LIGHT=1,
-        HEAVY=10
-    ))
 
 
     MAX_RUBBLE: int = 100
@@ -102,6 +99,7 @@ class EnvConfig:
             DIG_RESOURCE_GAIN=2,
             DIG_LICHEN_REMOVED=10,
             RUBBLE_AFTER_DESTRUCTION=1,
+            ACTION_QUEUE_POWER_COST=1,
         ),
 
         HEAVY=UnitConfig(
@@ -112,6 +110,7 @@ class EnvConfig:
             DIG_RESOURCE_GAIN=20,
             DIG_LICHEN_REMOVED=100,
             RUBBLE_AFTER_DESTRUCTION=10,
+            ACTION_QUEUE_POWER_COST=10,
         ),
         )
     )

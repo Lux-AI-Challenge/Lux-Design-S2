@@ -38,7 +38,7 @@ In code, actions can be given to units as so
 actions[unit_id] = [action_0, action_1, ...]
 ```
 
-Importantly, whenever you submit a new action queue, it incurs an additional power cost for communication of `env_cfg.UNIT_ACTION_QUEUE_POWER_COST` power to the unit. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous.
+Importantly, whenever you submit a new action queue, the unit incurs an additional power cost to update the queue of `env_cfg.ROBOTS[<robot_type>].ACTION_QUEUE_POWER_COST` power. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous. Lights consume 1 power and Heavies consume 10 power to update their action queue,
 
 See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
 

@@ -23,7 +23,7 @@ class Unit:
     action_queue: List
 
     def action_queue_cost(self, game_state):
-        cost = self.env_cfg.UNIT_ACTION_QUEUE_POWER_COST[self.unit_type]
+        cost = self.env_cfg.ROBOTS[self.unit_type].ACTION_QUEUE_POWER_COST
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
         weather_cfg = get_weather_config(current_weather, self.env_cfg)
         return cost * weather_cfg["power_loss_factor"]
