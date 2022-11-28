@@ -121,8 +121,6 @@ class EnvConfig:
     NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
     WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
         MARS_QUAKE=dict(
-            # amount of rubble generated under each robot per turn
-            RUBBLE=dict(LIGHT=1, HEAVY=10),
             TIME_RANGE=[1, 5]
         ),
         COLD_SNAP=dict(

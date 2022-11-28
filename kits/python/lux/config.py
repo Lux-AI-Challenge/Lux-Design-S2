@@ -64,7 +64,7 @@ class EnvConfig:
     INIT_POWER_PER_FACTORY: int = 1000
 
     #### LICHEN ####
-    MIN_LICHEN_TO_SPREAD: int = 1
+    MIN_LICHEN_TO_SPREAD: int = 20
     LICHEN_LOST_WITHOUT_WATER: int = 1
     LICHEN_GAINED_WITH_WATER: int = 1
     MAX_LICHEN_PER_TILE: int = 100
@@ -121,8 +121,6 @@ class EnvConfig:
     NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
     WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
         MARS_QUAKE=dict(
-            # amount of rubble generated under each robot per turn
-            RUBBLE=dict(LIGHT=1, HEAVY=10),
             TIME_RANGE=[1, 5]
         ),
         COLD_SNAP=dict(
