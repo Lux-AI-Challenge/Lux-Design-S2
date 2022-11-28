@@ -30,6 +30,7 @@ Bug Fixes:
 - Fix bug in lichen growth where lichen would grow to new tiles if there is just 1 lichen, it should be 20
 - Fix bug where agent could create infinite robots without spending metal via repeated pickups and builds
 - Remove irrelevant rubble information stored in marsquake config.
+- Fix bug where rubble goes onto factories when there is a unit on top during marsquakes
 
 CLI Tool:
 - Fix bug where Java agents can't be run
