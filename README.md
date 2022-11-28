@@ -50,6 +50,8 @@ To stay up to date on changes and updates to the competition and the engine, wat
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
 
+3rd Party Viewer - https://github.com/jmerle/lux-eye-2022
+
 ## Contributing
 See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/CONTRIBUTING.md)
 
