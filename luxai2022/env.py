@@ -211,23 +211,35 @@ class LuxAI2022(ParallelEnv):
                     highest_bid = bid
                     highest_bid_agent = k
                 elif bid == highest_bid:
-                    # no one gets the extra factory
-                    highest_bid_agent = "tie"
+                    # if bids are the same, player 0 defaults to the winner and pays thebid.
+                    highest_bid_agent = "player_0"
             else:
                 # team k loses
                 failed_agents[k] = True
-        if highest_bid_agent == "tie":
-            pass
-        elif highest_bid_agent is None:
+        if highest_bid_agent is None:
             # no valid bids made, all agents failed.
             pass
         else:
             self.state.teams[highest_bid_agent].init_water -= highest_bid
             self.state.teams[highest_bid_agent].init_metal -= highest_bid
-            self.state.teams[highest_bid_agent].factories_to_place += 1
+            self.state.teams[highest_bid_agent].place_first = True
         return failed_agents
     def _handle_factory_placement_step(self, actions):
-        # factory placement rounds
+        # factory placement rounds, which are sequential
+
+        player_to_place_factory: str
+        if self.state.teams["player_0"].place_first:
+            if self.state.env_steps % 2 == 1:
+                player_to_place_factory = "player_0"
+            else:
+                player_to_place_factory = "player_1"
+        else:
+            if self.state.env_steps % 2 == 1:
+                player_to_place_factory = "player_1"
+            else:
+                player_to_place_factory = "player_0"
+
+
         failed_agents = {agent: False for agent in self.agents}
         for k, a in actions.items():
             if a is None:
@@ -236,6 +248,9 @@ class LuxAI2022(ParallelEnv):
             if k not in self.agents:
                 raise ValueError(f"Invalid player {k}")
             if "spawn" in a and "metal" in a and "water" in a:
+                if k != player_to_place_factory:
+                    self._log(f"{k} tried to perform an action in the early phase when it is not its turn right now.")
+                    continue
                 if self.state.teams[k].factories_to_place <= 0:
                     self._log(f"{k} cannot place additional factories. Cancelled placement of factory")
                     continue
@@ -248,7 +263,7 @@ class LuxAI2022(ParallelEnv):
                 if a["metal"] > self.state.teams[k].init_metal:
                     self._log(f"{k} does not have enough metal. Cancelled placement of factory")
                     continue
-
+                print(a["spawn"])
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None: continue
                 factory.cargo.water = a["water"]
@@ -300,7 +315,7 @@ class LuxAI2022(ParallelEnv):
             units_there = self.state.board.get_units_at(transfer_pos)
 
             # if there is a factory, we prefer transferring to that entity
-            factory_id = f"factory_{self.state.board.factory_occupancy_map[transfer_pos.y, transfer_pos.x]}"
+            factory_id = f"factory_{self.state.board.factory_occupancy_map[transfer_pos.x, transfer_pos.y]}"
             if factory_id in self.state.factories[unit.team.agent]:
                 factory = self.state.factories[unit.team.agent][factory_id]
                 actually_transferred = factory.add_resource(transfer_action.resource, transfer_action.transfer_amount)
@@ -320,13 +335,13 @@ class LuxAI2022(ParallelEnv):
     def _handle_dig_actions(self, actions_by_type: ActionsByType, weather_cfg):
         for unit, dig_action in actions_by_type["dig"]:
             dig_action: DigAction
-            if self.state.board.rubble[unit.pos.y, unit.pos.x] > 0:
-                self.state.board.rubble[unit.pos.y, unit.pos.x] = max(self.state.board.rubble[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
-            elif self.state.board.lichen[unit.pos.y, unit.pos.x] > 0:
-                self.state.board.lichen[unit.pos.y, unit.pos.x] = max(self.state.board.lichen[unit.pos.y, unit.pos.x] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
-            elif self.state.board.ice[unit.pos.y, unit.pos.x] > 0:
+            if self.state.board.rubble[unit.pos.x, unit.pos.y] > 0:
+                self.state.board.rubble[unit.pos.x, unit.pos.y] = max(self.state.board.rubble[unit.pos.x, unit.pos.y] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
+            elif self.state.board.lichen[unit.pos.x, unit.pos.y] > 0:
+                self.state.board.lichen[unit.pos.x, unit.pos.y] = max(self.state.board.lichen[unit.pos.x, unit.pos.y] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+            elif self.state.board.ice[unit.pos.x, unit.pos.y] > 0:
                 unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
-            elif self.state.board.ore[unit.pos.y, unit.pos.x] > 0:
+            elif self.state.board.ore[unit.pos.x, unit.pos.y] > 0:
                 unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
             unit.power -= math.ceil(self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_COST * weather_cfg["power_loss_factor"])
     def _handle_self_destruct_actions(self, actions_by_type: ActionsByType):
@@ -479,7 +494,7 @@ class LuxAI2022(ParallelEnv):
         early_game = False
         if self.env_steps == 0:
             early_game = True
-        if self.env_cfg.BIDDING_SYSTEM and self.env_steps <= self.state.board.factories_per_team + 1:
+        if self.env_cfg.BIDDING_SYSTEM and self.state.real_env_steps < 0:
             early_game = True
 
         if early_game:
@@ -644,8 +659,12 @@ class LuxAI2022(ParallelEnv):
         factory.cargo.water = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.cargo.metal = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
-        if not self.state.board.spawn_masks[team.agent][pos[0], pos[1]]:
-            self._log(f"{team.agent} cannot place factory at {pos[0]}, {pos[1]} as it is on the other half of map.")
+        print(self.state.env_steps, self.state.board.valid_spawns_mask[15,32])
+        if self.state.board.valid_spawns_mask[pos[0], pos[1]] == 0:
+            # Check if any tiles under the factory are invalid spawn tile.
+            # TODO - min distance between Factories? stone: I think it's a bad strategy to try and enclose a opponent factory anyway, 
+            # wastes a few factories and hard to maintain
+            self._log(f"{team.agent} cannot place factory at {pos[0]}, {pos[1]} as it overlaps an existing factory or is on top of a resource")
             return None
         if self.state.board.factory_occupancy_map[factory.pos_slice].max() >= 0:
             self._log(f"{team.agent} cannot overlap factory placement. Existing factory at {factory.pos} already.")
@@ -656,6 +675,7 @@ class LuxAI2022(ParallelEnv):
         self.state.factories[team.agent][factory.unit_id] = factory
         self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
         self.state.board.factory_occupancy_map[factory.pos_slice] = factory.num_id
+        self.state.board.valid_spawns_mask[factory.pos_slice] = False
         self.state.board.rubble[factory.pos_slice] = 0
         self.state.board.ice[factory.pos_slice] = 0
         self.state.board.ore[factory.pos_slice] = 0
@@ -667,8 +687,8 @@ class LuxAI2022(ParallelEnv):
         """
         # NOTE this doesn't remove unit reference from board map
         """
-        self.state.board.rubble[unit.pos.y, unit.pos.x] = min(
-            self.state.board.rubble[unit.pos.y, unit.pos.x] + unit.unit_cfg.RUBBLE_AFTER_DESTRUCTION,
+        self.state.board.rubble[unit.pos.x, unit.pos.y] = min(
+            self.state.board.rubble[unit.pos.x, unit.pos.y] + unit.unit_cfg.RUBBLE_AFTER_DESTRUCTION,
             self.env_cfg.MAX_RUBBLE,
         )
         del self.state.units[unit.team.agent][unit.unit_id]

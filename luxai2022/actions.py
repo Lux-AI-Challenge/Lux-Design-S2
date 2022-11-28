@@ -298,15 +298,15 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
                 f"Invalid movement action for unit {unit} - Tried to move to {target_pos} which is off the map"
             )
             continue
-        if state.board.factory_occupancy_map[target_pos.y, target_pos.x] != -1:
-            factory_id = state.board.factory_occupancy_map[target_pos.y, target_pos.x]
+        if state.board.factory_occupancy_map[target_pos.x, target_pos.y] != -1:
+            factory_id = state.board.factory_occupancy_map[target_pos.x, target_pos.y]
             if f"factory_{factory_id}" not in state.factories[unit.team.agent]:
                 # if there is a factory but not same team
                 invalidate_action(
                     f"Invalid movement action for unit {unit} - Tried to move to {target_pos} which is on an opponent factory"
                 )
                 continue
-        rubble = state.board.rubble[target_pos.y, target_pos.x]
+        rubble = state.board.rubble[target_pos.x, target_pos.y]
         power_required = (
             0
             if move_action.move_dir == 0

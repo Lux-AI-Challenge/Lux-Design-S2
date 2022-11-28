@@ -28,7 +28,7 @@ def agent_fn(observation, configurations):
     obs = process_obs(player, agent_prev_obs[player], step, json.loads(observation.obs))
     agent_prev_obs[player] = obs
     agent.step = step
-    if step <= obs["board"]["factories_per_team"] + 1:
+    if obs["real_env_steps"] < 0:
         actions = agent.early_setup(step, obs, remainingOverageTime)
     else:
         actions = agent.act(step, obs, remainingOverageTime)

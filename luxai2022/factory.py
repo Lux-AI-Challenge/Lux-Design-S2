@@ -30,12 +30,12 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             print("Error! Lichen Growth calculation took too long")
             break
         pos = frontier.popleft()
-        if pos[0] < 0 or pos[1] < 0 or pos[0] >= forbidden.shape[1] or pos[1] >= forbidden.shape[0]:
+        if pos[0] < 0 or pos[1] < 0 or pos[0] >= forbidden.shape[0] or pos[1] >= forbidden.shape[1]:
             continue
 
-        if forbidden[pos[1], pos[0]]:
+        if forbidden[pos[0], pos[1]]:
             continue
-        pos_lichen = lichen[pos[1], pos[0]]
+        pos_lichen = lichen[pos[0], pos[1]]
         # check for surrounding tiles with lichen and no incompatible lichen strains, grow on those
         can_grow = True
         for move_delta in move_deltas[1:]:
@@ -43,7 +43,7 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             if (check_pos[0], check_pos[1]) in seen: continue
             # check surrounding tiles on the map
             if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= W or check_pos[1] >= H: continue
-            adj_strain = lichen_strains[check_pos[1], check_pos[0]]
+            adj_strain = lichen_strains[check_pos[0], check_pos[1]]
             if adj_strain == -1:
                 if pos_lichen >= MIN_LICHEN_TO_SPREAD:
                     seen.add(tuple(check_pos))
@@ -75,7 +75,7 @@ class Factory:
 
     @property
     def pos_slice(self):
-        return slice(self.pos.y - 1, self.pos.y + 2), slice(self.pos.x - 1, self.pos.x + 2)
+        return slice(self.pos.x - 1, self.pos.x + 2), slice(self.pos.y - 1, self.pos.y + 2)
 
     def refine_step(self, config: EnvConfig):
         max_consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)

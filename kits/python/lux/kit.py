@@ -43,6 +43,9 @@ def process_obs(player, game_state, step, obs):
         for k in obs:
             if k != 'board':
                 game_state[k] = obs[k]
+            else:
+                if "valid_spawns_mask" in obs[k]:
+                    game_state["board"]["valid_spawns_mask"] = obs[k]["valid_spawns_mask"]
         for item in ["rubble", "lichen", "lichen_strains"]:
             for k, v in obs["board"][item].items():
                 k = k.split(",")
@@ -80,7 +83,7 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
             )
             factory.cargo = cargo
             factories[agent][unit_id] = factory
-            factory_occupancy_map[factory.pos[1] - 1:factory.pos[1] + 2, factory.pos[0] - 1:factory.pos[0] + 2] = factory.team_id
+            factory_occupancy_map[factory.pos_slice] = factory.team_id
     teams = dict()
     for agent in obs["teams"]:
         team_data = obs["teams"][agent]
@@ -98,7 +101,7 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
             lichen_strains=obs["board"]["lichen_strains"],
             factory_occupancy_map=factory_occupancy_map,
             factories_per_team=obs["board"]["factories_per_team"],
-            spawns=obs["board"]["spawns"]
+            valid_spawns_mask=obs["board"]["valid_spawns_mask"]
         ),
         weather_schedule=obs["weather_schedule"],
         units=units,
@@ -116,7 +119,7 @@ class Board:
     lichen_strains: np.ndarray
     factory_occupancy_map: np.ndarray
     factories_per_team: int
-    spawns: np.ndarray
+    valid_spawns_mask: np.ndarray
 @dataclass
 class GameState:
     """

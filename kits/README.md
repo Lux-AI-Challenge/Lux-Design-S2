@@ -82,11 +82,31 @@ The general observation given to your bot in the kits will look like below. `Arr
       "ore": Array(64, 64),
       "lichen": Array(64, 64),
       "lichen_strains": Array(64, 64),
-      "spawns": Array(K, 2),
+      "valid_spawns_mask": Array(K, 2),
       "factories_per_team": int
     },
     "weather": Array(1000),
-    "real_env_steps": int
+    "real_env_steps": int,
+    "teams": {
+      "player_0": {
+        "team_id": 0,
+        "faction": "MotherMars",
+        "water": 0,
+        "metal": 0,
+        "factories_to_place": 0,
+        "factory_strains": [0, 2, 4, 6],
+        "place_first": True,
+      },
+      "player_1": {
+        "team_id": 1,
+        "faction": "AlphaStrike",
+        "water": 0,
+        "metal": 0,
+        "factories_to_place": 0,
+        "factory_strains": [1, 3, 5, 7],
+        "place_first": False,
+      }
+    },
   },
   "step": int,
   "remainingOverageTime": int,
