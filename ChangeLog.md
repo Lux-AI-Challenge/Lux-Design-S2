@@ -2,6 +2,13 @@
 
 ### v1.1.0
 
+**Most Important Changes:**
+- Switch to x,y indexing for all map and position related data. E.g. any code that did `board[y][x]` should be `board[x][y]` now. We will likely not change this ever again and will keep this for the rest of beta and the official competition. For python competitors a simple switch is to just do `board.T[y][x]` which is equivalent to `board[x][y]`.
+- Maps are asymmetric now, teams now bid for being first to place a factory instead of a new factory
+- Please download the new python starter kits! There are changes to the observations so old code will not work. Moreover, the action space is now different. Instead of specifying whether an action in an action queue should be repeated, you now specify -1 for infinite repeating, and n for n repeats.
+
+Rest of changelog for v1.1.0:
+
 Environment:
 - Assymmetric Maps are used now
 - Bids are now for who goes first, not who gets an extra factory. If bid is tied, player 0 goes first. This early phase is kept parallel for simplicity. Instead, when it is not your turn to place a factory you must skip your turn. Subsequent turns after the starting phase are still in parallel.
@@ -31,6 +38,7 @@ Bug Fixes:
 - Fix bug where agent could create infinite robots without spending metal via repeated pickups and builds
 - Remove irrelevant rubble information stored in marsquake config.
 - Fix bug where rubble goes onto factories when there is a unit on top during marsquakes
+- Fix bugs in observation space of off by one error in map shapes
 
 CLI Tool:
 - Fix bug where Java agents can't be run
