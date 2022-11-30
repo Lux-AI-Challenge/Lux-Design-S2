@@ -78,6 +78,12 @@ class Factory:
     def pos_slice(self):
         return slice(self.pos.x - 1, self.pos.x + 2), slice(self.pos.y - 1, self.pos.y + 2)
 
+    @property
+    def min_dist_slice(self):
+        deltas = np.array([(4, 0), (5, 1), (0, -4), (0, 5), (2, 2), (-4, 1), (-1, -1), (-1, -2), (-2, -1), (-2, -2), (4, 2), (0, -2), (0, -1), (2, 4), (-1, 0), (-2, 0), (-3, 1), (0, 0), (2, -3), (-2, 2), (-1, 2), (3, 1), (5, -1), (-3, 3), (0, 2), (1, 3), (-4, -1), (-1, -5), (-4, -2), (-1, 4), (-2, 4), (3, 3), (5, 0), (-6, 0), (0, -5), (1, -4), (1, 5), (-4, 0), (-1, -3), (-2, -3), (-5, 1), (-3, -1), (0, -3), (-3, -2), (1, -1), (1, -2), (-4, 2), (3, -1), (3, -2), (-3, 0), (1, 0), (3, 0), (-3, 2), (1, 2), (0, 4), (2, 1), (3, 2), (4, 1), (-5, -1), (1, -5), (1, 4), (0, 6), (2, 3), (-1, -4), (-5, 0), (-3, -3), (1, -3), (2, -4), (-1, 1), (-2, 1), (3, -3), (0, 1), (2, -1), (2, -2), (-1, 3), (-2, 3), (4, -1), (4, -2), (0, -6), (1, 1), (0, 3), (2, 0), (6, 0), (-2, -4), (-1, 5)])
+        return self.pos.pos + deltas
+
+
     def refine_step(self, config: EnvConfig):
         max_consumed_ice = min(self.cargo.ice, config.FACTORY_PROCESSING_RATE_WATER)
         max_consumed_ore = min(self.cargo.ore, config.FACTORY_PROCESSING_RATE_METAL)

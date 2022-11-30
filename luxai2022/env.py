@@ -696,7 +696,13 @@ class LuxAI2022(ParallelEnv):
         self.state.factories[team.agent][factory.unit_id] = factory
         self.state.board.factory_map[self.state.board.pos_hash(factory.pos)] = factory
         self.state.board.factory_occupancy_map[factory.pos_slice] = factory.num_id
-        self.state.board.valid_spawns_mask[factory.pos_slice] = False
+        invalid_spawn_indices = factory.min_dist_slice
+        # TODO: perf - this can be faster
+        # self.state.board.valid_spawns_mask[factory.pos_slice] = False
+        for x,y in invalid_spawn_indices:
+            if x < 0 or y < 0 or x >= self.state.board.rubble.shape[0] or y >= self.state.board.rubble.shape[1]:
+                continue
+            self.state.board.valid_spawns_mask[x,y] = False
         self.state.board.rubble[factory.pos_slice] = 0
         self.state.board.ice[factory.pos_slice] = 0
         self.state.board.ore[factory.pos_slice] = 0

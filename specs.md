@@ -74,13 +74,11 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
 
 ## Starting Phase
 
-During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*100` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and receives an extra factory to place. If both players tie, neither player is awarded an extra factory. Players that do not win the bid do not lose any starting resources.
+During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*150` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and gets to place first. If both players tie, the first player / player_0 gets to place first. The player that places first always loses how much they bid.
 
-During the next N+1 turns of the game each player may select any location on their half of the map and send the FactoryBuild action to build a Factory at a specified location with the specified starting metal, water, and 100 power. After N + 1 turns any remaining factories and any resources not placed are lost. 
+During the next 2*N turns of the game, each player alternates between spawning a factory or doing nothing as the other player spawns a factory with the winner above placing first. Each player may select any location on the map that can fit a 3x3 factory that doesn't overlap any ice/ore resources, and the center is 6 tiles or more away from another existing factory's center. Any factories our starting resources not used are lost.
 
-_Strategy Tip_: The player who lost the bid has an extra turn where they don’t have to place a factory. Skipping a turn earlier will usually provide a larger advantage.
-
-
+_Strategy Tip_: Going first is not always advantageous!
 ## Actions
 
 [Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 

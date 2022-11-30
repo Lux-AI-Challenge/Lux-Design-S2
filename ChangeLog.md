@@ -23,6 +23,7 @@ Environment:
 - Lichen no longer grows over ice/ore tiles
 - Units can transfer any amount and wont have an action cancelled. Environment will internally clip it so that unit only transfers as much as they can and target unit only receives as much as it can. Excess given to a unit is wasted. 
 - Factories spawned can be spawned with any amount of resources and the placement won't be cancelled. Instead a warning is given and only the maximum of resources left will be used.
+- Factories must spawn 6 or more tiles away from another
 
 Visualizer:
 - x,y indexing fixes
