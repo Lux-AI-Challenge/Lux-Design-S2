@@ -222,38 +222,6 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         if factory is None:
             invalidate_action(f"No factory to pickup from for unit {unit}")
             continue
-        resource_id = pickup_action.resource
-        amount = pickup_action.pickup_amount
-        if resource_id == 0:
-            if factory.cargo.ice < amount:
-                invalidate_action(
-                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} ice but factory only had {factory.cargo.ice}"
-                )
-                continue
-        elif resource_id == 1:
-            if factory.cargo.ore < amount:
-                invalidate_action(
-                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} ore but factory only had {factory.cargo.ore}"
-                )
-                continue
-        elif resource_id == 2:
-            if factory.cargo.water < amount:
-                invalidate_action(
-                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} water but factory only had {factory.cargo.water}"
-                )
-                continue
-        elif resource_id == 3:
-            if factory.cargo.metal < amount:
-                invalidate_action(
-                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} metal but factory only had {factory.cargo.metal}"
-                )
-                continue
-        elif resource_id == 4:
-            if factory.power < amount:
-                invalidate_action(
-                    f"Invalid Pickup Action for unit {unit} - Tried to pickup {amount} power but factory only had {factory.power}"
-                )
-                continue
         if valid_action:
             actions_by_type_validated["pickup"].append((unit, pickup_action))
 
