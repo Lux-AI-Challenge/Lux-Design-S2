@@ -26,14 +26,14 @@ In order to prevent maps from favoring one player over another, it is guaranteed
 
 There are 4 kinds of weather events that occur on a predetermined schedule (given to the players at the start of the game, between 3 and 5 events). These events last 1 - 30 turns with marsquakes lasting 1 - 5 turns.
 
-* Marsquake - All robots generate rubble under them every turn (1/turn light, 10/turn heavy)
+* Marsquake - All [Robots](#robots) generate rubble under them every turn (1/turn light, 10/turn heavy) except those on top of [Factories](#factories).
 * Cold snap - 2x power consumption
 * Dust storm - 0.5x power gain
 * Solar flare - 2x power gain
 
 ## Day/Night Cycle
 
-The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all robots but during the night robots power is not recharged. Factories generate power each turn regardless.
+The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all [Robots](#robots) but during the night robots power is not recharged. [Factories](#factories) generate power each turn regardless.
 
 ## Resources
 
