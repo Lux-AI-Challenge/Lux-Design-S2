@@ -27,10 +27,14 @@ namespace lux {
         j.at("teams").get_to(o.teams);
         j.at("factories").get_to(o.factories);
         j.at("real_env_steps").get_to(o.real_env_steps);
-        // set factory_occupancy map
         if (o.board.factory_occupancy.size() != o.board.rubble.size()) {
-            std::vector<int64_t> baseVec(o.board.rubble[0].size(), -1);
+            // init factory_occupancy map
+            std::vector<int64_t> baseVec(o.board.rubble[0].size());
             o.board.factory_occupancy.resize(o.board.rubble.size(), baseVec);
+        }
+        // reset factory_occupancy map in case a factory died
+        for (auto &row : o.board.factory_occupancy) {
+            std::fill_n(row.begin(), row.size(), -1);
         }
         for (const auto &[_, factories] : o.factories) {
             for (const auto &[__, factory] : factories) {
