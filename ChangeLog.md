@@ -24,6 +24,7 @@ Environment:
 - Units can transfer any amount and wont have an action cancelled. Environment will internally clip it so that unit only transfers as much as they can and target unit only receives as much as it can. Excess given to a unit is wasted. 
 - Factories spawned can be spawned with any amount of resources and the placement won't be cancelled. Instead a warning is given and only the maximum of resources left will be used.
 - Factories must spawn 6 or more tiles away from another
+- Heavies/Lights dig 2x more rubble per action (Heavies: 10->20, Lights: 1->2)
 
 Visualizer:
 - x,y indexing fixes
