@@ -33,6 +33,7 @@ Python Kits:
 - Added utility function to determine if it is your team's turn to place a factory or not
 
 Bug Fixes:
+- Fix bug where added rubble doesn't remove all lichen underneath
 - Fix bug where move center costs power
 - Fix extra line in stderr logging
 - Potential fix of Windows issues with verbose error logging
@@ -41,6 +42,7 @@ Bug Fixes:
 - Remove irrelevant rubble information stored in marsquake config.
 - Fix bug where rubble goes onto factories when there is a unit on top during marsquakes
 - Fix bugs in observation space of off by one error in map shapes
+- Clarify in specs and fixed bug where added rubble didn't remove lichen under it.
 
 CLI Tool:
 - Fix bug where Java agents can't be run

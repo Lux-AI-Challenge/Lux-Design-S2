@@ -712,6 +712,8 @@ class LuxAI2022(ParallelEnv):
             self.state.board.rubble[unit.pos.x, unit.pos.y] + unit.unit_cfg.RUBBLE_AFTER_DESTRUCTION,
             self.env_cfg.MAX_RUBBLE,
         )
+        self.state.board.lichen[unit.pos.x, unit.pos.y] = 0
+        self.state.board.lichen_strains[unit.pos.x, unit.pos.y] = -1
         del self.state.units[unit.team.agent][unit.unit_id]
 
     def destroy_factory(self, factory: Factory):

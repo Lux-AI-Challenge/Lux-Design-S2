@@ -230,6 +230,8 @@ This environment also has robot collisions. Robots which move onto the same squa
 
 Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed in this way adds 10 rubble. (same values as marsquakes and self destructs).
 
+Lastly, any addition of rubble onto a tile with [Lichen](#lichen) on it will automatically remove all of the lichen on that tile.
+
 ## Factories
 
 A factory is a building that takes up 3x3 tiles of space. Robots created from the factory will appear at the center of the factory. Allied robots can move onto one of the factory's 9 tiles, but enemies cannot.
@@ -241,7 +243,7 @@ Each turn a factory will automatically:
 * Convert up to 50 ore to 10 metal 
 * Consume 1 water
 
-If there is no water to, the nuclear reactor that powers the factory will explode, destroying the factory and leaving behind 50 rubble on each of the 3x3 tiles.
+If there is no water left, the nuclear reactor that powers the factory will explode, destroying the factory and leaving behind 50 rubble on each of the 3x3 tiles.
 
 Each factory can perform one of the following actions
 
@@ -283,7 +285,7 @@ Robot Type
 
 At the end of the game, the amount of lichen on each square that a player owns is summed and whoever has a higher value wins the game. 
 
-At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present. Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
+At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 10 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. Algorithmically, if a tile can be expanded to by two lichen strains, neither strain expands to there. This is for determinism and simplified water costs.
 
