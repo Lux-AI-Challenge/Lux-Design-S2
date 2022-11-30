@@ -46,6 +46,7 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             adj_strain = lichen_strains[check_pos[0], check_pos[1]]
             if adj_strain == -1:
                 if pos_lichen >= MIN_LICHEN_TO_SPREAD:
+                    # adjacent tile is empty and isn't a resource and the current tile has enough lichen to spread
                     seen.add(tuple(check_pos))
                     frontier.append(check_pos)
             elif adj_strain != strain_id:
@@ -104,9 +105,9 @@ class Factory:
            x x x
 
         """
-        forbidden = (board.rubble > 0) | (board.factory_occupancy_map != -1)
+        forbidden = (board.rubble > 0) | (board.factory_occupancy_map != -1) | (board.ice > 0) | (board.ore > 0)
         deltas = [np.array([0, -2]),  np.array([-1, -2]),  np.array([1, -2]),  np.array([0, 2]),  np.array([-1, 2]),  np.array([1, 2]),
-                    np.array([2, 0]),  np.array([2, -1]),  np.array([2, 1]),  np.array([2, 0]),  np.array([2, -1]),  np.array([2, 1])]
+                    np.array([2, 0]),  np.array([2, -1]),  np.array([2, 1]),  np.array([-2, 0]),  np.array([-2, -1]),  np.array([-2, 1])]
         init_arr = np.stack(deltas) + self.pos.pos
         self.grow_lichen_positions = compute_water_info(init_arr, env_cfg.MIN_LICHEN_TO_SPREAD, board.lichen, board.lichen_strains, self.num_id, forbidden)
     def water_cost(self, config: EnvConfig):

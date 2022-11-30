@@ -87,7 +87,7 @@ export function loadFromObject(replay: Replay | KaggleReplay): Replay {
       for (const hash of Object.keys(delta_board[k])) {
         const { x, y } = hashToPos(hash);
         //@ts-ignore
-        board_i[k][y][x] = delta_board[k][hash];
+        board_i[k][x][y] = delta_board[k][hash];
       }
     });
     replay.observations[i].board = board_i;

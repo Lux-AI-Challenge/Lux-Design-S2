@@ -139,7 +139,7 @@ class GameState:
         """
         if self.env_cfg.BIDDING_SYSTEM:
             # + 1 for extra factory placement and + 1 for bidding step
-            return self.env_steps - (self.board.factories_per_team + 1 + 1)
+            return self.env_steps - (self.board.factories_per_team * 2 + 1)
         else:
             return self.env_steps
 

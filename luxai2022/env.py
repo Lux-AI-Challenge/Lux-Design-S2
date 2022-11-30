@@ -258,11 +258,11 @@ class LuxAI2022(ParallelEnv):
                     self._log(f"{k} tried to place negative water/metal in factory. Cancelled placement of factory")
                     continue
                 if a["water"] > self.state.teams[k].init_water:
-                    self._log(f"{k} does not have enough water. Cancelled placement of factory")
-                    continue
+                    a["water"] = self.state.teams[k].init_water
+                    self._log(f" Warning - {k} does not have enough water. Using {a['water']}")
                 if a["metal"] > self.state.teams[k].init_metal:
-                    self._log(f"{k} does not have enough metal. Cancelled placement of factory")
-                    continue
+                    a["metal"] = self.state.teams[k].init_water
+                    self._log(f" Warning - {k} does not have enough metal. Using {a['metal']}")
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None: continue
                 factory.cargo.water = a["water"]
@@ -492,7 +492,7 @@ class LuxAI2022(ParallelEnv):
             factory_water_action: FactoryWaterAction
             water_cost = factory.water_cost(self.env_cfg)
             factory.cargo.water -= water_cost # earlier validation ensures this is always possible.
-            indexable_positions = ([v[1] for v in factory.grow_lichen_positions], [v[0] for v in factory.grow_lichen_positions])
+            indexable_positions = ([v[0] for v in factory.grow_lichen_positions], [v[1] for v in factory.grow_lichen_positions])
             self.state.board.lichen[indexable_positions] += 2
             self.state.board.lichen_strains[indexable_positions] = factory.num_id
     def step(self, actions):

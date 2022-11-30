@@ -18,9 +18,11 @@ Environment:
 - Switch to x,y indexing for all map and position related data
 - Bumped up initial water/metal resources per factory to 150 each (old: 100)
 - Bumped up initial power per factory to 1000 (old: 100)
-- Lichen requires 20 units before being able to expand now
-- Lichen grows from any square cardinally adjacent to a factory tile now
+- Lichen requires 10 units before being able to expand now (old: 20)
+- Lichen grows from any square cardinally adjacent to a factory tile now (so an factory without any surrounding rubble will immediately grow 4*3=12 lichen tiles)
+- Lichen no longer grows over ice/ore tiles
 - Units can transfer any amount and wont have an action cancelled. Environment will internally clip it so that unit only transfers as much as they can and target unit only receives as much as it can. Excess given to a unit is wasted. 
+- Factories spawned can be spawned with any amount of resources and the placement won't be cancelled. Instead a warning is given and only the maximum of resources left will be used.
 
 Visualizer:
 - x,y indexing fixes

@@ -28,7 +28,7 @@ export const GroundTile = React.memo(
     const tileSize = tileWidth + tileBorder * 2;
     if (ice > 0) {
       return (
-        <div key={`ice-${y * mapWidth + x}`} className={s.tile}>
+        <div key={`ice-${x * mapWidth + y}`} className={s.tile}>
           <div
             style={{
               backgroundColor: "#2C9ED3",
@@ -41,7 +41,7 @@ export const GroundTile = React.memo(
     }
     if (ore > 0) {
       return (
-        <div key={`ore-${y * mapWidth + x}`} className={s.tile}>
+        <div key={`ore-${x * mapWidth + y}`} className={s.tile}>
           <div
             style={{
               backgroundColor: "#DAA730",
@@ -69,7 +69,7 @@ export const GroundTile = React.memo(
         // onMouseEnter={handleOnMouseEnterTile}
       >
         <div
-          id={`lichen-${y * mapWidth + x}`}
+          id={`lichen-${x * mapWidth + y}`}
           style={{
             position: 'absolute',
             width: tileWidth, height: tileWidth,
@@ -79,7 +79,7 @@ export const GroundTile = React.memo(
           }}
         />
         <div
-          id={`rubble-${y * mapWidth + x}`}
+          id={`rubble-${x * mapWidth + y}`}
           style={{
             width: tileWidth, height: tileWidth,
             backgroundColor: bgColor,
