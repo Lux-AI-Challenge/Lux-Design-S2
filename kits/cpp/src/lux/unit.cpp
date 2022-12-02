@@ -29,15 +29,13 @@ namespace lux {
         return std::ceil((unitConfig.MOVE_COST + unitConfig.RUBBLE_MOVEMENT_COST * rubble) * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::move(Direction direction, bool repeat) const {
-      return UnitAction::Move(direction, repeat);
-    }
+    UnitAction Unit::move(Direction direction, int64_t repeat) const { return UnitAction::Move(direction, repeat); }
 
-    UnitAction Unit::transfer(Direction direction, Resource resource, int64_t amount, bool repeat) const {
+    UnitAction Unit::transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat) const {
         return UnitAction::Transfer(direction, resource, amount, repeat);
     }
 
-    UnitAction Unit::pickup(Resource resource, int64_t amount, bool repeat) const {
+    UnitAction Unit::pickup(Resource resource, int64_t amount, int64_t repeat) const {
         return UnitAction::Pickup(resource, amount, repeat);
     }
 
@@ -46,18 +44,14 @@ namespace lux {
         return std::ceil(unitConfig.DIG_COST * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::dig(bool repeat) const { return UnitAction::Dig(repeat); }
+    UnitAction Unit::dig(int64_t repeat) const { return UnitAction::Dig(repeat); }
 
     int64_t Unit::selfDestructCost(const Observation &obs) const {
         auto weather = obs.getCurrentWeather();
         return std::ceil(unitConfig.SELF_DESTRUCT_COST * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::selfDestruct(bool repeat) const {
-      return UnitAction::SelfDestruct(repeat);
-    }
+    UnitAction Unit::selfDestruct(int64_t repeat) const { return UnitAction::SelfDestruct(repeat); }
 
-    UnitAction Unit::recharge(int64_t amount, bool repeat) const {
-      return UnitAction::Recharge(amount, repeat);
-    }
+    UnitAction Unit::recharge(int64_t amount, int64_t repeat) const { return UnitAction::Recharge(amount, repeat); }
 }  // namespace lux
