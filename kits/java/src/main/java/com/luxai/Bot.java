@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Hello world!
- *
+ * Main class
+ * Lux-ai-2022
  */
 public class Bot
 {
@@ -37,7 +36,7 @@ public class Bot
 
                 // - - - Main section - - -
                 String jsonAction = null;
-                if (agent.step <= agent.obs.board.factories_per_team + 1)
+                if (agent.obs.real_env_steps < 0)
                     jsonAction = agent.early_setup();
                 else {
                     jsonAction = agent.act();

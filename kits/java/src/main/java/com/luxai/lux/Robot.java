@@ -9,11 +9,11 @@ public class Robot {
     public int power;
     public String unit_id;
     public String unit_type;
-    public String[] action_queue;
+    public int[][] action_queue;
     public Cargo cargo;
 
     public double getActionQueueCost (Obs obs, Environment environment) {
-        int cost = environment.UNIT_ACTION_QUEUE_POWER_COST.get(this.unit_type);
+        int cost = environment.ROBOTS.get(this.unit_type).ACTION_QUEUE_POWER_COST;
         int currentWeather = obs.weather_schedule[obs.real_env_steps];
         double weatherLossFactor = Weather.powerLossFactor(currentWeather, environment);
         return cost * weatherLossFactor;
@@ -38,7 +38,7 @@ public class Robot {
             }
         }
 
-        int targetRubble = obs.board.rubble[targetPos[MoveUtils.Y]][targetPos[MoveUtils.X]];
+        int targetRubble = obs.board.rubble[targetPos[MoveUtils.X]][targetPos[MoveUtils.Y]];
         double powerLossFactor = Weather.powerLossFactor(obs.weather_schedule[obs.real_env_steps], environment);
         RobotInfo robotInfo = environment.ROBOTS.get(this.unit_type);
         return (int) Math.ceil((robotInfo.MOVE_COST + robotInfo.RUBBLE_MOVEMENT_COST * targetRubble) * powerLossFactor);

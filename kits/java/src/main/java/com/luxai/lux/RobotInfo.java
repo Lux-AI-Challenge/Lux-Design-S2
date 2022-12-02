@@ -16,5 +16,6 @@ public class RobotInfo {
     public int DIG_LICHEN_REMOVED;
     public int SELF_DESTRUCT_COST;
     public int RUBBLE_AFTER_DESTRUCTION;
+    public int ACTION_QUEUE_POWER_COST;
 
 }

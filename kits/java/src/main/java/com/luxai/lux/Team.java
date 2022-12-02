@@ -7,4 +7,5 @@ public class Team {
     public int metal;
     public int factories_to_place;
     public int[] factory_strains;
+    public boolean place_first;
 }

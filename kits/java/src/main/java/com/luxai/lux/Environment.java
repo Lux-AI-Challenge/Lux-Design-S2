@@ -31,7 +31,6 @@ public class Environment {
     public int ORE_METAL_RATIO;
     public int FACTORY_CHARGE;
     public int FACTORY_WATER_CONSUMPTION;
-    public Map<String,Integer> UNIT_ACTION_QUEUE_POWER_COST;
     public List<String> WEATHER_ID_TO_NAME;
     public int[] NUM_WEATHER_EVENTS_RANGE;
     public Weather WEATHER;
