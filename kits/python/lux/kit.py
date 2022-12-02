@@ -8,20 +8,22 @@ from lux.unit import Unit
 from lux.factory import Factory
 def process_action(action):
     return to_json(action)
-def to_json(state):
-    if isinstance(state, np.ndarray):
-        return state.tolist()
-    elif isinstance(state, np.int64):
-        return state.tolist()
-    elif isinstance(state, list):
-        return [to_json(s) for s in state]
-    elif isinstance(state, dict):
+def to_json(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, list) or isinstance(obj, tuple):
+        return [to_json(s) for s in obj]
+    elif isinstance(obj, dict):
         out = {}
-        for k in state:
-            out[k] = to_json(state[k])
+        for k in obj:
+            out[k] = to_json(obj[k])
         return out
     else:
-        return state  
+        return obj
 def from_json(state):
     if isinstance(state, list):
         return np.array(state)
