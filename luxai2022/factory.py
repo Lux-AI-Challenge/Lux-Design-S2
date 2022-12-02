@@ -117,7 +117,7 @@ class Factory:
         init_arr = np.stack(deltas) + self.pos.pos
         self.grow_lichen_positions = compute_water_info(init_arr, env_cfg.MIN_LICHEN_TO_SPREAD, board.lichen, board.lichen_strains, self.num_id, forbidden)
     def water_cost(self, config: EnvConfig):
-        return int(np.ceil(len(self.grow_lichen_positions) / config.LICHEN_WATERING_COST_FACTOR) + 1)
+        return int(np.ceil(len(self.grow_lichen_positions) / config.LICHEN_WATERING_COST_FACTOR))
 
     ### Add and sub resource functions copied over from unit.py code, can we consolidate them somewhere?
     def add_resource(self, resource_id, transfer_amount):

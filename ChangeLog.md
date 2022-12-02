@@ -35,6 +35,7 @@ Python Kits:
 - Added utility function to determine if it is your team's turn to place a factory or not
 
 Bug Fixes:
+- Lichen water cost costed 1 extra
 - Fix bug where added rubble doesn't remove all lichen underneath
 - Fix bug where move center costs power
 - Fix extra line in stderr logging
