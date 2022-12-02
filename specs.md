@@ -37,7 +37,7 @@ The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day tu
 
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a robot transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
 
 <table>
   <tr>
@@ -76,14 +76,14 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
 
 During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*150` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and gets to place first. If both players tie, the first player / player_0 gets to place first. The player that places first always loses how much they bid.
 
-During the next 2*N turns of the game, each player alternates between spawning a factory or doing nothing as the other player spawns a factory with the winner above placing first. Each player may select any location on the map that can fit a 3x3 factory that doesn't overlap any ice/ore resources, and the center is 6 tiles or more away from another existing factory's center. Any factories our starting resources not used are lost.
+During the next `2*N` turns of the game, each player alternates between spawning a factory or doing nothing as the other player spawns a factory with the winner of the bid placing first. Each player may select any location on the map that can fit a 3x3 factory that doesn't overlap any ice/ore resources, and the center is 6 tiles or more away from another existing factory's center. Any factories our starting resources not used are lost.
 
 _Strategy Tip_: Going first is not always advantageous!
 ## Actions
 
 [Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
 
-[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated, meaning once the action is executed the action is replaced to the back of the action queue instead of being removed.
+[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated `n` times or infinitely. Action repeats mean once the action is executed the action is replaced to the back of the action queue instead of being removed. Moreover, if an action in the queue fails to execute due to lack of power, that action is not removed from the queue and is kept at the front of the queue.
 
 Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies. The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
 
@@ -149,7 +149,7 @@ Light and Heavy Robots share the same set of actions / action space. However, in
 * Pickup - When on top of any factory tile (there are 3x3 per factory), can pick up any amount of power or any resources. Preference is given to robots with lower robot IDs.
 * Dig - Does a number of things depending on what tile the robot is on top of
     * Rubbleless resource tile - gain raw resources (ice or ore)
-    * Rubble - reduce rubble by 1 if light, 10 if heavy
+    * Rubble - reduce rubble by 2 if light, 20 if heavy
     * Lichen - reduce lichen value by 10 if light, 100 if heavy
 * Self destruct - Destroys the robot on the spot, which creates rubble.
 * Recharge X - the robot waits until it has X power. In code, the recharge X command is not removed from the action queue until the robot has X power.
@@ -194,9 +194,9 @@ Action
   <tr>
    <td>Dig
    </td>
-   <td>5 power (1 rubble removed, 2 resources gain, 10 lichen value removed)
+   <td>5 power (2 rubble removed, 2 resources gain, 10 lichen value removed)
    </td>
-   <td>100 power (10 rubble removed, 20 resource gain, 100 lichen value removed)
+   <td>100 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
    </td>
   </tr>
   <tr>
