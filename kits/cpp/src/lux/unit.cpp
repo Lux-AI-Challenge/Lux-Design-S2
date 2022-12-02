@@ -9,7 +9,7 @@
 namespace lux {
 
     int64_t Unit::actionQueueCost(const Observation &obs) const {
-        auto cost = obs.config.UNIT_ACTION_QUEUE_POWER_COST[unit_type];
+        auto cost    = unitConfig.ACTION_QUEUE_POWER_COST;
         auto weather = obs.getCurrentWeather();
         return cost * weather.POWER_CONSUMPTION;
     }
