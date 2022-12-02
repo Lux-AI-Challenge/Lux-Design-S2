@@ -9,14 +9,14 @@
 
 namespace lux {
     struct Board {
-        std::vector<std::vector<int64_t>>            ice;
-        std::vector<std::vector<int64_t>>            lichen;
-        std::vector<std::vector<int64_t>>            lichen_strains;
-        std::vector<std::vector<int64_t>>            ore;
-        std::vector<std::vector<int64_t>>            rubble;
-        std::vector<std::vector<int64_t>>            factory_occupancy;  // populated in Observation deserialization
-        std::map<std::string, std::vector<Position>> valid_spawn_mask;
-        int64_t                                      factories_per_team;
+        std::vector<std::vector<int64_t>> ice;
+        std::vector<std::vector<int64_t>> lichen;
+        std::vector<std::vector<int64_t>> lichen_strains;
+        std::vector<std::vector<int64_t>> ore;
+        std::vector<std::vector<int64_t>> rubble;
+        std::vector<std::vector<bool>>    valid_spawns_mask;
+        std::vector<std::vector<int64_t>> factory_occupancy;  // populated in Observation deserialization
+        int64_t                           factories_per_team;
 
        private:
         bool                           initialized = false;

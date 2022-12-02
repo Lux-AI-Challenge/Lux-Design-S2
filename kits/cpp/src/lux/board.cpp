@@ -21,7 +21,7 @@ namespace lux {
         j["lichen_strains"]     = b.lichen_strains;
         j["ore"]                = b.ore;
         j["rubble"]             = b.rubble;
-        j["valid_spawn_mask"]   = b.valid_spawn_mask;
+        j["valid_spawns_mask"]  = b.valid_spawns_mask;
         j["factories_per_team"] = b.factories_per_team;
     }
 
@@ -34,7 +34,7 @@ namespace lux {
             j.at("lichen_strains").get_to(b.lichen_strains);
             j.at("ore").get_to(b.ore);
             j.at("rubble").get_to(b.rubble);
-            j.at("valid_spawn_mask").get_to(b.valid_spawn_mask);
+            j.at("valid_spawns_mask").get_to(b.valid_spawns_mask);
         } else {
             // apply delta for step > 0
             j.at("lichen").get_to(b.lichen_delta);

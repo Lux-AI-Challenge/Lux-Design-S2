@@ -8,10 +8,23 @@ json Agent::setup() {
     if (step == 0) {
         return lux::BidAction(player == "player_1" ? "AlphaStrike" : "MotherMars", 10);
     }
-    static size_t index = 0;
-    return lux::SpawnAction(obs.board.valid_spawn_mask[player][index += 7],
-                            obs.teams[player].metal / 2,
-                            obs.teams[player].water / 2);
+    if (obs.teams[player].factories_to_place && isTurnToPlaceFactory()) {
+        // transform spawn_mask to positions
+        std::vector<lux::Position> spawns;
+        const auto                &spawns_mask = obs.board.valid_spawns_mask;
+        for (size_t x = 0; x < spawns_mask.size(); ++x) {
+            for (size_t y = 0; y < spawns_mask[x].size(); ++y) {
+                if (spawns_mask[x][y]) {
+                    spawns.emplace_back(x, y);
+                }
+            }
+        }
+        static size_t index = 0;
+        return lux::SpawnAction(spawns[(index += 7) % spawns.size()],
+                                obs.teams[player].metal / 2,
+                                obs.teams[player].water / 2);
+    }
+    return json::object();
 }
 
 json Agent::act() {
@@ -39,6 +52,6 @@ json Agent::act() {
         }
     }
     // dump your created actions in a file by uncommenting this line
-    lux::dumpJsonToFile("last_actions.json", actions);
+    // lux::dumpJsonToFile("last_actions.json", actions);
     return actions;
 }

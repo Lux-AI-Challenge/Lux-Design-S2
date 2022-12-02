@@ -24,7 +24,7 @@ int main() {
         }
 
         json output;
-        if (agent.step <= agent.obs.board.factories_per_team + 1) {
+        if (agent.obs.real_env_steps < 0) {
             output = agent.setup();
         } else {
             agent.step = agent.obs.real_env_steps;
