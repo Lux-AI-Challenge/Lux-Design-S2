@@ -10,7 +10,7 @@ namespace lux {
                 LUX_ASSERT(offset != k.npos, "mapping key not separated by comma");
                 auto x     = static_cast<size_t>(std::stol(k.substr(0, offset)));
                 auto y     = static_cast<size_t>(std::stol(k.substr(offset + 1)));
-                dest[y][x] = v;
+                dest[x][y] = v;
             }
         }
     }  // namespace
@@ -21,7 +21,7 @@ namespace lux {
         j["lichen_strains"]     = b.lichen_strains;
         j["ore"]                = b.ore;
         j["rubble"]             = b.rubble;
-        j["spawns"]             = b.spawns;
+        j["valid_spawn_mask"]   = b.valid_spawn_mask;
         j["factories_per_team"] = b.factories_per_team;
     }
 
@@ -34,7 +34,7 @@ namespace lux {
             j.at("lichen_strains").get_to(b.lichen_strains);
             j.at("ore").get_to(b.ore);
             j.at("rubble").get_to(b.rubble);
-            j.at("spawns").get_to(b.spawns);
+            j.at("valid_spawn_mask").get_to(b.valid_spawn_mask);
         } else {
             // apply delta for step > 0
             j.at("lichen").get_to(b.lichen_delta);

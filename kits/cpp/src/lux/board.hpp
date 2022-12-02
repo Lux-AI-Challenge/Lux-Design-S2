@@ -15,7 +15,7 @@ namespace lux {
         std::vector<std::vector<int64_t>>            ore;
         std::vector<std::vector<int64_t>>            rubble;
         std::vector<std::vector<int64_t>>            factory_occupancy;  // populated in Observation deserialization
-        std::map<std::string, std::vector<Position>> spawns;
+        std::map<std::string, std::vector<Position>> valid_spawn_mask;
         int64_t                                      factories_per_team;
 
        private:

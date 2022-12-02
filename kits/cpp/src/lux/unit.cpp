@@ -20,11 +20,11 @@ namespace lux {
             || static_cast<size_t>(target.y) >= obs.board.rubble.size()) {
             return -1;
         }
-        auto factoryTeam = obs.board.factory_occupancy[target.y][target.x];
+        auto factoryTeam = obs.board.factory_occupancy[target.x][target.y];
         if (factoryTeam != -1 && team_id != factoryTeam) {
             return -1;
         }
-        auto rubble  = obs.board.rubble[target.y][target.x];
+        auto rubble  = obs.board.rubble[target.x][target.y];
         auto weather = obs.getCurrentWeather();
         return std::ceil((unitConfig.MOVE_COST + unitConfig.RUBBLE_MOVEMENT_COST * rubble) * weather.POWER_CONSUMPTION);
     }
