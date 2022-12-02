@@ -18,7 +18,7 @@ The rest of the document will go through the key features of this game.
 
 ## The Map
 
-The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). The map also includes a schedule of martian weather events impacting the environment discussed below.
+The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). The map also includes a schedule of martian weather events impacting the environment discussed below. Code wise, the coordinate (x, y) in a map feature such as rubble is indexed by `board.rubble[x][y]` for ease of use.
 
 In order to prevent maps from favoring one player over another, it is guaranteed that maps are always symmetric by vertical or horizontal reflection. Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more details.
 
@@ -26,18 +26,18 @@ In order to prevent maps from favoring one player over another, it is guaranteed
 
 There are 4 kinds of weather events that occur on a predetermined schedule (given to the players at the start of the game, between 3 and 5 events). These events last 1 - 30 turns with marsquakes lasting 1 - 5 turns.
 
-* Marsquake - All robots generate rubble under them every turn (1/turn light, 10/turn heavy)
+* Marsquake - All [Robots](#robots) generate rubble under them every turn (1/turn light, 10/turn heavy) except those on top of [Factories](#factories).
 * Cold snap - 2x power consumption
 * Dust storm - 0.5x power gain
 * Solar flare - 2x power gain
 
 ## Day/Night Cycle
 
-The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all robots but during the night robots power is not recharged. Factories generate power each turn regardless.
+The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all [Robots](#robots) but during the night robots power is not recharged. [Factories](#factories) generate power each turn regardless.
 
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a worker transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a robot transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
 
 <table>
   <tr>
@@ -74,18 +74,16 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
 
 ## Starting Phase
 
-During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*100` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and receives an extra factory to place. If both players tie, neither player is awarded an extra factory. Players that do not win the bid do not lose any starting resources.
+During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*150` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and gets to place first. If both players tie, the first player / player_0 gets to place first. The player that places first always loses how much they bid.
 
-During the next N+1 turns of the game each player may select any location on their half of the map and send the FactoryBuild action to build a Factory at a specified location with the specified starting metal, water, and 100 power. After N + 1 turns any remaining factories and any resources not placed are lost. 
+During the next `2*N` turns of the game, each player alternates between spawning a factory or doing nothing as the other player spawns a factory with the winner of the bid placing first. Each player may select any location on the map that can fit a 3x3 factory that doesn't overlap any ice/ore resources, and the center is 6 tiles or more away from another existing factory's center. Any factories our starting resources not used are lost.
 
-_Strategy Tip_: The player who lost the bid has an extra turn where they don’t have to place a factory. Skipping a turn earlier will usually provide a larger advantage.
-
-
+_Strategy Tip_: Going first is not always advantageous!
 ## Actions
 
 [Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
 
-[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated, meaning once the action is executed the action is replaced to the back of the action queue instead of being removed.
+[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated `n` times or infinitely. Action repeats mean once the action is executed the action is replaced to the back of the action queue instead of being removed. Moreover, if an action in the queue fails to execute due to lack of power, that action is not removed from the queue and is kept at the front of the queue.
 
 Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies. The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
 
@@ -151,7 +149,7 @@ Light and Heavy Robots share the same set of actions / action space. However, in
 * Pickup - When on top of any factory tile (there are 3x3 per factory), can pick up any amount of power or any resources. Preference is given to robots with lower robot IDs.
 * Dig - Does a number of things depending on what tile the robot is on top of
     * Rubbleless resource tile - gain raw resources (ice or ore)
-    * Rubble - reduce rubble by 1 if light, 10 if heavy
+    * Rubble - reduce rubble by 2 if light, 20 if heavy
     * Lichen - reduce lichen value by 10 if light, 100 if heavy
 * Self destruct - Destroys the robot on the spot, which creates rubble.
 * Recharge X - the robot waits until it has X power. In code, the recharge X command is not removed from the action queue until the robot has X power.
@@ -196,9 +194,9 @@ Action
   <tr>
    <td>Dig
    </td>
-   <td>5 power (1 rubble removed, 2 resources gain, 10 lichen value removed)
+   <td>5 power (2 rubble removed, 2 resources gain, 10 lichen value removed)
    </td>
-   <td>100 power (10 rubble removed, 20 resource gain, 100 lichen value removed)
+   <td>100 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
    </td>
   </tr>
   <tr>
@@ -230,6 +228,8 @@ This environment also has robot collisions. Robots which move onto the same squa
 
 Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed in this way adds 10 rubble. (same values as marsquakes and self destructs).
 
+Lastly, any addition of rubble onto a tile with [Lichen](#lichen) on it will automatically remove all of the lichen on that tile.
+
 ## Factories
 
 A factory is a building that takes up 3x3 tiles of space. Robots created from the factory will appear at the center of the factory. Allied robots can move onto one of the factory's 9 tiles, but enemies cannot.
@@ -241,7 +241,7 @@ Each turn a factory will automatically:
 * Convert up to 50 ore to 10 metal 
 * Consume 1 water
 
-If there is no water to, the nuclear reactor that powers the factory will explode, destroying the factory and leaving behind 50 rubble on each of the 3x3 tiles.
+If there is no water left, the nuclear reactor that powers the factory will explode, destroying the factory and leaving behind 50 rubble on each of the 3x3 tiles.
 
 Each factory can perform one of the following actions
 
@@ -283,7 +283,7 @@ Robot Type
 
 At the end of the game, the amount of lichen on each square that a player owns is summed and whoever has a higher value wins the game. 
 
-At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present. Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
+At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 10 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. Algorithmically, if a tile can be expanded to by two lichen strains, neither strain expands to there. This is for determinism and simplified water costs.
 

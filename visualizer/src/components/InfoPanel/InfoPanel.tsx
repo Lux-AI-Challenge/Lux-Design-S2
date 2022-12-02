@@ -59,6 +59,7 @@ export const InfoPanel = ({
       replay.observations[0].weather_schedule[turn - replay.meta.real_start]
     ];
   const get_turn_percent = (turn: number) => {
+    console.log({turn, mr:replay.meta.real_start, ol:replay.observations.length})
     return (turn * 100) / (replay.observations.length - replay.meta.real_start);
   };
   const p0_c = getColor("player_0", "");
@@ -131,7 +132,7 @@ export const InfoPanel = ({
             <h3 className={s.title}>Weather: {cur_weather}</h3>
             <span
               className={s.slidertick}
-              style={{ left: `${get_turn_percent(turn)}%` }}
+              style={{ left: `${get_turn_percent(turn - replay.meta.real_start)}%` }}
             ></span>
             <span className={s.slider}></span>
             {replay.meta.weather_events.map((weather) => {

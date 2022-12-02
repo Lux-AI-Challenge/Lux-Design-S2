@@ -1,5 +1,5 @@
 from lux.kit import obs_to_game_state, GameState, EnvConfig
-from lux.utils import direction_to
+from lux.utils import direction_to, my_turn_to_place_factory
 import numpy as np
 import sys
 class Agent():
@@ -23,17 +23,20 @@ class Agent():
 
             # how many factories you have left to place
             factories_to_place = game_state.teams[self.player].factories_to_place
-            if factories_to_place > 0:
-                # we will spawn our factory in a random location with 100 metal and water
-                potential_spawns = game_state.board.spawns[self.player]
+            # whether it is your turn to place a factory
+            my_turn_to_place = my_turn_to_place_factory(game_state.teams[self.player].place_first, step)
+            if factories_to_place > 0 and my_turn_to_place:
+                # we will spawn our factory in a random location with 150 metal and water if it is our turn to place
+                potential_spawns = np.array(list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1))))
                 spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
-                return dict(spawn=spawn_loc, metal=100, water=100)
+                return dict(spawn=spawn_loc, metal=150, water=150)
             return dict()
 
     def act(self, step: int, obs, remainingOverageTime: int = 60):
         actions = dict()
         game_state = obs_to_game_state(step, self.env_cfg, obs)
         factories = game_state.factories[self.player]
+        game_state.teams[self.player].place_first
         factory_tiles, factory_units = [], []
         for unit_id, factory in factories.items():
             if factory.power >= self.env_cfg.ROBOTS["HEAVY"].POWER_COST and \
@@ -47,7 +50,7 @@ class Agent():
         factory_tiles = np.array(factory_tiles)
 
         units = game_state.units[self.player]
-        ice_map = game_state.board.ice.T
+        ice_map = game_state.board.ice
         ice_tile_locations = np.argwhere(ice_map == 1)
         for unit_id, unit in units.items():
 

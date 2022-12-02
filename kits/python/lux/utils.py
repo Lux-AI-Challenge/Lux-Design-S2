@@ -1,3 +1,12 @@
+def my_turn_to_place_factory(place_first: bool, step: int):
+    if place_first:
+        if step % 2 == 1:
+            return True
+    else:
+        if step % 2 == 0:
+            return True
+    return False
+
 # direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
 def direction_to(src, target):
     ds = target - src
