@@ -51,15 +51,11 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfigs, HEAVY, LIGHT)
 
     struct WeatherConfig {
-        std::map<std::string, int64_t> RUBBLE = {
-            {"LIGHT", 0},
-            {"HEAVY", 0}
-        };
         double                 POWER_GAIN        = 1.0f;
         double                 POWER_CONSUMPTION = 1.0f;
         std::array<int64_t, 2> TIME_RANGE;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeatherConfig, RUBBLE, POWER_GAIN, POWER_CONSUMPTION, TIME_RANGE)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeatherConfig, POWER_GAIN, POWER_CONSUMPTION, TIME_RANGE)
 
     struct WeatherConfigs {
         WeatherConfig NONE;
