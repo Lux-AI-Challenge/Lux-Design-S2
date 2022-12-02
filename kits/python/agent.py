@@ -26,10 +26,10 @@ class Agent():
             # whether it is your turn to place a factory
             my_turn_to_place = my_turn_to_place_factory(game_state.teams[self.player].place_first, step)
             if factories_to_place > 0 and my_turn_to_place:
-                # we will spawn our factory in a random location with 100 metal and water if it is our turn to place
+                # we will spawn our factory in a random location with 150 metal and water if it is our turn to place
                 potential_spawns = np.array(list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1))))
                 spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
-                return dict(spawn=spawn_loc, metal=100, water=100)
+                return dict(spawn=spawn_loc, metal=150, water=150)
             return dict()
 
     def act(self, step: int, obs, remainingOverageTime: int = 60):
