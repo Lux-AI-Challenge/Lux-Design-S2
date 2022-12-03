@@ -395,27 +395,26 @@ class LuxAI2022(ParallelEnv):
         for unit, move_action in actions_by_type["move"]:
             move_action: MoveAction
             # skip move center
-            if move_action.move_dir == 0:
-                continue
-            old_pos_hash = self.state.board.pos_hash(unit.pos)
-            target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
-            power_required = move_action.power_cost
-            unit.pos = target_pos
-            new_pos_hash = self.state.board.pos_hash(unit.pos)
+            if move_action.move_dir != 0:
+                old_pos_hash = self.state.board.pos_hash(unit.pos)
+                target_pos = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
+                power_required = move_action.power_cost
+                unit.pos = target_pos
+                new_pos_hash = self.state.board.pos_hash(unit.pos)
 
-            # remove unit from map temporarily
-            if len(self.state.board.units_map[old_pos_hash]) == 1:
-                del self.state.board.units_map[old_pos_hash]
-            else:
-                self.state.board.units_map[old_pos_hash].remove(unit)
+                # remove unit from map temporarily
+                if len(self.state.board.units_map[old_pos_hash]) == 1:
+                    del self.state.board.units_map[old_pos_hash]
+                else:
+                    self.state.board.units_map[old_pos_hash].remove(unit)
 
-            new_units_map[new_pos_hash].append(unit)
-            unit.power -= power_required
+                new_units_map[new_pos_hash].append(unit)
+                unit.power -= power_required
 
-            if unit.unit_type == UnitType.HEAVY:
-                heavy_entered_pos[new_pos_hash].append(unit)
-            else:
-                light_entered_pos[new_pos_hash].append(unit)
+                if unit.unit_type == UnitType.HEAVY:
+                    heavy_entered_pos[new_pos_hash].append(unit)
+                else:
+                    light_entered_pos[new_pos_hash].append(unit)
 
             unit.repeat_action(move_action)
 
