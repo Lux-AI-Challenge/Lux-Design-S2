@@ -34,9 +34,7 @@ public class Factory {
                     lichenCounter++;
             }
         }
-        // Conflict logic: python kit vs specs
-        return (int) (Math.ceil(lichenCounter / 10.0) * environment.LICHEN_WATERING_COST_FACTOR);   //specs
-//        return (int) (Math.ceil(lichenCounter / environment.LICHEN_WATERING_COST_FACTOR) + 1);      //python
+        return (int) (Math.ceil(lichenCounter / 10.0) * environment.LICHEN_WATERING_COST_FACTOR);
     }
 
     public boolean canWater(Obs obs, Environment environment) {

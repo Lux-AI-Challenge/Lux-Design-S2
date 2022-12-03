@@ -1,5 +1,7 @@
 package com.luxai.lux;
 
+import com.luxai.lux.utils.MoveUtils;
+
 public class Robot {
 
     public static final int[][] modeDeltaArray = new int[][]{{0, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}};
@@ -19,7 +21,6 @@ public class Robot {
         return cost * weatherLossFactor;
     }
 
-    // Сравнить по team_id
     public int getMoveCost(Obs obs, Environment environment, String me, int moveDirection) {
         int[] targetPos = new int[]{this.pos[MoveUtils.X] + modeDeltaArray[moveDirection][MoveUtils.X], this.pos[MoveUtils.Y] + modeDeltaArray[moveDirection][MoveUtils.Y]};
         // Off the map

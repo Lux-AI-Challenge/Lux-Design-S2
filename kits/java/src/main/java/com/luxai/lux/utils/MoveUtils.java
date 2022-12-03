@@ -1,4 +1,4 @@
-package com.luxai.lux;
+package com.luxai.lux.utils;
 
 public class MoveUtils {
 
@@ -36,6 +36,13 @@ public class MoveUtils {
             else
                 return MOVE_DOWN;
         }
+    }
+
+    public static boolean isMyTurnToPlaceFactory(int step, boolean place_first) {
+        if (place_first)
+            return (step % 2 == 1);
+        else
+            return (step % 2 == 0);
     }
 
 }

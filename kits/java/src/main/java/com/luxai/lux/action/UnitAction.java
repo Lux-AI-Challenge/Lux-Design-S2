@@ -15,4 +15,8 @@ public class UnitAction {
         actions.put(unit_id, action);
     }
 
+    public void addActions(UnitAction unitActions) {
+        this.actions.putAll(unitActions.actions);
+    }
+
 }
