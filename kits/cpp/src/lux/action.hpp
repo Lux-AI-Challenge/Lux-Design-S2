@@ -43,7 +43,7 @@ namespace lux {
         int64_t   distance;
         Resource  resource;
         int64_t   amount;
-        bool      repeat;
+        int64_t   repeat;
 
         UnitAction() = default;
         UnitAction(UnitAction::RawType raw_);
