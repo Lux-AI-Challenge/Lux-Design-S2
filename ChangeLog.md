@@ -3,7 +3,8 @@
 ### v1.1.1
 
 - Fixed bug in python kit that adds 1 to the water cost calculation in the `lux/factory.py` file
-
+- Removed an extra `1` in the state representation of move actions left from old code that allowed robots to move more than 1 tile.
+- Fixed bug where move center actions weren't repeated.
 
 ### v1.1.0
 
