@@ -9,7 +9,7 @@
 namespace lux {
 
     int64_t Unit::actionQueueCost(const Observation &obs) const {
-        auto cost = obs.config.UNIT_ACTION_QUEUE_POWER_COST[unit_type];
+        auto cost    = unitConfig.ACTION_QUEUE_POWER_COST;
         auto weather = obs.getCurrentWeather();
         return cost * weather.POWER_CONSUMPTION;
     }
@@ -20,24 +20,22 @@ namespace lux {
             || static_cast<size_t>(target.y) >= obs.board.rubble.size()) {
             return -1;
         }
-        auto factoryTeam = obs.board.factory_occupancy[target.y][target.x];
+        auto factoryTeam = obs.board.factory_occupancy[target.x][target.y];
         if (factoryTeam != -1 && team_id != factoryTeam) {
             return -1;
         }
-        auto rubble  = obs.board.rubble[target.y][target.x];
+        auto rubble  = obs.board.rubble[target.x][target.y];
         auto weather = obs.getCurrentWeather();
         return std::ceil((unitConfig.MOVE_COST + unitConfig.RUBBLE_MOVEMENT_COST * rubble) * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::move(Direction direction, bool repeat) const {
-      return UnitAction::Move(direction, repeat);
-    }
+    UnitAction Unit::move(Direction direction, int64_t repeat) const { return UnitAction::Move(direction, repeat); }
 
-    UnitAction Unit::transfer(Direction direction, Resource resource, int64_t amount, bool repeat) const {
+    UnitAction Unit::transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat) const {
         return UnitAction::Transfer(direction, resource, amount, repeat);
     }
 
-    UnitAction Unit::pickup(Resource resource, int64_t amount, bool repeat) const {
+    UnitAction Unit::pickup(Resource resource, int64_t amount, int64_t repeat) const {
         return UnitAction::Pickup(resource, amount, repeat);
     }
 
@@ -46,18 +44,14 @@ namespace lux {
         return std::ceil(unitConfig.DIG_COST * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::dig(bool repeat) const { return UnitAction::Dig(repeat); }
+    UnitAction Unit::dig(int64_t repeat) const { return UnitAction::Dig(repeat); }
 
     int64_t Unit::selfDestructCost(const Observation &obs) const {
         auto weather = obs.getCurrentWeather();
         return std::ceil(unitConfig.SELF_DESTRUCT_COST * weather.POWER_CONSUMPTION);
     }
 
-    UnitAction Unit::selfDestruct(bool repeat) const {
-      return UnitAction::SelfDestruct(repeat);
-    }
+    UnitAction Unit::selfDestruct(int64_t repeat) const { return UnitAction::SelfDestruct(repeat); }
 
-    UnitAction Unit::recharge(int64_t amount, bool repeat) const {
-      return UnitAction::Recharge(amount, repeat);
-    }
+    UnitAction Unit::recharge(int64_t amount, int64_t repeat) const { return UnitAction::Recharge(amount, repeat); }
 }  // namespace lux

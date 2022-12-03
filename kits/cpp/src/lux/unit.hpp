@@ -23,19 +23,19 @@ namespace lux {
         int64_t actionQueueCost(const Observation &obs) const;
 
         int64_t    moveCost(const Observation &obs, Direction direction) const;
-        UnitAction move(Direction direction, bool repeat = true) const;
+        UnitAction move(Direction direction, int64_t repeat = 0) const;
 
-        UnitAction transfer(Direction direction, Resource resource, int64_t amount, bool repeat = true) const;
+        UnitAction transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat = 0) const;
 
-        UnitAction pickup(Resource resource, int64_t amount, bool repeat = true) const;
+        UnitAction pickup(Resource resource, int64_t amount, int64_t repeat = 0) const;
 
         int64_t    digCost(const Observation &obs) const;
-        UnitAction dig(bool repeat = true) const;
+        UnitAction dig(int64_t repeat = 0) const;
 
         int64_t    selfDestructCost(const Observation &obs) const;
-        UnitAction selfDestruct(bool repeat = true) const;
+        UnitAction selfDestruct(int64_t repeat = 0) const;
 
-        UnitAction recharge(int64_t amount, bool repeat = true) const;
+        UnitAction recharge(int64_t amount, int64_t repeat = 0) const;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Unit, team_id, unit_id, power, unit_type, pos, cargo, action_queue)
 }  // namespace lux

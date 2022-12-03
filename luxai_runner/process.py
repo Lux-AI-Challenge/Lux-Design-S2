@@ -37,9 +37,13 @@ class BotProcess:
             cwd = "."
         self.log.info(f"Beginning {self.command} {self.file_path}")
         # self._agent_process = Popen([self.command, os.path.basename(self.file_path)], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+
+        base_file_path = os.path.basename(self.file_path)   
+        if self.command == "java" and base_file_path.endswith(".java"):
+            base_file_path = base_file_path[:-5]
         self._agent_process = await asyncio.create_subprocess_exec(
             self.command,
-            os.path.basename(self.file_path),
+            base_file_path,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
@@ -63,7 +67,9 @@ class BotProcess:
             while not stream.at_eof():
                 data = await stream.readline()
                 line = data.decode()
-                if self.live_log: self.log.err(line)
+
+                if stream.at_eof() and len(line) == 0: break
+                elif self.live_log: self.log.err(line, end="")
                 else: self.stderr_queue.append(line)
         asyncio.create_task(log_stream(self._agent_process.stderr))
         # await asyncio.gather(watch(self._agent_process.stderr, 'E:'))
@@ -92,3 +98,8 @@ class BotProcess:
         #         stderrs.append((await line).decode())
         #         # stderrs.append(line.decode())
         # return " ".join(stderrs)
+
+    async def cleanup(self):
+        self._agent_process._transport.close()
+        self._agent_process.terminate()
+        await self._agent_process.wait()

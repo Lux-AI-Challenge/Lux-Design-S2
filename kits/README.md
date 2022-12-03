@@ -38,7 +38,7 @@ In code, actions can be given to units as so
 actions[unit_id] = [action_0, action_1, ...]
 ```
 
-Importantly, whenever you submit a new action queue, it incurs an additional power cost for communication of `env_cfg.UNIT_ACTION_QUEUE_POWER_COST` power to the unit. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous.
+Importantly, whenever you submit a new action queue, the unit incurs an additional power cost to update the queue of `env_cfg.ROBOTS[<robot_type>].ACTION_QUEUE_POWER_COST` power. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous. Lights consume 1 power and Heavies consume 10 power to update their action queue,
 
 See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
 
@@ -77,16 +77,36 @@ The general observation given to your bot in the kits will look like below. `Arr
       }
     },
     "board": {
-      "rubble": Array(64, 64),
-      "ice": Array(64, 64),
-      "ore": Array(64, 64),
-      "lichen": Array(64, 64),
-      "lichen_strains": Array(64, 64),
-      "spawns": Array(K, 2),
+      "rubble": Array(48, 48),
+      "ice": Array(48, 48),
+      "ore": Array(48, 48),
+      "lichen": Array(48, 48),
+      "lichen_strains": Array(48, 48),
+      "valid_spawns_mask": Array(48, 48),
       "factories_per_team": int
     },
     "weather": Array(1000),
-    "real_env_steps": int
+    "real_env_steps": int,
+    "teams": {
+      "player_0": {
+        "team_id": 0,
+        "faction": "MotherMars",
+        "water": 0,
+        "metal": 0,
+        "factories_to_place": 0,
+        "factory_strains": [0, 2, 4, 6],
+        "place_first": True,
+      },
+      "player_1": {
+        "team_id": 1,
+        "faction": "AlphaStrike",
+        "water": 0,
+        "metal": 0,
+        "factories_to_place": 0,
+        "factory_strains": [1, 3, 5, 7],
+        "place_first": False,
+      }
+    },
   },
   "step": int,
   "remainingOverageTime": int,

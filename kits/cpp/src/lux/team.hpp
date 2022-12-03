@@ -13,6 +13,14 @@ namespace lux {
         int64_t              metal;
         int64_t              factories_to_place;
         std::vector<int64_t> factory_strains;
+        bool                 place_first;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Team, team_id, faction, water, metal, factories_to_place, factory_strains)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Team,
+                                       team_id,
+                                       faction,
+                                       water,
+                                       metal,
+                                       factories_to_place,
+                                       factory_strains,
+                                       place_first)
 }  // namespace lux

@@ -23,8 +23,8 @@ export const Bottom = React.memo(
       <>   
         {/* bottom layer (height map, rubble, etc) */}
         <div className={s.mapLayer} style={{position: 'relative'}}>
-          {rows.map((_, i) =>
-            cols.map((_, j) => {
+          {rows.map((_, j) =>
+            cols.map((_, i) => {
               return (
                 <GroundTile
                   key={`g-${i * cols.length + j}`}

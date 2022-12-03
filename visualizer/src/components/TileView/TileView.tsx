@@ -35,11 +35,11 @@ export const TileView = ({ viewedTilePos }: TileViewProps) => {
       <div className={s.tileview}>
         <h3>Tile ({viewedTilePos.x}, {viewedTilePos.y})</h3>
         <div>
-          <p>Rubble: {frame.board.rubble[viewedTilePos.y][viewedTilePos.x]}</p>
-          <p>Lichen: {frame.board.lichen[viewedTilePos.y][viewedTilePos.x]}</p>
+          <p>Rubble: {frame.board.rubble[viewedTilePos.x][viewedTilePos.y]}</p>
+          <p>Lichen: {frame.board.lichen[viewedTilePos.x][viewedTilePos.y]}</p>
           <p>
             Lichen Strain:{" "}
-            {frame.board.lichen_strains[viewedTilePos.y][viewedTilePos.x]}
+            {frame.board.lichen_strains[viewedTilePos.x][viewedTilePos.y]}
           </p>
         </div>
         {/* {viewedUnit && (
