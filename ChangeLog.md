@@ -2,9 +2,11 @@
 
 ### v1.1.1
 
+- Allow "negative" bids to bid to go second instead of first in factory placement. The winning bidder is whoever has the higher absolute value bid. The winning bidder now loses water and metal equal to the absolute value of their bid.
 - Fixed bug in python kit that adds 1 to the water cost calculation in the `lux/factory.py` file
 - Removed an extra `1` in the state representation of move actions left from old code that allowed robots to move more than 1 tile.
 - Fixed bug where move center actions weren't repeated.
+- Fix visualizer bug where bid for player_1 showed up as player_0's bid
 
 ### v1.1.0
 
