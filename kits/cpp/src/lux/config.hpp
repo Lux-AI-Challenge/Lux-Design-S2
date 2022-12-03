@@ -9,6 +9,7 @@
 
 namespace lux {
     struct UnitConfig {
+        int64_t ACTION_QUEUE_POWER_COST;
         int64_t BATTERY_CAPACITY;
         int64_t CARGO_SPACE;
         int64_t CHARGE;
@@ -25,6 +26,7 @@ namespace lux {
         int64_t SELF_DESTRUCT_COST;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfig,
+                                       ACTION_QUEUE_POWER_COST,
                                        BATTERY_CAPACITY,
                                        CARGO_SPACE,
                                        CHARGE,
@@ -49,15 +51,11 @@ namespace lux {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UnitConfigs, HEAVY, LIGHT)
 
     struct WeatherConfig {
-        std::map<std::string, int64_t> RUBBLE = {
-            {"LIGHT", 0},
-            {"HEAVY", 0}
-        };
         double                 POWER_GAIN        = 1.0f;
         double                 POWER_CONSUMPTION = 1.0f;
         std::array<int64_t, 2> TIME_RANGE;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeatherConfig, RUBBLE, POWER_GAIN, POWER_CONSUMPTION, TIME_RANGE)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeatherConfig, POWER_GAIN, POWER_CONSUMPTION, TIME_RANGE)
 
     struct WeatherConfigs {
         WeatherConfig NONE;
@@ -69,13 +67,6 @@ namespace lux {
         const WeatherConfig &operator[](const std::string &name) const;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeatherConfigs, COLD_SNAP, DUST_STORM, MARS_QUAKE, SOLAR_FLARE)
-
-    struct ActionQueuePowerConfigs {
-        int64_t HEAVY;
-        int64_t LIGHT;
-        int64_t operator[](const std::string &name) const;
-    };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ActionQueuePowerConfigs, HEAVY, LIGHT)
 
     struct EnvConfig {
         bool                     BIDDING_SYSTEM;
@@ -101,7 +92,6 @@ namespace lux {
         int64_t                  ORE_METAL_RATIO;
         UnitConfigs              ROBOTS;
         int64_t                  UNIT_ACTION_QUEUE_SIZE;
-        ActionQueuePowerConfigs  UNIT_ACTION_QUEUE_POWER_COST;
         WeatherConfigs           WEATHER;
         std::vector<std::string> WEATHER_ID_TO_NAME;
         int64_t                  map_size;
@@ -136,7 +126,6 @@ namespace lux {
                                        ORE_METAL_RATIO,
                                        ROBOTS,
                                        UNIT_ACTION_QUEUE_SIZE,
-                                       UNIT_ACTION_QUEUE_POWER_COST,
                                        WEATHER,
                                        WEATHER_ID_TO_NAME,
                                        map_size,

@@ -8,39 +8,39 @@
 namespace lux {
     UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
 
-    UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, bool repeat_)
+    UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, int64_t repeat_)
         : type(type_),
           direction(direction_),
           distance(distance_),
           amount(amount_),
           repeat(repeat_) {}
 
-    UnitAction::UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, bool repeat_)
+    UnitAction::UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, int64_t repeat_)
         : type(type_),
           direction(direction_),
           resource(resource_),
           amount(amount_),
           repeat(repeat_) {}
 
-    UnitAction UnitAction::Move(Direction direction, bool repeat) {
+    UnitAction UnitAction::Move(Direction direction, int64_t repeat) {
         return UnitAction(Type::MOVE, direction, 1, 0, repeat);
     }
 
-    UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, bool repeat) {
+    UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat) {
         return UnitAction(Type::TRANSFER, direction, resource, amount, repeat);
     }
 
-    UnitAction UnitAction::Pickup(Resource resource, int64_t amount, bool repeat) {
+    UnitAction UnitAction::Pickup(Resource resource, int64_t amount, int64_t repeat) {
         return UnitAction(Type::PICKUP, Direction::CENTER, resource, amount, repeat);
     }
 
-    UnitAction UnitAction::Dig(bool repeat) { return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat); }
+    UnitAction UnitAction::Dig(int64_t repeat) { return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat); }
 
-    UnitAction UnitAction::SelfDestruct(bool repeat) {
+    UnitAction UnitAction::SelfDestruct(int64_t repeat) {
         return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, 0, repeat);
     }
 
-    UnitAction UnitAction::Recharge(int64_t amount, bool repeat) {
+    UnitAction UnitAction::Recharge(int64_t amount, int64_t repeat) {
         return UnitAction(Type::RECHARGE, Direction::CENTER, 0, amount, repeat);
     }
 
@@ -52,7 +52,7 @@ namespace lux {
             raw[2] = std::underlying_type_t<Resource>(resource);
         }
         raw[3] = amount;
-        raw[4] = repeat ? 1 : 0;
+        raw[4] = repeat;
     }
 
     void UnitAction::populateMember() {
@@ -64,7 +64,7 @@ namespace lux {
         }
         distance = raw[2];
         amount   = raw[3];
-        repeat   = raw[4] != 0;
+        repeat   = raw[4];
     }
 
     void to_json(json &j, const UnitAction a) {
