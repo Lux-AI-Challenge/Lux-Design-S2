@@ -1,5 +1,10 @@
 # ChangeLog
 
+### v1.1.1
+
+- Fixed bug in python kit that adds 1 to the water cost calculation in the `lux/factory.py` file
+
+
 ### v1.1.0
 
 **Most Important Changes:**
