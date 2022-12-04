@@ -1,7 +1,6 @@
 package com.luxai;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luxai.lux.*;
 import com.luxai.lux.action.BidAction;
 import com.luxai.lux.action.SpawnAction;
@@ -70,63 +69,6 @@ public class Agent {
             return Mapper.getJson(unitActions.actions);
 
         return null;
-    }
-
-    public void updateState(String json) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        // check first step
-        if (this.obs == null) {
-            json = json
-                    .replace("rubble", "rubble_init")
-                    .replace("lichen_strains", "strains_init")
-                    .replace("lichen", "lichen_init");
-
-            State state = objectMapper.readValue(json, State.class);
-            this.obs = state.obs;
-            this.step = state.step;
-            this.remainingOverageTime = state.remainingOverageTime;
-            this.player = state.player;
-            this.env_cfg = state.info.env_cfg;
-        }
-        else {
-            State state = objectMapper.readValue(json, State.class);
-            this.step = state.step;
-            this.remainingOverageTime = state.remainingOverageTime;
-            this.obs.teams = state.obs.teams;
-            this.obs.real_env_steps = state.obs.real_env_steps;
-            this.obs.units.clear(); this.obs.units = state.obs.units;
-            this.obs.factories.clear(); this.obs.factories = state.obs.factories;
-            if (state.obs.real_env_steps < 0)
-                this.obs.board.valid_spawns_mask = state.obs.board.valid_spawns_mask;
-
-
-            if (state.obs.board.rubbleUpdate != null) {
-                for (Map.Entry<String, Integer> entry : state.obs.board.rubbleUpdate.entrySet()) {
-                    String[] coordinates = entry.getKey().split(",");
-                    int x = Integer.parseInt(coordinates[0]);
-                    int y = Integer.parseInt(coordinates[1]);
-                    this.obs.board.rubble[x][y] = entry.getValue();
-                }
-            }
-
-            if (state.obs.board.lichenUpdate != null) {
-                for (Map.Entry<String, Integer> entry : state.obs.board.lichenUpdate.entrySet()) {
-                    String[] coordinates = entry.getKey().split(",");
-                    int x = Integer.parseInt(coordinates[0]);
-                    int y = Integer.parseInt(coordinates[1]);
-                    this.obs.board.lichen[x][y] = entry.getValue();
-                }
-            }
-
-            if (state.obs.board.lichen_strainsUpdate != null) {
-                for (Map.Entry<String, Integer> entry : state.obs.board.lichen_strainsUpdate.entrySet()) {
-                    String[] coordinates = entry.getKey().split(",");
-                    int x = Integer.parseInt(coordinates[0]);
-                    int y = Integer.parseInt(coordinates[1]);
-                    this.obs.board.lichen_strains[x][y] = entry.getValue();
-                }
-            }
-        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.luxai;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luxai.lux.objectmapper.Mapper;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -23,7 +24,7 @@ public class Bot
     }
 
     public static String processing(Agent agent, String json) throws JsonProcessingException {
-        agent.updateState(json);            // Update state
+        Mapper.updateState(agent, json);            // Update state
         String jsonAction = null;
         if (agent.obs.real_env_steps < 0)
             jsonAction = agent.early_setup();
