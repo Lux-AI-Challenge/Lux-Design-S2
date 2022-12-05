@@ -7,6 +7,7 @@
 - Removed an extra `1` in the state representation of move actions left from old code that allowed robots to move more than 1 tile.
 - Fixed bug where move center actions weren't repeated.
 - Fix visualizer bug where bid for player_1 showed up as player_0's bid
+- Fixed repeats. Now repeat `n` times means the action is repeatedly executed `n` times before the next action in the queue. Repeat `-1` means to move the action to the end of the queue.
 
 ### v1.1.0
 
