@@ -58,6 +58,7 @@ class Agent():
             closest_factory = None
             adjacent_to_factory = False
             if len(factory_tiles) > 0:
+                actions[unit_id] = [unit.move(0, repeat=0)]
                 factory_distances = np.mean((factory_tiles - unit.pos) ** 2, 1)
                 closest_factory_tile = factory_tiles[np.argmin(factory_distances)]
                 closest_factory = factory_units[np.argmin(factory_distances)]
@@ -69,20 +70,20 @@ class Agent():
                     closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
                     if np.all(closest_ice_tile == unit.pos):
                         if unit.power >= unit.dig_cost(game_state) + unit.action_queue_cost(game_state):
-                            actions[unit_id] = [unit.dig(repeat=False)]
+                            actions[unit_id] = [unit.dig(repeat=0)]
                     else:
                         direction = direction_to(unit.pos, closest_ice_tile)
                         move_cost = unit.move_cost(game_state, direction)
                         if move_cost is not None and unit.power >= move_cost + unit.action_queue_cost(game_state):
-                            actions[unit_id] = [unit.move(direction, repeat=False)]
+                            actions[unit_id] = [unit.move(direction, repeat=0)]
                 # else if we have enough ice, we go back to the factory and dump it.
                 elif unit.cargo.ice >= 40:
                     direction = direction_to(unit.pos, closest_factory_tile)
                     if adjacent_to_factory:
                         if unit.power >= unit.action_queue_cost(game_state):
-                            actions[unit_id] = [unit.transfer(direction, 0, unit.cargo.ice, repeat=False)]
+                            actions[unit_id] = [unit.transfer(direction, 0, unit.cargo.ice, repeat=0)]
                     else:
                         move_cost = unit.move_cost(game_state, direction)
                         if move_cost is not None and unit.power >= move_cost + unit.action_queue_cost(game_state):
-                            actions[unit_id] = [unit.move(direction, repeat=False)]
+                            actions[unit_id] = [unit.move(direction, repeat=0)]
         return actions

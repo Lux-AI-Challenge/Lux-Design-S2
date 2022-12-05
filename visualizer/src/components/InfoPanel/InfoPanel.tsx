@@ -101,7 +101,7 @@ export const InfoPanel = ({
               <div>{replayStats.frameStats[turn]["player_1"].lichen}</div>
               <div>{gameInfo.factoryCounts["player_1"]}</div>
               <div>{gameInfo.unitCounts["player_1"]}</div>
-              <div>{replay.actions[0]["player_0"].bid}</div>
+              <div>{replay.actions[0]["player_1"].bid}</div>
             </div>
           </div>
           <div

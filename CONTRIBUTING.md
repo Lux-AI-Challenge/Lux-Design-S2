@@ -33,4 +33,4 @@ If you want to get started, we recommend copying the structure of the folder `ki
 
 Moreover, for compiled languages, we recommend also copying over the `create_submission.sh` script and `Dockerfile` in `kits/cpp/` if the language's compiled binaries are OS dependent. For example, for the C++ kit, the dockerfile is used to compile the C++ agent code on Ubuntu 18.04 so then that code can be submitted to the competition servers.
 
-If you have any questions or need help adding a starter kit, the Lux AI team is more than happy to help! Message us anywhere (preferably Github).
+If you have any questions or need help adding a starter kit, the Lux AI team is more than happy to help! Message us anywhere (preferably Github). You can also follow this document https://github.com/themmj/Lux-Design-2022/blob/documentation/kits/starter-kit-notes.md which has some important notes to be aware of when understanding and building a new starter kit.
