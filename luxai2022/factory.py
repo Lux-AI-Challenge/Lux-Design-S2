@@ -58,7 +58,7 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
                 seen.add(tuple(check_pos))
                 frontier.append(check_pos)
 
-        if can_grow:
+        if can_grow or (lichen_strains[pos[0], pos[1]] == strain_id):
             grow_lichen_positions.add((pos[0], pos[1]))
     return grow_lichen_positions
 
