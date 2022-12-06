@@ -40,10 +40,15 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
         can_grow = True
         for move_delta in move_deltas[1:]:
             check_pos = pos + move_delta
-            if (check_pos[0], check_pos[1]) in seen: continue
             # check surrounding tiles on the map
-            if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= W or check_pos[1] >= H: continue
+            if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= H or check_pos[1] >= W: continue
             adj_strain = lichen_strains[check_pos[0], check_pos[1]]
+            if (check_pos[0], check_pos[1]) in seen:
+                # even if it is seen, we still need to check its strain, to decide weather current pos is growable.
+                # but there is no need to add it to the frontier again.
+                if adj_strain != -1 and adj_strain != strain_id:
+                    can_grow = False
+                continue
             if adj_strain == -1:
                 if pos_lichen >= MIN_LICHEN_TO_SPREAD:
                     # adjacent tile is empty and isn't a resource and the current tile has enough lichen to spread
