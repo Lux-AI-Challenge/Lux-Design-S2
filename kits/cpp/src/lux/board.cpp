@@ -34,7 +34,6 @@ namespace lux {
             j.at("lichen_strains").get_to(b.lichen_strains);
             j.at("ore").get_to(b.ore);
             j.at("rubble").get_to(b.rubble);
-            j.at("valid_spawns_mask").get_to(b.valid_spawns_mask);
         } else {
             // apply delta for step > 0
             j.at("lichen").get_to(b.lichen_delta);
@@ -43,6 +42,9 @@ namespace lux {
             applyMappedDelta(b.lichen, b.lichen_delta);
             applyMappedDelta(b.lichen_strains, b.lichen_strains_delta);
             applyMappedDelta(b.rubble, b.rubble_delta);
+        }
+        if (j.find("valid_spawns_mask") != j.end()) {
+            j.at("valid_spawns_mask").get_to(b.valid_spawns_mask);
         }
         j.at("factories_per_team").get_to(b.factories_per_team);
     }
