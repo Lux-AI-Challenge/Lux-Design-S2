@@ -14,6 +14,10 @@ from luxai_runner.logger import Logger
 class BotProcess:
     def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = True, direct_import_python_bots = False) -> None:
         self.command = command
+        if self.command == "./":
+            self.is_binary = True
+        else:
+            self.is_binary = False
         self.file_path = file_path
         self.log = Logger(identifier="", verbosity=verbose)
         self.live_log = live_log
@@ -38,18 +42,28 @@ class BotProcess:
         self.log.info(f"Beginning {self.command} {self.file_path}")
         # self._agent_process = Popen([self.command, os.path.basename(self.file_path)], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
 
-        base_file_path = os.path.basename(self.file_path)   
-        if self.command == "java" and base_file_path.endswith(".java"):
-            base_file_path = base_file_path[:-5]
-        self._agent_process = await asyncio.create_subprocess_exec(
-            self.command,
-            base_file_path,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=cwd,
-             limit=1024 * 128
-        )
+        base_file_path = os.path.basename(self.file_path)
+        if self.is_binary:
+            self._agent_process = await asyncio.create_subprocess_exec(
+                f"./{base_file_path}",
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=cwd,
+                limit=1024 * 128
+            )
+        else:
+            if self.command == "java" and base_file_path.endswith(".java"):
+                base_file_path = base_file_path[:-5]
+            self._agent_process = await asyncio.create_subprocess_exec(
+                self.command,
+                base_file_path,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=cwd,
+                limit=1024 * 128
+            )
         self.log.info(f"Started {self.command} {self.file_path}")
         # following 4 lines from https://stackoverflow.com/questions/375427/a-non-blocking-read-on-a-subprocess-pipe-in-python
         # used to track stderr data asynchronously
