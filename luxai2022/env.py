@@ -329,7 +329,7 @@ class LuxAI2022(ParallelEnv):
             factory_id = f"factory_{self.state.board.factory_occupancy_map[transfer_pos.x, transfer_pos.y]}"
             if factory_id in self.state.factories[unit.team.agent]:
                 factory = self.state.factories[unit.team.agent][factory_id]
-                actually_transferred = factory.add_resource(transfer_action.resource, transfer_action.transfer_amount)
+                actually_transferred = factory.add_resource(transfer_action.resource, transfer_amount)
             elif units_there is not None:
                 assert len(units_there) == 1, "Fatal error here, this is a bug"
                 target_unit = units_there[0]
