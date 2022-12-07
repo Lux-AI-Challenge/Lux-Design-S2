@@ -52,7 +52,7 @@ namespace lux {
         };
         int64_t sum =
             std::accumulate(obs.board.lichen_strains.begin(), obs.board.lichen_strains.end(), 0, countMatchingStrains);
-        return std::ceil(sum / obs.config.LICHEN_WATERING_COST_FACTOR) + 1;
+        return std::ceil(sum / obs.config.LICHEN_WATERING_COST_FACTOR);
     }
 
     bool Factory::canWater(const Observation &obs) const { return cargo.water >= waterCost(obs); }
