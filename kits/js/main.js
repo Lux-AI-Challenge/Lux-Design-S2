@@ -13,7 +13,7 @@ agent.initialize().then(async () => {
     await agent.update();
     actions = {}
     step = agent.step;
-    if (step <= agent.gameState["board"]["factories_per_team"] + 1) {
+    if (agent.real_env_steps < 0) {
       actions = agent.earlySetup(step);
       // submit turn 0 actions
       console.log(JSON.stringify(actions));

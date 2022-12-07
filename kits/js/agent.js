@@ -21,9 +21,9 @@ class Agent {
     // various maps to help aid in decision making over factory placement
     
     const rubble = obs["board"]["rubble"];
-    // if ice[y][x] > 0, then there is an ice tile at (x, y)
+    // if ice[x][y] > 0, then there is an ice tile at (x, y)
     const ice = obs["board"]["ice"];
-    // if ore[y][x] > 0, then there is an ore tile at (x, y)
+    // if ore[x][y] > 0, then there is an ore tile at (x, y)
     const ore = obs["board"]["ore"];
 
     if (step == 0) {
@@ -48,12 +48,21 @@ class Agent {
       const factories_to_place = obs["teams"][this.player]["factories_to_place"];
       // obs["teams"][this.opp_player] has the same information but for the other team
       // potential spawnable locations in your half of the map
-      const potential_spawns = obs["board"]["spawns"][this.player]
+      const possibleSpawns = [];
+      const width = obs['board']['valid_spawns_mask'].length;
+      const height = obs['board']['valid_spawns_mask'][0].length;
+      for (let i = 0; i < width; i++) {
+        for (let j = 0; j < height; j++) {
+          if (obs['board']['valid_spawns_mask'][i][j] === true) {
+            possibleSpawns.push([i, j]);
+          }
+        }
+      }
 
       // as a naive approach we randomly select a spawn location and spawn a factory there
       const spawn_loc =
-        potential_spawns[
-          parseInt(Math.floor(Math.random() * potential_spawns.length))
+      possibleSpawns[
+          parseInt(Math.floor(Math.random() * possibleSpawns.length))
         ];
       return { spawn: spawn_loc, metal: 62, water: 62 };
     }
@@ -68,14 +77,14 @@ class Agent {
 
     // various maps to help aid in decision making
     const rubble = obs["board"]["rubble"];
-    // if ice[y][x] > 0, then there is an ice tile at (x, y)
+    // if ice[x][y] > 0, then there is an ice tile at (x, y)
     const ice = obs["board"]["ice"];
-    // if ore[y][x] > 0, then there is an ore tile at (x, y)
+    // if ore[x][y] > 0, then there is an ore tile at (x, y)
     const ore = obs["board"]["ore"];
 
-    // lichen[y][x] = amount of lichen at tile (x, y)
+    // lichen[x][y] = amount of lichen at tile (x, y)
     const lichen = obs["board"]["lichen"];
-    // lichenStrains[y][x] = the strain id of the lichen at tile (x, y). Each strain id is
+    // lichenStrains[x][y] = the strain id of the lichen at tile (x, y). Each strain id is
     // associated with a single factory and cannot mix with other strains.
     // factory.strain_id defines the factory's strain id
     const lichenStrains = obs["board"]["lichen_strains"];
