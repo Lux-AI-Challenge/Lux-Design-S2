@@ -572,7 +572,7 @@ class LuxAI2022(ParallelEnv):
                             self.state.units[agent][unit_id].action_queue = formatted_actions
                 except Exception as e:
                     # catch errors when trying to format unit or factory actions
-                    print(e.with_traceback())
+                    print(e.with_traceback(None))
                     failed_agents[agent] = True
         
             # 2. store actions by type
