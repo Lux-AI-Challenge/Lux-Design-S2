@@ -1,5 +1,12 @@
 # ChangeLog
 
+### v1.1.3
+
+- Fix bug with lichen frontiers being computed incorrectly
+
+### v1.1.2
+- Fix bug with C++ agents not running with CLI tool
+
 ### v1.1.1
 
 - Allow "negative" bids to bid to go second instead of first in factory placement. The winning bidder is whoever has the higher absolute value bid. The winning bidder now loses water and metal equal to the absolute value of their bid.
