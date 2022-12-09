@@ -149,3 +149,4 @@ class GameState:
     # various utility functions
     def is_day(self):
         return self.real_env_steps % self.env_cfg.CYCLE_LENGTH < self.env_cfg.DAY_LENGTH
+
