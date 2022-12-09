@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name="luxai2022",
-    version="1.1.2",
+    version="1.1.3",
     author="Lux AI Challenge",
     description="The Lux AI Challenge Season 2",
     license="MIT",
