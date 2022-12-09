@@ -74,7 +74,9 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
 
 ## Starting Phase
 
-During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*150` water and ore), and are asked to bid on an extra factory. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid. Whichever player places the highest bid loses X water and ore from their starting resources and gets to place first. If both players tie, the first player / player_0 gets to place first. The player that places first always loses how much they bid.
+During the first turn of the game, each player is given the map, starting resources (`N` factories and `N*150` water and ore), and are asked to bid for who goes first/second. Each 1 bid removes 1 water and 1 ore from that player's starting resources. Each player responds in turn 1 with their bid, which can be positive to prefer going first or negative to prefer going second.
+
+Whichever player places the highest absolute bid loses that amount of water and ore from their starting resources and gets to place first (or second if they bid a negative value). If both players tie in bid amount, then the first player / player_0 wins the bid.
 
 During the next `2*N` turns of the game, each player alternates between spawning a factory or doing nothing as the other player spawns a factory with the winner of the bid placing first. Each player may select any location on the map that can fit a 3x3 factory that doesn't overlap any ice/ore resources, and the center is 6 tiles or more away from another existing factory's center. Any factories our starting resources not used are lost.
 
