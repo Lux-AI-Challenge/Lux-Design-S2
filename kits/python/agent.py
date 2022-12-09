@@ -58,7 +58,6 @@ class Agent():
             closest_factory = None
             adjacent_to_factory = False
             if len(factory_tiles) > 0:
-                actions[unit_id] = [unit.move(0, repeat=0)]
                 factory_distances = np.mean((factory_tiles - unit.pos) ** 2, 1)
                 closest_factory_tile = factory_tiles[np.argmin(factory_distances)]
                 closest_factory = factory_units[np.argmin(factory_distances)]

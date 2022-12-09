@@ -3,7 +3,10 @@
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
-
+- Fix bug where units could transfer more than they held into factories
+- Fix bug when traces were printed it errored instead.
+- Added some aggregate meta data for preparation of factions
+- Fixed critical bug in starter kit where units wasted their time expending energy sending a move center action
 ### v1.1.2
 - Fix bug with C++ agents not running with CLI tool
 
