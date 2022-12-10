@@ -328,16 +328,16 @@ class LuxAI2022(ParallelEnv):
         # action is irrelevant to unit id.
 
         # sub from unit cargo
+        amount_list = []
         for unit, transfer_action in actions_by_type["transfer"]:
             transfer_action: TransferAction
             transfer_amount = unit.sub_resource(transfer_action.resource, transfer_action.transfer_amount)
-            transfer_action.transfer_amount = transfer_amount
+            amount_list.append(transfer_amount)
 
         # add to target cargo
-        for unit, transfer_action in actions_by_type["transfer"]:
+        for (unit, transfer_action), transfer_amount in zip(actions_by_type["transfer"], amount_list):
             transfer_action: TransferAction
             transfer_pos: Position = unit.pos + move_deltas[transfer_action.transfer_dir]
-            transfer_amount = transfer_action.transfer_amount
             units_there = self.state.board.get_units_at(transfer_pos)
 
             # if there is a factory, we prefer transferring to that entity
