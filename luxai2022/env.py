@@ -323,10 +323,21 @@ class LuxAI2022(ParallelEnv):
         return failed_agents
 
     def _handle_transfer_actions(self, actions_by_type: ActionsByType):
+        # It is important to first sub resource from all units, and then add
+        # resource to targets. Only When splitted into two loops, the transfer
+        # action is irrelevant to unit id.
+
+        # sub from unit cargo
         for unit, transfer_action in actions_by_type["transfer"]:
             transfer_action: TransferAction
             transfer_amount = unit.sub_resource(transfer_action.resource, transfer_action.transfer_amount)
+            transfer_action.transfer_amount = transfer_amount
+
+        # add to target cargo
+        for unit, transfer_action in actions_by_type["transfer"]:
+            transfer_action: TransferAction
             transfer_pos: Position = unit.pos + move_deltas[transfer_action.transfer_dir]
+            transfer_amount = transfer_action.transfer_amount
             units_there = self.state.board.get_units_at(transfer_pos)
 
             # if there is a factory, we prefer transferring to that entity
