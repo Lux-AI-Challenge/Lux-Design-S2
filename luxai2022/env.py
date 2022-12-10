@@ -385,19 +385,19 @@ class LuxAI2022(ParallelEnv):
             if factory_build_action.unit_type == UnitType.HEAVY:
                 if factory.cargo.metal < self.env_cfg.ROBOTS["HEAVY"].METAL_COST:
                     self._log(f"{factory} doesn't have enough metal to build a heavy despite having enough metal at the start of the turn. This is likely because a unit picked up some of the metal.")
-                    return
+                    continue
                 if factory.power < factory_build_action.power_cost:
                     self._log(f"{factory} doesn't have enough power to build a heavy despite having enough power at the start of the turn. This is likely because a unit picked up some of the power.")
-                    return
+                    continue
                 factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
                 factory.sub_resource(4, factory_build_action.power_cost)
             else:
                 if factory.cargo.metal < self.env_cfg.ROBOTS["LIGHT"].METAL_COST:
                     self._log(f"{factory} doesn't have enough metal to build a light despite having enough metal at the start of the turn. This is likely because a unit picked up some of the metal.")
-                    return
+                    continue
                 if factory.power < factory_build_action.power_cost:
                     self._log(f"{factory} doesn't have enough power to build a light despite having enough power at the start of the turn. This is likely because a unit picked up some of the power.")
-                    return
+                    continue
                 factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
                 factory.sub_resource(4, factory_build_action.power_cost)
             
