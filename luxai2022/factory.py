@@ -43,8 +43,13 @@ def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.n
             check_pos = pos + move_delta
             # check surrounding tiles on the map
             if check_pos[0] < 0 or check_pos[1] < 0 or check_pos[0] >= H or check_pos[1] >= W: continue
+
+            # If any neighbor 1. has a different strain, or 2. is a different factory, 
+            # then the current pos cannot grow
             adj_strain = lichen_strains[check_pos[0], check_pos[1]]
-            if adj_strain != -1 and adj_strain != strain_id:
+            adj_factory = factory_occupancy_map[check_pos[0], check_pos[1]]
+            if (adj_strain != -1 and adj_strain != strain_id) \
+                or (adj_factory != -1 and adj_factory != strain_id):
                 can_grow = False
 
             # if seen, skip
