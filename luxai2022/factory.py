@@ -17,7 +17,7 @@ except:
     pass
 
 
-def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, strain_id: int, forbidden: np.ndarray):
+def compute_water_info(init: np.ndarray, MIN_LICHEN_TO_SPREAD: int, lichen: np.ndarray, lichen_strains: np.ndarray, factory_occupancy_map: np.ndarray, strain_id: int, forbidden: np.ndarray):
     # TODO - improve the performance here with cached solution
     frontier = deque(init)
     seen = set(map(tuple, init))
@@ -121,7 +121,7 @@ class Factory:
         deltas = [np.array([0, -2]),  np.array([-1, -2]),  np.array([1, -2]),  np.array([0, 2]),  np.array([-1, 2]),  np.array([1, 2]),
                     np.array([2, 0]),  np.array([2, -1]),  np.array([2, 1]),  np.array([-2, 0]),  np.array([-2, -1]),  np.array([-2, 1])]
         init_arr = np.stack(deltas) + self.pos.pos
-        self.grow_lichen_positions = compute_water_info(init_arr, env_cfg.MIN_LICHEN_TO_SPREAD, board.lichen, board.lichen_strains, self.num_id, forbidden)
+        self.grow_lichen_positions = compute_water_info(init_arr, env_cfg.MIN_LICHEN_TO_SPREAD, board.lichen, board.lichen_strains, board.factory_occupancy_map, self.num_id, forbidden)
     def water_cost(self, config: EnvConfig):
         return int(np.ceil(len(self.grow_lichen_positions) / config.LICHEN_WATERING_COST_FACTOR))
 
