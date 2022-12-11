@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v1.1.4
+
+- Fix bug where lichen could grow to tiles adjacent to factories
+- Fix bug where if one factory fails to build a unit, all other factories fail to build units
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
