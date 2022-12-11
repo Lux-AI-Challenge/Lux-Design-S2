@@ -22,6 +22,11 @@ class Unit:
     unit_cfg: dict
     action_queue: List
 
+    @property
+    def agent_id(self):
+        if self.team_id == 0: return "player_0"
+        return "player_1"
+
     def action_queue_cost(self, game_state):
         cost = self.env_cfg.ROBOTS[self.unit_type].ACTION_QUEUE_POWER_COST
         current_weather = game_state.weather_schedule[game_state.real_env_steps]
@@ -35,7 +40,7 @@ class Unit:
             # print("Warning, tried to get move cost for going off the map", file=sys.stderr)
             return None
         factory_there = board.factory_occupancy_map[target_pos[0], target_pos[1]]
-        if factory_there != self.team_id and factory_there != -1:
+        if factory_there not in game_state.teams[self.agent_id].factory_strains and factory_there != -1:
             # print("Warning, tried to get move cost for going onto a opposition factory", file=sys.stderr)
             return None
         rubble_at_target = board.rubble[target_pos[0]][target_pos[1]]
