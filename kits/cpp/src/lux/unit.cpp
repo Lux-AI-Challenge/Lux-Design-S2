@@ -20,8 +20,13 @@ namespace lux {
             || static_cast<size_t>(target.y) >= obs.board.rubble.size()) {
             return -1;
         }
-        auto factoryTeam = obs.board.factory_occupancy[target.x][target.y];
-        if (factoryTeam != -1 && team_id != factoryTeam) {
+        const std::string player = team_id == 0 ? "player_0" : "player_1";
+        LUX_ASSERT(obs.teams.find(player) != obs.teams.end(), "must find fitting team");
+        const auto &strains        = obs.teams.find(player)->second.factory_strains;
+        int64_t     strainAtTarget = obs.board.factory_occupancy[target.x][target.y];
+        if (strainAtTarget != -1 && std::none_of(strains.begin(), strains.end(), [strainAtTarget](int64_t s) -> bool {
+                return s == strainAtTarget;
+            })) {
             return -1;
         }
         auto rubble  = obs.board.rubble[target.x][target.y];
