@@ -2,7 +2,7 @@ from collections import OrderedDict, defaultdict
 import functools
 import math
 from typing import Dict, List, Set, Tuple, Union
-
+import traceback
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
@@ -540,7 +540,6 @@ class LuxAI2022(ParallelEnv):
             early_game = True
         if self.env_cfg.BIDDING_SYSTEM and self.state.real_env_steps < 0:
             early_game = True
-
         if early_game:
             failed_agents = self._step_early_game(actions)
         else:
@@ -584,7 +583,7 @@ class LuxAI2022(ParallelEnv):
                             self.state.units[agent][unit_id].action_queue = formatted_actions
                 except Exception as e:
                     # catch errors when trying to format unit or factory actions
-                    print(e.with_traceback(None))
+                    print(traceback.format_exc())
                     failed_agents[agent] = True
         
             # 2. store actions by type
