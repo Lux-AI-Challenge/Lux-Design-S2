@@ -277,7 +277,7 @@ class LuxAI2022(ParallelEnv):
                     a["water"] = self.state.teams[k].init_water
                     self._log(f" Warning - {k} does not have enough water. Using {a['water']}")
                 if a["metal"] > self.state.teams[k].init_metal:
-                    a["metal"] = self.state.teams[k].init_water
+                    a["metal"] = self.state.teams[k].init_metal
                     self._log(f" Warning - {k} does not have enough metal. Using {a['metal']}")
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None: continue
