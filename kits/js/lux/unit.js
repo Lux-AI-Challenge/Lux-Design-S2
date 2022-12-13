@@ -1,12 +1,13 @@
 class Unit {
-  constructor(teamId, unitId, power, pos, cargo, action_queue, envCfg) {
-    this.pos = pos
-    this.teamId = teamId
-    this.unitId = unitId
-    this.power = power
-    this.cargo = cargo
-    this.envCfg = envCfg
-    this.actionQueue = action_queue
+  constructor(teamId, unitId, power, pos, cargo, actionQueue, unitType, envCfg) {
+    this.pos = pos;
+    this.teamId = teamId;
+    this.unitId = unitId;
+    this.power = power;
+    this.cargo = cargo;
+    this.envCfg = envCfg;
+    this.unitType = unitType;
+    this.actionQueue = actionQueue;
   }
 
   // direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)

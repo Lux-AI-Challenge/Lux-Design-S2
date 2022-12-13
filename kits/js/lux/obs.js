@@ -29,13 +29,29 @@ const processObs = (agent, obs, step) => {
       gameState['factories'][agent.player] = {};
       for (const k in obs["factories"][agent.player]) {
           const f = obs["factories"][agent.player][k];
-          const factoryObj = new Factory(f.team_id, f.unit_id, f.power, f.pos, f.cargo, envCfg) ;
+          const factoryObj = new Factory(
+            f.team_id,
+            f.unit_id,
+            f.power,
+            f.pos,
+            f.cargo,
+            f.strain_id,
+            envCfg
+          );
           gameState['factories'][agent.player][f.unit_id] = factoryObj;
       }
       gameState['factories'][agent.opp_player] = {};
       for (const k in obs["factories"][agent.opp_player]) {
         const f = obs["factories"][agent.opp_player][k];
-        const factoryObj = new Factory(f.team_id, f.unit_id, f.power, f.pos, f.cargo, envCfg) ;
+        const factoryObj = new Factory(
+          f.team_id,
+          f.unit_id,
+          f.power,
+          f.pos,
+          f.cargo,
+          f.strain_id,
+          envCfg
+        );
         gameState['factories'][agent.opp_player][f.unit_id] = factoryObj;
       }
 
@@ -43,13 +59,31 @@ const processObs = (agent, obs, step) => {
       gameState['units'][agent.player] = {};
       for (const k in obs["units"][agent.player]) {
           const u = obs["units"][agent.player][k];
-          const unitObj = new Unit(u.team_id, u.unit_id, u.power, u.pos, u.cargo, u.action_queue, envCfg) ;
+          const unitObj = new Unit(
+            u.team_id,
+            u.unit_id,
+            u.power,
+            u.pos,
+            u.cargo,
+            u.action_queue,
+            u.unit_type,
+            envCfg
+          );
           gameState['units'][agent.player][u.unit_id] = unitObj;
       }
       gameState['units'][agent.opp_player] = {};
       for (const k in obs["units"][agent.opp_player]) {
         const u = obs["units"][agent.opp_player][k];
-        const unitObj = new Unit(u.team_id, u.unit_id, u.power, u.pos, u.cargo, u.action_queue, envCfg) ;
+        const unitObj = new Unit(
+          u.team_id,
+          u.unit_id,
+          u.power,
+          u.pos,
+          u.cargo,
+          u.action_queue,
+          u.unit_type,
+          envCfg
+        );
         gameState['units'][agent.opp_player][u.unit_id] = unitObj;
       }
     }

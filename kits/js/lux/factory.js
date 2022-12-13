@@ -1,18 +1,19 @@
 const { getWeatherConfig } = require("./weather");
 
 class Factory {
-  constructor(teamId, unitId, power, pos, cargo, envCfg) {
-    this.pos = pos
-    this.teamId = teamId
-    this.unitId = unitId
-    this.power = power
-    this.cargo = cargo
-    this.envCfg = envCfg
+  constructor(teamId, unitId, power, pos, cargo, strainId, envCfg) {
+    this.pos = pos;
+    this.teamId = teamId;
+    this.unitId = unitId;
+    this.power = power;
+    this.cargo = cargo;
+    this.strainId = strainId;
+    this.envCfg = envCfg;
   }
 
   buildHeavyPowerCost(gameState) {
     const currentWeather = gameState['weather_schedule'][gameState['real_env_steps']];
-    const weatherConfig = getWeatherConfig(currentWeather, this.envCfg)
+    const weatherConfig = getWeatherConfig(currentWeather, this.envCfg);
     const unitCfg = this.envCfg.ROBOTS["HEAVY"];
     return Math.ceil(unitCfg.POWER_COST * weatherConfig.powerlossFactor);
   }
