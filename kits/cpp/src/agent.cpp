@@ -34,13 +34,12 @@ json Agent::act() {
             actions[unitId] = factory.buildLight(obs);
         } else if (factory.canBuildHeavy(obs)) {
             actions[unitId] = factory.buildHeavy(obs);
-        }
-        if (factory.canWater(obs)) {
+        } else if (factory.canWater(obs)) {
             actions[unitId] = factory.water(obs);  // Alternatively set it to lux::FactoryAction::Water()
         }
     }
     for (const auto &[unitId, unit] : obs.units[player]) {
-        for (int64_t i = 0; i < 5; ++i) {
+        for (int64_t i = 1; i < 5; ++i) {
             auto direction = lux::directionFromInt(i);
             auto moveCost = unit.moveCost(obs, direction);
             if (moveCost >= 0 && unit.power >= moveCost + unit.actionQueueCost(obs)) {
@@ -53,5 +52,7 @@ json Agent::act() {
     }
     // dump your created actions in a file by uncommenting this line
     // lux::dumpJsonToFile("last_actions.json", actions);
+    // or log them by uncommenting this line
+    // LUX_LOG(actions);
     return actions;
 }

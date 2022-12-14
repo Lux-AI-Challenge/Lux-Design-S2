@@ -39,15 +39,15 @@ namespace lux {
         for (const auto &[_, factories] : o.factories) {
             for (const auto &[__, factory] : factories) {
                 // TODO Is there a guarantee, that the factories are not placed on the edge??
-                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y - 1] = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y]     = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y + 1] = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x][factory.pos.y - 1]     = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x][factory.pos.y]         = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x][factory.pos.y + 1]     = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y - 1] = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y]     = factory.team_id;
-                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y + 1] = factory.team_id;
+                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y - 1] = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y]     = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x - 1][factory.pos.y + 1] = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x][factory.pos.y - 1]     = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x][factory.pos.y]         = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x][factory.pos.y + 1]     = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y - 1] = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y]     = factory.strain_id;
+                o.board.factory_occupancy[factory.pos.x + 1][factory.pos.y + 1] = factory.strain_id;
             }
         }
         // set unit configs
