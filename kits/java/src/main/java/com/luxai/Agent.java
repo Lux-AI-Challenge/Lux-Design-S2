@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.luxai.lux.*;
 import com.luxai.lux.action.BidAction;
 import com.luxai.lux.action.SpawnAction;
-import com.luxai.lux.action.UnitAction;
-import com.luxai.lux.objectmapper.Mapper;
-import com.luxai.lux.utils.FactoryProcessor;
-import com.luxai.lux.utils.MoveUtils;
-import com.luxai.lux.utils.RobotProcessor;
+import com.luxai.lux.action.UnitActions;
+import com.luxai.objectmapper.Mapper;
+import com.luxai.utils.FactoryProcessor;
+import com.luxai.utils.MoveUtils;
+import com.luxai.utils.RobotProcessor;
 
 import java.util.*;
 
@@ -51,8 +51,8 @@ public class Agent {
                 }
             }
             SpawnAction spawnAction = new SpawnAction(new int[]{randomSpawnX, randomSpawnY},
-                                                        100,//this.getObs().teams.get(this.me()).metal / 2,
-                                                        100//this.getObs().teams.get(this.me()).water / 2
+                                                        env_cfg.INIT_WATER_METAL_PER_FACTORY,
+                                                        env_cfg.INIT_WATER_METAL_PER_FACTORY
                                                      );
             return Mapper.getJson(spawnAction);
         }
@@ -60,7 +60,7 @@ public class Agent {
     }
 
     public String act() throws JsonProcessingException {
-        UnitAction unitActions = new UnitAction();
+        UnitActions unitActions = new UnitActions();
 
         unitActions.addActions(FactoryProcessor.getActions(this.obs, this.env_cfg, this.player));
         unitActions.addActions(RobotProcessor.getActions(this.obs, this.env_cfg, this.player));

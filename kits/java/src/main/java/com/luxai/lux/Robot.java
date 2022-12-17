@@ -1,6 +1,6 @@
 package com.luxai.lux;
 
-import com.luxai.lux.utils.MoveUtils;
+import com.luxai.utils.MoveUtils;
 
 public class Robot {
 
@@ -55,28 +55,28 @@ public class Robot {
         return (int) Math.ceil(environment.ROBOTS.get(this.unit_type).SELF_DESTRUCT_COST * powerLossFactor);
     }
 
-    public Object move(int dir, boolean repeat) {
-        return new Object[]{new Integer[]{0, dir, 0, 0, repeat ? 1 : 0}};
+    public Object move(int dir, int iterCount) {
+        return new Object[]{new Integer[]{0, dir, 0, 0, iterCount}};
     }
 
-    public Object transfer(int dir, int type, int amount, boolean repeat) {
-        return new Object[]{new Integer[]{1, dir, type, amount, repeat ? 1 : 0}};
+    public Object transfer(int dir, int type, int amount, int iterCount) {
+        return new Object[]{new Integer[]{1, dir, type, amount, iterCount}};
     }
 
-    public Object pickup(int resourceType, int amount, boolean repeat) {
-        return new Object[]{new Integer[]{2, 0, resourceType, amount, repeat ? 1 : 0}};
+    public Object pickup(int resourceType, int amount, int iterCount) {
+        return new Object[]{new Integer[]{2, 0, resourceType, amount, iterCount}};
     }
 
-    public Object dig(boolean repeat) {
-        return new Object[]{new Integer[]{3, 0, 0, 0, repeat ? 1 : 0}};
+    public Object dig(int iterCount) {
+        return new Object[]{new Integer[]{3, 0, 0, 0, iterCount}};
     }
 
-    public Object selfDestruct(boolean repeat) {
-        return new Object[]{new Integer[]{4, 0, 0, 0, repeat ? 1 : 0}};
+    public Object selfDestruct(int iterCount) {
+        return new Object[]{new Integer[]{4, 0, 0, 0, iterCount}};
     }
 
-    public Object recharge(int awaitPower, boolean repeat) {
-        return new Object[]{new Integer[]{5, 0, 0, awaitPower, repeat ? 1 : 0}};
+    public Object recharge(int awaitPower, int iterCount) {
+        return new Object[]{new Integer[]{5, 0, 0, awaitPower, iterCount}};
     }
 
 }

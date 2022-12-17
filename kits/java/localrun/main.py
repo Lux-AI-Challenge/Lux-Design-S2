@@ -7,6 +7,7 @@ from argparse import Namespace
 import atexit
 import io, os, time, sys
 import signal
+import platform
 
 agent_processes = defaultdict(lambda : None)
 t = None
@@ -42,7 +43,10 @@ def agent(observation, configuration):
 
         cwd = os.getcwd()
 
-        agent_process = Popen(['java', '-jar', 'JavaBot.jar'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, shell=True)
+        if platform.system() == "Windows":
+            agent_process = Popen(['java', '-jar', 'JavaBot.jar'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, shell=True)
+        else:
+            agent_process = Popen(['java -jar JavaBot.jar'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, shell=True)
 
         agent_processes[observation.player] = agent_process
         atexit.register(cleanup_process)
