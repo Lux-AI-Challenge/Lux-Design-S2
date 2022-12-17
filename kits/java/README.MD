@@ -43,4 +43,8 @@ mvn clean compile assembly:single
     ```
 ## SERVER COMPILE AND RUN
 1. Compile with compile.sh
-2. Run with main.py
+2. Create archive with JavaBot.jar and main.py from root dir
+    ```
+    tar -cvzf submission.tar.gz *
+    ```
+3. Submit server
