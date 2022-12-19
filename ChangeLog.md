@@ -12,6 +12,7 @@
 - Fix bug for windows on python 3.7 with asyncio
 - Transfers and pickups happen at the end of a turn just before refining and powering
 - Fix engine crash where erroring on turn 0 crashes engine
+- Lichen growing positons are now computed after everything happens (dig, self destruct, movement)
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
