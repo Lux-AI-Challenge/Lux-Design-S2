@@ -4,6 +4,10 @@
 
 - Fix bug where lichen could grow to tiles adjacent to factories
 - Fix bug where if one factory fails to build a unit, all other factories fail to build units
+- Fix bugs for lichen growth on border overlapping a little
+- Fix bug with local CLI using different time setup to kaggle.
+- Transfers are irrelevant of unit ID now, and is completely simultaneous.
+- Fix bug in factory placement where if placement failed due to using too much metal, we set metal to `init_water`
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
