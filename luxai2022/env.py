@@ -533,7 +533,10 @@ class LuxAI2022(ParallelEnv):
         for factory, factory_water_action in actions_by_type["factory_water"]:
             factory_water_action: FactoryWaterAction
             water_cost = factory.water_cost(self.env_cfg)
-            factory.cargo.water -= water_cost # earlier validation ensures this is always possible.
+            if water_cost > factory.cargo.water:
+                self._log(f"{factory} has insufficient water to grow lichen, factory has {factory.cargo.water}, but requires {water_cost} to water lichen. This cost may have changed a little during this turn due to rubble changes and new tiles being grown on")
+                continue
+            factory.cargo.water -= water_cost 
             indexable_positions = ([v[0] for v in factory.grow_lichen_positions], [v[1] for v in factory.grow_lichen_positions])
             self.state.board.lichen[indexable_positions] += 2
             self.state.board.lichen_strains[indexable_positions] = factory.num_id
@@ -620,11 +623,6 @@ class LuxAI2022(ParallelEnv):
                         unit_a: Action = factory.action_queue.pop(0)
                         actions_by_type[unit_a.act_type].append((factory, unit_a))
 
-            for agent in self.agents:
-                for factory in self.state.factories[agent].values():
-                    # update information for lichen growing and cache it
-                    factory.cache_water_info(self.state.board, self.env_cfg)
-
             # 3. validate all actions against current state, throw away impossible actions
             actions_by_type = validate_actions(self.env_cfg, self.state, actions_by_type, verbose=self.env_cfg.verbose, weather_cfg=weather_cfg)
 
@@ -637,6 +635,12 @@ class LuxAI2022(ParallelEnv):
             self._handle_factory_build_actions(actions_by_type, weather_cfg)
             self._handle_movement_actions(actions_by_type, weather_cfg)
             self._handle_recharge_actions(actions_by_type)
+            
+            for agent in self.agents:
+                for factory in self.state.factories[agent].values():
+                    # update information for lichen growing and cache it
+                    factory.cache_water_info(self.state.board, self.env_cfg)
+            
             self._handle_factory_water_actions(actions_by_type)
             self._handle_transfer_actions(actions_by_type)
             self._handle_pickup_actions(actions_by_type)
