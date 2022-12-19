@@ -9,6 +9,8 @@
 - Transfers are irrelevant of unit ID now, and is completely simultaneous.
 - Fix bug in factory placement where if placement failed due to using too much metal, we set metal to `init_water`
 - Fix bug where printed collided agents is incorrect and shows previous collided units in the same turn
+- Fix bug for windows on python 3.7 with asyncio
+- Transfers and pickups happen at the end of a turn just before refining and powering
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly

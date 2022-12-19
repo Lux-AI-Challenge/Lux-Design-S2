@@ -8,6 +8,7 @@ from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.tournament import Tournament
 from luxai_runner.logger import Logger
 from omegaconf import OmegaConf
+import sys
 
 def main():
     np.random.seed(0)
@@ -39,7 +40,9 @@ def main():
 
     args = parser.parse_args()
 
-    # TODO make a tournament runner ranked by ELO, Wins/Losses, Trueskill, Bradley-Terry system
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    
     cfg = EpisodeConfig(
             players=args.players,
             env_cls=LuxAI2022,

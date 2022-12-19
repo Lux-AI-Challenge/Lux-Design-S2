@@ -629,14 +629,14 @@ class LuxAI2022(ParallelEnv):
                 lichen_before = self.state.board.lichen.copy()
                 lichen_strains_before = self.state.board.lichen_strains.copy()
 
-            self._handle_transfer_actions(actions_by_type)
-            self._handle_pickup_actions(actions_by_type)
             self._handle_dig_actions(actions_by_type, weather_cfg)
             self._handle_self_destruct_actions(actions_by_type)
             self._handle_factory_build_actions(actions_by_type, weather_cfg)
             self._handle_movement_actions(actions_by_type, weather_cfg)
             self._handle_recharge_actions(actions_by_type)
             self._handle_factory_water_actions(actions_by_type)
+            self._handle_transfer_actions(actions_by_type)
+            self._handle_pickup_actions(actions_by_type)
             
             # Update lichen
             self.state.board.lichen -= 1

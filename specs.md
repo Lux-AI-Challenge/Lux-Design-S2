@@ -287,7 +287,7 @@ At the end of the game, the amount of lichen on each square that a player owns i
 
 At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 10 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
-All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. Algorithmically, if a tile can be expanded to by two lichen strains, neither strain expands to there. This is for determinism and simplified water costs.
+All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. This is for determinism and simplified water costs.
 
 When rubble is added to a tile, that tile loses all lichen.
 
@@ -302,12 +302,12 @@ To help avoid confusion over smaller details of how each turn is resolved, we pr
 Actions in the game are first all validated against the current game state to see if they are valid. Then the actions, along with game events, are resolved in the following order and simultaneously within each step
 
 1. Agents submit actions for robots, overwrite their action queues
-2. Transfer resources and power
-3. Pickup resources and power (in order of robot id)
-4. Digging, self-destruct actions (removing and adding rubble)
-5. Movement and recharge actions execute, then collisions are resolved
-6. Factories that watered their tiles grow lichen
-7. Robot Building
+2. Digging, self-destruct actions (removing and adding rubble)
+3. Robot Building
+4. Movement and recharge actions execute, then collisions are resolved
+5. Factories that watered their tiles grow lichen
+6. Transfer resources and power
+7. Pickup resources and power (in order of robot id)
 8. Factories refine resources
 9. Power gain (if started during day for robots)
 
