@@ -221,6 +221,9 @@ class LuxAI2022(ParallelEnv):
             else:
                 # team k loses
                 failed_agents[k] = True
+        for agent in self.agents:
+            if failed_agents[agent]:
+                return failed_agents
         if highest_bid_agent is None:
             # no valid bids made, all agents failed.
             pass

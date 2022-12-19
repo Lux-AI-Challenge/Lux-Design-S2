@@ -11,6 +11,7 @@
 - Fix bug where printed collided agents is incorrect and shows previous collided units in the same turn
 - Fix bug for windows on python 3.7 with asyncio
 - Transfers and pickups happen at the end of a turn just before refining and powering
+- Fix engine crash where erroring on turn 0 crashes engine
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
