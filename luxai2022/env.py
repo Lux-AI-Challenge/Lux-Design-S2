@@ -454,9 +454,10 @@ class LuxAI2022(ParallelEnv):
             # add in all the stationary units
             new_units_map[pos_hash] += units
 
-        destroyed_units: Set[Unit] = set()
+        all_destroyed_units: Set[Unit] = set()
         new_units_map_after_collision: Dict[str, List[Unit]] = defaultdict(list)
         for pos_hash, units in new_units_map.items():
+            destroyed_units: Set[Unit] = set()
             if len(units) <= 1:
                 new_units_map_after_collision[pos_hash] += units
                 continue
@@ -465,6 +466,7 @@ class LuxAI2022(ParallelEnv):
                 for u in units:
                     destroyed_units.add(u)
                 self._log(f"{len(destroyed_units)} Units collided at {pos_hash}")
+                all_destroyed_units += destroyed_units
             elif len(heavy_entered_pos[pos_hash]) > 0:
                 # all other units collide and break
                 surviving_unit = heavy_entered_pos[pos_hash][0]
@@ -473,6 +475,7 @@ class LuxAI2022(ParallelEnv):
                         destroyed_units.add(u)
                 self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving")
                 new_units_map_after_collision[pos_hash].append(surviving_unit)
+                all_destroyed_units += destroyed_units
             else:
                 # check for stationary heavy unit there
                 surviving_unit = None
@@ -499,15 +502,17 @@ class LuxAI2022(ParallelEnv):
                     for u in units:
                         destroyed_units.add(u)
                     self._log(f"{len(destroyed_units)} Units collided at {pos_hash}")
+                    all_destroyed_units += destroyed_units
                 else:
                     for u in units:
                         if u.unit_id != surviving_unit.unit_id:
                             destroyed_units.add(u)
                     self._log(f"{len(destroyed_units)} Units collided at {pos_hash} with {surviving_unit} surviving")
                     new_units_map_after_collision[pos_hash].append(surviving_unit)
+                    all_destroyed_units += destroyed_units
         self.state.board.units_map = new_units_map_after_collision
 
-        for u in destroyed_units:
+        for u in all_destroyed_units:
             self.destroy_unit(u)
             if self.collect_stats:
                 self.state.stats[u.team.agent]["units_lost"][u.unit_type.name] += 1

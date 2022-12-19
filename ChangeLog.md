@@ -8,6 +8,7 @@
 - Fix bug with local CLI using different time setup to kaggle.
 - Transfers are irrelevant of unit ID now, and is completely simultaneous.
 - Fix bug in factory placement where if placement failed due to using too much metal, we set metal to `init_water`
+- Fix bug where printed collided agents is incorrect and shows previous collided units in the same turn
 ### v1.1.3
 
 - Fix bug with lichen frontiers being computed incorrectly
