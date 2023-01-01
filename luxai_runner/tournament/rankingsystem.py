@@ -13,7 +13,10 @@ class RankingSystem(ABC):
         pass
     def update(self, rank_1: Rank, rank_2: Rank, rank_1_score: float, rank_2_score: float):
         pass
-
+    def _rank_headers(self) -> str:
+        pass
+    def _rank_info(self, rank: Rank) -> str:
+        pass
 
 @dataclass
 class ELORank(Rank):
@@ -46,29 +49,52 @@ class ELO(RankingSystem):
         """
         return 1 / (1 + np.power(10, (rank_2.rating - rank_1.rating) / 400))
 
+    def _rank_headers(self) -> str:
+        return f"{'Rating':8.8}"
+    def _rank_info(self, rank: ELORank) -> str:
+        return f"{str(rank.rating):8.8}"
+
 @dataclass
 class WinLossRank(Rank):
     rating: int
+    wins: int
+    ties: int
+    losses: int
     episodes: int
 
 class WinLoss(RankingSystem):
-    def __init__(self, win_points=3,tie_points=1,loss_points=0) -> None:
+    def __init__(self, win_points=3,tie_points=1,loss_points=0,col_length=7) -> None:
         super().__init__()
+        self.col_length=col_length
         self.win_points=win_points
         self.tie_points=tie_points
         self.loss_points=loss_points
     def init_rank_state(self) -> Rank:
-        return ELORank(rating=0, episodes=0)
-    def update(self, rank_1: ELORank, rank_2: ELORank, rank_1_score, rank_2_score):
+        return WinLossRank(rating=0, episodes=0, wins=0,ties=0,losses=0)
+    def update(self, rank_1: WinLossRank, rank_2: WinLossRank, rank_1_score, rank_2_score):
         # Only implements win/loss/ties
-        if rank_1_score > rank_2_score:
-            rank_1.rating = rank_1.rating + self.win_points
-            rank_2.rating = rank_2.rating + self.loss_points
-        elif rank_1_score < rank_2_score:
-            rank_1.rating = rank_1.rating + self.loss_points
-            rank_2.rating = rank_2.rating + self.win_points
-        else:
+        if rank_1_score == rank_2_score:
+            winner = None
+            loser = None
+            rank_1.ties += 1
+            rank_2.ties += 1
             rank_1.rating = rank_1.rating + self.tie_points
             rank_2.rating = rank_2.rating + self.tie_points
+        else:
+            winner = rank_1
+            loser = rank_2
+            if rank_1_score < rank_2_score:
+                winner = rank_2
+                loser = rank_1
+            # not a tie
+            winner.wins += 1
+            loser.losses += 1
+            winner.rating = winner.rating + self.win_points
+            loser.rating = loser.rating + self.loss_points
+
         rank_1.episodes += 1
         rank_2.episodes += 1
+    def _rank_headers(self) -> str:
+        return f"{'Score':{self.col_length}} | {'Wins':{self.col_length}} | {'Ties':{self.col_length}} | {'Losses':{self.col_length}}"
+    def _rank_info(self, rank: WinLossRank) -> str:
+        return f"{str(rank.rating):{self.col_length}.2} | {str(rank.wins):{self.col_length}.2} | {str(rank.ties):{self.col_length}.2} | {str(rank.losses):{self.col_length}.2}"

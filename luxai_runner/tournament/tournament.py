@@ -3,7 +3,7 @@ import os
 from typing import Dict
 from luxai_runner.episode import Episode, EpisodeConfig
 from luxai_runner.tournament.config import TournamentConfig
-from luxai_runner.tournament.rankingsystem import ELO, Rank
+from luxai_runner.tournament.rankingsystem import ELO, Rank, WinLoss, WinLossRank
 from luxai_runner.tournament import matchmaking
 import copy
 import os.path as osp
@@ -14,17 +14,23 @@ class Player:
         self.rank: Rank = None
 
 class Tournament:
-    def __init__(self, tournament_config_kwargs = dict(), episode_cfg: EpisodeConfig = None):
+    def __init__(self, cfg: TournamentConfig, episode_cfg: EpisodeConfig = None):
         self.global_id = 0
         self.episode_id = 0
-        self.cfg = TournamentConfig(**tournament_config_kwargs)
+        self.cfg = cfg
         self.eps_cfg = episode_cfg
         min_agents = min(self.cfg.agents_per_episode)
         assert len(self.cfg.agents) >= min_agents
         assert episode_cfg is not None
         
         # init ranking system
-        self.ranking_sys = ELO(K=30,init_rating=1000)
+        if cfg.ranking_system.lower() == "elo":
+            # TODO - allow configuration via CLI
+            self.ranking_sys = ELO(K=30,init_rating=1000)
+        elif cfg.ranking_system.lower() == "wins":
+            self.ranking_sys = WinLoss(win_points=3, tie_points=1, loss_points=0)
+        else:
+            raise Exception(f"'{cfg.ranking_system}' is not a valid ranking system")
 
         self.players: Dict[str, Player] = dict()
         for agent in self.cfg.agents:
@@ -47,8 +53,10 @@ class Tournament:
             if a in episodes: episodes.discard(a)
             next_players = self.match_making_sys.next_match()
             eps_cfg = copy.deepcopy(self.eps_cfg)
-            save_replay_path_split = osp.splitext(eps_cfg.save_replay_path)
-            eps_cfg.save_replay_path = f"{save_replay_path_split[0]}_{self.episode_id}{save_replay_path_split[1]}"
+            if self.eps_cfg.save_replay_path is not None:
+                # if there is a replay path template, use it and generate a replay path for this episode
+                save_replay_path_split = osp.splitext(eps_cfg.save_replay_path)
+                eps_cfg.save_replay_path = f"{save_replay_path_split[0]}_{self.episode_id}{save_replay_path_split[1]}"
             eps_cfg.players = [self.players[p].file for p in next_players]
             self.episode_id += 1
             
@@ -62,6 +70,8 @@ class Tournament:
             await _run_episode_cb(task)
         async def print_results():
             import time
+            line_length = 50
+            line_length += len(self.ranking_sys._rank_headers())
             while True:
                 import sys
                 import time
@@ -71,14 +81,14 @@ class Tournament:
 
                 lines.append(f"==== {self.cfg.name} ====")
                 # lines.append("")
-                lines.append(f"{'Player':36.36}| {'Rating':8.8}| {'Episodes':14.14}")
-                lines.append("-"*62)
+                lines.append(f"{'Player':36.36}| {self.ranking_sys._rank_headers()}| {'Episodes':14.14}")
+                lines.append("-"*line_length)
                 players_sorted = [self.players[p] for p in self.players]
                 players_sorted = sorted(players_sorted, key=lambda p : p.rank.rating, reverse=True)
                 for p in players_sorted:
                     rank = p.rank
-                    lines.append(f"{p.id:36.36}| {str(rank.rating):8.8}| {str(rank.episodes):14.14}")
-                lines.append("-"*62)
+                    lines.append(f"{p.id:36.36}| {self.ranking_sys._rank_info(rank)}| {str(rank.episodes):14.14}")
+                lines.append("-"*line_length)
                 lines.append(f"{len(episodes)} episodes are running")
 
 

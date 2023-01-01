@@ -5,7 +5,7 @@ from luxai2022 import LuxAI2022
 import numpy as np
 import json
 from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
-from luxai_runner.tournament import Tournament
+from luxai_runner.tournament import Tournament, TournamentConfig
 from luxai_runner.logger import Logger
 from omegaconf import OmegaConf
 import sys
@@ -35,6 +35,7 @@ def main():
 
     parser.add_argument("--tournament", help="Turn tournament mode on", action="store_true", default=False)
     parser.add_argument("--tournament_cfg.concurrent", help="Max concurrent number of episodes to run. Recommended to set no higher than the number of CPUs / 2", type=int, default=1)
+    parser.add_argument("--tournament_cfg.ranking_system", help="The ranking system to use. Default is 'elo'. Can be 'elo', 'wins'.", type=str, default="elo")
     parser.add_argument("--skip_validate_action_space", help="Set this for a small performance increase. Note that turning this on means the engine assumes your submitted actions are valid. If your actions are not well formatted there could be errors", action="store_true", default=False)
 
 
@@ -73,7 +74,16 @@ def main():
                     agents.append(agent_file)
             print(f"Found {len(agents)} in {args.players[0]}")
             args.players = agents
-        tourney = Tournament(tournament_config_kwargs=dict(agents=args.players, max_concurrent_episodes=getattr(args, "tournament_cfg.concurrent")), episode_cfg=cfg)
+
+        tournament_config = TournamentConfig()
+        tournament_config.agents = args.players
+        # TODO - in future replace this with OmegaConf or something that can parse these nicely
+        tournament_config.max_concurrent_episodes = getattr(args, "tournament_cfg.concurrent")
+        tournament_config.ranking_system = getattr(args, "tournament_cfg.ranking_system")
+        tourney = Tournament(
+            cfg=tournament_config,
+            episode_cfg=cfg # the base/default episode config
+        )
         # import ipdb;ipdb.set_trace()
         asyncio.run(tourney.run())
         # exit()

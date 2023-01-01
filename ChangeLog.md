@@ -1,5 +1,8 @@
 # ChangeLog
 
+### v1.1.5
+
+- Fix bugs related to the tournament CLI tool where it required to save replays and didn't run Win/Loss/Tie ranking systems
 ### v1.1.4
 
 - Fix bug where lichen could grow to tiles adjacent to factories
