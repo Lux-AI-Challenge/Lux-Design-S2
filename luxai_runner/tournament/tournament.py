@@ -97,7 +97,10 @@ class Tournament:
                 for i in range(len(lines)):
                     sys.stdout.write(lines[i] + "\n")
                 await asyncio.sleep(1)
-        await asyncio.gather(_run_episode_cb(None), _run_episode_cb(None), print_results())
+        coros = []
+        for i in range(self.cfg.max_concurrent_episodes):
+            coros += [_run_episode_cb(None)]
+        await asyncio.gather(*coros, print_results())
 
     async def _run_episode(self, players: Dict[str, Player], eps_cfg: EpisodeConfig):
         eps = Episode(

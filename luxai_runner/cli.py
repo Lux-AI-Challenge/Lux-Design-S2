@@ -27,7 +27,7 @@ def main():
     parser.add_argument(
         "-v", "--verbose", help="Verbose Level (0 = silent, 1 = errors, 2 = warnings, 3 = info)", type=int, default=1
     )
-    parser.add_argument("-s", "--seed", help="Fix a seed for episode(s). All episodes will initialize the same.", type=int)
+    parser.add_argument("-s", "--seed", help="Fix a seed for episode(s). All episodes will initialize the same, including tournament ones", type=int)
 
     # env configs
 

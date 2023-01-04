@@ -23,8 +23,9 @@ class ELORank(Rank):
     rating: int
     episodes: int
 class ELO(RankingSystem):
-    def __init__(self, K=32, init_rating=1000) -> None:
+    def __init__(self, K=32, init_rating=1000,col_length=10) -> None:
         super().__init__()
+        self.col_length = col_length
         self.K = K
         self.init_rating = 1000
     def init_rank_state(self) -> Rank:
@@ -50,9 +51,9 @@ class ELO(RankingSystem):
         return 1 / (1 + np.power(10, (rank_2.rating - rank_1.rating) / 400))
 
     def _rank_headers(self) -> str:
-        return f"{'Rating':8.8}"
+        return f"{'Rating':{self.col_length}.{self.col_length}}"
     def _rank_info(self, rank: ELORank) -> str:
-        return f"{str(rank.rating):8.8}"
+        return f"{str(rank.rating):{self.col_length}.{self.col_length}}"
 
 @dataclass
 class WinLossRank(Rank):
@@ -63,7 +64,7 @@ class WinLossRank(Rank):
     episodes: int
 
 class WinLoss(RankingSystem):
-    def __init__(self, win_points=3,tie_points=1,loss_points=0,col_length=7) -> None:
+    def __init__(self, win_points=3,tie_points=1,loss_points=0,col_length=10) -> None:
         super().__init__()
         self.col_length=col_length
         self.win_points=win_points
@@ -97,4 +98,4 @@ class WinLoss(RankingSystem):
     def _rank_headers(self) -> str:
         return f"{'Score':{self.col_length}} | {'Wins':{self.col_length}} | {'Ties':{self.col_length}} | {'Losses':{self.col_length}}"
     def _rank_info(self, rank: WinLossRank) -> str:
-        return f"{str(rank.rating):{self.col_length}.2} | {str(rank.wins):{self.col_length}.2} | {str(rank.ties):{self.col_length}.2} | {str(rank.losses):{self.col_length}.2}"
+        return f"{str(rank.rating):{self.col_length}.{self.col_length}} | {str(rank.wins):{self.col_length}.{self.col_length}} | {str(rank.ties):{self.col_length}.{self.col_length}} | {str(rank.losses):{self.col_length}.{self.col_length}}"
