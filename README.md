@@ -1,6 +1,6 @@
-# Lux-Design-2022
+# Lux-Design-S2
 
-[![PyPI version](https://badge.fury.io/py/luxai2022.svg)](https://badge.fury.io/py/luxai2022)
+[![PyPI version](https://badge.fury.io/py/luxai_s2.svg)](https://badge.fury.io/py/luxai_s2)
 
 Welcome to the Lux AI Challenge Season 2! 
 
@@ -21,31 +21,31 @@ Interested in Season 1? Check out [last year's repository](https://github.com/Lu
 You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment with
 
 ```
-pip install --upgrade luxai2022
+pip install --upgrade luxai_s2
 ```
 
 
 To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
 
 ```
-luxai2022 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
+luxai_s2 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
 ```
 
-This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai2022 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/luxai_runner/README.md, which includes details on how to run a local tournament to mass evaluate your agents.
+This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai_s2 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/luxai_runner/README.md, which includes details on how to run a local tournament to mass evaluate your agents.
 
-Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits
+Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits
 
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
-- [Python](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits/python/)
-- [C++](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/kits/cpp/)
+- [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
+- [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - Javascript - TBA
 - Typescript - TBA
 - Java - TBA
 
-Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-2022/tree/main/CONTRIBUTING.md) document for more information on this.
+Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
-To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/ChangeLog.md) for a full change log.
+To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/ChangeLog.md) for a full change log.
 
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
@@ -53,7 +53,7 @@ As the community builds tools for the competition, we will post them here!
 3rd Party Viewer - https://github.com/jmerle/lux-eye-2022
 
 ## Contributing
-See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/CONTRIBUTING.md)
+See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/CONTRIBUTING.md)
 
 ## Sponsors
 
@@ -74,8 +74,8 @@ If you use the Lux AI Season 2 environment in your work, please cite this reposi
   author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
   month = {10},
   title = {{Lux AI Challenge Season 2}},
-  url = {https://github.com/Lux-AI-Challenge/Lux-Design-2022},
+  url = {https://github.com/Lux-AI-Challenge/Lux-Design-S2},
   version = {1.0.0},
-  year = {2022}
+  year = {2023}
 }
 ```

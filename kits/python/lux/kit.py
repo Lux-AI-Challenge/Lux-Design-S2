@@ -125,7 +125,7 @@ class Board:
 @dataclass
 class GameState:
     """
-    A GameState object at step env_steps. Copied from luxai2022/state/state.py
+    A GameState object at step env_steps. Copied from luxai_s2/state/state.py
     """
     env_steps: int
     env_cfg: dict

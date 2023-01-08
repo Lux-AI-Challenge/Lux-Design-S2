@@ -1,5 +1,11 @@
 # ChangeLog
 
+### v2.0.0
+
+Official release!
+
+- Repository has been reorganized to accomodate more packages, specifically the gpu version
+
 ### v1.1.6
 - Fix bugs related to tournament tool and not printing some numbers as well as concurrent configuration not used
 ### v1.1.5

@@ -13,7 +13,7 @@ Your core agent code will go into `src/agent.cpp`, and you can create and use mo
 To quickly test run your agent, first compile your agent by running `./compile.sh` and then run
 
 ```
-luxai2022 build/agent.out build/agent.out --out=replay.json
+luxai_s2 build/agent.out build/agent.out --out=replay.json
 ```
 
 This will run the compiled `agent.cpp` code and generate a replay file saved to `replay.json`.
@@ -22,9 +22,9 @@ This will run the compiled `agent.cpp` code and generate a replay file saved to 
 
 Now that you have the code up and running, you are ready to start programming and having some fun!
 
-If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-2022-beta). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/starter_python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial#Lux-AI-Season-2-Jupyter-Notebook-Tutorial---Python-Kit)
+If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-2022-beta). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/starter_python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial#Lux-AI-Season-2-Jupyter-Notebook-Tutorial---Python-Kit)
 
-All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
+All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
 
 ## Submitting to Kaggle
 
