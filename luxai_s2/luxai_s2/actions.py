@@ -157,7 +157,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weather_cfg, verbose=1):
+def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -199,10 +199,10 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     for unit, dig_action in actions_by_type["dig"]:
         valid_action = True
         dig_action: DigAction
-        dig_cost = math.ceil(unit.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"])
+        dig_cost = unit.unit_cfg.DIG_COST
         if dig_cost > unit.power:
             invalidate_action(
-                f"Invalid Dig Action for unit {unit} - Tried to dig requiring ceil({unit.unit_cfg.DIG_COST} x {weather_cfg['power_loss_factor']}) = {dig_cost} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid Dig Action for unit {unit} - Tried to dig requiring {dig_cost} power"
             )
             continue
         # verify not digging over a factory which is not allowed
@@ -251,14 +251,12 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         power_required = (
             0
             if move_action.move_dir == 0
-            else math.ceil(
-                unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"]
-            )
+            else unit.move_power_cost(rubble)
         )
 
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring ceil({unit.move_power_cost(rubble)} x {weather_cfg['power_loss_factor']}) power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power"
             )
             continue
         if valid_action:
@@ -268,10 +266,10 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     for unit, self_destruct_action in actions_by_type["self_destruct"]:
         valid_action = True
         self_destruct_action: SelfDestructAction
-        power_required = math.ceil(unit.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"])
+        power_required = unit.unit_cfg.SELF_DESTRUCT_COST
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid self destruct action for unit {unit} - Tried to self destruct requiring ceil({unit.unit_cfg.SELF_DESTRUCT_COST} x {weather_cfg['power_loss_factor']}) power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid self destruct action for unit {unit} - Tried to self destruct requiring {power_required} power"
             )
             continue
         if valid_action:
@@ -290,9 +288,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         if factory.cargo.metal < unit_cfg.METAL_COST:
             invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST} to build {build_action.unit_type}")
             continue
-        power_required = math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
+        power_required = unit_cfg.POWER_COST
         if factory.power < power_required:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires ceil({unit_cfg.POWER_COST} x {weather_cfg['power_loss_factor']}) to build {build_action.unit_type.name}. Power cost factor is {weather_cfg['power_loss_factor']}")
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {power_required} power")
             continue
         if valid_action:
             build_action.power_cost = power_required

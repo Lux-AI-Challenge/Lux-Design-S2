@@ -85,7 +85,6 @@ The general observation given to your bot in the kits will look like below. `Arr
       "valid_spawns_mask": Array(48, 48),
       "factories_per_team": int
     },
-    "weather": Array(1000),
     "real_env_steps": int,
     "teams": {
       "player_0": {
@@ -124,7 +123,6 @@ class GameState:
     env_steps: int # number of env steps passed
     env_cfg: dict # current env configuration
     board: Board # the game board
-    weather_schedule: Array # the weather ID at each time step
     units: Dict[str, Dict[str, Unit]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to unit objects
     factories: Dict[str, Dict[str, Factory]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to factory objects
     teams: Dict[str, Team] # maps agent ID (player_0, player_1) to a Team object
@@ -144,7 +142,7 @@ class Board:
     spawns: Array # possible spawn locations on your team's half of the map
 ```
 
-Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions (and also factors weather into that cost)
+Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions.
 
 Each `Factory` object comes with functions to generate actions as well as compute the cost of building robots and watering lichen.
 

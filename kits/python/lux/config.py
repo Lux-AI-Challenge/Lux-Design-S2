@@ -115,30 +115,6 @@ class EnvConfig:
         )
     )
 
-    #### Weather ####
-    WEATHER_ID_TO_NAME: list = dataclasses.field(default_factory=lambda : ["NONE","MARS_QUAKE","COLD_SNAP","DUST_STORM","SOLAR_FLARE"])
-    NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
-    WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
-        MARS_QUAKE=dict(
-            TIME_RANGE=[1, 5]
-        ),
-        COLD_SNAP=dict(
-            # power multiplier required per robot action. 2 -> requires 2x as much power to execute the same action
-            POWER_CONSUMPTION=2,
-            TIME_RANGE=[10, 30]
-        ),
-        DUST_STORM=dict(
-            # power gain multiplier. .5 -> gain .5x as much power per turn
-            POWER_GAIN=0.5,
-            TIME_RANGE=[10, 30]
-        ),
-        SOLAR_FLARE=dict(
-            # power gain multiplier. 2 -> gain 2x as much power per turn
-            POWER_GAIN=2,
-            TIME_RANGE=[10, 30]
-        ),
-    ))
-
     @classmethod
     def from_dict(cls, data):
         data["ROBOTS"]["LIGHT"] = UnitConfig(**data["ROBOTS"]["LIGHT"])

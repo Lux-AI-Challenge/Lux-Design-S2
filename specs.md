@@ -18,18 +18,9 @@ The rest of the document will go through the key features of this game.
 
 ## The Map
 
-The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). The map also includes a schedule of martian weather events impacting the environment discussed below. Code wise, the coordinate (x, y) in a map feature such as rubble is indexed by `board.rubble[x][y]` for ease of use.
+The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). Code wise, the coordinate (x, y) in a map feature such as rubble is indexed by `board.rubble[x][y]` for ease of use.
 
 Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more details.
-
-## Weather Events
-
-There are 4 kinds of weather events that occur on a predetermined schedule (given to the players at the start of the game, between 3 and 5 events). These events last 1 - 30 turns with marsquakes lasting 1 - 5 turns.
-
-* Marsquake - All [Robots](#robots) generate rubble under them every turn (1/turn light, 10/turn heavy) except those on top of [Factories](#factories).
-* Cold snap - 2x power consumption
-* Dust storm - 0.5x power gain
-* Solar flare - 2x power gain
 
 ## Day/Night Cycle
 

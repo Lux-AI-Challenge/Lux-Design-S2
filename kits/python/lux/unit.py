@@ -3,7 +3,6 @@ import sys
 from typing import List
 import numpy as np
 from dataclasses import dataclass
-from lux.weather import get_weather_config
 from lux.cargo import UnitCargo
 from lux.config import EnvConfig
 
@@ -29,9 +28,7 @@ class Unit:
 
     def action_queue_cost(self, game_state):
         cost = self.env_cfg.ROBOTS[self.unit_type].ACTION_QUEUE_POWER_COST
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return cost * weather_cfg["power_loss_factor"]
+        return cost
 
     def move_cost(self, game_state, direction):
         board = game_state.board
@@ -45,9 +42,7 @@ class Unit:
             return None
         rubble_at_target = board.rubble[target_pos[0]][target_pos[1]]
         
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return math.ceil((self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target) * weather_cfg["power_loss_factor"])
+        return math.ceil(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
     def move(self, direction, repeat=0):
         if isinstance(direction, int):
             direction = direction
@@ -65,16 +60,12 @@ class Unit:
         return np.array([2, 0, pickup_resource, pickup_amount, repeat])
     
     def dig_cost(self, game_state):
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return math.ceil(self.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"])
+        return self.unit_cfg.DIG_COST
     def dig(self, repeat=0):
         return np.array([3, 0, 0, 0, repeat])
 
     def self_destruct_cost(self, game_state):
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
-        return math.ceil(self.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"])
+        return self.unit_cfg.SELF_DESTRUCT_COST
     def self_destruct(self, repeat=0):
         return np.array([4, 0, 0, 0, repeat])
 

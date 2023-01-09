@@ -17,10 +17,6 @@
   "MAX_RUBBLE": 100,
   "MIN_FACTORIES": 2,
   "MIN_LICHEN_TO_SPREAD": 20,
-  "NUM_WEATHER_EVENTS_RANGE": [
-    3,
-    5
-  ],
   "ORE_METAL_RATIO": 5,
   "ROBOTS": {
     "HEAVY": {
@@ -59,42 +55,6 @@
     }
   },
   "UNIT_ACTION_QUEUE_SIZE": 20,
-  "WEATHER": {
-    "COLD_SNAP": {
-      "POWER_CONSUMPTION": 2,
-      "TIME_RANGE": [
-        10,
-        30
-      ]
-    },
-    "DUST_STORM": {
-      "POWER_CONSUMPTION": 0.5,
-      "TIME_RANGE": [
-        10,
-        30
-      ]
-    },
-    "MARS_QUAKE": {
-      "TIME_RANGE": [
-        1,
-        5
-      ]
-    },
-    "SOLAR_FLARE": {
-      "POWER_GAIN": 2,
-      "TIME_RANGE": [
-        10,
-        30
-      ]
-    }
-  },
-  "WEATHER_ID_TO_NAME": [
-    "NONE",
-    "MARS_QUAKE",
-    "COLD_SNAP",
-    "DUST_STORM",
-    "SOLAR_FLARE"
-  ],
   "map_size": 48,
   "max_episode_length": 1000,
   "max_transfer_amount": 10000,
