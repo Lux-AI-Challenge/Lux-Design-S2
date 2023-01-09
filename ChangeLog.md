@@ -4,7 +4,15 @@
 
 Official release!
 
+Major Engine Changes
+- Weather is removed
+
+Configuration Changes
+- Light units rubble cost is ceil(0.1 * rubble) now.
+
+Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
+
 
 ### v1.1.6
 - Fix bugs related to tournament tool and not printing some numbers as well as concurrent configuration not used

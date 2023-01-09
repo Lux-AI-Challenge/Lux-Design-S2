@@ -20,7 +20,7 @@ class UnitConfig:
     CHARGE: int = 1
     INIT_POWER: int = 50
     MOVE_COST: int = 1
-    RUBBLE_MOVEMENT_COST: int = 1
+    RUBBLE_MOVEMENT_COST: float = 1
     DIG_COST: int = 5
     DIG_RUBBLE_REMOVED: int = 1
     DIG_RESOURCE_GAIN: int = 2
@@ -92,7 +92,7 @@ class EnvConfig:
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
         default_factory=lambda: dict(
         LIGHT=UnitConfig(
-            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=150, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=0,
+            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=150, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=0.1,
             DIG_COST=5,
             SELF_DESTRUCT_COST=5,
             DIG_RUBBLE_REMOVED=2,

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
-
+import math
 import numpy as np
 try:
     from termcolor import colored
@@ -72,7 +72,7 @@ class Unit:
         if action.repeat == -1:
             self.action_queue.append(action)
     def move_power_cost(self, rubble_at_target: int):
-        return self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target
+        return math.ceil(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
     def state_dict(self):
         return dict(
             team_id=self.team_id,

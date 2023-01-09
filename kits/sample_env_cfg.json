@@ -50,7 +50,7 @@
       "MOVE_COST": 1,
       "POWER_COST": 50,
       "RUBBLE_AFTER_DESTRUCTION": 1,
-      "RUBBLE_MOVEMENT_COST": 1,
+      "RUBBLE_MOVEMENT_COST": 0.1,
       "SELF_DESTRUCT_COST": 5
     }
   },
