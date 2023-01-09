@@ -6,6 +6,7 @@ Official release!
 
 Major Engine Changes
 - Weather is removed
+- Actions in an action queue can specify both the number of times to repeat it directly, as well as whether to put it back to the end of the action queue once exhausted
 
 Configuration Changes
 - Light units rubble cost is ceil(0.1 * rubble) now.

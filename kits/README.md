@@ -30,7 +30,7 @@ In the early phase, the action space is different than the actual game phase. Se
 
 During the actual game phase, factories have 3 possible actions, `build_light`, `build_heavy`, and `water`. Units/Robots (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
 
-In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated (the default), it is replaced to the back of the queue.
+In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue, and repeatedly does this a user-specified `n` times until exhausted. If the action is marked as to be repeated, it is replaced to the back of the queue.
 
 In code, actions can be given to units as so
 

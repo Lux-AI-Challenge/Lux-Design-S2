@@ -43,34 +43,34 @@ class Unit:
         rubble_at_target = board.rubble[target_pos[0]][target_pos[1]]
         
         return math.ceil(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
-    def move(self, direction, repeat=0):
+    def move(self, direction, repeat=0, n=1):
         if isinstance(direction, int):
             direction = direction
         else:
             pass
-        return np.array([0, direction, 0, 0, repeat])
+        return np.array([0, direction, 0, 0, repeat, n])
 
-    def transfer(self, transfer_direction, transfer_resource, transfer_amount, repeat=0):
+    def transfer(self, transfer_direction, transfer_resource, transfer_amount, repeat=0, n=1):
         assert transfer_resource < 5 and transfer_resource >= 0
         assert transfer_direction < 5 and transfer_direction >= 0
-        return np.array([1, transfer_direction, transfer_resource, transfer_amount, repeat])
+        return np.array([1, transfer_direction, transfer_resource, transfer_amount, repeat, n])
     
-    def pickup(self, pickup_resource, pickup_amount, repeat=0):
+    def pickup(self, pickup_resource, pickup_amount, repeat=0, n=1):
         assert pickup_resource < 5 and pickup_resource >= 0
-        return np.array([2, 0, pickup_resource, pickup_amount, repeat])
+        return np.array([2, 0, pickup_resource, pickup_amount, repeat, n])
     
     def dig_cost(self, game_state):
         return self.unit_cfg.DIG_COST
-    def dig(self, repeat=0):
-        return np.array([3, 0, 0, 0, repeat])
+    def dig(self, repeat=0, n=1):
+        return np.array([3, 0, 0, 0, repeat, n])
 
     def self_destruct_cost(self, game_state):
         return self.unit_cfg.SELF_DESTRUCT_COST
-    def self_destruct(self, repeat=0):
-        return np.array([4, 0, 0, 0, repeat])
+    def self_destruct(self, repeat=0, n=1):
+        return np.array([4, 0, 0, 0, repeat, n])
 
-    def recharge(self, x, repeat=0):
-        return np.array([5, 0, 0, x, repeat])
+    def recharge(self, x, repeat=0, n=1):
+        return np.array([5, 0, 0, x, repeat, n])
 
     def __str__(self) -> str:
         out = f"[{self.team_id}] {self.unit_id} {self.unit_type} at {self.pos}"
