@@ -42,7 +42,7 @@ class Unit:
             return None
         rubble_at_target = board.rubble[target_pos[0]][target_pos[1]]
         
-        return math.ceil(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
+        return math.floor(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
     def move(self, direction, repeat=0, n=1):
         if isinstance(direction, int):
             direction = direction

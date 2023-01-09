@@ -10,7 +10,7 @@ Major Engine Changes
 - When digging out lichen, if the final lichen is dug out then rubble equal to `DIG_RUBBLE_REMOVED` is added to the tile.
 
 Configuration Changes
-- Light units rubble cost is ceil(0.1 * rubble) now.
+- Light units rubble cost is floor(0.1 * rubble) now.
 - Heavy units dig cost is 45 power instead of 100.
 
 Repo Changes

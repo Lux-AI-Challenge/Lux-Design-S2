@@ -676,7 +676,7 @@ class LuxAI_S2(ParallelEnv):
                         u.power = min(u.power, u.unit_cfg.BATTERY_CAPACITY)
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
-                    f.power = f.power + math.ceil(self.env_cfg.FACTORY_CHARGE)
+                    f.power = f.power + self.env_cfg.FACTORY_CHARGE
 
 
         # always set rubble under factories to 0.

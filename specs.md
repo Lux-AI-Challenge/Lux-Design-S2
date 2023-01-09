@@ -163,9 +163,9 @@ Action
   <tr>
    <td>Move
    </td>
-   <td>ceil(1 + 0.1 * rubble value of target square) power
+   <td>floor(1 + 0.1 * rubble value of target square) power
    </td>
-   <td>ceil(20 + 1 * rubble value of target square) power
+   <td>floor(20 + 1 * rubble value of target square) power
    </td>
   </tr>
   <tr>
