@@ -20,7 +20,7 @@ class UnitConfig:
     CHARGE: int = 1
     INIT_POWER: int = 50
     MOVE_COST: int = 1
-    RUBBLE_MOVEMENT_COST: int = 1
+    RUBBLE_MOVEMENT_COST: float = 1
     DIG_COST: int = 5
     DIG_RUBBLE_REMOVED: int = 1
     DIG_RESOURCE_GAIN: int = 2
@@ -104,7 +104,7 @@ class EnvConfig:
 
         HEAVY=UnitConfig(
             METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=3000, CHARGE=10, MOVE_COST=20, RUBBLE_MOVEMENT_COST=1,
-            DIG_COST=100,
+            DIG_COST=45,
             SELF_DESTRUCT_COST=100,
             DIG_RUBBLE_REMOVED=20,
             DIG_RESOURCE_GAIN=20,

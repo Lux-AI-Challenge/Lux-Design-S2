@@ -163,9 +163,9 @@ Action
   <tr>
    <td>Move
    </td>
-   <td>1 power
+   <td>ceil(1 + 0.1 * rubble value of target square) power
    </td>
-   <td>20 power + rubble value of target square
+   <td>ceil(20 + 1 * rubble value of target square) power
    </td>
   </tr>
   <tr>
@@ -189,7 +189,7 @@ Action
    </td>
    <td>5 power (2 rubble removed, 2 resources gain, 10 lichen value removed)
    </td>
-   <td>100 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
+   <td>45 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
    </td>
   </tr>
   <tr>

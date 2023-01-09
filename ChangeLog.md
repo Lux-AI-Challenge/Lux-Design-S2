@@ -9,6 +9,7 @@ Major Engine Changes
 
 Configuration Changes
 - Light units rubble cost is ceil(0.1 * rubble) now.
+- Heavy units dig cost is 45 power instead of 100.
 
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
