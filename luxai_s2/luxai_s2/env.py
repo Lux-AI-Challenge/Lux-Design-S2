@@ -368,7 +368,10 @@ class LuxAI_S2(ParallelEnv):
             if self.state.board.rubble[unit.pos.x, unit.pos.y] > 0:
                 self.state.board.rubble[unit.pos.x, unit.pos.y] = max(self.state.board.rubble[unit.pos.x, unit.pos.y] - unit.unit_cfg.DIG_RUBBLE_REMOVED, 0)
             elif self.state.board.lichen[unit.pos.x, unit.pos.y] > 0:
-                self.state.board.lichen[unit.pos.x, unit.pos.y] = max(self.state.board.lichen[unit.pos.x, unit.pos.y] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+                lichen_left = max(self.state.board.lichen[unit.pos.x, unit.pos.y] - unit.unit_cfg.DIG_LICHEN_REMOVED, 0)
+                self.state.board.lichen[unit.pos.x, unit.pos.y] = lichen_left
+                if lichen_left == 0: # dug out the last lichen
+                    self.state.board.rubble[unit.pos.x, unit.pos.y] = self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_RESOURCE_GAIN
             elif self.state.board.ice[unit.pos.x, unit.pos.y] > 0:
                 unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
             elif self.state.board.ore[unit.pos.x, unit.pos.y] > 0:

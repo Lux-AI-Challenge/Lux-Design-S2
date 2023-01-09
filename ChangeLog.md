@@ -7,6 +7,7 @@ Official release!
 Major Engine Changes
 - Weather is removed
 - Actions in an action queue can specify both the number of times to repeat it directly, as well as whether to put it back to the end of the action queue once exhausted
+- When digging out lichen, if the final lichen is dug out then rubble equal to `DIG_RUBBLE_REMOVED` is added to the tile.
 
 Configuration Changes
 - Light units rubble cost is ceil(0.1 * rubble) now.
