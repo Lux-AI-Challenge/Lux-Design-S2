@@ -1,8 +1,9 @@
-import os
-from typing import List, Tuple
-from luxai_s2.state import State
-import os.path as osp
 import json
+import os
+import os.path as osp
+from typing import List, Tuple
+
+from luxai_s2.state import State
 
 
 def decode_replay_file(replay_file) -> Tuple[State, List]:

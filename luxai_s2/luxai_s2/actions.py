@@ -1,20 +1,19 @@
+import math
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
-import math
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
-from typing import TYPE_CHECKING
+
 from luxai_s2.config import EnvConfig
 
 if TYPE_CHECKING:
     from luxai_s2.factory import Factory
     from luxai_s2.state import State
-from luxai_s2.map.position import Position
-
 
 import luxai_s2.unit as luxai_unit
+from luxai_s2.map.position import Position
 
 
 # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)

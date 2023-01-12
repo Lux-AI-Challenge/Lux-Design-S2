@@ -8,20 +8,32 @@ import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 
-from luxai_s2.actions import (Action, DigAction, FactoryBuildAction,
-                              FactoryWaterAction, MoveAction, PickupAction,
-                              RechargeAction, SelfDestructAction,
-                              TransferAction, format_action_vec,
-                              format_factory_action, move_deltas,
-                              validate_actions)
+from luxai_s2.actions import (
+    Action,
+    DigAction,
+    FactoryBuildAction,
+    FactoryWaterAction,
+    MoveAction,
+    PickupAction,
+    RechargeAction,
+    SelfDestructAction,
+    TransferAction,
+    format_action_vec,
+    format_factory_action,
+    move_deltas,
+    validate_actions,
+)
 from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.pyvisual.visualizer import Visualizer
-from luxai_s2.spaces.act_space import (get_act_space, get_act_space_bid,
-                                       get_act_space_init,
-                                       get_act_space_placement)
+from luxai_s2.spaces.act_space import (
+    get_act_space,
+    get_act_space_bid,
+    get_act_space_init,
+    get_act_space_placement,
+)
 from luxai_s2.spaces.obs_space import get_obs_space
 from luxai_s2.state import State
 from luxai_s2.team import FactionTypes, Team

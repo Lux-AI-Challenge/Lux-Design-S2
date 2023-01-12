@@ -1,7 +1,9 @@
+import copy
+
 import numpy as np
+
 from luxai_s2.env import LuxAI_S2
 from luxai_s2.replay.replay import generate_replay
-import copy
 
 if __name__ == "__main__":
     import time

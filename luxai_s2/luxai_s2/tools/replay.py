@@ -1,8 +1,9 @@
 import os
+import os.path as osp
 from typing import List
+
 from luxai_s2.replay import decode_replay_file
 from luxai_s2.state import State
-import os.path as osp
 
 
 def replay_trajectory(replay_file: str):

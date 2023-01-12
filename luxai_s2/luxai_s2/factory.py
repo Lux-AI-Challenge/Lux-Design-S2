@@ -1,16 +1,19 @@
 from __future__ import annotations
+
+import time
 from collections import deque
 from itertools import product
-import time
 from typing import List
+
 import numpy as np
+
+from luxai_s2.actions import move_deltas
 from luxai_s2.config import EnvConfig
+from luxai_s2.globals import TERM_COLORS
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.team import Team
 from luxai_s2.unit import UnitCargo
-from luxai_s2.actions import move_deltas
-from luxai_s2.globals import TERM_COLORS
 
 try:
     from termcolor import colored

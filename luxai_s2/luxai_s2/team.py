@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+
 from luxai_s2.config import EnvConfig
 from luxai_s2.globals import TERM_COLORS
 

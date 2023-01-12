@@ -1,6 +1,6 @@
+import dataclasses
 from argparse import Namespace
 from dataclasses import dataclass
-import dataclasses
 from typing import Dict, List
 
 

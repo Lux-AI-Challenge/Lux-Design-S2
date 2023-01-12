@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+
 from luxai_s2.env import LuxAI_S2
 
 if __name__ == "__main__":

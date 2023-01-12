@@ -1,6 +1,7 @@
 from typing import List
-from luxai_s2.unit import Unit
+
 from luxai_s2.config import EnvConfig
+from luxai_s2.unit import Unit
 
 
 def is_day(config: EnvConfig, env_step):

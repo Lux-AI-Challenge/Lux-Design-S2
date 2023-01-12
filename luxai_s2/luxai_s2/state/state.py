@@ -1,15 +1,15 @@
+import copy
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Dict, List
 
 import numpy as np
+
 from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory
 from luxai_s2.map.board import Board
 from luxai_s2.team import Team
-
 from luxai_s2.unit import Unit
-from collections import OrderedDict
-import copy
 
 
 @dataclass
