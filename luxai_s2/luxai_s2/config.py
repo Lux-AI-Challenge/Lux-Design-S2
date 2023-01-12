@@ -65,6 +65,8 @@ class EnvConfig:
     LICHEN_LOST_WITHOUT_WATER: int = 1
     LICHEN_GAINED_WITH_WATER: int = 1
     MAX_LICHEN_PER_TILE: int = 100
+    POWER_PER_CONNECTED_LICHEN_TILE: int = 1
+
     # cost of watering with a factory is `ceil(# of connected lichen tiles) / (this factor) + 1`
     LICHEN_WATERING_COST_FACTOR: int = 10
 
@@ -104,7 +106,7 @@ class EnvConfig:
 
         HEAVY=UnitConfig(
             METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=3000, CHARGE=10, MOVE_COST=20, RUBBLE_MOVEMENT_COST=1,
-            DIG_COST=45,
+            DIG_COST=60,
             SELF_DESTRUCT_COST=100,
             DIG_RUBBLE_REMOVED=20,
             DIG_RESOURCE_GAIN=20,

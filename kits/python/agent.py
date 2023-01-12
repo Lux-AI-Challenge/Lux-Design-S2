@@ -43,9 +43,8 @@ class Agent():
             if factory.power >= self.env_cfg.ROBOTS["HEAVY"].POWER_COST and \
             factory.cargo.metal >= self.env_cfg.ROBOTS["HEAVY"].METAL_COST:
                 actions[unit_id] = factory.build_heavy()
-            if self.env_cfg.max_episode_length - game_state.real_env_steps < 50:
-                if factory.water_cost(game_state) <= factory.cargo.water:
-                    actions[unit_id] = factory.water()
+            if factory.water_cost(game_state) <= factory.cargo.water / 5:
+                actions[unit_id] = factory.water()
             factory_tiles += [factory.pos]
             factory_units += [factory]
         factory_tiles = np.array(factory_tiles)

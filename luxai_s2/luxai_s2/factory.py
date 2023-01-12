@@ -78,7 +78,7 @@ class Factory:
         self.cargo = UnitCargo()
         self.num_id = num_id
         self.action_queue = []
-        self.grow_lichen_positions = None
+        self.grow_lichen_positions = set()
 
     @property
     def pos_slice(self):
