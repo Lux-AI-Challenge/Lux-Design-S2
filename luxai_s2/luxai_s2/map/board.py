@@ -24,11 +24,13 @@ class Board:
         self.seed = seed
         rng = np.random.RandomState(seed=seed)
         map_type = rng.choice(["Cave", "Mountain"])
+        map_distribution_type = rng.choice(["high_ice_high_ore", "high_ice_low_ore", "low_ice_high_ore", "low_ice_low_ore"])
         symmetry = rng.choice(["horizontal", "vertical"])
         self.map = GameMap.random_map(
             seed=seed,
             symmetry=symmetry,
             map_type=map_type,
+            map_distribution_type=map_distribution_type,
             width=self.width,
             height=self.height,
         )

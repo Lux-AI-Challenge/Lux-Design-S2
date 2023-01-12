@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.fft import dctn, idctn
 from scipy.ndimage import convolve, maximum_filter
-
+from typing import Tuple
 from luxai_s2.map_generator.symnoise import SymmetricNoise, symmetrize
 from luxai_s2.map_generator.visualize import viz
-
+from dataclasses import dataclass
 
 class GameMap(object):
     def __init__(self, rubble, ice, ore, symmetry):
@@ -30,7 +30,7 @@ class GameMap(object):
         return noise
 
     @staticmethod
-    def random_map(seed=None, map_type=None, symmetry=None, width=None, height=None):
+    def random_map(seed=None, map_type=None, map_distribution_type=None, symmetry=None, width=None, height=None):
         """random_map
         Returns a random map. Can specify seed.
         """
@@ -43,29 +43,50 @@ class GameMap(object):
         if height is None:
             height = width
         if not map_type:
-            map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
+            map_type = noise.random.choice(["Cave", "Mountain"])
+        if map_type == "Cave":
+            config_registry = CAVE_CONFIGS
+        elif map_type == "Mountain":
+            config_registry = MOUNTAIN_CONFIGS
+        if not map_distribution_type:
+            map_distribution_type = noise.random.choice(["high_ice_high_ore", "high_ice_low_ore", "low_ice_high_ore", "low_ice_low_ore"])
         if not symmetry:
             symmetry = noise.random.choice(
                 ["horizontal", "vertical", "rotational", "/", "\\"]
             )
         noise.update_symmetry(symmetry)
-        return eval(map_type)(width, height, symmetry, noise=noise)
+        return eval(map_type)(width, height, symmetry, noise=noise, config=config_registry[map_distribution_type])
 
-    @staticmethod
-    def random_maps(n, seed=None):
-        noise = GameMap.noise(seed)
-        for i in range(n):
-            noise = GameMap.noise(noise, noise_shift=100)
-            width = height = noise.random.randint(32, 64)
-            map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
-            symmetry = noise.random.choice(
-                ["horizontal", "vertical", "rotational", "/", "\\"]
-            )
-            noise.update_symmetry(symmetry)
+@dataclass
+class CaveConfig():
+    # default parameters -> {'rubble_count': 48.165737847222225, 'ice': 37.93, 'ore': 38.36}
+    ice_high_range: Tuple[float, float] = (99, 100)
+    ice_mid_range: Tuple[float, float] = (91, 91.7)
+    
+    ore_high_range: Tuple[float, float] = (98.7, 100)
 
-            yield eval(map_type)(width, height, symmetry, noise=noise)
+    # deeper in walls
+    ore_mid_range: Tuple[float, float] = (81, 81.5)
 
-
+CAVE_CONFIGS = dict(
+    # {'rubble_count': 48.165737847222225, 'ice': 37.93, 'ore': 38.36}
+    high_ice_high_ore=CaveConfig(),
+    low_ice_high_ore=CaveConfig(
+        ice_high_range=(99.6,100),
+        ice_mid_range=(91,91.5)
+    ),
+    high_ice_low_ore=CaveConfig(
+        ore_high_range=(99.5,100),
+        ore_mid_range=(81,81.4)
+    ),
+    # {'rubble_count': 48.165737847222225, 'ice': 19.97, 'ore': 18.49}
+    low_ice_low_ore=CaveConfig(
+        ore_high_range=(99.5,100),
+        ore_mid_range=(81,81.4),
+        ice_high_range=(99.6,100),
+        ice_mid_range=(91,91.5)
+    ),
+)
 class Cave(GameMap):
     def __init__(
         self,
@@ -75,6 +96,7 @@ class Cave(GameMap):
         seed=None,
         noise=None,
         noise_shift=None,
+        config: CaveConfig = CAVE_CONFIGS["high_ice_high_ore"]
     ):
         """Cave
         Builds a cave system of size width x height and symmetrical across the `symmetry` axis.
@@ -121,19 +143,17 @@ class Cave(GameMap):
         ice = noise(x, y + 100)
         ice[mask > 1] = 0
         ice[mask == 0] = 0
-        mid_mask = (ice < np.percentile(ice, 92)) & (ice > np.percentile(ice, 91))
-        ice[ice < np.percentile(ice, 98)] = 0
-        ice[ice != 0] = 1
-        ice[mid_mask] = 1
+        mid_mask = (ice > np.percentile(ice, config.ice_mid_range[0])) & (ice < np.percentile(ice, config.ice_mid_range[1]))
+        high_mask = (ice > np.percentile(ice, config.ice_high_range[0])) & (ice < np.percentile(ice, config.ice_high_range[1]))
+        ice = mid_mask | high_mask
 
         # Make some noisy ore, most ore is outside caves
         ore = noise(x, y - 100)
         ore[mask == 1] = 0
         ore[mask == 0] = 0
-        mid_mask = (ore < np.percentile(ore, 92)) & (ore > np.percentile(ore, 91))
-        ore[(ore < np.percentile(ore, 98))] = 0
-        ore[ore != 0] = 1
-        ore[mid_mask] = 1
+        mid_mask = (ore > np.percentile(ore, config.ore_mid_range[0])) & (ore < np.percentile(ore, config.ore_mid_range[1]))
+        high_mask = (ore > np.percentile(ore, config.ore_high_range[0])) & (ore < np.percentile(ore, config.ore_high_range[1]))
+        ore = mid_mask | high_mask
         super().__init__(rubble, ice, ore, symmetry)
 
 
@@ -246,7 +266,44 @@ def dxy(x):
 def laplacian(x):
     return convolve(x, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3
 
+@dataclass
+class MountainConfig():
+    # default parameters -> {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 36.0}
 
+    # controls amount of ice spread along mountain peaks
+    ice_high_range: Tuple[float, float] = (98.9, 100)
+    # around middle level
+    ice_mid_range: Tuple[float, float] = (52.5, 53)
+    # around lower level
+    ice_low_range: Tuple[float, float] = (0, 21)
+    # controls amount of ore spread along middle of the way to the mountain peaks
+    ore_mid_range: Tuple[float, float] = (84, 85)
+    # controls amount of ore spread along lower part of the mountain peaks, should be smaller than ore_mid_range
+    ore_low_range: Tuple[float, float] = (61.4, 62)
+
+MOUNTAIN_CONFIGS = dict(
+    # {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 36.0}
+    high_ice_high_ore=MountainConfig(),
+    # {'rubble_count': 21.35736545138889, 'ice': 20.0, 'ore': 36.0}
+    low_ice_high_ore=MountainConfig( 
+        ice_high_range=(99.4,100),
+        ice_mid_range=(52.7,53),
+        ice_low_range=(0,20)
+    ),
+    # {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 20.0}
+    high_ice_low_ore=MountainConfig(
+        ore_low_range=(61.6,62),
+        ore_mid_range=(84.5,85) 
+    ),
+    # # {'rubble_count': 21.35736545138889, 'ice': 20.0, 'ore': 20.0}
+    low_ice_low_ore=MountainConfig(
+        ice_high_range=(99.4,100),
+        ice_mid_range=(52.7,53),
+        ice_low_range=(0,20),
+        ore_low_range=(61.6,62),
+        ore_mid_range=(84.5,85) 
+    ),
+)
 class Mountain(GameMap):
     def __init__(
         self,
@@ -256,6 +313,7 @@ class Mountain(GameMap):
         seed=None,
         noise=None,
         noise_shift=None,
+        config: MountainConfig = MOUNTAIN_CONFIGS["high_ice_high_ore"]
     ):
         """Mountain
         Builds a mountain system of size `width` x `height` and symmetrical across the `symmetry` axis.
@@ -362,20 +420,18 @@ class Mountain(GameMap):
         mask /= np.amax(mask)
 
         rubble = (100 * mask).round()
-        ice = (100 * mask).round()
-        mid_mask = (ice < np.percentile(ice, 50)) & (ice > np.percentile(ice, 48)) | (
-            ice < np.percentile(ice, 20)
-        ) & (ice > np.percentile(ice, 0))
-        ice[ice < np.percentile(ice, 98)] = 0
-        ice[ice != 0] = 1
-        ice[mid_mask] = 1
+        ice = (100 * mask)
+        high_mask = (ice > np.percentile(ice, config.ice_high_range[0])) & (ice < np.percentile(ice, config.ice_high_range[1]))
+        mid_mask = (ice > np.percentile(ice, config.ice_mid_range[0])) & (ice < np.percentile(ice, config.ice_mid_range[1]))
+        low_mask = (ice > np.percentile(ice, config.ice_low_range[0])) & (ice < np.percentile(ice, config.ice_low_range[1]))
+        ice = low_mask | mid_mask | high_mask
 
-        ore = (100 * mask).round()
-        mid_mask = (ore < np.percentile(ore, 62)) & (ore > np.percentile(ore, 60))
-        ore[ore < np.percentile(ore, 83.5)] = 0
-        ore[ore > np.percentile(ore, 84.5)] = 0
-        ore[ore != 0] = 1
-        ore[mid_mask] = 1
+        ore = (100 * mask)
+
+        mid_mask = (ore > np.percentile(ore, config.ore_mid_range[0])) & (ore < np.percentile(ore, config.ore_mid_range[1]))
+        low_mask = (ore > np.percentile(ore, config.ore_low_range[0])) & (ore < np.percentile(ore, config.ore_low_range[1]))
+
+        ore = low_mask | mid_mask
 
         super().__init__(rubble, ice, ore, symmetry)
 

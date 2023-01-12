@@ -15,6 +15,7 @@ if __name__ == "__main__":
         env.reset(seed)
         env.render()
         env.py_visualizer.update_scene(env.state)
+
         pygame.image.save(env.py_visualizer.screen, f"map_samples/{seed}.jpg")
         stats["ice"] += [env.state.board.ice.sum()]
         stats["ore"] += [env.state.board.ore.sum()]
