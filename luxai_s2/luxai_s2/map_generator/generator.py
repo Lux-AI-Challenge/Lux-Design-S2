@@ -1,8 +1,10 @@
 import numpy as np
-from scipy.ndimage import convolve, maximum_filter
 from scipy.fft import dctn, idctn
-from luxai_s2.map_generator.visualize import viz
+from scipy.ndimage import convolve, maximum_filter
+
 from luxai_s2.map_generator.symnoise import SymmetricNoise, symmetrize
+from luxai_s2.map_generator.visualize import viz
+
 
 class GameMap(object):
     def __init__(self, rubble, ice, ore, symmetry):
@@ -43,7 +45,9 @@ class GameMap(object):
         if not map_type:
             map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
         if not symmetry:
-            symmetry = noise.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
+            symmetry = noise.random.choice(
+                ["horizontal", "vertical", "rotational", "/", "\\"]
+            )
         noise.update_symmetry(symmetry)
         return eval(map_type)(width, height, symmetry, noise=noise)
 
@@ -54,13 +58,24 @@ class GameMap(object):
             noise = GameMap.noise(noise, noise_shift=100)
             width = height = noise.random.randint(32, 64)
             map_type = noise.random.choice(["Cave", "Craters", "Island", "Mountain"])
-            symmetry = noise.random.choice(["horizontal", "vertical", "rotational", "/", "\\"])
+            symmetry = noise.random.choice(
+                ["horizontal", "vertical", "rotational", "/", "\\"]
+            )
             noise.update_symmetry(symmetry)
 
             yield eval(map_type)(width, height, symmetry, noise=noise)
 
+
 class Cave(GameMap):
-    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+    def __init__(
+        self,
+        width=64,
+        height=64,
+        symmetry="vertical",
+        seed=None,
+        noise=None,
+        noise_shift=None,
+    ):
         """Cave
         Builds a cave system of size width x height and symmetrical across the `symmetry` axis.
 
@@ -83,10 +98,10 @@ class Cave(GameMap):
         mask = noise.random.randint(3, size=(height, width))
         mask[mask >= 1] = 1
         # symmetrize(mask, symmetry)
-        
+
         # Build clumps of ones (will be interior of caves)
         for i in range(3):
-            mask = convolve(mask, [[1]*3]*3, mode="constant", cval=0) // 6
+            mask = convolve(mask, [[1] * 3] * 3, mode="constant", cval=0) // 6
         mask = 1 - mask
 
         # Create cave wall
@@ -99,8 +114,8 @@ class Cave(GameMap):
         y = np.linspace(0, 1, height)
         rubble = noise(x, y) * 50 + 50
         rubble = rubble.round()
-        rubble[mask==1] //= 5 # Cave walls
-        rubble[mask==0] = 0 # Interior of cave
+        rubble[mask == 1] //= 5  # Cave walls
+        rubble[mask == 0] = 0  # Interior of cave
 
         # Make some noisy ice, most ice is on cave edges
         ice = noise(x, y + 100)
@@ -113,16 +128,25 @@ class Cave(GameMap):
 
         # Make some noisy ore, most ore is outside caves
         ore = noise(x, y - 100)
-        ore[mask==1] = 0
-        ore[mask==0] = 0
+        ore[mask == 1] = 0
+        ore[mask == 0] = 0
         mid_mask = (ore < np.percentile(ore, 92)) & (ore > np.percentile(ore, 91))
         ore[(ore < np.percentile(ore, 98))] = 0
         ore[ore != 0] = 1
         ore[mid_mask] = 1
         super().__init__(rubble, ice, ore, symmetry)
 
+
 class Craters(GameMap):
-    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+    def __init__(
+        self,
+        width=64,
+        height=64,
+        symmetry="vertical",
+        seed=None,
+        noise=None,
+        noise_shift=None,
+    ):
         """Craters
         Builds a craters system of size `width` x `height` and symmetrical across the `symmetry` axis.
 
@@ -135,23 +159,25 @@ class Craters(GameMap):
 
         noise = GameMap.noise(seed, noise, noise_shift, symmetry)
 
-        min_craters = max(2, width*height // 1000)
-        max_craters = max(4, width*height // 500)
-        num_craters = noise.random.randint(min_craters, max_craters+1)
+        min_craters = max(2, width * height // 1000)
+        max_craters = max(4, width * height // 500)
+        num_craters = noise.random.randint(min_craters, max_craters + 1)
 
         # Mask = how many craters have hit the spot. When it symmetrizes, it will divide by 2.
         mask = np.zeros((height, width))
         x = np.linspace(0, 1, width)
         y = np.linspace(0, 1, height)
-        crater_noise = noise(x, y, frequency=10) * 0.5 + 0.75 # Don't want perfectly circular craters.
+        crater_noise = (
+            noise(x, y, frequency=10) * 0.5 + 0.75
+        )  # Don't want perfectly circular craters.
         xx, yy = np.mgrid[:width, :height]
 
         # ice should be around edges of crater
         ice_mask = np.zeros((height, width))
         for i in range(num_craters):
             cx, cy = noise.random.randint(width), np.random.randint(height)
-            cr = noise.random.randint(3, min(width, height)//4)
-            c = (xx - cx) **2 + (yy - cy)**2
+            cr = noise.random.randint(3, min(width, height) // 4)
+            c = (xx - cx) ** 2 + (yy - cy) ** 2
             c = c.T * crater_noise
             mask[c < cr**2] += 1
             edge = np.logical_and(c >= cr**2, c < 2 * cr**2)
@@ -162,17 +188,18 @@ class Craters(GameMap):
         # symmetrize(mask, symmetry)
         # symmetrize(ice_mask, symmetry)
 
-        rubble = (np.minimum(mask, 1) * 90 + 10) * noise(x, y+100, frequency=3)
-        ice = noise(x, y-100)
-        ice[ice_mask==0] = 0
+        rubble = (np.minimum(mask, 1) * 90 + 10) * noise(x, y + 100, frequency=3)
+        ice = noise(x, y - 100)
+        ice[ice_mask == 0] = 0
         ice[ice < np.percentile(ice, 95)] = 0
         ice = np.round(50 * ice + 50)
 
-        ore = np.minimum(mask, 1) * noise(x, y+100, frequency=3)
+        ore = np.minimum(mask, 1) * noise(x, y + 100, frequency=3)
         ore[ore < np.percentile(ore, 95)] = 0
         ore = np.round(50 * ore + 50)
 
         super().__init__(rubble, ice, ore, symmetry)
+
 
 def solve_poisson(f):
     """
@@ -199,25 +226,37 @@ def solve_poisson(f):
     potential = idctn(dct, type=1)
     return potential / 2
 
+
 def nabla(x):
     return convolve(x, ((0, 1, 0), (1, -5, 1), (0, 1, 0)))
+
 
 def dxx(x):
     return convolve(x, ((1,), (-2,), (1,)))
 
+
 def dyy(x):
     return convolve(x, ((1, -2, 1),))
 
+
 def dxy(x):
     return convolve(x, ((1, 0, -1), (0, 0, 0), (-1, 0, 1))) / 4
+
 
 def laplacian(x):
     return convolve(x, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3
 
 
-
 class Mountain(GameMap):
-    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+    def __init__(
+        self,
+        width=64,
+        height=64,
+        symmetry="vertical",
+        seed=None,
+        noise=None,
+        noise_shift=None,
+    ):
         """Mountain
         Builds a mountain system of size `width` x `height` and symmetrical across the `symmetry` axis.
 
@@ -233,9 +272,9 @@ class Mountain(GameMap):
         f = np.zeros((height, width))
 
         # Sprinkle a few mountains on the map.
-        min_mountains = max(2, width*height//750)
-        max_mountains = max(4, width*height//375)
-        num_mountains = noise.random.randint(min_mountains, max_mountains+1)
+        min_mountains = max(2, width * height // 750)
+        max_mountains = max(4, width * height // 375)
+        num_mountains = noise.random.randint(min_mountains, max_mountains + 1)
         for i in range(num_mountains):
             x, y = noise.random.randint(width), noise.random.randint(height)
             f[y][x] -= 1
@@ -251,16 +290,18 @@ class Mountain(GameMap):
         mask -= np.amin(mask)
 
         # Find the valleys
-        Lap = convolve(mask, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3 # Laplacian
+        Lap = convolve(mask, ((1, 1, 1), (1, -8, 1), (1, 1, 1))) / 3  # Laplacian
         Dxx = convolve(mask, ((1,), (-2,), (1,)))
         Dyy = convolve(mask, ((1, -2, 1),))
         Dxy = convolve(mask, ((1, 0, -1), (0, 0, 0), (-1, 0, 1)))
-        det = 16 * Dxx * Dyy - Dxy ** 2 # Hessian determinant
-        det = det.astype(np.csingle) # complex
+        det = 16 * Dxx * Dyy - Dxy**2  # Hessian determinant
+        det = det.astype(np.csingle)  # complex
 
-        cond = Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25 # ratio of eigenvalues
-        cond = abs(cond) # should already be real except for floating point errors
-        cond = np.maximum(cond, 1/cond)
+        cond = (
+            Lap * (2 * Lap - np.sqrt(4 * Lap**2 - det)) / det - 0.25
+        )  # ratio of eigenvalues
+        cond = abs(cond)  # should already be real except for floating point errors
+        cond = np.maximum(cond, 1 / cond)
         # symmetrize(cond, symmetry) # for floating point errors
 
         def bdry(x, y):
@@ -268,6 +309,7 @@ class Mountain(GameMap):
             return abs(cond[y][x]) > 20 and f[y][x] == 0
 
         closed_set = set()
+
         def flood_fill(x, y):
             nonlocal closed_set
             region = []
@@ -312,19 +354,22 @@ class Mountain(GameMap):
 
         for x in range(width):
             for y in range(height):
-                if bdry(x, y): mask[y][x] = 0
+                if bdry(x, y):
+                    mask[y][x] = 0
 
-        mask[np.where(mask > 0)] -= np.amin(mask[np.where(mask>0)])
+        mask[np.where(mask > 0)] -= np.amin(mask[np.where(mask > 0)])
         mask -= np.amin(mask)
         mask /= np.amax(mask)
 
-        rubble = (100*mask).round()
+        rubble = (100 * mask).round()
         ice = (100 * mask).round()
-        mid_mask = (ice < np.percentile(ice, 50)) & (ice > np.percentile(ice, 48)) | (ice < np.percentile(ice, 20)) & (ice > np.percentile(ice, 0))
+        mid_mask = (ice < np.percentile(ice, 50)) & (ice > np.percentile(ice, 48)) | (
+            ice < np.percentile(ice, 20)
+        ) & (ice > np.percentile(ice, 0))
         ice[ice < np.percentile(ice, 98)] = 0
         ice[ice != 0] = 1
         ice[mid_mask] = 1
-        
+
         ore = (100 * mask).round()
         mid_mask = (ore < np.percentile(ore, 62)) & (ore > np.percentile(ore, 60))
         ore[ore < np.percentile(ore, 83.5)] = 0
@@ -334,8 +379,17 @@ class Mountain(GameMap):
 
         super().__init__(rubble, ice, ore, symmetry)
 
+
 class Island(GameMap):
-    def __init__(self, width=64, height=64, symmetry="vertical", seed=None, noise=None, noise_shift=None):
+    def __init__(
+        self,
+        width=64,
+        height=64,
+        symmetry="vertical",
+        seed=None,
+        noise=None,
+        noise_shift=None,
+    ):
         """Island
         Builds an island system of size `width` x `height` and symmetrical across the `symmetry` axis.
 
@@ -353,9 +407,9 @@ class Island(GameMap):
         mask[mask >= 1] = 1
 
         s = -1
-        while np.sum(mask==0) != s:
-            s = np.sum(mask==0)
-            mask = convolve(mask, [[1]*3]*3, mode="constant", cval=1) // 6
+        while np.sum(mask == 0) != s:
+            s = np.sum(mask == 0)
+            mask = convolve(mask, [[1] * 3] * 3, mode="constant", cval=1) // 6
 
         # Shift every spot on the map a little, making the islands nosier.
         x = np.linspace(0, 1, width)
@@ -365,36 +419,46 @@ class Island(GameMap):
 
         xx, yy = np.mgrid[:width, :height]
         new_xx = xx + np.round(noise_dx).astype(int)
-        new_xx = np.maximum(0, np.minimum(width-1, new_xx))
+        new_xx = np.maximum(0, np.minimum(width - 1, new_xx))
         new_yy = yy + np.round(noise_dy).astype(int)
-        new_yy = np.maximum(0, np.minimum(height-1, new_yy))
+        new_yy = np.maximum(0, np.minimum(height - 1, new_yy))
 
         mask[yy, xx] = mask[new_yy, new_xx]
 
         # symmetrize(mask, symmetry)
 
         rubble = noise(x, y - 100, frequency=3) * 50 + 50
-        rubble[mask==0] //= 20
+        rubble[mask == 0] //= 20
 
         # Unsure what to do about ice, ore right now. Place in pockets on islands?
         ice = noise(x, y + 200, frequency=10) ** 2 * 100
         ice[ice < 50] = 0
-        ice[mask!=0] = 0
+        ice[mask != 0] = 0
 
         ore = noise(x, y - 200, frequency=10) ** 2 * 100
         ore[ore < 50] = 0
-        ore[mask!=0] = 0
+        ore[mask != 0] = 0
 
         super().__init__(rubble, ice, ore, symmetry)
 
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Generate maps for Lux AI 2022.")
-    parser.add_argument("-t", "--map_type", help="Map type ('Cave', 'Craters', 'Island', 'Mountain')", required=False)
+    parser.add_argument(
+        "-t",
+        "--map_type",
+        help="Map type ('Cave', 'Craters', 'Island', 'Mountain')",
+        required=False,
+    )
     parser.add_argument("-s", "--size", help="Size (32-64)", required=False)
     parser.add_argument("-d", "--seed", help="Seed")
-    parser.add_argument("-m", "--symmetry", help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')")
+    parser.add_argument(
+        "-m",
+        "--symmetry",
+        help="Symmetry ('horizontal', 'rotational', 'vertical', '/', '\\')",
+    )
 
     args = vars(parser.parse_args())
     map_type = args.get("map_type", None)
@@ -407,6 +471,8 @@ if __name__ == "__main__":
         seed = int(args["seed"])
     else:
         seed = None
-    game_map = GameMap.random_map(seed=seed, symmetry=symmetry, map_type=map_type, width=width, height=height)
+    game_map = GameMap.random_map(
+        seed=seed, symmetry=symmetry, map_type=map_type, width=width, height=height
+    )
     viz(game_map)
     input()

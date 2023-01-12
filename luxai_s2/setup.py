@@ -17,8 +17,17 @@ setup(
     url="https://github.com/Lux-AI-Challenge/Lux-Design-S2",
     packages=find_packages(exclude="kits"),
     long_description=read("../README.md"),
-    long_description_content_type='text/markdown',
-    entry_points={'console_scripts': [
-        'luxai_s2 = luxai_runner.cli:main']},
-    install_requires=['numpy', 'pygame', 'termcolor', 'matplotlib', 'pettingzoo', 'vec_noise', 'omegaconf', 'gym==0.19', 'scipy'],
+    long_description_content_type="text/markdown",
+    entry_points={"console_scripts": ["luxai_s2 = luxai_runner.cli:main"]},
+    install_requires=[
+        "numpy",
+        "pygame",
+        "termcolor",
+        "matplotlib",
+        "pettingzoo",
+        "vec_noise",
+        "omegaconf",
+        "gym==0.19",
+        "scipy",
+    ],
 )

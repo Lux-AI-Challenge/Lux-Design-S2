@@ -11,6 +11,7 @@ from luxai_s2.unit import Unit
 from collections import OrderedDict
 import copy
 
+
 @dataclass
 class State:
     seed_rng: np.random.RandomState
@@ -23,7 +24,7 @@ class State:
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
     stats: Dict[str, Dict[str, int]] = field(default_factory=dict)
-    
+
     @property
     def real_env_steps(self):
         """
@@ -46,11 +47,13 @@ class State:
                 #     del state_dict["action_queue"]
                 units[team][unit.unit_id] = state_dict
         return units
+
     def generate_team_data(teams_dict):
         teams = dict()
         for k, v in teams_dict.items():
             teams[k] = v.state_dict()
         return teams
+
     def generate_factory_data(factories_dict):
         factories = dict()
         for team in factories_dict:
@@ -70,8 +73,9 @@ class State:
             teams=teams,
             factories=factories,
             board=board,
-            real_env_steps=self.real_env_steps
+            real_env_steps=self.real_env_steps,
         )
+
     def get_compressed_obs(self):
         # return everything on turn 0
         if self.env_steps == 0:
@@ -83,6 +87,7 @@ class State:
         if self.real_env_steps >= 0:
             del data["board"]["valid_spawns_mask"]
         return data
+
     def get_change_obs(self, prev_state):
         """
         returns sparse dicts for large matrices of where values change only
@@ -94,16 +99,20 @@ class State:
         data["board"]["lichen_strains"] = dict()
         change_indices = np.argwhere(self.board.rubble != prev_state["board"]["rubble"])
         for ind in change_indices:
-            x,y = ind[0], ind[1]
+            x, y = ind[0], ind[1]
             data["board"]["rubble"][f"{x},{y}"] = self.board.rubble[x, y]
         change_indices = np.argwhere(self.board.lichen != prev_state["board"]["lichen"])
         for ind in change_indices:
-            x,y = ind[0], ind[1]
+            x, y = ind[0], ind[1]
             data["board"]["lichen"][f"{x},{y}"] = self.board.lichen[x, y]
-        change_indices = np.argwhere(self.board.lichen_strains != prev_state["board"]["lichen_strains"])
+        change_indices = np.argwhere(
+            self.board.lichen_strains != prev_state["board"]["lichen_strains"]
+        )
         for ind in change_indices:
-            x,y = ind[0], ind[1]
-            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[x, y]
+            x, y = ind[0], ind[1]
+            data["board"]["lichen_strains"][f"{x},{y}"] = self.board.lichen_strains[
+                x, y
+            ]
         return data
 
     def from_obs(obs):

@@ -5,8 +5,8 @@ from typing import Dict, List
 @dataclass
 class TournamentConfig:
     name: str = "luxai_s2_tourney"
-    tournament_type: str = "leadeboard" # roundrobin, leaderboard
-    ranking_system: str = "elo" # elo, win/loss, TODO: Bradley-Terry
+    tournament_type: str = "leadeboard"  # roundrobin, leaderboard
+    ranking_system: str = "elo"  # elo, win/loss, TODO: Bradley-Terry
     ranking_system_cfg: Dict = field(default_factory=dict)
     matchmaking_system: str = "random"
 

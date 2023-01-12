@@ -2,10 +2,13 @@ from dataclasses import dataclass
 from enum import Enum
 from luxai_s2.config import EnvConfig
 from luxai_s2.globals import TERM_COLORS
+
 try:
     from termcolor import colored
 except:
     pass
+
+
 @dataclass
 class FactionInfo:
     color: str = "none"
@@ -32,11 +35,12 @@ class Team:
         self.factories_to_place = 0
         self.factory_strains = []
 
-        # whether this team gets to place factories down first or not. The bid winner has this set to True. 
+        # whether this team gets to place factories down first or not. The bid winner has this set to True.
         # If tied, player_0's team has this True
         self.place_first = False
 
         self.bid = 0
+
     def state_dict(self):
         return dict(
             team_id=self.team_id,
@@ -46,8 +50,9 @@ class Team:
             metal=self.init_metal,
             factories_to_place=self.factories_to_place,
             factory_strains=self.factory_strains,
-            place_first=self.place_first
+            place_first=self.place_first,
         )
+
     def __str__(self) -> str:
         out = f"[Player {self.team_id}]"
         if TERM_COLORS:

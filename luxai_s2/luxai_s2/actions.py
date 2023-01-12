@@ -7,6 +7,7 @@ from typing import Callable
 import numpy as np
 from typing import TYPE_CHECKING
 from luxai_s2.config import EnvConfig
+
 if TYPE_CHECKING:
     from luxai_s2.factory import Factory
     from luxai_s2.state import State
@@ -20,9 +21,9 @@ import luxai_s2.unit as luxai_unit
 class Action:
     def __init__(self, act_type: str) -> None:
         self.act_type = act_type
-        self.n = 1 # number of times to execute the action
+        self.n = 1  # number of times to execute the action
         self.power_cost = 0
-        self.repeat = False # whether to put action to the back of the action queue
+        self.repeat = False  # whether to put action to the back of the action queue
 
     def state_dict(self):
         raise NotImplementedError("")
@@ -45,12 +46,15 @@ class FactoryWaterAction(Action):
         super().__init__("factory_water")
         self.water_cost = None
         self.power_cost = 0
+
     def state_dict(self):
         return 2
 
 
 class MoveAction(Action):
-    def __init__(self, move_dir: int, dist: int = 1, repeat: bool = False, n: int = 1) -> None:
+    def __init__(
+        self, move_dir: int, dist: int = 1, repeat: bool = False, n: int = 1
+    ) -> None:
         super().__init__("move")
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
         self.move_dir = move_dir
@@ -64,7 +68,14 @@ class MoveAction(Action):
 
 
 class TransferAction(Action):
-    def __init__(self, transfer_dir: int, resource: int, transfer_amount: int, repeat: bool = False, n: int = 1) -> None:
+    def __init__(
+        self,
+        transfer_dir: int,
+        resource: int,
+        transfer_amount: int,
+        repeat: bool = False,
+        n: int = 1,
+    ) -> None:
         super().__init__("transfer")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.transfer_dir = transfer_dir
@@ -75,11 +86,22 @@ class TransferAction(Action):
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([1, self.transfer_dir, self.resource, self.transfer_amount, self.repeat, self.n])
+        return np.array(
+            [
+                1,
+                self.transfer_dir,
+                self.resource,
+                self.transfer_amount,
+                self.repeat,
+                self.n,
+            ]
+        )
 
 
 class PickupAction(Action):
-    def __init__(self, resource: int, pickup_amount: int, repeat: bool = False, n: int = 1) -> None:
+    def __init__(
+        self, resource: int, pickup_amount: int, repeat: bool = False, n: int = 1
+    ) -> None:
         super().__init__("pickup")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.resource = resource
@@ -161,7 +183,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbose=1):
+def validate_actions(env_cfg: EnvConfig, state: "State", actions_by_type, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -171,7 +193,8 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
     def invalidate_action(msg):
         nonlocal valid_action
         valid_action = False
-        if verbose > 0: print(f"{state.real_env_steps}: {msg}")
+        if verbose > 0:
+            print(f"{state.real_env_steps}: {msg}")
 
     for unit, transfer_action in actions_by_type["transfer"]:
         valid_action = True
@@ -232,7 +255,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
     for unit, move_action in actions_by_type["move"]:
         valid_action = True
         move_action: MoveAction
-        target_pos: Position = unit.pos + move_action.dist * move_deltas[move_action.move_dir]
+        target_pos: Position = (
+            unit.pos + move_action.dist * move_deltas[move_action.move_dir]
+        )
         if (
             target_pos.x < 0
             or target_pos.y < 0
@@ -253,9 +278,7 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
                 continue
         rubble = state.board.rubble[target_pos.x, target_pos.y]
         power_required = (
-            0
-            if move_action.move_dir == 0
-            else unit.move_power_cost(rubble)
+            0 if move_action.move_dir == 0 else unit.move_power_cost(rubble)
         )
 
         if power_required > unit.power:
@@ -278,7 +301,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
             continue
         if valid_action:
             self_destruct_action.power_cost = power_required
-            actions_by_type_validated["self_destruct"].append((unit, self_destruct_action))
+            actions_by_type_validated["self_destruct"].append(
+                (unit, self_destruct_action)
+            )
 
     for unit, recharge_action in actions_by_type["recharge"]:
         actions_by_type_validated["recharge"].append((unit, recharge_action))
@@ -286,15 +311,19 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
     for factory, build_action in actions_by_type["factory_build"]:
         valid_action = True
         build_action: FactoryBuildAction
-        factory: 'Factory'
+        factory: "Factory"
 
         unit_cfg = env_cfg.ROBOTS[build_action.unit_type.name]
         if factory.cargo.metal < unit_cfg.METAL_COST:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST} to build {build_action.unit_type}")
+            invalidate_action(
+                f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST} to build {build_action.unit_type}"
+            )
             continue
         power_required = unit_cfg.POWER_COST
         if factory.power < power_required:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {power_required} power")
+            invalidate_action(
+                f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {power_required} power"
+            )
             continue
         if valid_action:
             build_action.power_cost = power_required
@@ -305,7 +334,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbos
         valid_action = True
         water_cost = factory.water_cost(env_cfg)
         if water_cost > factory.cargo.water:
-            invalidate_action(f"Invalid factory water action for factory {factory} - Insufficient water, factory has {factory.cargo.water}, but requires {water_cost} to water lichen")
+            invalidate_action(
+                f"Invalid factory water action for factory {factory} - Insufficient water, factory has {factory.cargo.water}, but requires {water_cost} to water lichen"
+            )
             continue
         if valid_action:
             actions_by_type_validated["factory_water"].append((factory, water_action))

@@ -1,21 +1,24 @@
-
 import asyncio
-from dataclasses import dataclass
-import json
-import time
-from typing import Any, Callable, Dict, List, Optional
-import gym
-from luxai_runner.logger import Logger
-from luxai_runner.bot import Bot
-import numpy as np
 import dataclasses
-from luxai_runner.utils import to_json
+import json
 import os.path as osp
+import time
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional
 
-@dataclass 
+import gym
+import numpy as np
+from luxai_runner.bot import Bot
+from luxai_runner.logger import Logger
+from luxai_runner.utils import to_json
+
+
+@dataclass
 class ReplayConfig:
     save_format: str = "json"
     compressed_obs: bool = False
+
+
 @dataclass
 class EpisodeConfig:
     players: List[str]
@@ -26,6 +29,7 @@ class EpisodeConfig:
     render: Optional[bool] = True
     save_replay_path: Optional[str] = None
     replay_options: ReplayConfig = ReplayConfig()
+
 
 class Episode:
     def __init__(self, cfg: EpisodeConfig) -> None:
@@ -44,6 +48,7 @@ class Episode:
             del replay["rewards"]
             ext = ".json"
             from pathlib import Path
+
             dir_name = osp.dirname(self.cfg.save_replay_path)
             if dir_name != "":
                 Path(dir_name).mkdir(parents=True, exist_ok=True)
@@ -52,10 +57,12 @@ class Episode:
             with open(f"{self.cfg.save_replay_path}{ext}", "w") as f:
                 json.dump(replay, f)
         else:
-            raise ValueError(f"{self.cfg.replay_options.save_format} is not a valid save format")
+            raise ValueError(
+                f"{self.cfg.replay_options.save_format} is not a valid save format"
+            )
 
     async def run(self):
-        if len(self.players) != 2: 
+        if len(self.players) != 2:
             raise ValueError("Must provide two paths.")
         # Start agents
         players: Dict[str, Bot] = dict()
@@ -68,19 +75,18 @@ class Episode:
             start_tasks += [player.proc.start()]
         await asyncio.wait(start_tasks, return_when=asyncio.ALL_COMPLETED)
 
-        
         obs = self.env.reset(seed=self.seed)
         env_cfg = self.env.state.env_cfg
         state_obs = self.env.state.get_compressed_obs()
         obs = to_json(state_obs)
 
-        if self.cfg.render: 
+        if self.cfg.render:
             self.env.render()
             time.sleep(0.2)
         game_done = False
         rewards, dones, infos = dict(), dict(), dict()
         for agent in players:
-            rewards[agent] = 0 
+            rewards[agent] = 0
             dones[agent] = 0
             infos[agent] = dict(
                 # turn 0 provide configurations
@@ -99,11 +105,13 @@ class Episode:
             i += 1
             # print("===", self.env.env_steps)
             actions = dict()
-            
+
             agent_ids = []
             action_coros = []
             for player in players.values():
-                action = player.step(obs, self.env.env_steps, rewards[agent], infos[agent])
+                action = player.step(
+                    obs, self.env.env_steps, rewards[agent], infos[agent]
+                )
                 action_coros += [action]
                 agent_ids += [player.agent]
             resolved_actions = await asyncio.gather(*action_coros)
@@ -116,7 +124,9 @@ class Episode:
                 except:
                     if self.cfg.verbosity > 0:
                         if action is None:
-                            print(f"{agent_id} sent a invalid action {action}. Agent likely errored out somewhere, check above for stderr logs")
+                            print(
+                                f"{agent_id} sent a invalid action {action}. Agent likely errored out somewhere, check above for stderr logs"
+                            )
                         else:
                             print(f"{agent_id} sent a invalid action {action}")
                     actions[agent_id] = None
@@ -133,13 +143,14 @@ class Episode:
                 replay["rewards"].append(rewards)
                 replay["dones"].append(dones)
 
-            if self.cfg.render: 
+            if self.cfg.render:
                 self.env.render()
                 time.sleep(0.1)
             players_left = len(dones)
             for k in dones:
-                if dones[k]: players_left -= 1
-            if players_left < 2: # specific to lux ai 2022
+                if dones[k]:
+                    players_left -= 1
+            if players_left < 2:  # specific to lux ai 2022
                 game_done = True
         self.log.info(f"Final Scores: {rewards}")
         if save_replay:
