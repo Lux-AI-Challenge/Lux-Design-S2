@@ -1,43 +1,32 @@
-from collections import OrderedDict, defaultdict
 import functools
 import math
-from typing import Dict, List, Set, Tuple, Union
 import traceback
+from collections import OrderedDict, defaultdict
+from typing import Dict, List, Set, Tuple, Union
+
 import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from luxai_s2.actions import (
-    Action,
-    DigAction,
-    FactoryBuildAction,
-    FactoryWaterAction,
-    MoveAction,
-    PickupAction,
-    RechargeAction,
-    SelfDestructAction,
-    TransferAction,
-    format_action_vec,
-    format_factory_action,
-    validate_actions,
-    move_deltas,
-)
 
+from luxai_s2.actions import (Action, DigAction, FactoryBuildAction,
+                              FactoryWaterAction, MoveAction, PickupAction,
+                              RechargeAction, SelfDestructAction,
+                              TransferAction, format_action_vec,
+                              format_factory_action, move_deltas,
+                              validate_actions)
 from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.pyvisual.visualizer import Visualizer
-from luxai_s2.spaces.act_space import (
-    get_act_space,
-    get_act_space_bid,
-    get_act_space_init,
-    get_act_space_placement,
-)
+from luxai_s2.spaces.act_space import (get_act_space, get_act_space_bid,
+                                       get_act_space_init,
+                                       get_act_space_placement)
 from luxai_s2.spaces.obs_space import get_obs_space
 from luxai_s2.state import State
 from luxai_s2.team import FactionTypes, Team
 from luxai_s2.unit import Unit, UnitType
-from luxai_s2.utils.utils import is_day, get_top_two_power_units
+from luxai_s2.utils.utils import get_top_two_power_units, is_day
 
 # some utility types
 ActionsByType = Dict[str, List[Tuple[Unit, Action]]]

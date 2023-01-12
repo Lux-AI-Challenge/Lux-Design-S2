@@ -1,7 +1,8 @@
+import math
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
-import math
+
 import numpy as np
 
 try:
@@ -9,7 +10,6 @@ try:
 except:
     pass
 from luxai_s2.config import EnvConfig, UnitConfig
-
 from luxai_s2.globals import TERM_COLORS
 from luxai_s2.map.position import Position
 from luxai_s2.team import FactionTypes, Team

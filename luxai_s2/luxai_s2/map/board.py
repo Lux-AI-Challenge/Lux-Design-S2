@@ -1,13 +1,16 @@
 from __future__ import annotations
+
 from collections import defaultdict
-from typing import Dict, List
+from typing import TYPE_CHECKING, Dict, List
+
 import numpy as np
-from typing import TYPE_CHECKING
+
 from luxai_s2.config import EnvConfig
 
 if TYPE_CHECKING:
     from luxai_s2.factory import Factory
     from luxai_s2.state import State
+
 from luxai_s2.map.position import Position
 from luxai_s2.map_generator.generator import GameMap
 from luxai_s2.unit import Unit
