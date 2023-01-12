@@ -9,6 +9,7 @@ Major Engine Changes
 - Each tile of lichen owned and connected to a factory gives 1 power to the factory each turn
 - Actions in an action queue can specify both the number of times to repeat it directly, as well as whether to put it back to the end of the action queue once exhausted
 - When digging out lichen, if the final lichen is dug out then rubble equal to `DIG_RUBBLE_REMOVED` is added to the tile.
+- When handling collisions, if two units of the same weight class move onto the same tile, previously they both were destroyed. Now, all units with less power are destroyed and the unit with the most power in the collision loses half of the power of the unit with the 2nd most power.
 
 Configuration Changes
 - Light units rubble cost is floor(0.1 * rubble) now.

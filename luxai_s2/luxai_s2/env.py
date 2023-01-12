@@ -32,7 +32,7 @@ from luxai_s2.spaces.obs_space import get_obs_space
 from luxai_s2.state import State
 from luxai_s2.team import FactionTypes, Team
 from luxai_s2.unit import Unit, UnitType
-from luxai_s2.utils.utils import is_day
+from luxai_s2.utils.utils import is_day, get_top_two_power_units
 
 # some utility types
 ActionsByType = Dict[str, List[Tuple[Unit, Action]]]
@@ -466,10 +466,21 @@ class LuxAI_S2(ParallelEnv):
                 new_units_map_after_collision[pos_hash] += units
                 continue
             if len(heavy_entered_pos[pos_hash]) > 1:
-                # all units collide and break
-                for u in units:
-                    destroyed_units.add(u)
-                self._log(f"{len(destroyed_units)} Units collided at {pos_hash}")
+                # all units collide, find the top 2 units by power
+                (most_power_unit, next_most_power_unit) = get_top_two_power_units(units)
+                if most_power_unit.power == next_most_power_unit.power:
+                    # tie, all units break
+                    for u in units:
+                        destroyed_units.add(u)
+                    self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash}")
+                else:
+                    most_power_unit_power_loss = math.ceil(next_most_power_unit.power * self.env_cfg.POWER_LOSS_FACTOR)
+                    most_power_unit.power -= most_power_unit_power_loss
+                    surviving_unit = most_power_unit
+                    for u in units:
+                        if u.unit_id != surviving_unit.unit_id:
+                            destroyed_units.add(u)
+                    self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving with {surviving_unit.power} power")
                 all_destroyed_units.update(destroyed_units)
             elif len(heavy_entered_pos[pos_hash]) > 0:
                 # all other units collide and break
@@ -477,7 +488,7 @@ class LuxAI_S2(ParallelEnv):
                 for u in units:
                     if u.unit_id != surviving_unit.unit_id:
                         destroyed_units.add(u)
-                self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving")
+                self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving with {surviving_unit.power} power")
                 new_units_map_after_collision[pos_hash].append(surviving_unit)
                 all_destroyed_units.update(destroyed_units)
             else:
@@ -489,6 +500,7 @@ class LuxAI_S2(ParallelEnv):
                         if heavy_stationary_unit is not None:
                             heavy_stationary_unit = None
                             # we found >= 2 heavies stationary in a tile where no heavies are entering.
+                            # should only happen when spawning units
                             self._log(f"At {pos_hash}, >= 2 heavies crashed as they were all stationary")
                             break
                         heavy_stationary_unit = u
@@ -497,21 +509,32 @@ class LuxAI_S2(ParallelEnv):
                     surviving_unit = heavy_stationary_unit
                 else:
                     if len(light_entered_pos[pos_hash]) > 1:
-                        # all units collide
-                        surviving_unit = None
+                        # all units collide, get top 2 units by power
+                        (most_power_unit, next_most_power_unit) = get_top_two_power_units(units)
+                        print(most_power_unit.unit_id, most_power_unit.power, next_most_power_unit.unit_id, next_most_power_unit.power)
+                        if most_power_unit.power == next_most_power_unit.power:
+                            # tie, all units break
+                            for u in units:
+                                destroyed_units.add(u)
+                        else:
+                            most_power_unit_power_loss = math.ceil(next_most_power_unit.power * self.env_cfg.POWER_LOSS_FACTOR)
+                            most_power_unit.power -= most_power_unit_power_loss
+                            surviving_unit = most_power_unit
                     elif len(light_entered_pos[pos_hash]) > 0:
                         # light crashes into stationary light unit
                         surviving_unit = light_entered_pos[pos_hash][0]
                 if surviving_unit is None:
                     for u in units:
+                        print(u.unit_id, u.power)
                         destroyed_units.add(u)
-                    self._log(f"{len(destroyed_units)} Units collided at {pos_hash}")
+                    self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash}")
                     all_destroyed_units.update(destroyed_units)
                 else:
                     for u in units:
                         if u.unit_id != surviving_unit.unit_id:
+                            print(u.unit_id, u.power)
                             destroyed_units.add(u)
-                    self._log(f"{len(destroyed_units)} Units collided at {pos_hash} with {surviving_unit} surviving")
+                    self._log(f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving with {surviving_unit.power} power")
                     new_units_map_after_collision[pos_hash].append(surviving_unit)
                     all_destroyed_units.update(destroyed_units)
         self.state.board.units_map = new_units_map_after_collision

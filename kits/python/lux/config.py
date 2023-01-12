@@ -81,7 +81,6 @@ class EnvConfig:
     # game design note: Factories close to resource cluster = more resources are refined per turn
     # Then the high ice:water and ore:metal ratios encourages transfer of refined resources between 
     # factories dedicated to mining particular clusters which is more possible as it is more compact
-    # 
 
 
     FACTORY_CHARGE: int = 50
@@ -89,6 +88,8 @@ class EnvConfig:
     # game design note: with a positve water consumption, game becomes quite hard for new competitors.
     # so we set it to 0
 
+    #### Collision Mechanics ####
+    POWER_LOSS_FACTOR: float = 0.5
 
     #### Units ####
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
