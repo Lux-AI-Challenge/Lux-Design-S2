@@ -100,7 +100,7 @@ class EnvConfig:
                 BATTERY_CAPACITY=150,
                 CHARGE=1,
                 MOVE_COST=1,
-                RUBBLE_MOVEMENT_COST=0.1,
+                RUBBLE_MOVEMENT_COST=0.05,
                 DIG_COST=5,
                 SELF_DESTRUCT_COST=5,
                 DIG_RUBBLE_REMOVED=2,

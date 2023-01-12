@@ -1,6 +1,6 @@
+import dataclasses
 from argparse import Namespace
 from dataclasses import dataclass
-import dataclasses
 from typing import Dict, List
 
 
@@ -30,17 +30,15 @@ class UnitConfig:
     ACTION_QUEUE_POWER_COST: int = 1
 
 
-
 @dataclass
 class EnvConfig:
     ## various options that can be configured if needed
-
 
     ### Variable parameters that don't affect game logic much ###
     max_episode_length: int = 1000
     map_size: int = 48
     verbose: int = 1
-    
+
     # this can be disabled to improve env FPS but assume your actions are well formatted
     # During online competition this is set to True
     validate_action_space: bool = True
@@ -52,12 +50,13 @@ class EnvConfig:
     MAX_FACTORIES: int = 5
     CYCLE_LENGTH: int = 50
     DAY_LENGTH: int = 30
-    UNIT_ACTION_QUEUE_SIZE: int = 20 # when set to 1, then no action queue is used
-
+    UNIT_ACTION_QUEUE_SIZE: int = 20  # when set to 1, then no action queue is used
 
     MAX_RUBBLE: int = 100
     FACTORY_RUBBLE_AFTER_DESTRUCTION: int = 50
-    INIT_WATER_METAL_PER_FACTORY: int = 150 # amount of water and metal units given to each factory
+    INIT_WATER_METAL_PER_FACTORY: int = (
+        150  # amount of water and metal units given to each factory
+    )
     INIT_POWER_PER_FACTORY: int = 1000
 
     #### LICHEN ####
@@ -79,9 +78,8 @@ class EnvConfig:
     FACTORY_PROCESSING_RATE_METAL: int = 50
     ORE_METAL_RATIO: int = 5
     # game design note: Factories close to resource cluster = more resources are refined per turn
-    # Then the high ice:water and ore:metal ratios encourages transfer of refined resources between 
+    # Then the high ice:water and ore:metal ratios encourages transfer of refined resources between
     # factories dedicated to mining particular clusters which is more possible as it is more compact
-
 
     FACTORY_CHARGE: int = 50
     FACTORY_WATER_CONSUMPTION: int = 1
@@ -94,27 +92,40 @@ class EnvConfig:
     #### Units ####
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
         default_factory=lambda: dict(
-        LIGHT=UnitConfig(
-            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=150, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=0.1,
-            DIG_COST=5,
-            SELF_DESTRUCT_COST=5,
-            DIG_RUBBLE_REMOVED=2,
-            DIG_RESOURCE_GAIN=2,
-            DIG_LICHEN_REMOVED=10,
-            RUBBLE_AFTER_DESTRUCTION=1,
-            ACTION_QUEUE_POWER_COST=1,
-        ),
-
-        HEAVY=UnitConfig(
-            METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=3000, CHARGE=10, MOVE_COST=20, RUBBLE_MOVEMENT_COST=1,
-            DIG_COST=60,
-            SELF_DESTRUCT_COST=100,
-            DIG_RUBBLE_REMOVED=20,
-            DIG_RESOURCE_GAIN=20,
-            DIG_LICHEN_REMOVED=100,
-            RUBBLE_AFTER_DESTRUCTION=10,
-            ACTION_QUEUE_POWER_COST=10,
-        ),
+            LIGHT=UnitConfig(
+                METAL_COST=10,
+                POWER_COST=50,
+                INIT_POWER=50,
+                CARGO_SPACE=100,
+                BATTERY_CAPACITY=150,
+                CHARGE=1,
+                MOVE_COST=1,
+                RUBBLE_MOVEMENT_COST=0.05,
+                DIG_COST=5,
+                SELF_DESTRUCT_COST=5,
+                DIG_RUBBLE_REMOVED=2,
+                DIG_RESOURCE_GAIN=2,
+                DIG_LICHEN_REMOVED=10,
+                RUBBLE_AFTER_DESTRUCTION=1,
+                ACTION_QUEUE_POWER_COST=1,
+            ),
+            HEAVY=UnitConfig(
+                METAL_COST=100,
+                POWER_COST=500,
+                INIT_POWER=500,
+                CARGO_SPACE=1000,
+                BATTERY_CAPACITY=3000,
+                CHARGE=10,
+                MOVE_COST=20,
+                RUBBLE_MOVEMENT_COST=1,
+                DIG_COST=60,
+                SELF_DESTRUCT_COST=100,
+                DIG_RUBBLE_REMOVED=20,
+                DIG_RESOURCE_GAIN=20,
+                DIG_LICHEN_REMOVED=100,
+                RUBBLE_AFTER_DESTRUCTION=10,
+                ACTION_QUEUE_POWER_COST=10,
+            ),
         )
     )
 

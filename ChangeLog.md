@@ -12,7 +12,7 @@ Major Engine Changes
 - When handling collisions, if two units of the same weight class move onto the same tile, previously they both were destroyed. Now, all units with less power are destroyed and the unit with the most power in the collision loses half of the power of the unit with the 2nd most power.
 
 Configuration Changes
-- Light units rubble cost is floor(0.1 * rubble) now.
+- Light units rubble cost is floor(0.05 * rubble) now.
 - Heavy units dig cost is 60 power instead of 100.
 - It takes 20 lichen to grow to new tiles instead of 10 now.
 
