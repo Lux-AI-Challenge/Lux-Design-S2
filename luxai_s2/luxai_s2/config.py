@@ -61,7 +61,7 @@ class EnvConfig:
     INIT_POWER_PER_FACTORY: int = 1000
 
     #### LICHEN ####
-    MIN_LICHEN_TO_SPREAD: int = 10
+    MIN_LICHEN_TO_SPREAD: int = 20
     LICHEN_LOST_WITHOUT_WATER: int = 1
     LICHEN_GAINED_WITH_WATER: int = 1
     MAX_LICHEN_PER_TILE: int = 100

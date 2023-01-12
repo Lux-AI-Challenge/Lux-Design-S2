@@ -13,6 +13,7 @@ Major Engine Changes
 Configuration Changes
 - Light units rubble cost is floor(0.1 * rubble) now.
 - Heavy units dig cost is 60 power instead of 100.
+- It takes 20 lichen to grow to new tiles instead of 10 now.
 
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
