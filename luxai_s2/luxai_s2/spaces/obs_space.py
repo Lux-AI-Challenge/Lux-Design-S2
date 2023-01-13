@@ -70,14 +70,6 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
     
     obs_space["real_env_steps"] = spaces.Discrete(config.max_episode_length)
 
-    # weather schedule
-    obs_space["weather_schedule"] = spaces.Box(
-        low=0,
-        high=len(config.WEATHER),
-        shape=(config.max_episode_length,),
-        dtype=int,
-    )
-
     # teams obs space
     teams_obs_space = dict()
     for agent_name in agent_names:

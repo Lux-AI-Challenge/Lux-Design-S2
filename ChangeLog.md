@@ -4,7 +4,18 @@
 
 Official release!
 
+Major Engine Changes
+- Weather is removed
+- Actions in an action queue can specify both the number of times to repeat it directly, as well as whether to put it back to the end of the action queue once exhausted
+- When digging out lichen, if the final lichen is dug out then rubble equal to `DIG_RUBBLE_REMOVED` is added to the tile.
+
+Configuration Changes
+- Light units rubble cost is floor(0.1 * rubble) now.
+- Heavy units dig cost is 45 power instead of 100.
+
+Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
+
 
 ### v1.1.6
 - Fix bugs related to tournament tool and not printing some numbers as well as concurrent configuration not used

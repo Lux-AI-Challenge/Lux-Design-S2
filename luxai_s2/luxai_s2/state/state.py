@@ -18,7 +18,6 @@ class State:
     env_steps: int
     env_cfg: EnvConfig
     board: Board = None
-    weather_schedule: np.ndarray = None
     units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
@@ -71,7 +70,6 @@ class State:
             teams=teams,
             factories=factories,
             board=board,
-            weather_schedule=self.weather_schedule,
             real_env_steps=self.real_env_steps
         )
     def get_compressed_obs(self):
@@ -82,7 +80,6 @@ class State:
         # convert lichen and lichen strains to sparse matrix format?
         del data["board"]["ore"]
         del data["board"]["ice"]
-        del data["weather_schedule"]
         if self.real_env_steps >= 0:
             del data["board"]["valid_spawns_mask"]
         return data

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
-
+import math
 import numpy as np
 try:
     from termcolor import colored
@@ -62,17 +62,16 @@ class Unit:
         action = self.action_queue[0]
         return action
     def repeat_action(self, action):
-        # positive repeat in sequence
-        if action.repeat > 0:
-            action.repeat -= 1
-            return
-        # remove from front of queue
-        self.action_queue.pop(0)
-        # endless repeat puts action back at end of queue
-        if action.repeat == -1:
-            self.action_queue.append(action)
+        action.n -= 1
+        if action.n <= 0:
+            # remove from front of queue
+            self.action_queue.pop(0)
+            # endless repeat puts action back at end of queue
+            if action.repeat:
+                action.n = 1
+                self.action_queue.append(action)
     def move_power_cost(self, rubble_at_target: int):
-        return self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target
+        return math.floor(self.unit_cfg.MOVE_COST + self.unit_cfg.RUBBLE_MOVEMENT_COST * rubble_at_target)
     def state_dict(self):
         return dict(
             team_id=self.team_id,

@@ -16,18 +16,16 @@ from luxai_s2.map.position import Position
 import luxai_s2.unit as luxai_unit
 
 
-# (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X, 6 = repeat)
+# (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
 class Action:
     def __init__(self, act_type: str) -> None:
         self.act_type = act_type
-        self.repeat = 0
+        self.n = 1 # number of times to execute the action
         self.power_cost = 0
+        self.repeat = False # whether to put action to the back of the action queue
 
     def state_dict(self):
         raise NotImplementedError("")
-    @property
-    def repeating(self):
-        return self.repeat == -1 or self.repeat > 0
 
 
 class FactoryBuildAction(Action):
@@ -52,74 +50,80 @@ class FactoryWaterAction(Action):
 
 
 class MoveAction(Action):
-    def __init__(self, move_dir: int, dist: int = 1, repeat=0) -> None:
+    def __init__(self, move_dir: int, dist: int = 1, repeat: bool = False, n: int = 1) -> None:
         super().__init__("move")
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
         self.move_dir = move_dir
         self.dist = dist
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([0, self.move_dir, 0, 0, self.repeat])
+        return np.array([0, self.move_dir, 0, 0, self.repeat, self.n])
 
 
 class TransferAction(Action):
-    def __init__(self, transfer_dir: int, resource: int, transfer_amount: int, repeat=0) -> None:
+    def __init__(self, transfer_dir: int, resource: int, transfer_amount: int, repeat: bool = False, n: int = 1) -> None:
         super().__init__("transfer")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.transfer_dir = transfer_dir
         self.resource = resource
         self.transfer_amount = transfer_amount
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([1, self.transfer_dir, self.resource, self.transfer_amount, self.repeat])
+        return np.array([1, self.transfer_dir, self.resource, self.transfer_amount, self.repeat, self.n])
 
 
 class PickupAction(Action):
-    def __init__(self, resource: int, pickup_amount: int, repeat=0) -> None:
+    def __init__(self, resource: int, pickup_amount: int, repeat: bool = False, n: int = 1) -> None:
         super().__init__("pickup")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
         self.resource = resource
         self.pickup_amount = pickup_amount
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([2, 0, self.resource, self.pickup_amount, self.repeat])
+        return np.array([2, 0, self.resource, self.pickup_amount, self.repeat, self.n])
 
 
 class DigAction(Action):
-    def __init__(self, repeat=0) -> None:
+    def __init__(self, repeat: bool = False, n: int = 1) -> None:
         super().__init__("dig")
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([3, 0, 0, 0, self.repeat])
+        return np.array([3, 0, 0, 0, self.repeat, self.n])
 
 
 class SelfDestructAction(Action):
-    def __init__(self, repeat=0) -> None:
+    def __init__(self, repeat: bool = False, n: int = 1) -> None:
         super().__init__("self_destruct")
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([4, 0, 0, 0, self.repeat])
+        return np.array([4, 0, 0, 0, self.repeat, self.n])
 
 
 class RechargeAction(Action):
-    def __init__(self, power: int, repeat=0) -> None:
+    def __init__(self, power: int, repeat: bool = False, n: int = 1) -> None:
         super().__init__("recharge")
         self.power = power
         self.repeat = repeat
+        self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([5, 0, 0, self.power, self.repeat])
+        return np.array([5, 0, 0, self.power, self.repeat, self.n])
 
 
 def format_factory_action(a: int):
@@ -138,17 +142,17 @@ def format_action_vec(a: np.ndarray):
     # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
     a_type = a[0]
     if a_type == 0:
-        return MoveAction(a[1], dist=1, repeat=a[4])
+        return MoveAction(a[1], dist=1, repeat=a[4], n=a[5])
     elif a_type == 1:
-        return TransferAction(a[1], a[2], a[3], repeat=a[4])
+        return TransferAction(a[1], a[2], a[3], repeat=a[4], n=a[5])
     elif a_type == 2:
-        return PickupAction(a[2], a[3], repeat=a[4])
+        return PickupAction(a[2], a[3], repeat=a[4], n=a[5])
     elif a_type == 3:
-        return DigAction(repeat=a[4])
+        return DigAction(repeat=a[4], n=a[5])
     elif a_type == 4:
-        return SelfDestructAction(repeat=a[4])
+        return SelfDestructAction(repeat=a[4], n=a[5])
     elif a_type == 5:
-        return RechargeAction(a[3], repeat=a[4])
+        return RechargeAction(a[3], repeat=a[4], n=a[5])
     else:
         raise ValueError(f"Action {a} is invalid type, {a[0]} is not valid")
 
@@ -157,7 +161,7 @@ def format_action_vec(a: np.ndarray):
 move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 
-def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weather_cfg, verbose=1):
+def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, verbose=1):
     """
     validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
     """
@@ -199,10 +203,10 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     for unit, dig_action in actions_by_type["dig"]:
         valid_action = True
         dig_action: DigAction
-        dig_cost = math.ceil(unit.unit_cfg.DIG_COST * weather_cfg["power_loss_factor"])
+        dig_cost = unit.unit_cfg.DIG_COST
         if dig_cost > unit.power:
             invalidate_action(
-                f"Invalid Dig Action for unit {unit} - Tried to dig requiring ceil({unit.unit_cfg.DIG_COST} x {weather_cfg['power_loss_factor']}) = {dig_cost} power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid Dig Action for unit {unit} - Tried to dig requiring {dig_cost} power"
             )
             continue
         # verify not digging over a factory which is not allowed
@@ -251,14 +255,12 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         power_required = (
             0
             if move_action.move_dir == 0
-            else math.ceil(
-                unit.move_power_cost(rubble) * weather_cfg["power_loss_factor"]
-            )
+            else unit.move_power_cost(rubble)
         )
 
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring ceil({unit.move_power_cost(rubble)} x {weather_cfg['power_loss_factor']}) power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid movement action for unit {unit} - Tried to move to {target_pos} requiring {power_required} power"
             )
             continue
         if valid_action:
@@ -268,10 +270,10 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
     for unit, self_destruct_action in actions_by_type["self_destruct"]:
         valid_action = True
         self_destruct_action: SelfDestructAction
-        power_required = math.ceil(unit.unit_cfg.SELF_DESTRUCT_COST * weather_cfg["power_loss_factor"])
+        power_required = unit.unit_cfg.SELF_DESTRUCT_COST
         if power_required > unit.power:
             invalidate_action(
-                f"Invalid self destruct action for unit {unit} - Tried to self destruct requiring ceil({unit.unit_cfg.SELF_DESTRUCT_COST} x {weather_cfg['power_loss_factor']}) power but only had {unit.power} power. Power cost factor is {weather_cfg['power_loss_factor']}"
+                f"Invalid self destruct action for unit {unit} - Tried to self destruct requiring {power_required} power"
             )
             continue
         if valid_action:
@@ -290,9 +292,9 @@ def validate_actions(env_cfg: EnvConfig, state: 'State', actions_by_type, weathe
         if factory.cargo.metal < unit_cfg.METAL_COST:
             invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient metal, factory has {factory.cargo.metal}, but requires {unit_cfg.METAL_COST} to build {build_action.unit_type}")
             continue
-        power_required = math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
+        power_required = unit_cfg.POWER_COST
         if factory.power < power_required:
-            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires ceil({unit_cfg.POWER_COST} x {weather_cfg['power_loss_factor']}) to build {build_action.unit_type.name}. Power cost factor is {weather_cfg['power_loss_factor']}")
+            invalidate_action(f"Invalid factory build action for factory {factory} - Insufficient power, factory has {factory.power}, but requires {power_required} power")
             continue
         if valid_action:
             build_action.power_cost = power_required

@@ -2,7 +2,6 @@ import math
 from sys import stderr
 import numpy as np
 from dataclasses import dataclass
-from lux.weather import get_weather_config
 from lux.cargo import UnitCargo
 from lux.config import EnvConfig
 @dataclass
@@ -21,10 +20,8 @@ class Factory:
         unit_cfg = self.env_cfg.ROBOTS["HEAVY"]
         return unit_cfg.METAL_COST
     def build_heavy_power_cost(self, game_state):
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
         unit_cfg = self.env_cfg.ROBOTS["HEAVY"]
-        return math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
+        return unit_cfg.POWER_COST
     def can_build_heavy(self, game_state):
         return self.power >= self.build_heavy_power_cost(game_state) and self.cargo.metal >= self.build_heavy_metal_cost(game_state)
     def build_heavy(self):
@@ -34,10 +31,8 @@ class Factory:
         unit_cfg = self.env_cfg.ROBOTS["LIGHT"]
         return unit_cfg.METAL_COST
     def build_light_power_cost(self, game_state):
-        current_weather = game_state.weather_schedule[game_state.real_env_steps]
-        weather_cfg = get_weather_config(current_weather, self.env_cfg)
         unit_cfg = self.env_cfg.ROBOTS["LIGHT"]
-        return math.ceil(unit_cfg.POWER_COST * weather_cfg["power_loss_factor"])
+        return unit_cfg.POWER_COST
     def can_build_light(self, game_state):
         return self.power >= self.build_light_power_cost(game_state) and self.cargo.metal >= self.build_light_metal_cost(game_state)
 

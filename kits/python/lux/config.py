@@ -20,7 +20,7 @@ class UnitConfig:
     CHARGE: int = 1
     INIT_POWER: int = 50
     MOVE_COST: int = 1
-    RUBBLE_MOVEMENT_COST: int = 1
+    RUBBLE_MOVEMENT_COST: float = 1
     DIG_COST: int = 5
     DIG_RUBBLE_REMOVED: int = 1
     DIG_RESOURCE_GAIN: int = 2
@@ -92,7 +92,7 @@ class EnvConfig:
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
         default_factory=lambda: dict(
         LIGHT=UnitConfig(
-            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=150, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=0,
+            METAL_COST=10, POWER_COST=50, INIT_POWER=50, CARGO_SPACE=100, BATTERY_CAPACITY=150, CHARGE=1, MOVE_COST=1, RUBBLE_MOVEMENT_COST=0.1,
             DIG_COST=5,
             SELF_DESTRUCT_COST=5,
             DIG_RUBBLE_REMOVED=2,
@@ -104,7 +104,7 @@ class EnvConfig:
 
         HEAVY=UnitConfig(
             METAL_COST=100, POWER_COST=500, INIT_POWER=500, CARGO_SPACE=1000, BATTERY_CAPACITY=3000, CHARGE=10, MOVE_COST=20, RUBBLE_MOVEMENT_COST=1,
-            DIG_COST=100,
+            DIG_COST=45,
             SELF_DESTRUCT_COST=100,
             DIG_RUBBLE_REMOVED=20,
             DIG_RESOURCE_GAIN=20,
@@ -114,30 +114,6 @@ class EnvConfig:
         ),
         )
     )
-
-    #### Weather ####
-    WEATHER_ID_TO_NAME: list = dataclasses.field(default_factory=lambda : ["NONE","MARS_QUAKE","COLD_SNAP","DUST_STORM","SOLAR_FLARE"])
-    NUM_WEATHER_EVENTS_RANGE: List[int] = dataclasses.field(default_factory=lambda:[3,5])
-    WEATHER: dict = dataclasses.field(default_factory=lambda:dict(
-        MARS_QUAKE=dict(
-            TIME_RANGE=[1, 5]
-        ),
-        COLD_SNAP=dict(
-            # power multiplier required per robot action. 2 -> requires 2x as much power to execute the same action
-            POWER_CONSUMPTION=2,
-            TIME_RANGE=[10, 30]
-        ),
-        DUST_STORM=dict(
-            # power gain multiplier. .5 -> gain .5x as much power per turn
-            POWER_GAIN=0.5,
-            TIME_RANGE=[10, 30]
-        ),
-        SOLAR_FLARE=dict(
-            # power gain multiplier. 2 -> gain 2x as much power per turn
-            POWER_GAIN=2,
-            TIME_RANGE=[10, 30]
-        ),
-    ))
 
     @classmethod
     def from_dict(cls, data):

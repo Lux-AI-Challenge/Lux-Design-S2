@@ -109,9 +109,11 @@ def get_act_space(units: Dict[str, Dict[str, Unit]], factories: Dict[str, Dict[s
         # a[3] = X, amount of resources transferred or picked up if action is transfer or pickup.
         # If action is recharge, it is how much energy to store before executing the next action in queue
 
-        # a[4] = -1,0,1,... - -1 means repeat infinitely after succesful execution. 0 means never repeat again. n > 0 means repeat n times.
+        # a[4] = 0 or 1 (false or true). If True, then action is placed to the back of the action queue after it has been exhausted
+        
+        # a[5] = X, number of times to execute this action before exhausting it and removing it from the front of the action queue. Minimum is 1.
         act_space[u.unit_id] = ActionsQueue(
-            spaces.Box(low=np.array([0,0,0,0,-1]), high=np.array([5,4,4,config.max_transfer_amount, 100000]), shape=(5,), dtype=np.int64),
+            spaces.Box(low=np.array([0,0,0,0,0,1]), high=np.array([5,4,4,config.max_transfer_amount, 1, 9999]), shape=(6,), dtype=np.int64),
         config.UNIT_ACTION_QUEUE_SIZE)
 
     for factory in factories[agent].values():
