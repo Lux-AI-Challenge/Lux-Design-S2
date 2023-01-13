@@ -10,7 +10,6 @@ import {
   SetupAction,
   Step,
   Team,
-  Weather,
 } from './model';
 
 function transpose<T>(matrix: T[][]): T[][] {
@@ -129,7 +128,6 @@ export function parseLuxAI2022Episode(data: any, teamNames: [string, string] = [
   }
 
   const steps: Step[] = [];
-  const weatherSchedule = data.observations[0].weather_schedule;
 
   for (let i = 0; i < data.observations.length; i++) {
     const obs = data.observations[i];
@@ -277,17 +275,10 @@ export function parseLuxAI2022Episode(data: any, teamNames: [string, string] = [
         action: isSetupAction(actions[playerId]) ? parseSetupAction(actions[playerId]) : null,
       });
     }
-
-    let weather = Weather.Normal;
-    if (obs.real_env_steps >= 0 && obs.real_env_steps < weatherSchedule.length) {
-      weather = weatherSchedule[obs.real_env_steps];
-    }
-
     steps.push({
       step: obs.real_env_steps,
       board,
       teams: teams as [Team, Team],
-      weather,
     });
   }
 

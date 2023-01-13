@@ -12,25 +12,9 @@ import {
   IconPlayerTrackPrev,
 } from '@tabler/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Weather } from '../../episode/model';
 import { useStore } from '../../store';
 
 const SPEEDS = [0.5, 1, 2, 4, 8, 16, 32];
-
-function formatWeather(weather: Weather): string {
-  switch (weather) {
-    case Weather.Normal:
-      return 'Normal Weather';
-    case Weather.MarsQuake:
-      return 'Mars Quake';
-    case Weather.ColdSnap:
-      return 'Cold Snap';
-    case Weather.DustStorm:
-      return 'Dust Storm';
-    case Weather.SolarFlare:
-      return 'Solar Flare';
-  }
-}
 
 interface TurnControlProps {
   showHotkeysButton: boolean;
@@ -65,24 +49,7 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
     for (const step of episode.steps) {
       const isDay = step.step < 0 || step.step % 50 < 30;
 
-      let color: string;
-      switch (step.weather) {
-        case Weather.Normal:
-          color = isDay ? '#e9ecef' : '#bdc3c7';
-          break;
-        case Weather.MarsQuake:
-          color = '#e74c3c';
-          break;
-        case Weather.ColdSnap:
-          color = '#48dbfb';
-          break;
-        case Weather.DustStorm:
-          color = '#c2b280';
-          break;
-        case Weather.SolarFlare:
-          color = '#f39c12';
-          break;
-      }
+      const color = isDay ? '#e9ecef' : '#bdc3c7';
 
       if (gradientParts.length === 0) {
         gradientParts.push([color, padding, padding + pxPerStep]);
@@ -316,7 +283,6 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
 
       <Group position="apart">
         <Text>{isDay ? 'Day' : 'Night'}</Text>
-        <Text>{formatWeather(step.weather)}</Text>
         {selectedTile !== null && (
           <Text>
             Tile: ({selectedTile.x}, {selectedTile.y})

@@ -27,14 +27,6 @@ export enum Faction {
   FirstMars = 'FirstMars',
 }
 
-export enum Weather {
-  Normal,
-  MarsQuake,
-  ColdSnap,
-  DustStorm,
-  SolarFlare,
-}
-
 export interface Tile {
   x: number;
   y: number;
@@ -165,7 +157,6 @@ export interface Step {
   step: number;
   board: Board;
   teams: [Team, Team];
-  weather: Weather;
 }
 
 export interface Episode {
