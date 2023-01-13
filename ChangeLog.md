@@ -6,12 +6,16 @@ Official release!
 
 Major Engine Changes
 - Weather is removed
+- Each tile of lichen owned and connected to a factory gives 1 power to the factory each turn
 - Actions in an action queue can specify both the number of times to repeat it directly, as well as whether to put it back to the end of the action queue once exhausted
 - When digging out lichen, if the final lichen is dug out then rubble equal to `DIG_RUBBLE_REMOVED` is added to the tile.
+- When handling collisions, if two units of the same weight class move onto the same tile, previously they both were destroyed. Now, all units with less power are destroyed and the unit with the most power in the collision loses half of the power of the unit with the 2nd most power.
+- Map generation has been updated to include resource distribution types, a matrix of low/high ore and low/high ice. Low = ~15 tiles, High = ~35 tiles.
 
 Configuration Changes
-- Light units rubble cost is floor(0.1 * rubble) now.
-- Heavy units dig cost is 45 power instead of 100.
+- Light units rubble cost is floor(0.05 * rubble) now.
+- Heavy units dig cost is 60 power instead of 100.
+- It takes 20 lichen to grow to new tiles instead of 10 now.
 
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version

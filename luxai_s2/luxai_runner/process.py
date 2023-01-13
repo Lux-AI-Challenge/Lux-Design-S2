@@ -1,18 +1,25 @@
-from datetime import datetime
-from subprocess import Popen, PIPE, STDOUT
-from threading import Thread
-from queue import Queue, Empty
 import asyncio
-
 import atexit
 import os
 import sys
+from datetime import datetime
+from queue import Empty, Queue
+from subprocess import PIPE, STDOUT, Popen
+from threading import Thread
 from typing import IO
+
 from luxai_runner.logger import Logger
 
 
 class BotProcess:
-    def __init__(self, command: str, file_path: str, verbose: int = 2, live_log: str = True, direct_import_python_bots = False) -> None:
+    def __init__(
+        self,
+        command: str,
+        file_path: str,
+        verbose: int = 2,
+        live_log: str = True,
+        direct_import_python_bots=False,
+    ) -> None:
         self.command = command
         if self.command == "./":
             self.is_binary = True
@@ -26,6 +33,7 @@ class BotProcess:
         if self.direct_import_python_bots and self.command == "python":
             import importlib.util
             import sys
+
             sys.path.append(os.path.dirname(file_path))
             spec = importlib.util.spec_from_file_location("bot", file_path)
             foo = importlib.util.module_from_spec(spec)
@@ -35,7 +43,8 @@ class BotProcess:
             self.agent_fn = foo.agent_fn
 
     async def start(self):
-        if self.direct_import_python_bots and self.command == "python": return
+        if self.direct_import_python_bots and self.command == "python":
+            return
         cwd = os.path.dirname(self.file_path)
         if cwd == "":
             cwd = "."
@@ -50,7 +59,7 @@ class BotProcess:
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 cwd=cwd,
-                limit=1024 * 128
+                limit=1024 * 128,
             )
         else:
             if self.command == "java" and base_file_path.endswith(".java"):
@@ -62,7 +71,7 @@ class BotProcess:
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 cwd=cwd,
-                limit=1024 * 128
+                limit=1024 * 128,
             )
         self.log.info(f"Started {self.command} {self.file_path}")
         # following 4 lines from https://stackoverflow.com/questions/375427/a-non-blocking-read-on-a-subprocess-pipe-in-python
@@ -77,20 +86,27 @@ class BotProcess:
         # self._t.daemon = True  # thread dies with the program
         # self._t.start()
         self.stderr_queue = []
+
         async def log_stream(stream):
             while not stream.at_eof():
                 data = await stream.readline()
                 line = data.decode()
 
-                if stream.at_eof() and len(line) == 0: break
-                elif self.live_log: self.log.err(line, end="")
-                else: self.stderr_queue.append(line)
+                if stream.at_eof() and len(line) == 0:
+                    break
+                elif self.live_log:
+                    self.log.err(line, end="")
+                else:
+                    self.stderr_queue.append(line)
+
         asyncio.create_task(log_stream(self._agent_process.stderr))
         # await asyncio.gather(watch(self._agent_process.stderr, 'E:'))
 
     async def write(self, msg: str):
         self._agent_process.stdin.write(msg.encode())
-        stdout, stderr = await asyncio.gather(self._agent_process.stdout.readline(), self.stderr())
+        stdout, stderr = await asyncio.gather(
+            self._agent_process.stdout.readline(), self.stderr()
+        )
         return stdout.decode(), stderr
 
     async def receive(self) -> str:
@@ -98,7 +114,7 @@ class BotProcess:
         return res
 
     async def stderr(self):
-        r =  "".join(self.stderr_queue)
+        r = "".join(self.stderr_queue)
         self.stderr_queue.clear()
         return r
         # while True:

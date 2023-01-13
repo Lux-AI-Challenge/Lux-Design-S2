@@ -1,17 +1,25 @@
-from argparse import Namespace
 import asyncio
 import json
-import os.path as osp
 import os
-from subprocess import Popen
+import os.path as osp
 import time
+from argparse import Namespace
+from subprocess import Popen
+
 from luxai_runner.ext_to_command import ext_to_command
 from luxai_runner.logger import Logger
 from luxai_runner.process import BotProcess
 
 
 class Bot:
-    def __init__(self, main_file_path: str, agent: str, agent_idx: str, verbose: int = 1, direct_import_python_bots = False) -> None:
+    def __init__(
+        self,
+        main_file_path: str,
+        agent: str,
+        agent_idx: str,
+        verbose: int = 1,
+        direct_import_python_bots=False,
+    ) -> None:
         """
         if direct_import_python_bots is True, will directly import the python agents and call their agent_fn functions.
         """
@@ -29,17 +37,34 @@ class Bot:
         self.agent_idx = agent_idx
         self.verbose = verbose
         self.direct_import_python_bots = direct_import_python_bots
-        self.proc = BotProcess(self.command, self.main_file_path, verbose=verbose, direct_import_python_bots=direct_import_python_bots)
+        self.proc = BotProcess(
+            self.command,
+            self.main_file_path,
+            verbose=verbose,
+            direct_import_python_bots=direct_import_python_bots,
+        )
         # timing
         self.remainingOverageTime = 60
         self.time_per_step = 3
 
-        self.log = Logger(identifier=f"{self.agent}, {self.main_file_path}",verbosity=verbose)
+        self.log = Logger(
+            identifier=f"{self.agent}, {self.main_file_path}", verbosity=verbose
+        )
 
     async def step(self, obs, step: int, reward: float = 0, info=dict()):
         stime = time.time()
         import copy
-        observations = copy.deepcopy(dict(obs=obs, step=step, remainingOverageTime=self.remainingOverageTime, player=self.agent, reward=float(reward), info=info))
+
+        observations = copy.deepcopy(
+            dict(
+                obs=obs,
+                step=step,
+                remainingOverageTime=self.remainingOverageTime,
+                player=self.agent,
+                reward=float(reward),
+                info=info,
+            )
+        )
         stderr = None
         try:
             if self.direct_import_python_bots and self.command == "python":
@@ -51,7 +76,10 @@ class Bot:
                 action = self.proc.agent_fn(observations, dict(env_cfg=env_cfg))
             else:
                 data = json.dumps(observations)
-                action, stderr = await asyncio.wait_for(self.proc.write(f"{data}\n"), timeout=self.remainingOverageTime + self.time_per_step)
+                action, stderr = await asyncio.wait_for(
+                    self.proc.write(f"{data}\n"),
+                    timeout=self.remainingOverageTime + self.time_per_step,
+                )
         except asyncio.TimeoutError:
             action, stderr = None, None
         time_used = time.time() - stime
@@ -68,7 +96,8 @@ class Bot:
             action = None
         else:
             try:
-                if isinstance(action, dict): return action
+                if isinstance(action, dict):
+                    return action
                 action = json.loads(action)
                 if not isinstance(action, dict):
                     raise ValueError("")
@@ -76,4 +105,3 @@ class Bot:
                 self.log.err(f"cannot parse action '{action}'")
                 action = None
         return action
-

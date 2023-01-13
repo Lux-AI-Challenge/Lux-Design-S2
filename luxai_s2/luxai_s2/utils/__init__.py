@@ -1,2 +1,2 @@
-from .utils import is_day
 from .animate import animate
+from .utils import is_day

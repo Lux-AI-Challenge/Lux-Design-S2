@@ -24,11 +24,11 @@ Each player will start the game by bidding on an extra factory, then placing sev
 
 ## Day/Night Cycle
 
-The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all [Robots](#robots) but during the night robots power is not recharged. [Factories](#factories) generate power each turn regardless.
+The Day/Night cycle consists of a 50 turn cycle, the first 30 turns being day turns, the last 20 being night turns. During the day, solar panels replenish the power of all [Robots](#robots) but during the night robots power is not recharged. [Factories](#factories) generate power each turn regardless with a base amount of 50 power from their nuclear reactor and additional power from connected [lichen tiles](#lichen)
 
 ## Resources
 
-There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a robot transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore 5 units at a time without wasting any. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 6 ice into 3 water and leave 1 ice leftover.
+There are two kinds of raw resources: Ice and Ore which can be refined by a factory into Water or Metal respectively. These resources are collected by Light or Heavy robots, then dropped off once a robot transfers them to a friendly factory, which then automatically converts them into refined resources at a constant rate. Refined resources are used for growing lichen (scoring points) as well as building more robots. Lastly, factories will process ice and ore integer units at a time without wasting any based on the processing ratio. E.g. if a factory has 8 ore, it will refine 5 ore into 1 metal and leave 3 ore leftover; if a factory has 7 ice, it will refine 4 ice into 1 water and leave 3 ice leftover.
 
 <table>
   <tr>
@@ -44,11 +44,11 @@ There are two kinds of raw resources: Ice and Ore which can be refined by a fact
   <tr>
    <td>Ice
    </td>
-   <td>50/turn
+   <td>100/turn
    </td>
    <td>Water
    </td>
-   <td>2:1
+   <td>4:1
    </td>
   </tr>
   <tr>
@@ -76,9 +76,13 @@ _Strategy Tip_: Going first is not always advantageous!
 
 [Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
 
-[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated `n` times or infinitely. Non-infinite action repeats mean once the action is executed `n` times succesfully, it is then removed from the action queue. When repeating infinitely `repeat = -1`, then once it is succesfully executed it is moved back to the end of the queue. Moreover, if an action in the queue fails to execute due to lack of power, that action is not removed from the queue and is kept at the front of the queue.
+[Robots](#robots) always execute actions from an action queue (limited to 20 items) while factories directly execute actions. Each robot action in the queue has an `n` value and a `repeat` value. `n` represents the number of times the robot will execute a particular action before removing it from the front of the queue and `repeat` is whether or not to replace the action to the back of the queue once it's been removed from the front.
 
-Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies. The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
+An action is considered executed if it's valid against current state, namely there is sufficient power to perform the action. If it's not valid, that turn it will not count towards `n`.
+
+Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies (two weight classes of robots). The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
+
+`repeat = True` allows you to design action queues that repeat infinitely and don't need any updates, saving power. `n` allows for generally more complex action sequences to be designed in an action queue which is limited to 20 actions.
 
 The next few sections describe the [Robots](#robots) and [Factories](#factories) in detail.
 
@@ -131,20 +135,20 @@ There are two robot types, Light and Heavy. Every robot has an action queue and 
 
 ### Light and Heavy Robots
 
-Light and Heavy Robots share the same set of actions / action space. However, in general, heavy robots generally accomplish 10x more with their actions but their actions will cost 20x more power.
+Light and Heavy Robots share the same set of actions / action space. However, in general, heavy robots generally accomplish 10x more with their actions but their actions will cost more power.
 
 
 ### Actions
 
-* Move - Move the robot in one of 5 directions, North, East, South, West, Center. Moving center costs no power.
+* Move - Move the robot in one of 5 directions, North, East, South, West, Center. Moving center costs no power and is ignored.
 * Transfer -  Send any amount of a single resource-type (including power) from a robot’s cargo to an orthogonally adjacent tile or to the tile it is standing on. If a robot is on the target tile, it will receive the transferred resources up to the robot’s cargo capacity. If the target tile is a friendly factory tile, the factory receives all the transferred resources. If the receiving entity can't receive all transferred resources due to space limitations, then the overflow resources are wasted. Factories are given preference over other robots in receiving resources from transfers.
     * Algorithmically, we perform the following procedure. The environment creates transfer requests for every robot that wants to transfer and remove the specified resources from the robot’s cargo. All transfer requests are attempted to be fulfilled, and any excess caused by not enough cargo space (either robot has no space, or too many robots transferring to the same robot and go over the max capacity), is then wasted.
 * Pickup - When on top of any factory tile (there are 3x3 per factory), can pick up any amount of power or any resources. Preference is given to robots with lower robot IDs.
 * Dig - Does a number of things depending on what tile the robot is on top of
     * Rubbleless resource tile - gain raw resources (ice or ore)
     * Rubble - reduce rubble by 2 if light, 20 if heavy
-    * Lichen - reduce lichen value by 10 if light, 100 if heavy
-* Self destruct - Destroys the robot on the spot, which creates rubble.
+    * Lichen - reduce lichen value by 10 if light, 100 if heavy. If lichen value was previously > 0 and is now 0, rubble is added, 2 if light, 20 if heavy
+* Self destruct - Destroys the robot on the spot, which creates 1 rubble if light, 10 if heavy.
 * Recharge X - the robot waits until it has X power. In code, the recharge X command is not removed from the action queue until the robot has X power.
 * Repeat - This is not an explicit action but is a boolean/bit that can be added to each action. It tells the robot to append the action the robot just took to the end of the action queue. When set to False, executed actions are not appended back and are removed from the queue.
 
@@ -163,7 +167,7 @@ Action
   <tr>
    <td>Move
    </td>
-   <td>floor(1 + 0.1 * rubble value of target square) power
+   <td>floor(1 + 0.05 * rubble value of target square) power
    </td>
    <td>floor(20 + 1 * rubble value of target square) power
    </td>
@@ -189,7 +193,7 @@ Action
    </td>
    <td>5 power (2 rubble removed, 2 resources gain, 10 lichen value removed)
    </td>
-   <td>45 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
+   <td>60 power (20 rubble removed, 20 resource gain, 100 lichen value removed)
    </td>
   </tr>
   <tr>
@@ -216,10 +220,13 @@ Each square on the map has a rubble value which affects how difficult that squar
 
 This environment also has robot collisions. Robots which move onto the same square on the same turn can be destroyed and add rubble to the square according the following rules:
 
-* Heavy robots that end their turn on a square with only other light robots, it will destroy all the light robots and leave the single heavy robot unaffected.
-* If two robots of the same weight end their turn on the same square, and one of them did not move in the previous turn, the stationary robot is destroyed. If both robots moved, both robots are destroyed.
+* Heavy robots that end their turn on a square with only other light robots will destroy all the light robots and leave the single heavy robot unaffected.
+* If two or more robots of the same weight end their turn on the same square, we do check the following:
+  - If only one of the units moved onto the square, the moving unit survives. 
+  - If none of the units moved onto the square, all are destroyed. 
+  - If multiple units move onto the square, then the unit with the most power survives. Moreover, that unit loses power equal to half the power of the unit with the second most power in the collision.
 
-Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed in this way adds 10 rubble. (same values as marsquakes and self destructs).
+Each light robot destroyed in this way adds 1 rubble. Each heavy robot destroyed in this way adds 10 rubble. (same values as self destructs).
 
 Lastly, any addition of rubble onto a tile with [Lichen](#lichen) on it will automatically remove all of the lichen on that tile.
 
@@ -230,7 +237,8 @@ A factory is a building that takes up 3x3 tiles of space. Robots created from th
 Each turn a factory will automatically:
 
 * Gain 50 power (regardless of day or night)
-* Convert up to 50 ice to 25 water 
+* Gain power equal to the number of connected [lichen tiles](#lichen)
+* Convert up to 100 ice to 25 water 
 * Convert up to 50 ore to 10 metal 
 * Consume 1 water
 
@@ -240,7 +248,7 @@ Each factory can perform one of the following actions
 
 * Build a light robot
 * Build a heavy robot
-* Grow lichen - Waters lichen around the factory, costing `ceil(connected lichen tiles / 10)` water
+* Grow lichen - Waters [lichen](#lichen) around the factory, costing `ceil(connected lichen tiles / 10)` water
 
 The following is the cost to build the two classes of robots. Note that also robots when built will have their battery charged up to the power cost.
 
@@ -274,15 +282,17 @@ Robot Type
 
 ## Lichen
 
-At the end of the game, the amount of lichen on each square that a player owns is summed and whoever has a higher value wins the game. 
+At the end of the game, the amount of lichen on each square that a player owns is summed and **whoever has a higher value wins the game.**
 
-At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 10 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
+At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. This is for determinism and simplified water costs.
 
-When rubble is added to a tile, that tile loses all lichen.
+Factories also **gain power** equal to the number of their own connected lichen tiles each turn.
 
-If a number of lichen tiles get disconnected from your factory (due to some rubble being added to a tile or being digged out), they cannot be watered (and thus will lose 1 lichen value) until connected again through lichen tiles.
+When rubble is added to a tile, that tile **loses all lichen.**
+
+If a number of lichen tiles get disconnected from your factory (due to some rubble being added to a tile or being dug out), they cannot be watered (and thus will lose 1 lichen value) until connected again through lichen tiles. These tiles still count to your score however.
 
 At the end of each turn, all tiles that have not been watered lose 1 lichen.
 

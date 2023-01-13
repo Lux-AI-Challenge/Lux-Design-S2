@@ -1,7 +1,9 @@
 import time
 
 import numpy as np
+
 from luxai_s2.env import LuxAI_S2
+
 if __name__ == "__main__":
     env: LuxAI_S2 = LuxAI_S2()
     o = env.reset()
@@ -13,7 +15,9 @@ if __name__ == "__main__":
     o, r, d, _ = env.step(
         {
             "player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])),
-            "player_1": dict(faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])),
+            "player_1": dict(
+                faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])
+            ),
         }
     )
     env.render()
@@ -21,6 +25,7 @@ if __name__ == "__main__":
     s_time = time.time_ns()
     N = 10000
     import ipdb
+
     for i in range(N):
         all_actions = dict()
         for team_id, agent in enumerate(env.possible_agents):
@@ -38,7 +43,7 @@ if __name__ == "__main__":
             for unit_id, unit in obs["units"][agent].items():
                 # actions[unit_id] = np.array([0, np.random.randint(5), 0, 0, 0])
                 # make units go to 0, 0
-                pos = unit['pos']
+                pos = unit["pos"]
                 target_pos = np.array([32, 32])
                 diff = target_pos - pos
                 # print(pos, diff)
