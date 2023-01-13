@@ -73,8 +73,8 @@ class EnvConfig:
     BIDDING_SYSTEM: bool = True
 
     #### Factories ####
-    FACTORY_PROCESSING_RATE_WATER: int = 50
-    ICE_WATER_RATIO: int = 2
+    FACTORY_PROCESSING_RATE_WATER: int = 100
+    ICE_WATER_RATIO: int = 4
     FACTORY_PROCESSING_RATE_METAL: int = 50
     ORE_METAL_RATIO: int = 5
     # game design note: Factories close to resource cluster = more resources are refined per turn
