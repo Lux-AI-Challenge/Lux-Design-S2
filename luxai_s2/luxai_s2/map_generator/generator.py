@@ -72,18 +72,18 @@ CAVE_CONFIGS = dict(
     # {'rubble_count': 48.165737847222225, 'ice': 37.93, 'ore': 38.36}
     high_ice_high_ore=CaveConfig(),
     low_ice_high_ore=CaveConfig(
-        ice_high_range=(99.6,100),
+        ice_high_range=(99.7,100),
         ice_mid_range=(91,91.5)
     ),
     high_ice_low_ore=CaveConfig(
-        ore_high_range=(99.5,100),
-        ore_mid_range=(81,81.4)
+        ore_high_range=(99.6,100),
+        ore_mid_range=(81.1,81.4),
     ),
-    # {'rubble_count': 48.165737847222225, 'ice': 19.97, 'ore': 18.49}
+    # {'rubble_count': 48.165737847222225, 'ice': 16.96, 'ore': 14.57}
     low_ice_low_ore=CaveConfig(
-        ore_high_range=(99.5,100),
-        ore_mid_range=(81,81.4),
-        ice_high_range=(99.6,100),
+        ore_high_range=(99.6,100),
+        ore_mid_range=(81.1,81.4),
+        ice_high_range=(99.7,100),
         ice_mid_range=(91,91.5)
     ),
 )
@@ -284,24 +284,24 @@ class MountainConfig():
 MOUNTAIN_CONFIGS = dict(
     # {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 36.0}
     high_ice_high_ore=MountainConfig(),
-    # {'rubble_count': 21.35736545138889, 'ice': 20.0, 'ore': 36.0}
+    # {'rubble_count': 21.35736545138889, 'ice': 16.02, 'ore': 36.0}
     low_ice_high_ore=MountainConfig( 
-        ice_high_range=(99.4,100),
-        ice_mid_range=(52.7,53),
-        ice_low_range=(0,20)
-    ),
-    # {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 20.0}
-    high_ice_low_ore=MountainConfig(
-        ore_low_range=(61.6,62),
-        ore_mid_range=(84.5,85) 
-    ),
-    # # {'rubble_count': 21.35736545138889, 'ice': 20.0, 'ore': 20.0}
-    low_ice_low_ore=MountainConfig(
-        ice_high_range=(99.4,100),
-        ice_mid_range=(52.7,53),
+        ice_high_range=(99.5,100),
+        ice_mid_range=(52.8,53),
         ice_low_range=(0,20),
-        ore_low_range=(61.6,62),
-        ore_mid_range=(84.5,85) 
+    ),
+    # {'rubble_count': 21.35736545138889, 'ice': 36.19, 'ore': 16.0}
+    high_ice_low_ore=MountainConfig(
+        ore_low_range=(61.7,62),
+        ore_mid_range=(84.6,85) 
+    ),
+    # # {'rubble_count': 21.35736545138889, 'ice': 16.02, 'ore': 16.0}
+    low_ice_low_ore=MountainConfig(
+        ice_high_range=(99.5,100),
+        ice_mid_range=(52.8,53),
+        ice_low_range=(0,20),
+        ore_low_range=(61.7,62),
+        ore_mid_range=(84.6,85) 
     ),
 )
 class Mountain(GameMap):
