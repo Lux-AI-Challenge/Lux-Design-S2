@@ -76,9 +76,13 @@ _Strategy Tip_: Going first is not always advantageous!
 
 [Robots](#robots) and [Factories](#factories) can perform actions each turn given certain conditions and enough power to do so. In general, all actions are simultaneously applied and are validated against the state of the game at the start of a turn. Each turn players can give an action to each factory and a queue of actions to each robot. 
 
-[Robots](#robots) always execute actions in the order of their current action queue. [Robot](#robots) actions can also be configured to be repeated `n` times or infinitely. Non-infinite action repeats mean once the action is executed `n` times succesfully, it is then removed from the action queue. When repeating infinitely `repeat = -1`, then once it is succesfully executed it is moved back to the end of the queue. Moreover, if an action in the queue fails to execute due to lack of power, that action is not removed from the queue and is kept at the front of the queue.
+[Robots](#robots) always execute actions from an action queue (limited to 20 items) while factories directly execute actions. Each robot action in the queue has an `n` value and a `repeat` value. `n` represents the number of times the robot will execute a particular action before removing it from the front of the queue and `repeat` is whether or not to replace the action to the back of the queue once it's been removed from the front.
 
-Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies. The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
+An action is considered executed if it's valid against current state, namely there is sufficient power to perform the action. If it's not valid, that turn it will not count towards `n`.
+
+Submitting a new action queue for a robot requires the robot to use additional power to replace it's action queue. It costs an additional 1 power for Lights, an additional 10 power for Heavies (two weight classes of robots). The new action queue is then stored and wipes out what was stored previously. If the robot does not have enough power, the action queue is simply not replaced.
+
+`repeat = True` allows you to design action queues that repeat infinitely and don't need any updates, saving power. `n` allows for generally more complex action sequences to be designed in an action queue which is limited to 20 actions.
 
 The next few sections describe the [Robots](#robots) and [Factories](#factories) in detail.
 

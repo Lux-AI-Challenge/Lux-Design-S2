@@ -184,7 +184,8 @@ move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
 
 def validate_actions(env_cfg: EnvConfig, state: "State", actions_by_type, verbose=1):
     """
-    validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated
+    validates actions and logs warnings for any invalid actions. Invalid actions are subsequently not evaluated and
+    won't count towards the `n` value of actions that execute multiple times.
     """
     actions_by_type_validated = defaultdict(list)
     valid_action = True
