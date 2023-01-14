@@ -1,8 +1,11 @@
-import os
-from typing import List, Tuple
-from luxai_s2.state import State
-import os.path as osp
 import json
+import os
+import os.path as osp
+from typing import List, Tuple
+
+from luxai_s2.state import State
+
+
 def decode_replay_file(replay_file) -> Tuple[State, List]:
     """
     Takes an input replay file of any kind from any source and extracts the full trajectory with observations
@@ -18,9 +21,10 @@ def decode_replay_file(replay_file) -> Tuple[State, List]:
     elif ext == ".h5":
         pass
 
+
 def generate_replay(states: List[State]):
     """
     Generates a compressed replay.
-    
+
     """
     return [s.get_compressed_obs() for s in states]
