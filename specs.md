@@ -1,6 +1,6 @@
-# Lux AI Challenge Season 2 Beta Specifications
+# Lux AI Challenge Season 2 Specifications
 
-For documentation on the API, see [this document](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/). To get started developing a bot, see our [Github](https://github.com/Lux-AI-Challenge/Lux-Design-S2). This is currently in Beta, so we are looking for feedback and bug reports, if you find any issues with the code, specifications etc. please ping us on [Discord](https://discord.gg/aWJt3UAcgn) or post a [GitHub Issue](https://github.com/Lux-AI-Challenge/Lux-Design-S2/issues)
+For documentation on the API, see [this document](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/). To get started developing a bot, see our [Github](https://github.com/Lux-AI-Challenge/Lux-Design-S2). We are always looking for feedback and bug reports, if you find any issues with the code, specifications etc. please ping us on [Discord](https://discord.gg/aWJt3UAcgn) or post a [GitHub Issue](https://github.com/Lux-AI-Challenge/Lux-Design-S2/issues)
 
 
 ## Background

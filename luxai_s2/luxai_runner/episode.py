@@ -150,7 +150,7 @@ class Episode:
             for k in dones:
                 if dones[k]:
                     players_left -= 1
-            if players_left < 2:  # specific to lux ai 2022
+            if players_left < 2:  # specific to lux ai s2
                 game_done = True
         self.log.info(f"Final Scores: {rewards}")
         if save_replay:
