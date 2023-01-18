@@ -133,9 +133,9 @@ export function LoadFromElsewhere(): JSX.Element {
 
       {/* prettier-ignore */}
       <Text mb="xs">
-        By default all non-localhost requests are proxied through a <a href="https://github.com/Rob--W/cors-anywhere" target="_blank" rel="noreferrer">CORS Anywhere</a> instance hosted by me (the creator of Lux Eye 2022).
-        This is necessary because many websites (including Kaggle) serve requests without <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank" rel="noreferrer">Access-Control-Allow-Origin</a> headers.
-        While I promise no episodes are persisted server-side, you are free to change the proxy to one hosted by yourself.
+        By default all non-localhost cross-origin requests are proxied through a <a href="https://github.com/Rob--W/cors-anywhere" target="_blank" rel="noreferrer">CORS Anywhere</a> instance.
+        This is necessary because many websites serve requests without <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank" rel="noreferrer">Access-Control-Allow-Origin</a> headers.
+        While we promise no episodes are persisted server-side, you are free to change the proxy to one hosted by yourself.
         Emptying the proxy field disables the use of any proxy.
       </Text>
 
