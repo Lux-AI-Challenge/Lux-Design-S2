@@ -4,14 +4,20 @@ import { Factory, Robot, RobotType, Step, Tile } from '../../episode/model';
 import { useStore } from '../../store';
 import { getTeamColor } from '../../utils/colors';
 
-interface Sizes {
+interface SizeConfig {
   gutterSize: number;
   tileSize: number;
   boardSize: number;
   tilesPerSide: number;
 }
 
-function getSizes(maxWidth: number, step: Step): Sizes {
+interface ThemeConfig {
+  minimalTheme: boolean;
+}
+
+type Config = SizeConfig & ThemeConfig;
+
+function getSizeConfig(maxWidth: number, step: Step): SizeConfig {
   const gutterSize = 1;
   const tilesPerSide = step.board.rubble.length;
 
@@ -31,7 +37,7 @@ function getSizes(maxWidth: number, step: Step): Sizes {
   };
 }
 
-function tileToCanvas(sizes: Sizes, tile: Tile): [number, number] {
+function tileToCanvas(sizes: SizeConfig, tile: Tile): [number, number] {
   return [
     (tile.x + 1) * sizes.gutterSize + tile.x * sizes.tileSize,
     (tile.y + 1) * sizes.gutterSize + tile.y * sizes.tileSize,
@@ -43,7 +49,7 @@ function scale(value: number, relativeMin: number, relativeMax: number): number 
   return (clampedValue - relativeMin) / (relativeMax - relativeMin);
 }
 
-function drawTileBackgrounds(ctx: CanvasRenderingContext2D, sizes: Sizes, step: Step): void {
+function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step: Step): void {
   const board = step.board;
   const isDay = step.step < 0 || step.step % 50 < 30;
 
@@ -54,12 +60,12 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, sizes: Sizes, step: 
     }
   }
 
-  for (let tileY = 0; tileY < sizes.tilesPerSide; tileY++) {
-    for (let tileX = 0; tileX < sizes.tilesPerSide; tileX++) {
-      const [canvasX, canvasY] = tileToCanvas(sizes, { x: tileX, y: tileY });
+  for (let tileY = 0; tileY < config.tilesPerSide; tileY++) {
+    for (let tileX = 0; tileX < config.tilesPerSide; tileX++) {
+      const [canvasX, canvasY] = tileToCanvas(config, { x: tileX, y: tileY });
 
       ctx.fillStyle = 'white';
-      ctx.fillRect(canvasX, canvasY, sizes.tileSize, sizes.tileSize);
+      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
 
       let color: string;
       if (board.ice[tileY][tileX] > 0) {
@@ -73,14 +79,14 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, sizes: Sizes, step: 
       }
 
       ctx.fillStyle = color;
-      ctx.fillRect(canvasX, canvasY, sizes.tileSize, sizes.tileSize);
+      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
 
       const lichen = board.lichen[tileY][tileX];
       if (lichen > 0) {
         const team = teamStrains.get(board.strains[tileY][tileX]);
         if (team !== undefined) {
           ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
-          ctx.fillRect(canvasX, canvasY, sizes.tileSize, sizes.tileSize);
+          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
         }
       }
     }
@@ -91,17 +97,17 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, sizes: Sizes, step: 
 
 function drawFactory(
   ctx: CanvasRenderingContext2D,
-  sizes: Sizes,
+  config: Config,
   factory: Factory,
   team: number,
   selectedTile: Tile | null,
 ): void {
-  const [canvasX, canvasY] = tileToCanvas(sizes, {
+  const [canvasX, canvasY] = tileToCanvas(config, {
     x: factory.tile.x - 1,
     y: factory.tile.y - 1,
   });
 
-  const size = sizes.tileSize * 3 + sizes.gutterSize * 2;
+  const size = config.tileSize * 3 + config.gutterSize * 2;
   const isSelected =
     selectedTile !== null &&
     Math.abs(factory.tile.x - selectedTile.x) <= 1 &&
@@ -126,12 +132,12 @@ function drawFactory(
 
 function drawRobot(
   ctx: CanvasRenderingContext2D,
-  sizes: Sizes,
+  config: Config,
   robot: Robot,
   team: number,
   selectedTile: Tile | null,
 ): void {
-  const [canvasX, canvasY] = tileToCanvas(sizes, robot.tile);
+  const [canvasX, canvasY] = tileToCanvas(config, robot.tile);
 
   const isSelected = selectedTile !== null && robot.tile.x === selectedTile.x && robot.tile.y === selectedTile.y;
 
@@ -140,87 +146,87 @@ function drawRobot(
     ctx.strokeStyle = 'black';
     ctx.lineWidth = isSelected ? 2 : 1;
 
-    const radius = sizes.tileSize / 2 - 1;
+    const radius = config.tileSize / 2 - 1;
 
     ctx.beginPath();
-    ctx.arc(canvasX + sizes.tileSize / 2, canvasY + sizes.tileSize / 2, radius, 0, 2 * Math.PI);
+    ctx.arc(canvasX + config.tileSize / 2, canvasY + config.tileSize / 2, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
   } else {
     const borderSize = isSelected ? 1 : 2;
 
     ctx.fillStyle = 'black';
-    ctx.fillRect(canvasX, canvasY, sizes.tileSize, sizes.tileSize);
+    ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
 
     ctx.fillStyle = getTeamColor(team, 1.0);
     ctx.fillRect(
       canvasX + borderSize,
       canvasY + borderSize,
-      sizes.tileSize - borderSize * 2,
-      sizes.tileSize - borderSize * 2,
+      config.tileSize - borderSize * 2,
+      config.tileSize - borderSize * 2,
     );
   }
 
   ctx.restore();
 }
 
-function drawSelectedTile(ctx: CanvasRenderingContext2D, sizes: Sizes, selectedTile: Tile): void {
-  const [canvasX, canvasY] = tileToCanvas(sizes, selectedTile);
+function drawSelectedTile(ctx: CanvasRenderingContext2D, config: Config, selectedTile: Tile): void {
+  const [canvasX, canvasY] = tileToCanvas(config, selectedTile);
 
   ctx.fillStyle = 'black';
 
   ctx.fillRect(
-    canvasX - sizes.gutterSize,
-    canvasY - sizes.gutterSize,
-    sizes.tileSize + sizes.gutterSize * 2,
-    sizes.gutterSize,
+    canvasX - config.gutterSize,
+    canvasY - config.gutterSize,
+    config.tileSize + config.gutterSize * 2,
+    config.gutterSize,
   );
 
   ctx.fillRect(
-    canvasX - sizes.gutterSize,
-    canvasY + sizes.tileSize,
-    sizes.tileSize + sizes.gutterSize * 2,
-    sizes.gutterSize,
+    canvasX - config.gutterSize,
+    canvasY + config.tileSize,
+    config.tileSize + config.gutterSize * 2,
+    config.gutterSize,
   );
 
   ctx.fillRect(
-    canvasX - sizes.gutterSize,
-    canvasY - sizes.gutterSize,
-    sizes.gutterSize,
-    sizes.tileSize + sizes.gutterSize * 2,
+    canvasX - config.gutterSize,
+    canvasY - config.gutterSize,
+    config.gutterSize,
+    config.tileSize + config.gutterSize * 2,
   );
 
   ctx.fillRect(
-    canvasX + sizes.tileSize,
-    canvasY - sizes.gutterSize,
-    sizes.gutterSize,
-    sizes.tileSize + sizes.gutterSize * 2,
+    canvasX + config.tileSize,
+    canvasY - config.gutterSize,
+    config.gutterSize,
+    config.tileSize + config.gutterSize * 2,
   );
 
   ctx.restore();
 }
 
-function drawBoard(ctx: CanvasRenderingContext2D, sizes: Sizes, step: Step, selectedTile: Tile | null): void {
+function drawBoard(ctx: CanvasRenderingContext2D, config: Config, step: Step, selectedTile: Tile | null): void {
   ctx.save();
 
   ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, sizes.boardSize, sizes.boardSize);
+  ctx.fillRect(0, 0, config.boardSize, config.boardSize);
   ctx.restore();
 
-  drawTileBackgrounds(ctx, sizes, step);
+  drawTileBackgrounds(ctx, config, step);
 
   for (let i = 0; i < 2; i++) {
     for (const factory of step.teams[i].factories) {
-      drawFactory(ctx, sizes, factory, i, selectedTile);
+      drawFactory(ctx, config, factory, i, selectedTile);
     }
 
     for (const robot of step.teams[i].robots) {
-      drawRobot(ctx, sizes, robot, i, selectedTile);
+      drawRobot(ctx, config, robot, i, selectedTile);
     }
   }
 
   if (selectedTile !== null) {
-    drawSelectedTile(ctx, sizes, selectedTile);
+    drawSelectedTile(ctx, config, selectedTile);
   }
 }
 
@@ -239,7 +245,9 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
   const selectedTile = useStore(state => state.selectedTile);
   const setSelectedTile = useStore(state => state.setSelectedTile);
 
-  const [sizes, setSizes] = useState<Sizes>({
+  const minimalTheme = useStore(state => state.minimalTheme);
+
+  const [sizeConfig, setSizeConfig] = useState<SizeConfig>({
     gutterSize: 0,
     tileSize: 0,
     boardSize: 0,
@@ -253,14 +261,14 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
   }, []);
 
   useEffect(() => {
-    const newSizes = getSizes(maxWidth, step);
+    const newSizeConfig = getSizeConfig(maxWidth, step);
     if (
-      newSizes.gutterSize !== sizes.gutterSize ||
-      newSizes.tileSize !== sizes.tileSize ||
-      newSizes.boardSize !== sizes.boardSize ||
-      newSizes.tilesPerSide !== sizes.tilesPerSide
+      newSizeConfig.gutterSize !== sizeConfig.gutterSize ||
+      newSizeConfig.tileSize !== sizeConfig.tileSize ||
+      newSizeConfig.boardSize !== sizeConfig.boardSize ||
+      newSizeConfig.tilesPerSide !== sizeConfig.tilesPerSide
     ) {
-      setSizes(newSizes);
+      setSizeConfig(newSizeConfig);
     }
   }, [maxWidth, episode]);
 
@@ -269,32 +277,40 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       return;
     }
 
-    for (let tileY = 0; tileY < sizes.tilesPerSide; tileY++) {
-      for (let tileX = 0; tileX < sizes.tilesPerSide; tileX++) {
+    for (let tileY = 0; tileY < sizeConfig.tilesPerSide; tileY++) {
+      for (let tileX = 0; tileX < sizeConfig.tilesPerSide; tileX++) {
         const tile = { x: tileX, y: tileY };
-        const [canvasX, canvasY] = tileToCanvas(sizes, tile);
+        const [canvasX, canvasY] = tileToCanvas(sizeConfig, tile);
 
         if (
           mouseX >= canvasX &&
-          mouseX < canvasX + sizes.tileSize &&
+          mouseX < canvasX + sizeConfig.tileSize &&
           mouseY >= canvasY &&
-          mouseY < canvasY + sizes.tileSize
+          mouseY < canvasY + sizeConfig.tileSize
         ) {
           setSelectedTile(tile);
           return;
         }
       }
     }
-  }, [sizes, mouseX, mouseY, hovered]);
+  }, [sizeConfig, mouseX, mouseY, hovered]);
 
   useEffect(() => {
-    if (sizes.tileSize <= 0) {
+    if (sizeConfig.tileSize <= 0) {
       return;
     }
 
     const ctx = canvasMouseRef.current.getContext('2d')!;
-    drawBoard(ctx, sizes, step, selectedTile);
-  }, [step, sizes, selectedTile]);
 
-  return <canvas ref={canvasRef} width={sizes.boardSize} height={sizes.boardSize} onMouseLeave={onMouseLeave} />;
+    const config = {
+      ...sizeConfig,
+      minimalTheme,
+    };
+
+    drawBoard(ctx, config, step, selectedTile);
+  }, [step, sizeConfig, selectedTile, minimalTheme]);
+
+  return (
+    <canvas ref={canvasRef} width={sizeConfig.boardSize} height={sizeConfig.boardSize} onMouseLeave={onMouseLeave} />
+  );
 }
