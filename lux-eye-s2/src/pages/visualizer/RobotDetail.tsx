@@ -131,7 +131,13 @@ export function RobotDetail({ robot }: RobotDetailProps): JSX.Element {
           <Text size="sm">Ice: {robot.cargo.ice}</Text>
         </Grid.Col>
         <Grid.Col span={6}>
+          <Text size="sm">Water: {robot.cargo.water}</Text>
+        </Grid.Col>
+        <Grid.Col span={6}>
           <Text size="sm">Ore: {robot.cargo.ore}</Text>
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <Text size="sm">Metal: {robot.cargo.metal}</Text>
         </Grid.Col>
         <Grid.Col span={12}>
           <Text size="sm">Action: {robot.actionQueue.length > 0 ? formatAction(robot.actionQueue[0]) : 'None'}</Text>
