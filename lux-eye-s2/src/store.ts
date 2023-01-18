@@ -150,7 +150,7 @@ export const useStore = create<State>((set, get) => ({
       throw new Error('Invalid input');
     }
 
-    if (parsedURL.hostname !== 'localhost' && proxy.trim().length > 0) {
+    if (parsedURL.hostname !== 'localhost' && parsedURL.origin !== window.location.origin && proxy.trim().length > 0) {
       url = proxy + url;
     }
 
