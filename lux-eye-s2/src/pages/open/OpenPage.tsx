@@ -15,7 +15,7 @@ export function OpenPage(): JSX.Element {
       return;
     }
 
-    if (event.data.observations && event.data.actions && event.data) {
+    if (event.data && ((event.data.observations && event.data.actions) || (event.data.info && event.data.steps))) {
       hasData = true;
 
       try {

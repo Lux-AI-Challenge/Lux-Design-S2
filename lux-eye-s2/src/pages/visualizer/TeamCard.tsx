@@ -9,7 +9,7 @@ import { FactoryDetail } from './FactoryDetail';
 import { RobotDetail } from './RobotDetail';
 import { UnitList } from './UnitList';
 
-function getWinnerInfo(episode: Episode, team: number): [won: boolean, reason: string | null] {
+export function getWinnerInfo(episode: Episode, team: number): [won: boolean, reason: string | null] {
   const lastStep = episode.steps[episode.steps.length - 1];
 
   const me = lastStep.teams[team];
@@ -113,7 +113,12 @@ export function TeamCard({ id, tabHeight }: TeamCardProps): JSX.Element {
         {team.name}
       </Title>
 
-      {isWinner && <Badge color={id === 0 ? 'blue' : 'red'}>{winnerReason}</Badge>}
+      <Badge color="dark">{formatFaction(team.faction)}</Badge>
+      {isWinner && (
+        <Badge color={id === 0 ? 'blue' : 'red'} ml={8}>
+          {winnerReason}
+        </Badge>
+      )}
 
       <Space h="xs" />
 
