@@ -64,11 +64,11 @@ export function NotebookPage(): JSX.Element {
     );
   }
 
-  const tabHeight = 370;
+  const tabHeight = 346;
 
   return (
-    <Container fluid>
-      <Grid columns={24} style={{ width: '1040px' }}>
+    <Container fluid size={1034}>
+      <Grid columns={24}>
         <Grid.Col span={7}>
           <TeamCard id={0} tabHeight={tabHeight} />
         </Grid.Col>
