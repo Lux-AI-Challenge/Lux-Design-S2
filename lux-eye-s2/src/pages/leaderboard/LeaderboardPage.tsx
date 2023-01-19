@@ -1,6 +1,5 @@
 import { Button, Center, Container, Grid, Loader, Paper, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
-import { IconArrowUpRight } from '@tabler/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store';
