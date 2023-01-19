@@ -172,7 +172,7 @@ export function App(): JSX.Element {
             <Link to={`/${location.search}`} className={classes.title} onClick={closeBurger}>
               <Text size="xl" weight={700}>
                 <IconEye size={28} className={classes.icon} />
-                Lux Eye 2022
+                Lux Eye S2
               </Text>
             </Link>
           </span>

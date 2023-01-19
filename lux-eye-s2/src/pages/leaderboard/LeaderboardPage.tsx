@@ -55,7 +55,7 @@ export function LeaderboardPage(): JSX.Element {
   }, []);
 
   const openInNewTab = useCallback(() => {
-    const tab = window.open(`${window.location.origin}/lux-eye-2022/open`, '_blank')!;
+    const tab = window.open(`${window.location.origin}/lux-eye-s2/open`, '_blank')!;
     for (const ms of [100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 10000]) {
       setTimeout(() => tab.postMessage(rawEpisode, window.location.origin), ms);
     }

@@ -1,4 +1,4 @@
-import { parseLuxAI2022Episode } from './luxai2022';
+import { parseLuxAIS2Episode } from './luxai-s2';
 import { Episode } from './model';
 
 export function isKaggleEnvironmentsEpisode(data: any): boolean {
@@ -26,5 +26,5 @@ export function parseKaggleEnvironmentsEpisode(data: any): Episode {
     });
   }
 
-  return parseLuxAI2022Episode({ observations, actions }, teamNames);
+  return parseLuxAIS2Episode({ observations, actions }, teamNames);
 }

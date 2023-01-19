@@ -118,11 +118,11 @@ function parseRobotAction(data: any): RobotAction {
   }
 }
 
-export function isLuxAI2022Episode(data: any): boolean {
+export function isLuxAIS2Episode(data: any): boolean {
   return typeof data === 'object' && data.observations !== undefined && data.actions !== undefined;
 }
 
-export function parseLuxAI2022Episode(data: any, teamNames: [string, string] = ['Player A', 'Player B']): Episode {
+export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['Player A', 'Player B']): Episode {
   if (data.observations[0].board.valid_spawns_mask === undefined) {
     throw new Error('Only Lux AI v1.1.0+ episodes are supported');
   }

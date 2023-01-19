@@ -5,7 +5,7 @@ import { useStore } from '../../store';
 import { notifyError } from '../../utils/notifications';
 import { HomeCard } from './HomeCard';
 
-const DEFAULT_PROXY = 'https://lux-eye-2022-cors-anywhere.jmerle.dev/';
+const DEFAULT_PROXY = 'https://lux-eye-s2-cors-anywhere.jmerle.dev/';
 
 const useStyles = createStyles(() => ({
   submitButton: {

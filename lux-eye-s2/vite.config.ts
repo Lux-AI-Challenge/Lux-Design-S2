@@ -4,5 +4,5 @@ import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/lux-eye-2022/',
+  base: '/lux-eye-s2/',
 });

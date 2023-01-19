@@ -2,7 +2,7 @@ import axios from 'axios';
 import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import { isKaggleEnvironmentsEpisode, parseKaggleEnvironmentsEpisode } from './episode/kaggle-environments';
-import { isLuxAI2022Episode, parseLuxAI2022Episode } from './episode/luxai2022';
+import { isLuxAIS2Episode, parseLuxAIS2Episode } from './episode/luxai-s2';
 import { Episode, Tile } from './episode/model';
 
 export interface State {
@@ -79,7 +79,7 @@ export const useStore = create(
 
       load: data => {
         const formatError =
-          'Episode data has unsupported format, only JSON replays generated using the luxai2022 CLI or the kaggle-environments CLI are supported';
+          'Episode data has unsupported format, only JSON replays generated using the luxai-s2 CLI or the kaggle-environments CLI are supported';
 
         if (typeof data !== 'object') {
           try {
@@ -90,8 +90,8 @@ export const useStore = create(
         }
 
         let episode: Episode | null = null;
-        if (isLuxAI2022Episode(data)) {
-          episode = parseLuxAI2022Episode(data);
+        if (isLuxAIS2Episode(data)) {
+          episode = parseLuxAIS2Episode(data);
         } else if (isKaggleEnvironmentsEpisode(data)) {
           episode = parseKaggleEnvironmentsEpisode(data);
         } else {
@@ -135,10 +135,10 @@ export const useStore = create(
         set({ loading: true, progress: 0 });
 
         const interestingPrefixes = [
-          'https://www.kaggle.com/competitions/lux-ai-2022/leaderboard?dialog=episodes-episode-',
           'https://www.kaggle.com/competitions/lux-ai-2022-beta/leaderboard?dialog=episodes-episode-',
-          'https://www.kaggle.com/competitions/lux-ai-2022/submissions?dialog=episodes-episode-',
           'https://www.kaggle.com/competitions/lux-ai-2022-beta/submissions?dialog=episodes-episode-',
+          'https://www.kaggle.com/competitions/lux-ai-season-2/leaderboard?dialog=episodes-episode-',
+          'https://www.kaggle.com/competitions/lux-ai-season-2/submissions?dialog=episodes-episode-',
         ];
 
         let url: string;
@@ -204,7 +204,7 @@ export const useStore = create(
       },
     }),
     {
-      name: 'lux-eye-2022',
+      name: 'lux-eye-s2',
       partialize: state =>
         ({
           minimalTheme: state.minimalTheme,
