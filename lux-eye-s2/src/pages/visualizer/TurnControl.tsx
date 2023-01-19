@@ -3,8 +3,6 @@ import { HotkeyItem, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
 import {
   IconArrowUpRight,
-  IconBrush,
-  IconBrushOff,
   IconChevronsLeft,
   IconChevronsRight,
   IconKeyboard,
@@ -36,8 +34,8 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
 
   const selectedTile = useStore(state => state.selectedTile);
 
-  const minimalTheme = useStore(state => state.minimalTheme);
-  const setTheme = useStore(state => state.setTheme);
+  /* const minimalTheme = useStore(state => state.minimalTheme);
+  const setTheme = useStore(state => state.setTheme); */
 
   const [playing, setPlaying] = useState(false);
 
@@ -143,9 +141,9 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
     setTurn(episode.steps.length - 1);
   }, [episode]);
 
-  const toggleTheme = useCallback(() => {
+  /* const toggleTheme = useCallback(() => {
     setTheme(!minimalTheme);
-  }, [minimalTheme]);
+  }, [minimalTheme]); */
 
   const openHotkeysModal = useCallback(() => {
     modals.openModal({
@@ -271,9 +269,9 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
         <ActionIcon color="blue" variant="transparent" title="Go to end" onClick={goToEnd}>
           <IconPlayerTrackNext />
         </ActionIcon>
-        <ActionIcon color="blue" variant="transparent" title="Toggle theme (minimal/aesthetic)" onClick={toggleTheme}>
+        {/* <ActionIcon color="blue" variant="transparent" title="Toggle theme (minimal/aesthetic)" onClick={toggleTheme}>
           {minimalTheme ? <IconBrushOff /> : <IconBrush />}
-        </ActionIcon>
+        </ActionIcon> */}
         {showHotkeysButton && (
           <ActionIcon color="blue" variant="transparent" title="Show hotkeys" onClick={openHotkeysModal}>
             <IconKeyboard />
