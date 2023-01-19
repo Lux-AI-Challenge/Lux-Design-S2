@@ -586,6 +586,7 @@ class LuxAI_S2(ParallelEnv):
                     self._log(
                         f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving with {surviving_unit.power} power"
                     )
+                    new_units_map_after_collision[pos_hash].append(surviving_unit)
                 all_destroyed_units.update(destroyed_units)
             elif len(heavy_entered_pos[pos_hash]) > 0:
                 # all other units collide and break
