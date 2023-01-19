@@ -1,5 +1,6 @@
-import { Center, Container, Grid, Loader, Paper, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
+import { Button, Center, Container, Grid, Loader, Paper, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
+import { IconArrowUpRight } from '@tabler/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store';
@@ -13,6 +14,7 @@ let hasData = false;
 
 export function LeaderboardPage(): JSX.Element {
   const episode = useStore(state => state.episode);
+  const rawEpisode = useStore(state => state.rawEpisode);
   const load = useStore(state => state.load);
 
   const { ref: boardContainerRef, width: maxBoardWidth } = useElementSize();
@@ -53,6 +55,13 @@ export function LeaderboardPage(): JSX.Element {
     return () => clearInterval(interval);
   }, []);
 
+  const openInNewTab = useCallback(() => {
+    const tab = window.open(`${window.location.origin}/lux-eye-2022/open`, '_blank')!;
+    for (const ms of [100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 10000]) {
+      setTimeout(() => tab.postMessage(rawEpisode, window.location.origin), ms);
+    }
+  }, [rawEpisode]);
+
   if (episode === null) {
     return (
       <Center style={{ height: '100vh' }}>
@@ -73,15 +82,18 @@ export function LeaderboardPage(): JSX.Element {
         <Grid.Col span={24} xs={18} offsetXs={3}>
           <Paper shadow="xs" p="xs" withBorder>
             <Stack spacing={4}>
-              <SimpleGrid cols={2}>
+              <SimpleGrid cols={3}>
                 <TeamBanner id={0} alignLeft={true} />
+                <Button compact color="blue" variant="subtle" onClick={openInNewTab}>
+                  Open in full visualizer
+                </Button>
                 <TeamBanner id={1} alignLeft={false} />
               </SimpleGrid>
               <Center ref={boardContainerRef}>
                 <Board maxWidth={maxBoardWidth} />
               </Center>
               <Space h={4} />
-              <TurnControl showHotkeysButton={false} showOpenButton={true} />
+              <TurnControl showHotkeysButton={false} showOpenButton={false} />
             </Stack>
           </Paper>
         </Grid.Col>
