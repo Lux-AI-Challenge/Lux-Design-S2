@@ -92,7 +92,7 @@ export function LeaderboardPage(): JSX.Element {
                 <Board maxWidth={maxBoardWidth} />
               </Center>
               <Space h={4} />
-              <TurnControl showHotkeysButton={false} showOpenButton={false} />
+              <TurnControl showHotkeysButton={true} showOpenButton={false} />
             </Stack>
           </Paper>
         </Grid.Col>
