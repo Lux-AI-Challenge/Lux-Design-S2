@@ -43,7 +43,7 @@ class Agent():
             if factory.power >= self.env_cfg.ROBOTS["HEAVY"].POWER_COST and \
             factory.cargo.metal >= self.env_cfg.ROBOTS["HEAVY"].METAL_COST:
                 actions[unit_id] = factory.build_heavy()
-            if factory.water_cost(game_state) <= factory.cargo.water / 5:
+            if factory.water_cost(game_state) <= factory.cargo.water / 5 - 200:
                 actions[unit_id] = factory.water()
             factory_tiles += [factory.pos]
             factory_units += [factory]
