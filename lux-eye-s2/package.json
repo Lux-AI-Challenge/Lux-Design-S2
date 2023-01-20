@@ -1,7 +1,6 @@
 {
-  "name": "lux-eye-s2",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@lux-ai/lux-eye-s2",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +11,8 @@
     "lint:prettier": "prettier --check --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'",
     "fix": "yarn fix:eslint && yarn fix:prettier",
     "fix:eslint": "yarn lint:eslint --fix",
-    "fix:prettier": "prettier --write --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'"
+    "fix:prettier": "prettier --write --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'",
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -50,6 +50,9 @@
     "typescript": "^4.9.4",
     "vite": "^4.0.4"
   },
+  "files": [
+    "dist"
+  ],
   "eslintConfig": {
     "root": true,
     "extends": [
