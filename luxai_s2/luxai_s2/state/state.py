@@ -189,6 +189,7 @@ class State:
                 cargo = UnitCargo(**f_data["cargo"])
                 factory = Factory(teams[agent], unit_id, f_data['strain_id'])
                 factory.cargo = cargo
+                factory.power = f_data['power']
                 factory.pos.pos = np.array(f_data['pos'])
                 factories[agent][unit_id] = factory
                 
