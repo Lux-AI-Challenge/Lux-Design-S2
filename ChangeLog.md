@@ -20,6 +20,10 @@ Configuration Changes
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
 
+Observation Space Changes
+- Add `global_id` so state can be reconstructed perfectly
+- Teams: add `bid` datapoint
+
 
 ### v1.1.6
 - Fix bugs related to tournament tool and not printing some numbers as well as concurrent configuration not used

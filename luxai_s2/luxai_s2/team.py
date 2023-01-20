@@ -52,6 +52,7 @@ class Team:
             factories_to_place=self.factories_to_place,
             factory_strains=self.factory_strains,
             place_first=self.place_first,
+            bid=self.bid
         )
 
     def __str__(self) -> str:
