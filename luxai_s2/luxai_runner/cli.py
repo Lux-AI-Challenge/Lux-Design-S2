@@ -17,7 +17,7 @@ def main():
     np.random.seed(0)
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run the LuxAI 2022 game.")
+    parser = argparse.ArgumentParser(description="Run the LuxAI Season 2 game.")
     parser.add_argument(
         "players",
         nargs="+",

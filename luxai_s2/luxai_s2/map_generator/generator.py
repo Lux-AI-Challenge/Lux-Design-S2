@@ -544,7 +544,7 @@ class Island(GameMap):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate maps for Lux AI 2022.")
+    parser = argparse.ArgumentParser(description="Generate maps for Lux AI S2.")
     parser.add_argument(
         "-t",
         "--map_type",

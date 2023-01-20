@@ -17,8 +17,15 @@ Configuration Changes
 - Heavy units dig cost is 60 power instead of 100.
 - It takes 20 lichen to grow to new tiles instead of 10 now.
 
+New Features
+- You can reconstruct a LuxAI_S2 state object from a complete observation or from observations with sparse encoded board updates and forward simulate
+
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
+
+Observation Space Changes
+- Add `global_id` so state can be reconstructed perfectly
+- Teams: add `bid` datapoint
 
 
 ### v1.1.6

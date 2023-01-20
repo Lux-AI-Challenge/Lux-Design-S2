@@ -86,6 +86,7 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
     obs_space = dict()
 
     obs_space["real_env_steps"] = spaces.Discrete(config.max_episode_length)
+    obs_space["global_id"] = spaces.Discrete(99999999)
 
     # teams obs space
     teams_obs_space = dict()
@@ -100,6 +101,7 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
                 spaces.Discrete(max_space), max_length=(config.MAX_FACTORIES + 1)
             ),
             place_first=spaces.Discrete(2),
+            bid=spaces.Discrete(150)
         )
     obs_space["teams"] = spaces.Dict(teams_obs_space)
 

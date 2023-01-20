@@ -6,13 +6,11 @@ Welcome to the Lux AI Challenge Season 2!
 
 The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand. 
 
-**We are currently in beta**, so expect unpolished parts and bugs of the engine and visuals.
-
-To get started, go to our [Getting Started](#getting-started) section. The Beta competition runs until December 6 and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/c/lux-ai-2022-beta/
+To get started, go to our [Getting Started](#getting-started) section. The official competition runs until TODO and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2
 
 Make sure to join our community discord at https://discord.gg/aWJt3UAcgn to chat, strategize, and learn with other competitors! We will be posting announcements on the Kaggle Forums and on the discord.
 
-Season 2 specifications can be found here: https://lux-ai.org/specs-2022-beta. These detail how the game works and what rules your agent must abide by.
+Season 2 specifications can be found here: https://lux-ai.org/specs-s2. These detail how the game works and what rules your agent must abide by.
 
 Interested in Season 1? Check out [last year's repository](https://github.com/Lux-AI-Challenge/Lux-Design-2021) where we received 22,000+ submissions from 1,100+ teams around the world ranging from scripted agents to Deep Reinforcement Learning.
 
@@ -50,7 +48,7 @@ To stay up to date on changes and updates to the competition and the engine, wat
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
 
-3rd Party Viewer - https://github.com/jmerle/lux-eye-2022
+3rd Party Viewer (This has now been merged into the main repo so check out the lux-eye-s2 folder) - https://github.com/jmerle/lux-eye-2022
 
 ## Contributing
 See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/CONTRIBUTING.md)
@@ -63,7 +61,7 @@ To be announced at the official release.
 
 We like to extend thanks to some of our early core contributors: [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Engine optimization).
 
-We further like to extend thanks to contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture).
+We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer), .
 
 
 ## Citation

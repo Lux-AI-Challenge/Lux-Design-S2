@@ -29,7 +29,7 @@ If you are interested in contributing a starter kit for a language that is not c
 
 Here are a few things to be aware of. The competition servers currently run on Ubuntu 18.04, and has Python, NodeJS, and Java installed on the system, along with a whole ton of other Python packages. Hence, any language that can compile to machine code / binaries on Ubuntu 18.04 can be easily added to the competition.
 
-If you want to get started, we recommend copying the structure of the folder `kits/cpp` or `kits/python`. We require you to provide a README similar to the other kit readmes, along with documentation on how to get started compiling code (if necessary), then running a match using the compiled code. 
+If you want to get started, we recommend copying the structure of the folder `kits/cpp` or `kits/python`. We require you to provide a README similar to the other kit readmes, along with documentation on how to get started compiling code (if necessary), then running a match using the compiled code. To help understand what the raw observations given by the engine works, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/main/blob/sample_first_obs.json and https://github.com/Lux-AI-Challenge/Lux-Design-S2/main/blob/sample_obs.json for examples.
 
 Moreover, for compiled languages, we recommend also copying over the `create_submission.sh` script and `Dockerfile` in `kits/cpp/` if the language's compiled binaries are OS dependent. For example, for the C++ kit, the dockerfile is used to compile the C++ agent code on Ubuntu 18.04 so then that code can be submitted to the competition servers.
 

@@ -17,12 +17,17 @@ from luxai_s2.unit import Unit
 
 
 class Board:
-    def __init__(self, seed=None, env_cfg: EnvConfig = None) -> None:
+    def __init__(self, seed=None, env_cfg: EnvConfig = None, existing_map: GameMap = None) -> None:
         self.env_cfg = env_cfg
         self.height = self.env_cfg.map_size
         self.width = self.env_cfg.map_size
         self.seed = seed
         rng = np.random.RandomState(seed=seed)
+        if existing_map is None: self.gen_map(seed, rng, env_cfg)
+        else: self.map = existing_map
+        self.post_map_gen(env_cfg, rng)
+    def gen_map(self, seed, rng, env_cfg):
+        
         map_type = rng.choice(["Cave", "Mountain"])
         map_distribution_type = rng.choice(
             [
@@ -41,14 +46,14 @@ class Board:
             width=self.width,
             height=self.height,
         )
-        self.factories_per_team = rng.randint(
-            env_cfg.MIN_FACTORIES, env_cfg.MAX_FACTORIES + 1
-        )
-
         # remove bottom once generator is fully ready
         self.map.rubble = self.map.rubble.astype(int)
         self.map.ore = self.map.ore.astype(int)
         self.map.ice = self.map.ice.astype(int)
+    def post_map_gen(self, env_cfg, rng):
+        self.factories_per_team = rng.randint(
+            env_cfg.MIN_FACTORIES, env_cfg.MAX_FACTORIES + 1
+        )
 
         self.lichen = np.zeros((self.height, self.width), dtype=int)
         # ownership of lichen by factory id, a simple mask
