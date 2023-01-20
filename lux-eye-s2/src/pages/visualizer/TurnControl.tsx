@@ -23,7 +23,6 @@ interface TurnControlProps {
 
 export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlProps): JSX.Element {
   const episode = useStore(state => state.episode)!;
-  const rawEpisode = useStore(state => state.rawEpisode)!;
   const turn = useStore(state => state.turn);
 
   const setTurn = useStore(state => state.setTurn);
@@ -33,6 +32,8 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
   const setSpeed = useStore(state => state.setSpeed);
 
   const selectedTile = useStore(state => state.selectedTile);
+
+  const openInNewTab = useStore(state => state.openInNewTab);
 
   /* const minimalTheme = useStore(state => state.minimalTheme);
   const setTheme = useStore(state => state.setTheme); */
@@ -200,13 +201,6 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
       ),
     });
   }, []);
-
-  const openInNewTab = useCallback(() => {
-    const tab = window.open(`${window.location.origin}/lux-eye-s2/open`, '_blank')!;
-    for (const ms of [100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 10000]) {
-      setTimeout(() => tab.postMessage(rawEpisode, window.location.origin), ms);
-    }
-  }, [rawEpisode]);
 
   useEffect(() => {
     if (!playing) {

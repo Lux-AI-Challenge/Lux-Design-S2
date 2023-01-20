@@ -5,6 +5,8 @@ import { isKaggleEnvironmentsEpisode, parseKaggleEnvironmentsEpisode } from './e
 import { isLuxAIS2Episode, parseLuxAIS2Episode } from './episode/luxai-s2';
 import { Episode, Tile } from './episode/model';
 
+const PRODUCTION_BASE_URL = 'https://s2vis.lux-ai.org';
+
 export interface State {
   episode: Episode | null;
   rawEpisode: any | null;
@@ -26,6 +28,8 @@ export interface State {
   load: (data: any) => void;
   loadFromFile: (file: File) => Promise<void>;
   loadFromInput: (input: string, proxy: string) => Promise<void>;
+
+  openInNewTab: () => void;
 
   setTheme: (minimal: boolean) => void;
 }
@@ -194,6 +198,13 @@ export const useStore = create(
           }
 
           throw new Error(`${err.message}, see the browser console for more information`);
+        }
+      },
+
+      openInNewTab: () => {
+        const tab = window.open(`${PRODUCTION_BASE_URL}/#/open`, '_blank')!;
+        for (const ms of [100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 10000]) {
+          setTimeout(() => tab.postMessage(get().rawEpisode, PRODUCTION_BASE_URL), ms);
         }
       },
 
