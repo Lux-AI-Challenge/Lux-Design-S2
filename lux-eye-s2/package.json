@@ -1,6 +1,6 @@
 {
   "name": "@lux-ai/lux-eye-s2",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "fix": "yarn fix:eslint && yarn fix:prettier",
     "fix:eslint": "yarn lint:eslint --fix",
     "fix:prettier": "prettier --write --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build --base=https://unpkg.com/@lux-ai/lux-eye-s2@latest/dist/"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",

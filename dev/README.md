@@ -8,6 +8,15 @@ For new packages not included in Kaggle's python image, clone those packages int
 
 Set version = "" in version.py file as its not a "package" in the kaggle-environments repo
 
+## Publishing visualizer
+
+The visualizer on lux-ai.org auto updates on commits to main.
+
+To update kaggle frontend run
+```
+npm publish --access=public
+```
+
 ## Publish to PyPi
 
 Change version number, remove previoust `dist` folder, and then run
