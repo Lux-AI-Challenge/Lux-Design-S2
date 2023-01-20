@@ -20,6 +20,8 @@ Configuration Changes
 New Features
 - You can reconstruct a LuxAI_S2 state object from a complete observation or from observations with sparse encoded board updates and forward simulate
 
+New minimal visualizer (Lux-Eye-S2)
+
 Repo Changes
 - Repository has been reorganized to accomodate more packages, specifically the gpu version
 
