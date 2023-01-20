@@ -1,6 +1,6 @@
 # Lux AI Season 2 Kits
 
-This folder contains all official kits provided by the Lux AI team for the Lux AI Challenge Season 1.
+This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well the general [Kit API](#kit-api)
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
@@ -21,6 +21,10 @@ Each agent is a folder of files with a `main.py` file and a language dependent `
 In the `agent.py` file, we define a simple class that holds your agent, you can modify as you wish but be aware of the two functions given. By default, the kit calls the `early_setup` function for when the agent is bidding and placing down all its factories. It then calls the `act` function for the rest of the game. These functions have parameters `step` equal to the environment time step, `obs` equal to the actual observations, and `remainingOverageTime` representing how much extra time you have left before having to make a decision.
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
+
+### Forward Simulation
+
+TODO
 
 ## Environment Actions
 
@@ -85,31 +89,24 @@ The general observation given to your bot in the kits will look like below. `Arr
       "valid_spawns_mask": Array(48, 48),
       "factories_per_team": int
     },
-    "real_env_steps": int,
     "teams": {
-      "player_0": {
-        "team_id": 0,
-        "faction": "MotherMars",
-        "water": 0,
-        "metal": 0,
-        "factories_to_place": 0,
-        "factory_strains": [0, 2, 4, 6],
-        "place_first": True,
-      },
-      "player_1": {
-        "team_id": 1,
-        "faction": "AlphaStrike",
-        "water": 0,
-        "metal": 0,
-        "factories_to_place": 0,
-        "factory_strains": [1, 3, 5, 7],
-        "place_first": False,
+      [player_id]: {
+        "team_id": int,
+        "faction": str,
+        "water": int,
+        "metal": int,
+        "factories_to_place": int,
+        "factory_strains": Array<int>,
+        "place_first": bool,
+        "bid": int
       }
     },
+    "real_env_steps": int, # note this can be negative due to there being two phases of gameplay
+    "global_id": int # only used for reconstructing a LuxAI_S2 State object
   },
   "step": int,
-  "remainingOverageTime": int,
-  "player": str
+  "remainingOverageTime": int, # total amount of time your bot can use whenever it exceeds 2s in a turn
+  "player": str # your player id
 }
 ```
 

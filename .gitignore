@@ -12,3 +12,6 @@ build
 
 __temp__.mp4
 .ipynb_checkpoints
+
+node_modules
+dist

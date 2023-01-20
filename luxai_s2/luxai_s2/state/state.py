@@ -81,6 +81,7 @@ class State:
             factories=factories,
             board=board,
             real_env_steps=self.real_env_steps,
+            global_id=self.global_id
         )
 
     def get_compressed_obs(self):
@@ -229,6 +230,6 @@ class State:
             units=units,
             teams=teams,
             factories=factories,
-            global_id=999,#,obs['global_id'],
+            global_id=obs['global_id'],
             stats=dict() # not saved
         )
