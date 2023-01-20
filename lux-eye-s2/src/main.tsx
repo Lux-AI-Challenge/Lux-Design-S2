@@ -16,7 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <NotificationsProvider position="top-center">
         <ModalsProvider>
-          <BrowserRouter basename="/lux-eye-s2/">
+          <BrowserRouter basename="/">
             <Routes>
               <Route path="/" element={<App />}>
                 <Route path="/" element={<HomePage />} />
