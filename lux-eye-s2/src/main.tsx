@@ -3,7 +3,7 @@ import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import { App } from './App';
 import { HomePage } from './pages/home/HomePage';
 import { LeaderboardPage } from './pages/leaderboard/LeaderboardPage';
@@ -16,7 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <NotificationsProvider position="top-center">
         <ModalsProvider>
-          <BrowserRouter basename="/lux-eye-s2/">
+          <HashRouter>
             <Routes>
               <Route path="/" element={<App />}>
                 <Route path="/" element={<HomePage />} />
@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/open" element={<OpenPage />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </ModalsProvider>
       </NotificationsProvider>
     </MantineProvider>
