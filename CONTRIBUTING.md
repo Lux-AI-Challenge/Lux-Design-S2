@@ -14,6 +14,9 @@ For development, we recommend using conda to setup your python environment. Once
 git clone https://github.com/Lux-AI-Challenge/Lux-Design-S2.git
 conda env create -f environment.yml
 conda activate luxai_s2
+pip install -e luxai_s2
+git submodule init
+git submodule pull
 ```
 
 This repository is organized as follows
