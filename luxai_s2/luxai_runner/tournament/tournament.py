@@ -7,7 +7,8 @@ from typing import Dict
 from luxai_runner.episode import Episode, EpisodeConfig
 from luxai_runner.tournament import matchmaking
 from luxai_runner.tournament.config import TournamentConfig
-from luxai_runner.tournament.rankingsystem import ELO, Rank, WinLoss, WinLossRank
+from luxai_runner.tournament.rankingsystem import (ELO, Rank, WinLoss,
+                                                   WinLossRank)
 
 
 class Player:

@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import numpy as np
-from luxai_s2.map_generator.symnoise import SymmetricNoise, symmetrize
-from luxai_s2.map_generator.visualize import viz
 from scipy.fft import dctn, idctn
 from scipy.ndimage import convolve, maximum_filter
+
+from luxai_s2.map_generator.symnoise import SymmetricNoise, symmetrize
+from luxai_s2.map_generator.visualize import viz
 
 
 class GameMap(object):

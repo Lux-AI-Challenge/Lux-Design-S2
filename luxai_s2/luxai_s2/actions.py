@@ -5,6 +5,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
+
 from luxai_s2.config import EnvConfig
 
 if TYPE_CHECKING:

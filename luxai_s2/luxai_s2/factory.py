@@ -7,6 +7,7 @@ from typing import List, TypedDict
 
 import numpy as np
 import numpy.typing as npt
+
 from luxai_s2.actions import move_deltas
 from luxai_s2.config import EnvConfig
 from luxai_s2.globals import TERM_COLORS

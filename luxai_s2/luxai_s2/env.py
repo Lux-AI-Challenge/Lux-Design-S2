@@ -2,42 +2,31 @@ import functools
 import math
 import traceback
 from collections import OrderedDict, defaultdict
-from typing import Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
-from luxai_s2.actions import (
-    Action,
-    DigAction,
-    FactoryBuildAction,
-    FactoryWaterAction,
-    MoveAction,
-    PickupAction,
-    RechargeAction,
-    SelfDestructAction,
-    TransferAction,
-    format_action_vec,
-    format_factory_action,
-    move_deltas,
-    validate_actions,
-)
+from pettingzoo import ParallelEnv
+from pettingzoo.utils import wrappers
+
+from luxai_s2.actions import (Action, DigAction, FactoryBuildAction,
+                              FactoryWaterAction, MoveAction, PickupAction,
+                              RechargeAction, SelfDestructAction,
+                              TransferAction, format_action_vec,
+                              format_factory_action, move_deltas,
+                              validate_actions)
 from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.pyvisual.visualizer import Visualizer
-from luxai_s2.spaces.act_space import (
-    get_act_space,
-    get_act_space_bid,
-    get_act_space_init,
-    get_act_space_placement,
-)
+from luxai_s2.spaces.act_space import (get_act_space, get_act_space_bid,
+                                       get_act_space_init,
+                                       get_act_space_placement)
 from luxai_s2.spaces.obs_space import get_obs_space
-from luxai_s2.state import State
+from luxai_s2.state import ObservationStateDict, State
 from luxai_s2.team import FactionTypes, Team
 from luxai_s2.unit import Unit, UnitType
 from luxai_s2.utils.utils import get_top_two_power_units, is_day
-from pettingzoo import ParallelEnv
-from pettingzoo.utils import wrappers
 
 # some utility types
 ActionsByType = Dict[str, List[Tuple[Unit, Action]]]
@@ -687,7 +676,14 @@ class LuxAI_S2(ParallelEnv):
             self.state.board.lichen[indexable_positions] += 2
             self.state.board.lichen_strains[indexable_positions] = factory.num_id
 
-    def step(self, actions):
+    def step(
+        self, actions
+    ) -> Tuple[
+        Dict[str, ObservationStateDict],
+        Dict[str, float],
+        Dict[str, bool],
+        Dict[str, Any],
+    ]:
         """
         step(action) takes in an action for each agent and should return the
         - observations

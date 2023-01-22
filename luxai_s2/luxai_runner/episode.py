@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import gym
 import numpy as np
+
 from luxai_runner.bot import Bot
 from luxai_runner.logger import Logger
 from luxai_runner.utils import to_json

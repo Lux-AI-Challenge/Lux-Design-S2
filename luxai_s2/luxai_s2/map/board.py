@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Dict, List, TypedDict
 
 import numpy as np
 import numpy.typing as npt
+
 from luxai_s2.config import EnvConfig
 
 if TYPE_CHECKING:
