@@ -15,3 +15,5 @@ __temp__.mp4
 
 node_modules
 dist
+
+.vscode

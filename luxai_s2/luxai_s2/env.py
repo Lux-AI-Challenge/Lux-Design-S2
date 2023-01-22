@@ -624,12 +624,6 @@ class LuxAI_S2(ParallelEnv):
                             most_power_unit,
                             next_most_power_unit,
                         ) = get_top_two_power_units(units)
-                        print(
-                            most_power_unit.unit_id,
-                            most_power_unit.power,
-                            next_most_power_unit.unit_id,
-                            next_most_power_unit.power,
-                        )
                         if most_power_unit.power == next_most_power_unit.power:
                             # tie, all units break
                             for u in units:
@@ -646,7 +640,6 @@ class LuxAI_S2(ParallelEnv):
                         surviving_unit = light_entered_pos[pos_hash][0]
                 if surviving_unit is None:
                     for u in units:
-                        print(u.unit_id, u.power)
                         destroyed_units.add(u)
                     self._log(
                         f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash}"
@@ -655,7 +648,6 @@ class LuxAI_S2(ParallelEnv):
                 else:
                     for u in units:
                         if u.unit_id != surviving_unit.unit_id:
-                            print(u.unit_id, u.power)
                             destroyed_units.add(u)
                     self._log(
                         f"{len(destroyed_units)} Units: ({', '.join([u.unit_id for u in destroyed_units])}) collided at {pos_hash} with {surviving_unit} surviving with {surviving_unit.power} power"
@@ -1010,3 +1002,11 @@ def raw_env() -> LuxAI_S2:
     env = LuxAI_S2()
     # env = parallel_to_aec(env)
     return env
+
+import gym
+gym.register(
+    id='LuxAI_S2-v0',
+    entry_point='luxai_s2.env:LuxAI_S2',
+    max_episode_steps=1000,
+)
+

@@ -27,7 +27,7 @@ setup(
         "pettingzoo",
         "vec_noise",
         "omegaconf",
-        "gym==0.19",
+        "gym==0.21.0",
         "scipy",
     ],
 )
