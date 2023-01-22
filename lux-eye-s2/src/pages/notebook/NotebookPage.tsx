@@ -67,13 +67,13 @@ export function NotebookPage(): JSX.Element {
   const tabHeight = 346;
 
   return (
-    <Container fluid size={1034}>
-      <Grid columns={24}>
-        <Grid.Col span={7}>
+    <Container fluid pl={4} pr={4}>
+      <Grid columns={24} gutter={8}>
+        <Grid.Col span={7} pl={0}>
           <TeamCard id={0} tabHeight={tabHeight} />
         </Grid.Col>
         <Grid.Col span={10}>
-          <Paper shadow="xs" p="xs" withBorder>
+          <Paper p="xs" withBorder>
             <Stack>
               <Center ref={boardContainerRef}>
                 <Board maxWidth={maxBoardWidth} />
@@ -82,7 +82,7 @@ export function NotebookPage(): JSX.Element {
             </Stack>
           </Paper>
         </Grid.Col>
-        <Grid.Col span={7}>
+        <Grid.Col span={7} pr={0}>
           <TeamCard id={1} tabHeight={tabHeight} />
         </Grid.Col>
       </Grid>

@@ -55,7 +55,7 @@ export function VisualizerPage(): JSX.Element {
 
   const teamCards = [];
   for (let i = 0; i < 2; i++) {
-    teamCards.push(<TeamCard id={i} tabHeight={570} />);
+    teamCards.push(<TeamCard id={i} tabHeight={570} shadow="xs" />);
   }
 
   return (

@@ -13,8 +13,8 @@ let hasData = false;
 
 export function LeaderboardPage(): JSX.Element {
   const episode = useStore(state => state.episode);
-  const rawEpisode = useStore(state => state.rawEpisode);
   const load = useStore(state => state.load);
+  const openInNewTab = useStore(state => state.openInNewTab);
 
   const { ref: boardContainerRef, width: maxBoardWidth } = useElementSize();
 
@@ -53,13 +53,6 @@ export function LeaderboardPage(): JSX.Element {
 
     return () => clearInterval(interval);
   }, []);
-
-  const openInNewTab = useCallback(() => {
-    const tab = window.open(`${window.location.origin}/lux-eye-s2/open`, '_blank')!;
-    for (const ms of [100, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 10000]) {
-      setTimeout(() => tab.postMessage(rawEpisode, window.location.origin), ms);
-    }
-  }, [rawEpisode]);
 
   if (episode === null) {
     return (
