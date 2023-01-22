@@ -26,6 +26,7 @@ def get_top_two_power_units(units: List[Unit]):
 
     return (most_power_unit, next_most_power_unit)
 
+
 def my_turn_to_place_factory(place_first: bool, step: int):
     if place_first:
         if step % 2 == 1:

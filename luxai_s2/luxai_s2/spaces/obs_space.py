@@ -3,7 +3,6 @@ from typing import Any, List
 
 import numpy as np
 from gym import spaces
-
 from luxai_s2.config import EnvConfig
 from luxai_s2.spaces.act_space import ActionsQueue, FactionString
 
@@ -101,7 +100,7 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
                 spaces.Discrete(max_space), max_length=(config.MAX_FACTORIES + 1)
             ),
             place_first=spaces.Discrete(2),
-            bid=spaces.Discrete(150)
+            bid=spaces.Discrete(150),
         )
     obs_space["teams"] = spaces.Dict(teams_obs_space)
 

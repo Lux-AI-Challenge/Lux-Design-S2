@@ -5,9 +5,6 @@ from collections import OrderedDict, defaultdict
 from typing import Dict, List, Set, Tuple, Union
 
 import numpy as np
-from pettingzoo import ParallelEnv
-from pettingzoo.utils import wrappers
-
 from luxai_s2.actions import (
     Action,
     DigAction,
@@ -39,6 +36,8 @@ from luxai_s2.state import State
 from luxai_s2.team import FactionTypes, Team
 from luxai_s2.unit import Unit, UnitType
 from luxai_s2.utils.utils import get_top_two_power_units, is_day
+from pettingzoo import ParallelEnv
+from pettingzoo.utils import wrappers
 
 # some utility types
 ActionsByType = Dict[str, List[Tuple[Unit, Action]]]
@@ -1003,10 +1002,11 @@ def raw_env() -> LuxAI_S2:
     # env = parallel_to_aec(env)
     return env
 
+
 import gym
+
 gym.register(
-    id='LuxAI_S2-v0',
-    entry_point='luxai_s2.env:LuxAI_S2',
+    id="LuxAI_S2-v0",
+    entry_point="luxai_s2.env:LuxAI_S2",
     max_episode_steps=1000,
 )
-
