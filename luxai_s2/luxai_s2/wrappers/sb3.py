@@ -12,7 +12,7 @@ import luxai_s2.env
 from luxai_s2.env import LuxAI_S2
 from luxai_s2.state import ObservationStateDict
 from luxai_s2.utils import my_turn_to_place_factory
-from luxai_s2.wrappers.controllers import Controller, SimpleDiscreteController
+from luxai_s2.wrappers.controllers import Controller, SimpleDiscreteController, SimpleSingleUnitDiscreteController
 
 
 class SB3Wrapper(gym.Wrapper):
@@ -24,17 +24,21 @@ class SB3Wrapper(gym.Wrapper):
         controller: Controller=None,
     ) -> None:
         """
-        A simple environment wrappr that simplifies the observation and action space
+        A environment wrapper for Stable Baselines 3 that simplifies the observation and action space. It also reduces the LuxAI_S2 env
+        into a single phase game and places the first two phases (bidding and factory placement) into the env.reset function so that
+        interacting agents directly start generating actions to play the third phase of the game.
 
-        Action Space Parameterization:
-            As on each board tile only one robot can be alive at the start of a turn, a simple way to control all robots
-            in a centralized fashion is to predict an action for each board tile.
-
-            The original action parameterization is designed to encapsulate all possible actions. This wrapper will use a
-            simpler one. For RL users, we highly recommend reading through this and understanding the code, as wll as making your
-            own modifications to help improve RL training.
-
-            In this wrapper the SimpleDiscreteController is used
+        Parameters
+        ----------
+        bid_policy: Function
+            A function accepting player: str and obs: ObservationStateDict as input that returns a bid action
+            such as dict(bid=10, faction="AlphaStrike"). By default will bid 0
+        factory_placement_policy: Function
+            A function accepting player: str and obs: ObservationStateDict as input that returns a factory placement action
+            such as dict(spawn=np.array([2, 4]), metal=150, water=150). By default will spawn in a random valid location with metal=150, water=150
+        controller : Controller
+            A controller that parameterizes the action space into something more usable and converts parameterized actions to lux actions.
+            See luxai_s2/wrappers/controllers.py for available controllers and how to make your own
         """
         gym.Wrapper.__init__(self, env)
         self.env = env
@@ -52,7 +56,7 @@ class SB3Wrapper(gym.Wrapper):
         # to handle those two phases during each reset
         if factory_placement_policy is None:
 
-            def factory_placement_policy(player, obs):
+            def factory_placement_policy(player, obs: ObservationStateDict):
                 potential_spawns = np.array(
                     list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))
                 )
@@ -64,7 +68,7 @@ class SB3Wrapper(gym.Wrapper):
         self.factory_placement_policy = factory_placement_policy
         if bid_policy is None:
 
-            def bid_policy(player, obs):
+            def bid_policy(player, obs: ObservationStateDict):
                 faction = "AlphaStrike"
                 if player == "player_1":
                     faction = "MotherMars"
@@ -136,8 +140,8 @@ class SB3Wrapper(gym.Wrapper):
             new_obs[agent] = image_features
         return new_obs
 
-    def reset(self):
-        obs = self.env.reset()
+    def reset(self, **kwargs):
+        obs = self.env.reset(**kwargs)
         self.all_agents = self.env.agents
         action = dict()
         for agent in self.all_agents:
@@ -156,91 +160,3 @@ class SB3Wrapper(gym.Wrapper):
             obs, _, _, _ = self.env.step(action)
         self._prev_obs = obs
         return self._convert_obs(obs)
-
-class CustomEnvWrapper(gym.Wrapper):
-    def __init__(self, env: gym.Env) -> None:
-        """
-        Add a custom reward and turn the LuxAI_S2 environment into a single-agent form
-        by disabling opposition from being destroyed via infinite water and giving them empty actions
-        """
-        super().__init__(env)
-    
-    def step(self, action):
-        action = dict(player_0=action)
-        obs, reward, done, info = super().step(action)
-        # define our own reward?
-        reward = reward['player_0'] / 100
-        done = done['player_0']
-        info = info['player_0']
-        return obs['player_0'], reward, done, info
-    def reset(self):
-        return super().reset()['player_0']
-
-if __name__ == "__main__":
-    from stable_baselines3.common.utils import set_random_seed
-    from stable_baselines3.ppo import PPO
-    from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
-    from stable_baselines3.common.monitor import Monitor
-    from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-
-    import torch as th
-    import torch.nn as nn
-    class CustomCNN(BaseFeaturesExtractor):
-        """
-        :param observation_space: (gym.Space)
-        :param features_dim: (int) Number of features extracted.
-            This corresponds to the number of unit for the last layer.
-        """
-
-        def __init__(self, observation_space: spaces.Box, features_dim: int = 1024):
-            super().__init__(observation_space, features_dim)
-            # We assume CxHxW images (channels first)
-            # Re-ordering will be done by pre-preprocessing or wrapper
-            n_input_channels = observation_space.shape[0]
-            self.cnn = nn.Sequential(
-                nn.Conv2d(n_input_channels, 32, kernel_size=5, stride=1, padding=0),
-                nn.ReLU(),
-                nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=0),
-                nn.ReLU(),
-                nn.Flatten(),
-            )
-
-            # Compute shape by doing one forward pass
-            with th.no_grad():
-                n_flatten = self.cnn(
-                    th.as_tensor(observation_space.sample()[None]).float()
-                ).shape[1]
-            print("CNN output Shape", n_flatten)
-            self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU())
-
-        def forward(self, observations: th.Tensor) -> th.Tensor:
-            return self.linear(self.cnn(observations))
-    def make_env(env_id: str, rank: int, seed: int = 0):
-        def _init() -> gym.Env:
-            env = gym.make(env_id, verbose=0)
-            env = SB3Wrapper(env)
-            env = CustomEnvWrapper(env)
-            env = Monitor(env)
-            env.unwrapped.reset(seed=seed + rank)
-            return env
-
-        set_random_seed(seed)
-        return _init
-    set_random_seed(0)
-    env_id = "LuxAI_S2-v0"
-    num_envs = 8
-    # env = make_env(env_id, 0)()
-    env = SubprocVecEnv([make_env(env_id, i) for i in range(num_envs)])
-    obs = env.reset()
-    # import ipdb;ipdb.set_trace()
-    
-    rollout_steps = 8_000
-    policy_kwargs = dict(
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=1024),
-    )
-    model = PPO("CnnPolicy", env, n_steps=rollout_steps // num_envs, batch_size=400,  policy_kwargs=policy_kwargs, verbose=1)
-    import ipdb;ipdb.set_trace()
-    model.learn(10_000_000)
-    
-    
