@@ -1,5 +1,7 @@
 import { useHover, useMergedRef, useMouse } from '@mantine/hooks';
 import { useCallback, useEffect, useState } from 'react';
+import factoryGreen from '../../assets/factory-green.svg';
+import factoryRed from '../../assets/factory-red.svg';
 import { Factory, Robot, RobotType, Step, Tile } from '../../episode/model';
 import { useStore } from '../../store';
 import { getTeamColor } from '../../utils/colors';
@@ -15,7 +17,11 @@ interface ThemeConfig {
   minimalTheme: boolean;
 }
 
-type Config = SizeConfig & ThemeConfig;
+interface AssetConfig {
+  factories: HTMLImageElement[];
+}
+
+type Config = SizeConfig & ThemeConfig & AssetConfig;
 
 function getSizeConfig(maxWidth: number, step: Step): SizeConfig {
   const gutterSize = 1;
@@ -53,6 +59,11 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
   const board = step.board;
   const isDay = step.step < 0 || step.step % 50 < 30;
 
+  if (!config.minimalTheme && !isDay) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.fillRect(0, 0, config.boardSize, config.boardSize);
+  }
+
   const teamStrains = new Map<number, number>();
   for (let i = 0; i < 2; i++) {
     for (const factory of step.teams[i].factories) {
@@ -64,18 +75,28 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
     for (let tileX = 0; tileX < config.tilesPerSide; tileX++) {
       const [canvasX, canvasY] = tileToCanvas(config, { x: tileX, y: tileY });
 
-      ctx.fillStyle = 'white';
-      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      if (config.minimalTheme) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      }
 
       let color: string;
       if (board.ice[tileY][tileX] > 0) {
-        color = '#48dbfb';
+        color = config.minimalTheme ? '#48dbfb' : '#2c9ed3';
       } else if (board.ore[tileY][tileX] > 0) {
-        color = '#2c3e50';
-      } else {
+        color = config.minimalTheme ? '#2c3e50' : '#daa730';
+      } else if (config.minimalTheme) {
         const rgb = isDay ? 150 : 75;
         const base = isDay ? 0.1 : 0.2;
         color = `rgba(${rgb}, ${rgb}, ${rgb}, ${base + scale(board.rubble[tileY][tileX], 0, 100) * (1 - base)})`;
+      } else {
+        const rubble = board.rubble[tileY][tileX];
+
+        if (rubble === 0) {
+          color = 'rgba(255, 255, 255, 0.2)';
+        } else {
+          color = `rgba(96, 32, 9, ${0.2 + Math.min(rubble / 100, 1) * 0.8})`;
+        }
       }
 
       ctx.fillStyle = color;
@@ -85,7 +106,12 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
       if (lichen > 0) {
         const team = teamStrains.get(board.strains[tileY][tileX]);
         if (team !== undefined) {
-          ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
+          if (config.minimalTheme) {
+            ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4, config.minimalTheme);
+          } else {
+            ctx.fillStyle = `rgba(127, 206, 152, ${lichen / 100})`;
+          }
+
           ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
         }
       }
@@ -108,24 +134,29 @@ function drawFactory(
   });
 
   const size = config.tileSize * 3 + config.gutterSize * 2;
-  const isSelected =
-    selectedTile !== null &&
-    Math.abs(factory.tile.x - selectedTile.x) <= 1 &&
-    Math.abs(factory.tile.y - selectedTile.y) <= 1;
 
-  const borderSize = 2;
+  if (config.minimalTheme) {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(canvasX, canvasY, size, size);
 
-  ctx.fillStyle = 'white';
-  ctx.fillRect(canvasX, canvasY, size, size);
+    ctx.fillStyle = getTeamColor(team, 0.75, config.minimalTheme);
+    ctx.fillRect(canvasX, canvasY, size, size);
 
-  ctx.fillStyle = getTeamColor(team, 0.75);
-  ctx.fillRect(canvasX, canvasY, size, size);
+    const isSelected =
+      selectedTile !== null &&
+      Math.abs(factory.tile.x - selectedTile.x) <= 1 &&
+      Math.abs(factory.tile.y - selectedTile.y) <= 1;
 
-  ctx.fillStyle = isSelected ? 'black' : getTeamColor(team, 1.0);
-  ctx.fillRect(canvasX, canvasY, size, borderSize);
-  ctx.fillRect(canvasX, canvasY, borderSize, size);
-  ctx.fillRect(canvasX, canvasY + size - borderSize, size, borderSize);
-  ctx.fillRect(canvasX + size - borderSize, canvasY, borderSize, size);
+    const borderSize = 2;
+
+    ctx.fillStyle = isSelected ? 'black' : getTeamColor(team, 1.0, config.minimalTheme);
+    ctx.fillRect(canvasX, canvasY, size, borderSize);
+    ctx.fillRect(canvasX, canvasY, borderSize, size);
+    ctx.fillRect(canvasX, canvasY + size - borderSize, size, borderSize);
+    ctx.fillRect(canvasX + size - borderSize, canvasY, borderSize, size);
+  } else if (config.factories[team] !== undefined) {
+    ctx.drawImage(config.factories[team], canvasX + config.tileSize / 2, canvasY, size - config.tileSize, size);
+  }
 
   ctx.restore();
 }
@@ -142,8 +173,8 @@ function drawRobot(
   const isSelected = selectedTile !== null && robot.tile.x === selectedTile.x && robot.tile.y === selectedTile.y;
 
   if (robot.type === RobotType.Light) {
-    ctx.fillStyle = getTeamColor(team, 1.0);
-    ctx.strokeStyle = 'black';
+    ctx.fillStyle = getTeamColor(team, 1.0, config.minimalTheme);
+    ctx.strokeStyle = config.minimalTheme ? 'black' : 'white';
     ctx.lineWidth = isSelected ? 2 : 1;
 
     const radius = config.tileSize / 2 - 1;
@@ -153,12 +184,18 @@ function drawRobot(
     ctx.fill();
     ctx.stroke();
   } else {
-    const borderSize = isSelected ? 1 : 2;
+    let borderSize: number;
+    if (config.minimalTheme) {
+      borderSize = isSelected ? 1 : 2;
+      ctx.fillStyle = 'black';
+    } else {
+      borderSize = 1;
+      ctx.fillStyle = 'white';
+    }
 
-    ctx.fillStyle = 'black';
     ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
 
-    ctx.fillStyle = getTeamColor(team, 1.0);
+    ctx.fillStyle = getTeamColor(team, 1.0, config.minimalTheme);
     ctx.fillRect(
       canvasX + borderSize,
       canvasY + borderSize,
@@ -173,7 +210,7 @@ function drawRobot(
 function drawSelectedTile(ctx: CanvasRenderingContext2D, config: Config, selectedTile: Tile): void {
   const [canvasX, canvasY] = tileToCanvas(config, selectedTile);
 
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = config.minimalTheme ? 'black' : 'white';
 
   ctx.fillRect(
     canvasX - config.gutterSize,
@@ -209,7 +246,7 @@ function drawSelectedTile(ctx: CanvasRenderingContext2D, config: Config, selecte
 function drawBoard(ctx: CanvasRenderingContext2D, config: Config, step: Step, selectedTile: Tile | null): void {
   ctx.save();
 
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = config.minimalTheme ? 'white' : '#ef784f';
   ctx.fillRect(0, 0, config.boardSize, config.boardSize);
   ctx.restore();
 
@@ -254,6 +291,10 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
     tilesPerSide: 0,
   });
 
+  const [assetConfig, setAssetConfig] = useState<AssetConfig>({
+    factories: [],
+  });
+
   const step = episode!.steps[turn];
 
   const onMouseLeave = useCallback(() => {
@@ -271,6 +312,24 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       setSizeConfig(newSizeConfig);
     }
   }, [maxWidth, episode]);
+
+  useEffect(() => {
+    const factories: HTMLImageElement[] = [];
+
+    for (const image of [factoryRed, factoryGreen]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      factories.push(elem);
+    }
+
+    setAssetConfig({ factories });
+
+    return () => {
+      for (const image of factories) {
+        image.remove();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!hovered) {
@@ -305,10 +364,11 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
     const config = {
       ...sizeConfig,
       minimalTheme,
+      ...assetConfig,
     };
 
     drawBoard(ctx, config, step, selectedTile);
-  }, [step, sizeConfig, selectedTile, minimalTheme]);
+  }, [step, sizeConfig, assetConfig, selectedTile, minimalTheme]);
 
   return (
     <canvas ref={canvasRef} width={sizeConfig.boardSize} height={sizeConfig.boardSize} onMouseLeave={onMouseLeave} />

@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { Episode, Faction, RobotType, SetupAction, Unit } from '../../episode/model';
 import { getFactoryTiles } from '../../episode/utils';
 import { useStore } from '../../store';
-import { getTeamColor } from '../../utils/colors';
+import { getTeamColor, getTeamColorMantine } from '../../utils/colors';
 import { FactoryDetail } from './FactoryDetail';
 import { RobotDetail } from './RobotDetail';
 import { UnitList } from './UnitList';
@@ -88,6 +88,8 @@ export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element 
   const episode = useStore(state => state.episode)!;
   const turn = useStore(state => state.turn);
 
+  const minimalTheme = useStore(state => state.minimalTheme);
+
   const step = episode.steps[turn];
   const team = step.teams[id];
 
@@ -109,14 +111,14 @@ export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element 
 
   return (
     <Paper shadow={shadow} p="md" withBorder>
-      <Title order={3} style={{ color: getTeamColor(id, 1.0) }}>
+      <Title order={3} style={{ color: getTeamColor(id, 1.0, minimalTheme) }}>
         {isWinner && <IconCrown style={{ verticalAlign: 'middle', marginRight: '2px' }} />}
         {team.name}
       </Title>
 
       <Badge color="dark">{formatFaction(team.faction)}</Badge>
       {isWinner && (
-        <Badge color={id === 0 ? 'blue' : 'red'} ml={8}>
+        <Badge color={getTeamColorMantine(id, minimalTheme)} ml={8}>
           {winnerReason}
         </Badge>
       )}
@@ -160,7 +162,7 @@ export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element 
 
       <Space h="xs" />
 
-      <Tabs defaultValue="factories" keepMounted={false} color={id === 0 ? 'blue' : 'red'}>
+      <Tabs defaultValue="factories" keepMounted={false} color={getTeamColorMantine(id, minimalTheme)}>
         <Tabs.List mb="xs" grow>
           <Tabs.Tab value="factories">Factories</Tabs.Tab>
           <Tabs.Tab value="robots">Robots</Tabs.Tab>

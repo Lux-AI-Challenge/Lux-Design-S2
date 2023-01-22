@@ -20,6 +20,8 @@ export function Chart({ title, func, step }: ChartProps): JSX.Element {
   const episode = useStore(state => state.episode)!;
   const steps = episode.steps.filter(step => step.step > 0);
 
+  const minimalTheme = useStore(state => state.minimalTheme);
+
   const exportFileName = title.replace(/\W/g, '_');
 
   const options: ApexOptions = {
@@ -75,7 +77,7 @@ export function Chart({ title, func, step }: ChartProps): JSX.Element {
       series.push({
         name: steps[0].teams[i].name,
         data: steps.map(step => func(step.teams[i])),
-        color: getTeamColor(i, 1.0),
+        color: getTeamColor(i, 1.0, minimalTheme),
       });
     }
   }

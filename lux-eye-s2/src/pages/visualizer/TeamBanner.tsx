@@ -13,6 +13,8 @@ export function TeamBanner({ id, alignLeft }: TeamBannerProps): JSX.Element {
   const episode = useStore(state => state.episode)!;
   const turn = useStore(state => state.turn);
 
+  const minimalTheme = useStore(state => state.minimalTheme);
+
   const step = episode.steps[turn];
   const team = step.teams[id];
 
@@ -20,7 +22,7 @@ export function TeamBanner({ id, alignLeft }: TeamBannerProps): JSX.Element {
 
   return (
     <Stack align={alignLeft ? 'flex-start' : 'flex-end'} spacing={0}>
-      <Title order={4} style={{ color: getTeamColor(id, 1.0) }}>
+      <Title order={4} style={{ color: getTeamColor(id, 1.0, minimalTheme) }}>
         {winnerInfo[0] && <IconCrown style={{ verticalAlign: 'middle', marginRight: '2px' }} />}
         {team.name}
       </Title>
