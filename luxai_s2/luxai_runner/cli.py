@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+from pathlib import Path
 from typing import Dict, List
 
 import numpy as np
@@ -97,9 +98,11 @@ def main():
 
     save_format = getattr(args, "replay.save_format")
     if args.output is not None:
-        output_ext = args.output.split(".")[-1]
-        if output_ext in ["html", "json"]:
-            save_format = output_ext
+        output_file = Path(args.output).name
+        if "." in output_file:
+            output_ext = args.output.split(".")[-1]
+            if output_ext in ["html", "json"]:
+                save_format = output_ext
 
     cfg = EpisodeConfig(
         players=args.players,
