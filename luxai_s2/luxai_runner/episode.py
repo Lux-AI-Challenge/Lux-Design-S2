@@ -40,26 +40,53 @@ class Episode:
         self.players = cfg.players
 
     def save_replay(self, replay):
-        # JSON option
-        if self.cfg.replay_options.save_format == "json":
-            replay["observations"] = [to_json(x) for x in replay["observations"]]
-            replay["actions"] = [to_json(x) for x in replay["actions"]]
-            del replay["dones"]
-            del replay["rewards"]
-            ext = ".json"
-            from pathlib import Path
-
-            dir_name = osp.dirname(self.cfg.save_replay_path)
-            if dir_name != "":
-                Path(dir_name).mkdir(parents=True, exist_ok=True)
-            if self.cfg.save_replay_path[-5:] == ".json":
-                ext = ""
-            with open(f"{self.cfg.save_replay_path}{ext}", "w") as f:
-                json.dump(replay, f)
-        else:
+        save_format = self.cfg.replay_options.save_format
+        if save_format not in ["json", "html"]:
             raise ValueError(
-                f"{self.cfg.replay_options.save_format} is not a valid save format"
+                f"{save_format} is not a valid save format"
             )
+
+        replay["observations"] = [to_json(x) for x in replay["observations"]]
+        replay["actions"] = [to_json(x) for x in replay["actions"]]
+        del replay["dones"]
+        del replay["rewards"]
+
+        ext = f".{save_format}"
+
+        from pathlib import Path
+
+        dir_name = osp.dirname(self.cfg.save_replay_path)
+        if dir_name != "":
+            Path(dir_name).mkdir(parents=True, exist_ok=True)
+
+        if self.cfg.save_replay_path[-5:] == ext:
+            ext = ""
+
+        with open(f"{self.cfg.save_replay_path}{ext}", "w") as f:
+            if save_format == "json":
+                json.dump(replay, f)
+            else:
+                f.write(f"""
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://s2vis.lux-ai.org/eye.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Lux Eye S2</title>
+
+    <script>
+window.episode = {json.dumps(replay)};
+    </script>
+
+    <script type="module" crossorigin src="https://s2vis.lux-ai.org/index.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+                """.strip())
 
     async def run(self):
         if len(self.players) != 2:

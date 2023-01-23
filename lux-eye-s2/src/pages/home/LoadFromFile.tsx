@@ -57,9 +57,15 @@ export function LoadFromFile(): JSX.Element {
     <HomeCard title="Load from file">
       {/* prettier-ignore */}
       <Text mb="xs">
-        Supports JSON episodes generated using the <Code>luxai-s2</Code> CLI or the <Code>kaggle-environments</Code> CLI.
+        Supports HTML and JSON episodes generated using the <Code>luxai-s2</Code> CLI and JSON episodes generated using the <Code>kaggle-environments</Code> CLI.
       </Text>
-      <Dropzone onDrop={onDrop} onReject={onReject} multiple={false} accept={['application/json']} loading={loading}>
+      <Dropzone
+        onDrop={onDrop}
+        onReject={onReject}
+        multiple={false}
+        accept={['text/html', 'application/json']}
+        loading={loading}
+      >
         <Dropzone.Idle>
           <DropzoneContent />
         </Dropzone.Idle>
