@@ -1,16 +1,13 @@
-from typing import Dict
+from typing import Dict, Callable
 
 import gym
 import numpy as np
 from gym import spaces
-from gym import RewardWrapper
-from stable_baselines3.common.vec_env.base_vec_env import (VecEnv,
-                                                           VecEnvStepReturn,
-                                                           VecEnvWrapper)
 import numpy.typing as npt
 import luxai_s2.env
 from luxai_s2.env import LuxAI_S2
 from luxai_s2.state import ObservationStateDict
+from luxai_s2.unit import ActionType, FactoryPlacementActionType, BidActionType
 from luxai_s2.utils import my_turn_to_place_factory
 from luxai_s2.wrappers.controllers import Controller, SimpleDiscreteController, SimpleSingleUnitDiscreteController
 
@@ -19,8 +16,9 @@ class SB3Wrapper(gym.Wrapper):
     def __init__(
         self,
         env: LuxAI_S2,
-        bid_policy=None,
-        factory_placement_policy=None,
+        bid_policy: Callable[[str, ObservationStateDict], Dict[str, BidActionType]]=None,
+        factory_placement_policy: Callable[[str, ObservationStateDict], Dict[str, FactoryPlacementActionType]]=None,
+        heuristic_policy: Callable[[str, ObservationStateDict], Dict[str, ActionType]]=None,
         controller: Controller=None,
     ) -> None:
         """
@@ -39,6 +37,11 @@ class SB3Wrapper(gym.Wrapper):
         controller : Controller
             A controller that parameterizes the action space into something more usable and converts parameterized actions to lux actions.
             See luxai_s2/wrappers/controllers.py for available controllers and how to make your own
+        
+        heuristic_policy: Function
+            A function accepting player: str and obs: ObservationStateDict as input and returns a lux action. This can be provided by the user
+            to define custom logic or a model to generate actions for any of the units or factories. For any action generate for a unit or factory, it will
+            override the original action for that unit or factory when the step function is called. By defalt this is None and not used
         """
         gym.Wrapper.__init__(self, env)
         self.env = env
@@ -76,6 +79,8 @@ class SB3Wrapper(gym.Wrapper):
 
         self.bid_policy = bid_policy
 
+        self.heuristic_policy = heuristic_policy
+
         self._prev_obs = None
         # list of all agents regardless of status
         self.all_agents = []
@@ -87,9 +92,15 @@ class SB3Wrapper(gym.Wrapper):
                 lux_action[agent] = self.controller.action_to_lux_action(agent=agent, obs=self._prev_obs, action=action[agent])
             else:
                 lux_action[agent] = dict()
+            if self.heuristic_policy is not None:
+                heuristic_lux_action = self.heuristic_policy(agent, self._prev_obs[agent])
+                # override keys
+                for k in heuristic_lux_action:
+                    lux_action[agent][k] = heuristic_lux_action[k]
         obs, reward, done, info = self.env.step(lux_action)
         self._prev_obs = obs
         return self._convert_obs(obs), reward, done, info
+
     def _convert_obs(self, obs: Dict[str, ObservationStateDict]) -> Dict[str, npt.NDArray]:
 
         shared_obs = obs["player_0"]
@@ -104,9 +115,12 @@ class SB3Wrapper(gym.Wrapper):
             for unit_id in units.keys():
                 unit = units[unit_id]
                 # we encode everything but unit_id or action queue
-                cargo_vec = np.array([unit["power"], unit["cargo"]["ice"], unit["cargo"]["ore"], unit["cargo"]["water"], unit["cargo"]["metal"]])
+                cargo_space = self.env.state.env_cfg.ROBOTS[unit["unit_type"]].CARGO_SPACE
+                battery_cap = self.env.state.env_cfg.ROBOTS[unit["unit_type"]].BATTERY_CAPACITY
+                cargo_vec = np.array([unit["power"] / battery_cap, unit["cargo"]["ice"]/cargo_space, unit["cargo"]["ore"]/cargo_space, unit["cargo"]["water"]/cargo_space, unit["cargo"]["metal"]/cargo_space])
                 unit_type = 0 if unit["unit_type"] == "LIGHT" else 1 # note that build actions use 0 to encode Light
                 unit_vec = np.concatenate([unit["pos"], [unit_type], cargo_vec, [unit["team_id"]]], axis=-1)
+                unit_vec[:2] /= self.env.state.env_cfg.map_size
 
                 # note that all data is stored as map[x, y] format
                 unit_data[unit["pos"][0], unit["pos"][1]] = unit_vec
@@ -116,7 +130,10 @@ class SB3Wrapper(gym.Wrapper):
                 factory = factories[unit_id]
                 # we encode everything but strain_id or unit_id
                 cargo_vec = np.array([factory["power"], factory["cargo"]["ice"], factory["cargo"]["ore"], factory["cargo"]["water"], factory["cargo"]["metal"]])
+                cargo_vec = cargo_vec * 1/1000
+
                 factory_vec = np.concatenate([factory["pos"], cargo_vec, [factory["team_id"]]], axis=-1)
+                factory_vec[:2] /= self.env.state.env_cfg.map_size
                 factory_data[factory["pos"][0], factory["pos"][1]] = factory_vec
                 factory_mask[factory["pos"][0], factory["pos"][1]] = 1
             

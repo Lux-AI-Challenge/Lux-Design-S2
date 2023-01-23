@@ -4,6 +4,7 @@ from luxai_s2.state import ObservationStateDict
 from luxai_s2.config import EnvConfig
 import numpy.typing as npt
 import numpy as np
+from luxai_s2.actions import format_action_vec
 
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
@@ -20,7 +21,8 @@ class Controller:
 class SimpleSingleUnitDiscreteController(Controller):
     def __init__(self, env_cfg: EnvConfig) -> None:
         """
-        A simple controller that controls only the first heavy unit that will get spawned as well as the only factory that will be spawned.
+        A simple controller that controls only the heavy unit that will get spawned. This assumes for whichever environment wrapper you use
+        you have defined a policy to generate the first factory action
 
         For the heavy unit
         - 4 cardinal direction movement (4 dims)
@@ -29,32 +31,25 @@ class SimpleSingleUnitDiscreteController(Controller):
         - pickup action for each resource (5 dims)
         - dig action (1 dim)
 
-        For the factory
-        - all actions (build light, heavy, or water) (3 dims)
-
         It does not include
         - self destruct action
         - recharge action
         - planning (via actions executing multiple times or repeating actions)
+        - factory actions
         """
         self.env_cfg = env_cfg
         self.move_act_dims = 5
-        self.transfer_act_dims = 5 * 5
+        self.transfer_act_dims =0# 5 * 5
         self.pickup_act_dims = 5
         self.dig_act_dims = 1
-        # self.self_destruct_act_dims = 1
-        # self.recharge_act_dims = 1
-        self.factory_act_dims = 3 # 0 = light, 1 = heavy, 2 = water
 
 
         self.move_dim_high = self.move_act_dims
         self.transfer_dim_high = self.move_dim_high + self.transfer_act_dims
-        self.pickup_dim_high = self.transfer_act_dims +  self.pickup_act_dims
+        self.pickup_dim_high = self.transfer_dim_high +  self.pickup_act_dims
         self.dig_dim_high = self.pickup_dim_high + self.dig_act_dims
 
-        self.factory_dim_high = self.dig_dim_high + self.factory_act_dims
-
-        total_act_dims = self.factory_dim_high
+        total_act_dims = self.dig_dim_high
         action_space = spaces.Box(0, 1, shape=(total_act_dims, ))
         super().__init__(action_space)
     def _is_move_action(self, id):
@@ -72,7 +67,7 @@ class SimpleSingleUnitDiscreteController(Controller):
         return id < self.pickup_dim_high
     def _get_pickup_action(self, id):
         id = id - self.transfer_dim_high
-        return np.array([2, 0, id % 5, self.env_cfg.max_transfer_amount, 0, 0, 1])
+        return np.array([2, 0, id % 5, self.env_cfg.max_transfer_amount, 0, 1])
     def _is_dig_action(self, id):
         return id < self.dig_dim_high
     def _get_dig_action(self, id):
@@ -85,29 +80,20 @@ class SimpleSingleUnitDiscreteController(Controller):
         for unit_id in units.keys():
             unit = units[unit_id]
             pos = unit["pos"]
-            unit_related_action = action[:-self.factory_act_dims] # assuming factory action is always the final few dimensions
+            unit_related_action = action
             choice = unit_related_action.argmax()
             action_queue = []
             if self._is_move_action(choice):
                 action_queue = [self._get_move_action(choice)]
-            elif self._is_transfer_action(choice):
-                action_queue = [self._get_transfer_action(choice)]
+            # elif self._is_transfer_action(choice):
+            #     print("TRANSFER", choice)
+            #     action_queue = [self._get_transfer_action(choice)]
             elif self._is_pickup_action(choice):
                 action_queue = [self._get_pickup_action(choice)]
+                
             elif self._is_dig_action(choice):
                 action_queue = [self._get_dig_action(choice)]
-            
             lux_action[unit_id] = action_queue
-            # only control the first unit!
-            break
-        
-        for unit_id in factories.keys():
-            factory = factories[unit_id]
-            pos = factory["pos"]
-
-            factory_related_action = action[-self.factory_act_dims:]# assuming factory action is always the final few dimensions
-            choice = factory_related_action.argmax()
-            lux_action[unit_id] = choice
             # only control the first unit!
             break
         return lux_action
@@ -148,7 +134,7 @@ class SimpleDiscreteController(Controller):
 
         self.move_dim_high = self.move_act_dims
         self.transfer_dim_high = self.move_dim_high + self.transfer_act_dims
-        self.pickup_dim_high = self.transfer_act_dims +  self.pickup_act_dims
+        self.pickup_dim_high = self.transfer_dim_high +  self.pickup_act_dims
         self.dig_dim_high = self.pickup_dim_high + self.dig_act_dims
 
         self.factory_dim_high = 3#self.dig_dim_high + self.factory_act_dims
@@ -176,7 +162,7 @@ class SimpleDiscreteController(Controller):
         return id < self.pickup_dim_high
     def _get_pickup_action(self, id):
         id = id - self.transfer_dim_high
-        return np.array([2, 0, id % 5, self.env_cfg.max_transfer_amount, 0, 0, 1])
+        return np.array([2, 0, id % 5, self.env_cfg.max_transfer_amount, 0, 1])
     def _is_dig_action(self, id):
         return id < self.dig_dim_high
     def _get_dig_action(self, id):
