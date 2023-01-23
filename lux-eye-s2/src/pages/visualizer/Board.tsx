@@ -1,9 +1,16 @@
 import { useHover, useMergedRef, useMouse } from '@mantine/hooks';
 import { useCallback, useEffect, useState } from 'react';
+import lichen0 from '../../assets/0.png';
+import lichen100 from '../../assets/100.png';
+import lichen20 from '../../assets/20.png';
+import lichen40 from '../../assets/40.png';
+import lichen60 from '../../assets/60.png';
+import lichen80 from '../../assets/80.png';
+import factoryGreen from '../../assets/factory_green.svg';
+import factoryRed from '../../assets/factory_red.svg';
 import { Factory, Robot, RobotType, Step, Tile } from '../../episode/model';
 import { useStore } from '../../store';
 import { getTeamColor } from '../../utils/colors';
-
 interface SizeConfig {
   gutterSize: number;
   tileSize: number;
@@ -15,7 +22,17 @@ interface ThemeConfig {
   minimalTheme: boolean;
 }
 
-type Config = SizeConfig & ThemeConfig;
+interface AssetConfig {
+  factories: HTMLImageElement[];
+  lichenTiles: HTMLImageElement[];
+  rubbleTiles: HTMLImageElement[];
+  iceTiles: HTMLImageElement[];
+  oreTiles: HTMLImageElement[];
+  lights: HTMLImageElement[];
+  heavies: HTMLImageElement[];
+}
+
+type Config = SizeConfig & ThemeConfig & AssetConfig;
 
 function getSizeConfig(maxWidth: number, step: Step): SizeConfig {
   const gutterSize = 1;
@@ -78,15 +95,30 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
         color = `rgba(${rgb}, ${rgb}, ${rgb}, ${base + scale(board.rubble[tileY][tileX], 0, 100) * (1 - base)})`;
       }
 
-      ctx.fillStyle = color;
-      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      if (!config.minimalTheme && config.lichenTiles && config.rubbleTiles && config.iceTiles && config.oreTiles) {
+        ctx.drawImage(config.lichenTiles[0], canvasX - 2, canvasY - 2, config.tileSize + 4, config.tileSize + 4);
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      }
 
       const lichen = board.lichen[tileY][tileX];
       if (lichen > 0) {
         const team = teamStrains.get(board.strains[tileY][tileX]);
         if (team !== undefined) {
-          ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
-          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+          if (!config.minimalTheme && config.lichenTiles) {
+            const bracket = Math.ceil(lichen / 20);
+            ctx.drawImage(
+              config.lichenTiles[bracket],
+              canvasX - 2,
+              canvasY - 2,
+              config.tileSize + 4,
+              config.tileSize + 4,
+            );
+          } else {
+            ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
+            ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+          }
         }
       }
     }
@@ -114,20 +146,23 @@ function drawFactory(
     Math.abs(factory.tile.y - selectedTile.y) <= 1;
 
   const borderSize = 2;
+  if (!config.minimalTheme && config.factories) {
+    ctx.drawImage(config.factories[team], canvasX + config.tileSize / 2, canvasY, size - config.tileSize, size);
+  } else {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(canvasX, canvasY, size, size);
 
-  ctx.fillStyle = 'white';
-  ctx.fillRect(canvasX, canvasY, size, size);
+    ctx.fillStyle = getTeamColor(team, 0.75);
+    ctx.fillRect(canvasX, canvasY, size, size);
 
-  ctx.fillStyle = getTeamColor(team, 0.75);
-  ctx.fillRect(canvasX, canvasY, size, size);
+    ctx.fillStyle = isSelected ? 'black' : getTeamColor(team, 1.0);
+    ctx.fillRect(canvasX, canvasY, size, borderSize);
+    ctx.fillRect(canvasX, canvasY, borderSize, size);
+    ctx.fillRect(canvasX, canvasY + size - borderSize, size, borderSize);
+    ctx.fillRect(canvasX + size - borderSize, canvasY, borderSize, size);
 
-  ctx.fillStyle = isSelected ? 'black' : getTeamColor(team, 1.0);
-  ctx.fillRect(canvasX, canvasY, size, borderSize);
-  ctx.fillRect(canvasX, canvasY, borderSize, size);
-  ctx.fillRect(canvasX, canvasY + size - borderSize, size, borderSize);
-  ctx.fillRect(canvasX + size - borderSize, canvasY, borderSize, size);
-
-  ctx.restore();
+    ctx.restore();
+  }
 }
 
 function drawRobot(
@@ -254,6 +289,16 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
     tilesPerSide: 0,
   });
 
+  const [assetConfig, setAssetConfig] = useState<AssetConfig>({
+    factories: [],
+    lights: [],
+    heavies: [],
+    lichenTiles: [],
+    oreTiles: [],
+    iceTiles: [],
+    rubbleTiles: [],
+  });
+
   const step = episode!.steps[turn];
 
   const onMouseLeave = useCallback(() => {
@@ -271,6 +316,38 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       setSizeConfig(newSizeConfig);
     }
   }, [maxWidth, episode]);
+
+  useEffect(() => {
+    const factories: HTMLImageElement[] = [];
+    const lichenTiles: HTMLImageElement[] = [];
+    const rubbleTiles: HTMLImageElement[] = [];
+    const heavies: HTMLImageElement[] = [];
+    const lights: HTMLImageElement[] = [];
+    const iceTiles: HTMLImageElement[] = [];
+    const oreTiles: HTMLImageElement[] = [];
+
+    for (const image of [factoryRed, factoryGreen]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      factories.push(elem);
+    }
+    for (const image of [lichen0, lichen20, lichen40, lichen60, lichen80, lichen100]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      lichenTiles.push(elem);
+    }
+
+    setAssetConfig({ factories, lichenTiles, rubbleTiles, heavies, lights, iceTiles, oreTiles });
+
+    return () => {
+      for (const image of factories) {
+        image.remove();
+      }
+      for (const image of lichenTiles) {
+        image.remove();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!hovered) {
@@ -305,6 +382,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
     const config = {
       ...sizeConfig,
       minimalTheme,
+      ...assetConfig,
     };
 
     drawBoard(ctx, config, step, selectedTile);
