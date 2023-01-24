@@ -25,7 +25,7 @@ This will run the `agent.py` code in the same folder as `main.py` and generate a
 ## Developing
 Now that you have the code up and running, you are ready to start programming and having some fun!
 
-If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-s2). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/python/starter_python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial#Lux-AI-Season-2-Jupyter-Notebook-Tutorial---Python-Kit)
+If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-s2). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/python/lux-ai-challenge-season-2-tutorial-python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-challenge-season-2-tutorial-python)
 
 All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
 
