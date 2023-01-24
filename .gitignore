@@ -6,11 +6,12 @@ replays
 visualizer/src/assets/replay.json
 
 kaggle-environments
-tests/private_agents
-map_samples
 
 dist
 build
 
 __temp__.mp4
 .ipynb_checkpoints
+
+node_modules
+dist

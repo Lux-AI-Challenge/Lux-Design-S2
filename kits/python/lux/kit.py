@@ -105,7 +105,6 @@ def obs_to_game_state(step, env_cfg: EnvConfig, obs):
             factories_per_team=obs["board"]["factories_per_team"],
             valid_spawns_mask=obs["board"]["valid_spawns_mask"]
         ),
-        weather_schedule=obs["weather_schedule"],
         units=units,
         factories=factories,
         teams=teams
@@ -125,12 +124,11 @@ class Board:
 @dataclass
 class GameState:
     """
-    A GameState object at step env_steps. Copied from luxai2022/state/state.py
+    A GameState object at step env_steps. Copied from luxai_s2/state/state.py
     """
     env_steps: int
     env_cfg: dict
     board: Board
-    weather_schedule: np.ndarray = None
     units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)

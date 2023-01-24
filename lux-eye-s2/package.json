@@ -1,0 +1,157 @@
+{
+  "name": "@lux-ai/lux-eye-s2",
+  "version": "0.0.6",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "yarn lint:eslint && yarn lint:prettier",
+    "lint:eslint": "eslint --format codeframe 'src/**/*.ts' 'src/**/*.tsx' vite.config.ts",
+    "lint:prettier": "prettier --check --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'",
+    "fix": "yarn fix:eslint && yarn fix:prettier",
+    "fix:eslint": "yarn lint:eslint --fix",
+    "fix:prettier": "prettier --write --ignore-path .gitignore '**/*.{ts,tsx,html,css,yml,json}'",
+    "prepublish": "yarn build --base=https://unpkg.com/@lux-ai/lux-eye-s2@latest/dist/"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@mantine/core": "^5.10.1",
+    "@mantine/dropzone": "^5.10.1",
+    "@mantine/hooks": "^5.10.1",
+    "@mantine/modals": "^5.10.1",
+    "@mantine/notifications": "^5.10.1",
+    "@tabler/icons": "^1.119.0",
+    "apexcharts": "^3.36.3",
+    "axios": "^1.2.3",
+    "react": "^18.2.0",
+    "react-apexcharts": "^1.4.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.7.0",
+    "react-virtuoso": "^4.0.3",
+    "zustand": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "@vitejs/plugin-react": "^3.0.1",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-formatter-codeframe": "^7.32.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "4.3.8",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4"
+  },
+  "files": [
+    "dist"
+  ],
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:react/recommended",
+      "plugin:react-hooks/recommended",
+      "plugin:import/recommended",
+      "plugin:import/typescript",
+      "prettier"
+    ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-member-accessibility": "error",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "default",
+          "format": [
+            "camelCase"
+          ]
+        },
+        {
+          "selector": "variable",
+          "format": [
+            "camelCase",
+            "UPPER_CASE"
+          ]
+        },
+        {
+          "selector": [
+            "typeLike",
+            "enumMember"
+          ],
+          "format": [
+            "PascalCase"
+          ]
+        },
+        {
+          "selector": "function",
+          "format": [
+            "camelCase",
+            "PascalCase"
+          ]
+        }
+      ],
+      "@typescript-eslint/explicit-function-return-type": [
+        "error",
+        {
+          "allowExpressions": true
+        }
+      ],
+      "react/react-in-jsx-scope": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "import/order": [
+        "error",
+        {
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ],
+      "no-constant-condition": [
+        "error",
+        {
+          "checkLoops": false
+        }
+      ]
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --concurrent false"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --format codeframe --fix"
+    ],
+    "*.{ts,tsx,html,css,yml,json}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 120,
+    "arrowParens": "avoid"
+  }
+}

@@ -1,13 +1,13 @@
 # Lux AI Season 2 Kits
 
-This folder contains all official kits provided by the Lux AI team for the Lux AI Challenge Season 1.
+This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well the general [Kit API](#kit-api)
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
 To run a episode with verbosity level 2 (higher is more verbose), seed 42, and save a replay to replay.json:
 
 ```
-luxai2022 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
+luxai_s2 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
 ```
 
 To then watch the replay, upload replay.json to http://2022vis.lux-ai.org/
@@ -22,6 +22,10 @@ In the `agent.py` file, we define a simple class that holds your agent, you can 
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
 
+### Forward Simulation
+
+TODO
+
 ## Environment Actions
 
 In each episode there are two competing teams, both of which control factories and units.
@@ -30,7 +34,7 @@ In the early phase, the action space is different than the actual game phase. Se
 
 During the actual game phase, factories have 3 possible actions, `build_light`, `build_heavy`, and `water`. Units/Robots (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
 
-In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue. If the action is marked as to be repeated (the default), it is replaced to the back of the queue.
+In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue, and repeatedly does this a user-specified `n` times until exhausted. If the action is marked as to be repeated, it is replaced to the back of the queue.
 
 In code, actions can be given to units as so
 
@@ -85,32 +89,24 @@ The general observation given to your bot in the kits will look like below. `Arr
       "valid_spawns_mask": Array(48, 48),
       "factories_per_team": int
     },
-    "weather": Array(1000),
-    "real_env_steps": int,
     "teams": {
-      "player_0": {
-        "team_id": 0,
-        "faction": "MotherMars",
-        "water": 0,
-        "metal": 0,
-        "factories_to_place": 0,
-        "factory_strains": [0, 2, 4, 6],
-        "place_first": True,
-      },
-      "player_1": {
-        "team_id": 1,
-        "faction": "AlphaStrike",
-        "water": 0,
-        "metal": 0,
-        "factories_to_place": 0,
-        "factory_strains": [1, 3, 5, 7],
-        "place_first": False,
+      [player_id]: {
+        "team_id": int,
+        "faction": str,
+        "water": int,
+        "metal": int,
+        "factories_to_place": int,
+        "factory_strains": Array<int>,
+        "place_first": bool,
+        "bid": int
       }
     },
+    "real_env_steps": int, # note this can be negative due to there being two phases of gameplay
+    "global_id": int # only used for reconstructing a LuxAI_S2 State object
   },
   "step": int,
-  "remainingOverageTime": int,
-  "player": str
+  "remainingOverageTime": int, # total amount of time your bot can use whenever it exceeds 2s in a turn
+  "player": str # your player id
 }
 ```
 
@@ -124,7 +120,6 @@ class GameState:
     env_steps: int # number of env steps passed
     env_cfg: dict # current env configuration
     board: Board # the game board
-    weather_schedule: Array # the weather ID at each time step
     units: Dict[str, Dict[str, Unit]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to unit objects
     factories: Dict[str, Dict[str, Factory]] # maps agent ID (player_0, player_1) to a dictionary mapping unit ID to factory objects
     teams: Dict[str, Team] # maps agent ID (player_0, player_1) to a Team object
@@ -144,7 +139,7 @@ class Board:
     spawns: Array # possible spawn locations on your team's half of the map
 ```
 
-Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions (and also factors weather into that cost)
+Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions.
 
 Each `Factory` object comes with functions to generate actions as well as compute the cost of building robots and watering lichen.
 
