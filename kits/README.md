@@ -10,7 +10,13 @@ To run a episode with verbosity level 2 (higher is more verbose), seed 42, and s
 luxai_s2 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
 ```
 
-To then watch the replay, upload replay.json to http://2022vis.lux-ai.org/
+To then watch the replay, upload replay.json to http://s2vis.lux-ai.org/
+
+Alternatively you can generate a openable HTML file to watch it as well by specifying the output as .html
+
+```
+luxai_s2 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.html
+```
 
 For an in-depth tutorial detailing how to start writing an agent, there is a [online Jupyter Notebook](https://www.kaggle.com/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial) that you can follow (only in python). We highly recommend at least skimming over this as season 2 has some specific quirks that make it different than your standard AI gym environments. Specifically they affect the [environment actions](#environment-actions) mostly.
 
