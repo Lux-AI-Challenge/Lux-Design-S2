@@ -30,7 +30,7 @@ namespace lux {
         }
     };
 
-    struct UnitAction final : public Action<std::array<int64_t, 5>> {
+    struct UnitAction final : public Action<std::array<int64_t, 6>> {
         enum class Type {
             MOVE,
             TRANSFER,
@@ -44,18 +44,19 @@ namespace lux {
         Resource  resource;
         int64_t   amount;
         int64_t   repeat;
+        int64_t   n;
 
         UnitAction() = default;
         UnitAction(UnitAction::RawType raw_);
-        UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, int64_t repeat_);
-        UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, int64_t repeat_);
+        UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, int64_t repeat_, int64_t n_);
+        UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, int64_t repeat_, int64_t n_);
 
-        static UnitAction Move(Direction direction, int64_t repeat);
-        static UnitAction Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat);
-        static UnitAction Pickup(Resource resource, int64_t amount, int64_t repeat);
-        static UnitAction Dig(int64_t repeat);
-        static UnitAction SelfDestruct(int64_t repeat);
-        static UnitAction Recharge(int64_t amount, int64_t repeat);
+        static UnitAction Move(Direction direction, int64_t repeat, int64_t n);
+        static UnitAction Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat, int64_t n);
+        static UnitAction Pickup(Resource resource, int64_t amount, int64_t repeat, int64_t n);
+        static UnitAction Dig(int64_t repeat, int64_t n);
+        static UnitAction SelfDestruct(int64_t repeat, int64_t n);
+        static UnitAction Recharge(int64_t amount, int64_t repeat, int64_t n);
 
         inline bool isMoveAction() const { return type == Type::MOVE; }
         inline bool isTransferAction() const { return type == Type::TRANSFER; }
