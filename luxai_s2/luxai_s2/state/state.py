@@ -15,7 +15,7 @@ from luxai_s2.team import Team, TeamStateDict
 from luxai_s2.unit import (FactionTypes, Unit, UnitCargo, UnitStateDict,
                            UnitType)
 
-
+from luxai_s2.state.stats import StatsStateDict
 class SparseBoardStateDict(TypedDict):
     rubble: Dict[str, int]
     lichen: Dict[str, int]
@@ -40,7 +40,6 @@ class ObservationStateDict(TypedDict):
     real_env_steps: int
     global_id: int
 
-
 @dataclass
 class State:
     seed_rng: np.random.RandomState
@@ -52,7 +51,7 @@ class State:
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
     global_id: int = 0
-    stats: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    stats: Dict[str, StatsStateDict] = field(default_factory=dict)
 
     @property
     def real_env_steps(self):
