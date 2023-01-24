@@ -1,16 +1,18 @@
 import { useHover, useMergedRef, useMouse } from '@mantine/hooks';
 import { useCallback, useEffect, useState } from 'react';
-import lichen0 from '../../assets/0.png';
-import lichen100 from '../../assets/100.png';
-import lichen20 from '../../assets/20.png';
-import lichen40 from '../../assets/40.png';
-import lichen60 from '../../assets/60.png';
-import lichen80 from '../../assets/80.png';
 import factoryGreen from '../../assets/factory_green.svg';
 import factoryRed from '../../assets/factory_red.svg';
+import light0 from '../../assets/robots/light0.png';
+import light1 from '../../assets/robots/light1.png';
+import rubble100 from '../../assets/rubble/r100.png';
+import rubble20 from '../../assets/rubble/r20.png';
+import rubble40 from '../../assets/rubble/r40.png';
+import rubble60 from '../../assets/rubble/r60.png';
+import rubble80 from '../../assets/rubble/r80.png';
 import { Factory, Robot, RobotType, Step, Tile } from '../../episode/model';
 import { useStore } from '../../store';
 import { getTeamColor } from '../../utils/colors';
+import { lichenTilePaths } from './assets';
 interface SizeConfig {
   gutterSize: number;
   tileSize: number;
@@ -65,7 +67,12 @@ function scale(value: number, relativeMin: number, relativeMax: number): number 
   const clampedValue = Math.max(Math.min(value, relativeMax), relativeMin);
   return (clampedValue - relativeMin) / (relativeMax - relativeMin);
 }
-
+const randomIds = new Map();
+for (let i = 0; i < 48; i++) {
+  for (let j = 0; j < 48; j++) {
+    randomIds.set(`${i},${j}`, Math.floor(Math.random() * 8));
+  }
+}
 function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step: Step): void {
   const board = step.board;
   const isDay = step.step < 0 || step.step % 50 < 30;
@@ -80,24 +87,48 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
   for (let tileY = 0; tileY < config.tilesPerSide; tileY++) {
     for (let tileX = 0; tileX < config.tilesPerSide; tileX++) {
       const [canvasX, canvasY] = tileToCanvas(config, { x: tileX, y: tileY });
-
-      ctx.fillStyle = 'white';
-      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
-
-      let color: string;
-      if (board.ice[tileY][tileX] > 0) {
-        color = '#48dbfb';
-      } else if (board.ore[tileY][tileX] > 0) {
-        color = '#2c3e50';
-      } else {
-        const rgb = isDay ? 150 : 75;
-        const base = isDay ? 0.1 : 0.2;
-        color = `rgba(${rgb}, ${rgb}, ${rgb}, ${base + scale(board.rubble[tileY][tileX], 0, 100) * (1 - base)})`;
+      if (canvasY == 1363) {
+        console.log({ canvasX, canvasY, ts: config.tileSize });
       }
-
+      // ctx.fillStyle = 'white';
+      // ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      const tilePadding = 4;
       if (!config.minimalTheme && config.lichenTiles && config.rubbleTiles && config.iceTiles && config.oreTiles) {
-        ctx.drawImage(config.lichenTiles[0], canvasX - 2, canvasY - 2, config.tileSize + 4, config.tileSize + 4);
+        let color: string;
+        if (board.ice[tileY][tileX] > 0) {
+          color = '#48dbfb';
+          ctx.fillStyle = color;
+          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+        } else if (board.ore[tileY][tileX] > 0) {
+          color = '#2c3e50';
+          ctx.fillStyle = color;
+          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+        } else if (board.lichen[tileY][tileX] == 0) {
+          const bracket = Math.ceil(board.rubble[tileY][tileX] / 20);
+          ctx.drawImage(
+            config.rubbleTiles[bracket],
+            canvasX - tilePadding,
+            canvasY - tilePadding,
+            config.tileSize + tilePadding * 2,
+            config.tileSize + tilePadding * 2,
+          );
+          // ctx.drawImage(config.lichenTiles[0], canvasX - 2, canvasY - 2, config.tileSize + 4, config.tileSize + 4);
+
+          // const rgb = isDay ? 150 : 75;
+          // const base = isDay ? 0.1 : 0.2;
+          // color = `rgba(${rgb}, ${rgb}, ${rgb}, ${base + scale(board.rubble[tileY][tileX], 0, 100) * (1 - base)})`;
+        }
       } else {
+        let color: string;
+        if (board.ice[tileY][tileX] > 0) {
+          color = '#48dbfb';
+        } else if (board.ore[tileY][tileX] > 0) {
+          color = '#2c3e50';
+        } else {
+          const rgb = isDay ? 150 : 75;
+          const base = isDay ? 0.1 : 0.2;
+          color = `rgba(${rgb}, ${rgb}, ${rgb}, ${base + scale(board.rubble[tileY][tileX], 0, 100) * (1 - base)})`;
+        }
         ctx.fillStyle = color;
         ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
       }
@@ -108,12 +139,14 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
         if (team !== undefined) {
           if (!config.minimalTheme && config.lichenTiles) {
             const bracket = Math.ceil(lichen / 20);
+            const ID = bracket * 8 + randomIds.get(`${tileX},${tileY}`);
+            // console.log({bracket, ID, }, config.lichenTiles.length)
             ctx.drawImage(
-              config.lichenTiles[bracket],
-              canvasX - 2,
-              canvasY - 2,
-              config.tileSize + 4,
-              config.tileSize + 4,
+              config.lichenTiles[ID],
+              canvasX - tilePadding + 1,
+              canvasY - tilePadding + 1,
+              config.tileSize + tilePadding * 2,
+              config.tileSize + tilePadding * 2,
             );
           } else {
             ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
@@ -177,16 +210,20 @@ function drawRobot(
   const isSelected = selectedTile !== null && robot.tile.x === selectedTile.x && robot.tile.y === selectedTile.y;
 
   if (robot.type === RobotType.Light) {
-    ctx.fillStyle = getTeamColor(team, 1.0);
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = isSelected ? 2 : 1;
+    if (!config.minimalTheme) {
+      ctx.drawImage(config.lights[team], canvasX, canvasY, config.tileSize, config.tileSize);
+    } else {
+      ctx.fillStyle = getTeamColor(team, 1.0);
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = isSelected ? 2 : 1;
 
-    const radius = config.tileSize / 2 - 1;
+      const radius = config.tileSize / 2 - 1;
 
-    ctx.beginPath();
-    ctx.arc(canvasX + config.tileSize / 2, canvasY + config.tileSize / 2, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(canvasX + config.tileSize / 2, canvasY + config.tileSize / 2, radius, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
   } else {
     const borderSize = isSelected ? 1 : 2;
 
@@ -331,10 +368,20 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       elem.src = image;
       factories.push(elem);
     }
-    for (const image of [lichen0, lichen20, lichen40, lichen60, lichen80, lichen100]) {
+    for (const image of lichenTilePaths) {
       const elem = document.createElement('img');
       elem.src = image;
       lichenTiles.push(elem);
+    }
+    for (const image of [lichenTilePaths[0], rubble20, rubble40, rubble60, rubble80, rubble100]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      rubbleTiles.push(elem);
+    }
+    for (const image of [light0, light1]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      lights.push(elem);
     }
 
     setAssetConfig({ factories, lichenTiles, rubbleTiles, heavies, lights, iceTiles, oreTiles });

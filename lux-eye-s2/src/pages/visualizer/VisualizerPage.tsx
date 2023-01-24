@@ -62,9 +62,9 @@ export function VisualizerPage(): JSX.Element {
     <div className={classes.container}>
       <Grid columns={24}>
         <MediaQuery smallerThan="md" styles={{ display: 'none' }}>
-          <Grid.Col span={7}>{teamCards[0]}</Grid.Col>
+          <Grid.Col span={5}>{teamCards[0]}</Grid.Col>
         </MediaQuery>
-        <Grid.Col span={24} md={10}>
+        <Grid.Col span={24} md={14}>
           <Paper shadow="xs" p="md" withBorder>
             <Stack>
               <Center ref={boardContainerRef}>
@@ -77,7 +77,7 @@ export function VisualizerPage(): JSX.Element {
         <MediaQuery largerThan="md" styles={{ display: 'none' }}>
           <Grid.Col span={24}>{teamCards[0]}</Grid.Col>
         </MediaQuery>
-        <Grid.Col span={24} md={7}>
+        <Grid.Col span={24} md={5}>
           {teamCards[1]}
         </Grid.Col>
       </Grid>
