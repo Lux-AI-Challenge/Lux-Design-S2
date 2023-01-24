@@ -45,7 +45,7 @@ class SimpleSingleUnitDiscreteController(Controller):
         """
         self.env_cfg = env_cfg
         self.move_act_dims = 5
-        self.transfer_act_dims = 1  # 5 * 5
+        self.transfer_act_dims = 5  # 5 * 5
         self.pickup_act_dims = 5
         self.dig_act_dims = 1
 
@@ -73,7 +73,7 @@ class SimpleSingleUnitDiscreteController(Controller):
         transfer_dir = id % 5
         # resource_type = id // 5
         return np.array(
-            [1, 0, 0, self.env_cfg.max_transfer_amount, 0, 1]
+            [1, transfer_dir, 0, self.env_cfg.max_transfer_amount, 0, 1]
         )
 
     def _is_pickup_action(self, id):
