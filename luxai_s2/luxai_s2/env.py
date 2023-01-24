@@ -8,22 +8,40 @@ import numpy as np
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
 
-from luxai_s2.actions import (Action, DigAction, FactoryBuildAction,
-                              FactoryWaterAction, MoveAction, PickupAction,
-                              RechargeAction, SelfDestructAction,
-                              TransferAction, format_action_vec,
-                              format_factory_action, move_deltas,resource_to_name,
-                              validate_actions)
+from luxai_s2.actions import (
+    Action,
+    DigAction,
+    FactoryBuildAction,
+    FactoryWaterAction,
+    MoveAction,
+    PickupAction,
+    RechargeAction,
+    SelfDestructAction,
+    TransferAction,
+    format_action_vec,
+    format_factory_action,
+    move_deltas,
+    resource_to_name,
+    validate_actions,
+)
 from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.pyvisual.visualizer import Visualizer
-from luxai_s2.spaces.act_space import (get_act_space, get_act_space_bid,
-                                       get_act_space_init,
-                                       get_act_space_placement)
+from luxai_s2.spaces.act_space import (
+    get_act_space,
+    get_act_space_bid,
+    get_act_space_init,
+    get_act_space_placement,
+)
 from luxai_s2.spaces.obs_space import get_obs_space
-from luxai_s2.state import ObservationStateDict, State, create_empty_stats, StatsStateDict
+from luxai_s2.state import (
+    ObservationStateDict,
+    State,
+    StatsStateDict,
+    create_empty_stats,
+)
 from luxai_s2.team import FactionTypes, Team
 from luxai_s2.unit import Unit, UnitType
 from luxai_s2.utils.utils import get_top_two_power_units, is_day
@@ -397,7 +415,10 @@ class LuxAI_S2(ParallelEnv):
                 actually_transferred = factory.add_resource(
                     transfer_action.resource, transfer_amount
                 )
-                if self.collect_stats: self.state.stats[unit.team.agent]["transfer"][resource_to_name[transfer_action.resource]] += actually_transferred
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["transfer"][
+                        resource_to_name[transfer_action.resource]
+                    ] += actually_transferred
             elif units_there is not None:
                 assert len(units_there) == 1, "Fatal error here, this is a bug"
                 target_unit = units_there[0]
@@ -405,7 +426,10 @@ class LuxAI_S2(ParallelEnv):
                 actually_transferred = target_unit.add_resource(
                     transfer_action.resource, transfer_amount
                 )
-                if self.collect_stats: self.state.stats[unit.team.agent]["pickup"][resource_to_name[transfer_action.resource]] += actually_transferred
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["pickup"][
+                        resource_to_name[transfer_action.resource]
+                    ] += actually_transferred
             unit.repeat_action(transfer_action)
 
     def _handle_pickup_actions(self, actions_by_type: ActionsByType):
@@ -418,21 +442,29 @@ class LuxAI_S2(ParallelEnv):
             # may waste resources if tried to pickup more than one can hold.
             actually_pickedup = unit.add_resource(pickup_action.resource, pickup_amount)
             unit.repeat_action(pickup_action)
-            if self.collect_stats: self.state.stats[unit.team.agent]["pickup"][resource_to_name[pickup_action.resource]] += actually_pickedup
+            if self.collect_stats:
+                self.state.stats[unit.team.agent]["pickup"][
+                    resource_to_name[pickup_action.resource]
+                ] += actually_pickedup
 
     def _handle_dig_actions(self, actions_by_type: ActionsByType):
         for unit, dig_action in actions_by_type["dig"]:
             dig_action: DigAction
             if self.state.board.rubble[unit.pos.x, unit.pos.y] > 0:
-                if self.collect_stats: rubble_before = self.state.board.rubble[unit.pos.x, unit.pos.y]
+                if self.collect_stats:
+                    rubble_before = self.state.board.rubble[unit.pos.x, unit.pos.y]
                 self.state.board.rubble[unit.pos.x, unit.pos.y] = max(
                     self.state.board.rubble[unit.pos.x, unit.pos.y]
                     - unit.unit_cfg.DIG_RUBBLE_REMOVED,
                     0,
                 )
-                if self.collect_stats: self.state.stats[unit.team.agent]["destroyed"]["rubble"] -= self.state.board.rubble[unit.pos.x, unit.pos.y] - rubble_before
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["destroyed"]["rubble"] -= (
+                        self.state.board.rubble[unit.pos.x, unit.pos.y] - rubble_before
+                    )
             elif self.state.board.lichen[unit.pos.x, unit.pos.y] > 0:
-                if self.collect_stats: lichen_before = self.state.board.lichen[unit.pos.x, unit.pos.y]
+                if self.collect_stats:
+                    lichen_before = self.state.board.lichen[unit.pos.x, unit.pos.y]
                 lichen_left = max(
                     self.state.board.lichen[unit.pos.x, unit.pos.y]
                     - unit.unit_cfg.DIG_LICHEN_REMOVED,
@@ -443,13 +475,18 @@ class LuxAI_S2(ParallelEnv):
                     self.state.board.rubble[
                         unit.pos.x, unit.pos.y
                     ] = self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_RESOURCE_GAIN
-                if self.collect_stats: self.state.stats[unit.team.agent]["destroyed"]["lichen"] -= self.state.board.lichen[unit.pos.x, unit.pos.y] - lichen_before
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["destroyed"]["lichen"] -= (
+                        self.state.board.lichen[unit.pos.x, unit.pos.y] - lichen_before
+                    )
             elif self.state.board.ice[unit.pos.x, unit.pos.y] > 0:
                 gained = unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
-                if self.collect_stats: self.state.stats[unit.team.agent]["generation"]["ice"] += gained
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["generation"]["ice"] += gained
             elif self.state.board.ore[unit.pos.x, unit.pos.y] > 0:
                 gained = unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
-                if self.collect_stats: self.state.stats[unit.team.agent]["generation"]["ore"] += gained
+                if self.collect_stats:
+                    self.state.stats[unit.team.agent]["generation"]["ore"] += gained
             unit.power -= self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_COST
             unit.repeat_action(dig_action)
 
@@ -460,7 +497,8 @@ class LuxAI_S2(ParallelEnv):
             pos_hash = self.state.board.pos_hash(unit.pos)
             del self.state.board.units_map[pos_hash]
             self.destroy_unit(unit)
-            if self.collect_stats: self.state.stats[unit.team.agent]["destroyed"][unit.unit_type.name] += 1
+            if self.collect_stats:
+                self.state.stats[unit.team.agent]["destroyed"][unit.unit_type.name] += 1
 
     def _handle_factory_build_actions(self, actions_by_type: ActionsByType):
         for factory, factory_build_action in actions_by_type["factory_build"]:
@@ -482,7 +520,9 @@ class LuxAI_S2(ParallelEnv):
                         f"{factory} doesn't have enough power to build a heavy despite having enough power at the start of the turn. This is likely because a unit picked up some of the power."
                     )
                     continue
-                spent_metal = factory.sub_resource(3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST)
+                spent_metal = factory.sub_resource(
+                    3, self.env_cfg.ROBOTS["HEAVY"].METAL_COST
+                )
                 spent_power = factory.sub_resource(4, factory_build_action.power_cost)
             else:
                 if factory.cargo.metal < self.env_cfg.ROBOTS["LIGHT"].METAL_COST:
@@ -495,7 +535,9 @@ class LuxAI_S2(ParallelEnv):
                         f"{factory} doesn't have enough power to build a light despite having enough power at the start of the turn. This is likely because a unit picked up some of the power."
                     )
                     continue
-                spent_metal = factory.sub_resource(3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST)
+                spent_metal = factory.sub_resource(
+                    3, self.env_cfg.ROBOTS["LIGHT"].METAL_COST
+                )
                 spent_power = factory.sub_resource(4, factory_build_action.power_cost)
 
             self.add_unit(
@@ -507,8 +549,12 @@ class LuxAI_S2(ParallelEnv):
                 self.state.stats[factory.team.agent]["generation"]["built"][
                     factory_build_action.unit_type.name
                 ] += 1
-                self.state.stats[factory.team.agent]["consumption"]["metal"] += spent_metal
-                self.state.stats[factory.team.agent]["consumption"]["power"] += spent_power
+                self.state.stats[factory.team.agent]["consumption"][
+                    "metal"
+                ] += spent_metal
+                self.state.stats[factory.team.agent]["consumption"][
+                    "power"
+                ] += spent_power
 
     def _handle_movement_actions(self, actions_by_type: ActionsByType):
         new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -677,7 +723,10 @@ class LuxAI_S2(ParallelEnv):
             )
             self.state.board.lichen[indexable_positions] += 2
             self.state.board.lichen_strains[indexable_positions] = factory.num_id
-            if self.collect_stats: self.state.stats[factory.team.agent]["consumption"]["water"] += water_cost
+            if self.collect_stats:
+                self.state.stats[factory.team.agent]["consumption"][
+                    "water"
+                ] += water_cost
 
     def step(
         self, actions
@@ -739,7 +788,10 @@ class LuxAI_S2(ParallelEnv):
                             update_power_req = self.state.env_cfg.ROBOTS[
                                 unit.unit_type.name
                             ].ACTION_QUEUE_POWER_COST
-                            if self.collect_stats: self.state.stats[agent]["action_queue_updates_total"] += 1
+                            if self.collect_stats:
+                                self.state.stats[agent][
+                                    "action_queue_updates_total"
+                                ] += 1
                             if unit.power < update_power_req:
                                 self._log(
                                     f"{agent} Tried to update action queue for {unit} requiring {update_power_req}"
@@ -762,7 +814,10 @@ class LuxAI_S2(ParallelEnv):
                                 failed_agents[agent] = True
                                 continue
                             unit.power -= update_power_req
-                            if self.collect_stats: self.state.stats[agent]["action_queue_updates_success"] += 1
+                            if self.collect_stats:
+                                self.state.stats[agent][
+                                    "action_queue_updates_success"
+                                ] += 1
                             self.state.units[agent][
                                 unit_id
                             ].action_queue = formatted_actions
@@ -834,13 +889,17 @@ class LuxAI_S2(ParallelEnv):
             for agent in self.agents:
                 factories_to_destroy: Set[Factory] = set()
                 for factory in self.state.factories[agent].values():
-                    if self.collect_stats: 
+                    if self.collect_stats:
                         water_before = factory.cargo.water
                         metal_before = factory.cargo.metal
                     factory.refine_step(self.env_cfg)
-                    if self.collect_stats: 
-                        self.state.stats[agent]["generation"]["metal"] += factory.cargo.metal - metal_before
-                        self.state.stats[agent]["generation"]["water"] += factory.cargo.water - water_before
+                    if self.collect_stats:
+                        self.state.stats[agent]["generation"]["metal"] += (
+                            factory.cargo.metal - metal_before
+                        )
+                        self.state.stats[agent]["generation"]["water"] += (
+                            factory.cargo.water - water_before
+                        )
                     factory.cargo.water -= self.env_cfg.FACTORY_WATER_CONSUMPTION
                     if factory.cargo.water < 0:
                         factories_to_destroy.add(factory)
@@ -848,18 +907,25 @@ class LuxAI_S2(ParallelEnv):
                     # destroy factories that ran out of water
                     self.destroy_factory(factory)
                     if self.collect_stats:
-                        self.state.stats[factory.team.agent]["destroyed"]["FACTORY"] += 1
+                        self.state.stats[factory.team.agent]["destroyed"][
+                            "FACTORY"
+                        ] += 1
             # power gain
             if is_day(self.env_cfg, self.state.real_env_steps):
                 for agent in self.agents:
                     for u in self.state.units[agent].values():
-                        if self.collect_stats: power_before = u.power
+                        if self.collect_stats:
+                            power_before = u.power
                         u.power = u.power + self.env_cfg.ROBOTS[u.unit_type.name].CHARGE
                         u.power = min(u.power, u.unit_cfg.BATTERY_CAPACITY)
-                        if self.collect_stats: self.state.stats[agent]["generation"]["power"][u.unit_type.name] += u.power - power_before
+                        if self.collect_stats:
+                            self.state.stats[agent]["generation"]["power"][
+                                u.unit_type.name
+                            ] += (u.power - power_before)
             for agent in self.agents:
                 for f in self.state.factories[agent].values():
-                    if self.collect_stats: power_before = f.power
+                    if self.collect_stats:
+                        power_before = f.power
                     # natural nuclear energy generation
                     f.power = f.power + self.env_cfg.FACTORY_CHARGE
                     # lichen/plant power
@@ -868,7 +934,10 @@ class LuxAI_S2(ParallelEnv):
                         + len(f.grow_lichen_positions)
                         * self.env_cfg.POWER_PER_CONNECTED_LICHEN_TILE
                     )
-                    if self.collect_stats: self.state.stats[agent]["generation"]["power"]["FACTORY"] += f.power - power_before
+                    if self.collect_stats:
+                        self.state.stats[agent]["generation"]["power"]["FACTORY"] += (
+                            f.power - power_before
+                        )
 
         # always set rubble under factories to 0.
         self.state.board.rubble[self.state.board.factory_occupancy_map != -1] = 0

@@ -11,11 +11,11 @@ from luxai_s2.config import EnvConfig
 from luxai_s2.factory import Factory, FactoryStateDict
 from luxai_s2.map.board import Board, BoardStateDict
 from luxai_s2.map_generator.generator import GameMap
-from luxai_s2.team import Team, TeamStateDict
-from luxai_s2.unit import (FactionTypes, Unit, UnitCargo, UnitStateDict,
-                           UnitType)
-
 from luxai_s2.state.stats import StatsStateDict
+from luxai_s2.team import Team, TeamStateDict
+from luxai_s2.unit import FactionTypes, Unit, UnitCargo, UnitStateDict, UnitType
+
+
 class SparseBoardStateDict(TypedDict):
     rubble: Dict[str, int]
     lichen: Dict[str, int]
@@ -39,6 +39,7 @@ class ObservationStateDict(TypedDict):
     board: BoardStateDict
     real_env_steps: int
     global_id: int
+
 
 @dataclass
 class State:

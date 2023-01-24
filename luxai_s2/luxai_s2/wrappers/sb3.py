@@ -1,24 +1,36 @@
-from typing import Dict, Callable
+from typing import Callable, Dict
 
 import gym
 import numpy as np
-from gym import spaces
 import numpy.typing as npt
+from gym import spaces
+
 import luxai_s2.env
 from luxai_s2.env import LuxAI_S2
 from luxai_s2.state import ObservationStateDict
-from luxai_s2.unit import ActionType, FactoryPlacementActionType, BidActionType
+from luxai_s2.unit import ActionType, BidActionType, FactoryPlacementActionType
 from luxai_s2.utils import my_turn_to_place_factory
-from luxai_s2.wrappers.controllers import Controller, SimpleDiscreteController, SimpleSingleUnitDiscreteController
+from luxai_s2.wrappers.controllers import (
+    Controller,
+    SimpleDiscreteController,
+    SimpleSingleUnitDiscreteController,
+)
+
 
 class SB3Wrapper(gym.Wrapper):
     def __init__(
         self,
         env: LuxAI_S2,
-        bid_policy: Callable[[str, ObservationStateDict], Dict[str, BidActionType]]=None,
-        factory_placement_policy: Callable[[str, ObservationStateDict], Dict[str, FactoryPlacementActionType]]=None,
-        heuristic_policy: Callable[[str, ObservationStateDict], Dict[str, ActionType]]=None,
-        controller: Controller=None,
+        bid_policy: Callable[
+            [str, ObservationStateDict], Dict[str, BidActionType]
+        ] = None,
+        factory_placement_policy: Callable[
+            [str, ObservationStateDict], Dict[str, FactoryPlacementActionType]
+        ] = None,
+        heuristic_policy: Callable[
+            [str, ObservationStateDict], Dict[str, ActionType]
+        ] = None,
+        controller: Controller = None,
     ) -> None:
         """
         A environment wrapper for Stable Baselines 3. It reduces the LuxAI_S2 env
@@ -38,7 +50,7 @@ class SB3Wrapper(gym.Wrapper):
         controller : Controller
             A controller that parameterizes the action space into something more usable and converts parameterized actions to lux actions.
             See luxai_s2/wrappers/controllers.py for available controllers and how to make your own
-        
+
         heuristic_policy: Function
             A function accepting player: str and obs: ObservationStateDict as input and returns a lux action. This can be provided by the user
             to define custom logic or a model to generate actions for any of the units or factories. For any action generate for a unit or factory, it will
@@ -52,9 +64,11 @@ class SB3Wrapper(gym.Wrapper):
 
         self.action_space = controller.action_space
 
-        obs_dims = 23 # see _convert_obs function for how this is computed
+        obs_dims = 23  # see _convert_obs function for how this is computed
         self.map_size = self.env.env_cfg.map_size
-        self.observation_space = spaces.Box(-999, 999, shape=(self.map_size, self.map_size, obs_dims))
+        self.observation_space = spaces.Box(
+            -999, 999, shape=(self.map_size, self.map_size, obs_dims)
+        )
 
         # The simplified wrapper removes the first two phases of the game by using predefined policies (trained or heuristic)
         # to handle those two phases during each reset
@@ -90,11 +104,15 @@ class SB3Wrapper(gym.Wrapper):
         lux_action = dict()
         for agent in self.all_agents:
             if agent in action:
-                lux_action[agent] = self.controller.action_to_lux_action(agent=agent, obs=self.prev_obs, action=action[agent])
+                lux_action[agent] = self.controller.action_to_lux_action(
+                    agent=agent, obs=self.prev_obs, action=action[agent]
+                )
             else:
                 lux_action[agent] = dict()
             if self.heuristic_policy is not None:
-                heuristic_lux_action = self.heuristic_policy(agent, self.prev_obs[agent])
+                heuristic_lux_action = self.heuristic_policy(
+                    agent, self.prev_obs[agent]
+                )
                 # override keys
                 for k in heuristic_lux_action:
                     lux_action[agent][k] = heuristic_lux_action[k]

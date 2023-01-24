@@ -29,10 +29,14 @@ class UnitCargoStateDict(TypedDict):
 
 
 ActionType = npt.NDArray[np.int_]
+
+
 class FactoryPlacementActionType(TypedDict):
     metal: int
     water: int
     spawn: npt.NDArray[np.int_]
+
+
 class BidActionType(TypedDict):
     faction: str
     bid: int
