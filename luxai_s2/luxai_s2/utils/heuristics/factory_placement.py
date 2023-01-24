@@ -12,6 +12,8 @@ def place_near_random_ice(player, obs: ObservationStateDict):
     # if player == "player_1":
     ice_diff = np.diff(obs["board"]["ice"])
     pot_ice_spots = np.argwhere(ice_diff == 1)
+    if len(pot_ice_spots) == 0:
+        pot_ice_spots = potential_spawns
     trials = 5
     while trials > 0:
         pos_idx = np.random.randint(0, len(pot_ice_spots))

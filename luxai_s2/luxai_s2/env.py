@@ -407,7 +407,6 @@ class LuxAI_S2(ParallelEnv):
                 unit.pos + move_deltas[transfer_action.transfer_dir]
             )
             units_there = self.state.board.get_units_at(transfer_pos)
-
             # if there is a factory, we prefer transferring to that entity
             factory_id = f"factory_{self.state.board.factory_occupancy_map[transfer_pos.x, transfer_pos.y]}"
             if factory_id in self.state.factories[unit.team.agent]:
@@ -427,7 +426,7 @@ class LuxAI_S2(ParallelEnv):
                     transfer_action.resource, transfer_amount
                 )
                 if self.collect_stats:
-                    self.state.stats[unit.team.agent]["pickup"][
+                    self.state.stats[unit.team.agent]["transfer"][
                         resource_to_name[transfer_action.resource]
                     ] += actually_transferred
             unit.repeat_action(transfer_action)
@@ -459,7 +458,7 @@ class LuxAI_S2(ParallelEnv):
                     0,
                 )
                 if self.collect_stats:
-                    self.state.stats[unit.team.agent]["destroyed"]["rubble"] -= (
+                    self.state.stats[unit.team.agent]["destroyed"]["rubble"][unit.unit_type.name] -= (
                         self.state.board.rubble[unit.pos.x, unit.pos.y] - rubble_before
                     )
             elif self.state.board.lichen[unit.pos.x, unit.pos.y] > 0:
@@ -476,17 +475,17 @@ class LuxAI_S2(ParallelEnv):
                         unit.pos.x, unit.pos.y
                     ] = self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_RESOURCE_GAIN
                 if self.collect_stats:
-                    self.state.stats[unit.team.agent]["destroyed"]["lichen"] -= (
+                    self.state.stats[unit.team.agent]["destroyed"]["lichen"][unit.unit_type.name] -= (
                         self.state.board.lichen[unit.pos.x, unit.pos.y] - lichen_before
                     )
             elif self.state.board.ice[unit.pos.x, unit.pos.y] > 0:
                 gained = unit.add_resource(0, unit.unit_cfg.DIG_RESOURCE_GAIN)
                 if self.collect_stats:
-                    self.state.stats[unit.team.agent]["generation"]["ice"] += gained
+                    self.state.stats[unit.team.agent]["generation"]["ice"][unit.unit_type.name] += gained
             elif self.state.board.ore[unit.pos.x, unit.pos.y] > 0:
                 gained = unit.add_resource(1, unit.unit_cfg.DIG_RESOURCE_GAIN)
                 if self.collect_stats:
-                    self.state.stats[unit.team.agent]["generation"]["ore"] += gained
+                    self.state.stats[unit.team.agent]["generation"]["ore"][unit.unit_type.name] += gained
             unit.power -= self.state.env_cfg.ROBOTS[unit.unit_type.name].DIG_COST
             unit.repeat_action(dig_action)
 
@@ -554,7 +553,7 @@ class LuxAI_S2(ParallelEnv):
                 ] += spent_metal
                 self.state.stats[factory.team.agent]["consumption"][
                     "power"
-                ] += spent_power
+                ]["FACTORY"] += spent_power
 
     def _handle_movement_actions(self, actions_by_type: ActionsByType):
         new_units_map: Dict[str, List[Unit]] = defaultdict(list)
@@ -883,7 +882,6 @@ class LuxAI_S2(ParallelEnv):
                         ].sum()
                         lichen_gained = start_of_step_lichen_tiles.sum() - lichen_lost
                         self.state.stats[agent]["generation"]["lichen"] += lichen_gained
-                        self.state.stats[agent]["destroyed"]["lichen"] -= lichen_lost
 
             # resources refining
             for agent in self.agents:

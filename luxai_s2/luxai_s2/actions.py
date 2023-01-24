@@ -110,7 +110,7 @@ class TransferAction(Action):
         )
 
     def __str__(self) -> str:
-        return f"{self.act_type} {resource_to_name[self.resource]} {direction_to_name[self.move_dir]} (n: {self.n}, r: {self.repeat})"
+        return f"{self.act_type} {resource_to_name[self.resource]} {direction_to_name[self.transfer_dir]} (n: {self.n}, r: {self.repeat})"
 
 
 class PickupAction(Action):

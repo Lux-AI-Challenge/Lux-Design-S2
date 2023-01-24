@@ -115,7 +115,8 @@ class StatsStateDict(TypedDict):
 
 def create_empty_stats() -> StatsStateDict:
     stats: StatsStateDict = dict()
-    stats["action_queue_updates"] = 0
+    stats["action_queue_updates_total"] = 0
+    stats["action_queue_updates_success"] = 0
     stats["consumption"] = create_consumption_stats()
     stats["destroyed"] = create_destroyed_stats()
     stats["generation"] = create_generation_stats()

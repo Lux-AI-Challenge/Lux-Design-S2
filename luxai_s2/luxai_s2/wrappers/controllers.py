@@ -32,7 +32,7 @@ class SimpleSingleUnitDiscreteController(Controller):
         For the heavy unit
         - 4 cardinal direction movement (4 dims)
         - a move center no-op action (1 dim)
-        - transfer action for each combination of the (4 cardinal directions plus center) x (resource type or power) (5*5 = 25 dims)
+        - transfer action just for transferring ice in 4 cardinal directions or center (5)
         - pickup action for each resource (5 dims)
         - dig action (1 dim)
 
@@ -41,10 +41,11 @@ class SimpleSingleUnitDiscreteController(Controller):
         - recharge action
         - planning (via actions executing multiple times or repeating actions)
         - factory actions
+        - transferring power or resources other than ice
         """
         self.env_cfg = env_cfg
         self.move_act_dims = 5
-        self.transfer_act_dims = 0  # 5 * 5
+        self.transfer_act_dims = 1  # 5 * 5
         self.pickup_act_dims = 5
         self.dig_act_dims = 1
 
@@ -54,7 +55,8 @@ class SimpleSingleUnitDiscreteController(Controller):
         self.dig_dim_high = self.pickup_dim_high + self.dig_act_dims
 
         total_act_dims = self.dig_dim_high
-        action_space = spaces.Box(0, 1, shape=(total_act_dims,))
+        # action_space = spaces.Box(0, 1, shape=(total_act_dims,))
+        action_space = spaces.Discrete(total_act_dims)
         super().__init__(action_space)
 
     def _is_move_action(self, id):
@@ -69,9 +71,9 @@ class SimpleSingleUnitDiscreteController(Controller):
     def _get_transfer_action(self, id):
         id = id - self.move_dim_high
         transfer_dir = id % 5
-        resource_type = id // 5
+        # resource_type = id // 5
         return np.array(
-            [1, transfer_dir, resource_type, self.env_cfg.max_transfer_amount, 0, 1]
+            [1, 0, 0, self.env_cfg.max_transfer_amount, 0, 1]
         )
 
     def _is_pickup_action(self, id):
@@ -98,13 +100,12 @@ class SimpleSingleUnitDiscreteController(Controller):
             unit = units[unit_id]
             pos = unit["pos"]
             unit_related_action = action
-            choice = unit_related_action.argmax()
+            choice = action #unit_related_action.argmax()
             action_queue = []
             if self._is_move_action(choice):
                 action_queue = [self._get_move_action(choice)]
-            # elif self._is_transfer_action(choice):
-            #     print("TRANSFER", choice)
-            #     action_queue = [self._get_transfer_action(choice)]
+            elif self._is_transfer_action(choice):
+                action_queue = [self._get_transfer_action(choice)]
             elif self._is_pickup_action(choice):
                 action_queue = [self._get_pickup_action(choice)]
 
