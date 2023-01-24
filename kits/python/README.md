@@ -17,7 +17,7 @@ Your core agent code will go into `agent.py`, and you can create and use more fi
 To quickly test run your agent, run
 
 ```
-luxai_s2 main.py main.py --out=replay.json
+luxai-s2 main.py main.py --out=replay.json
 ```
 
 This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`.

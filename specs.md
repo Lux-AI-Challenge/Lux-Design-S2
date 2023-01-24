@@ -282,15 +282,20 @@ Robot Type
 
 ## Lichen
 
-At the end of the game, the amount of lichen on each square that a player owns is summed and **whoever has a higher value wins the game.**
+Lichen serves two purposes.
+
+1. At the end of the game, the amount of lichen on each square that a player owns is summed and **whoever has a higher value wins the game.**
+2. For each tile with lichen attached to a [Factory](#factories), that factory gains an extra power per turn.
 
 At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. This is for determinism and simplified water costs.
 
-Factories also **gain power** equal to the number of their own connected lichen tiles each turn.
+Factories also **gain power** equal to the number of their own connected lichen tiles each turn. For example, a factory with 12 attached lichen tiles (of any lichen value) gains 62 power each turn as opposed to the default 50.
 
-When rubble is added to a tile, that tile **loses all lichen.**
+When rubble is added to a tile, that tile **loses all lichen.** 
+
+Additionally, robots can dig on a tile with lichen and reduce it over time. If all lichen on a tile is removed in this way, rubble is added preventing lichen from regrowing back immediately.
 
 If a number of lichen tiles get disconnected from your factory (due to some rubble being added to a tile or being dug out), they cannot be watered (and thus will lose 1 lichen value) until connected again through lichen tiles. These tiles still count to your score however.
 
