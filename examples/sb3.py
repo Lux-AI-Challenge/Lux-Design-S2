@@ -39,6 +39,13 @@ class CustomEnvWrapper(gym.Wrapper):
 
     def step(self, action):
         agent = "player_0"
+        opp_agent = "player_1"
+
+        opp_factories = self.env.state.factories[opp_agent]
+        for k in opp_factories:
+            factory = opp_factories[k]
+            factory.cargo.water = 1000 # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
+
         action = {agent: action}
         obs, reward, done, info = super().step(action)
 
@@ -48,7 +55,7 @@ class CustomEnvWrapper(gym.Wrapper):
 
         # we collect stats on teams here:
         stats: StatsStateDict = self.env.state.stats[agent]
-
+        
         # compute reward
         # we simply want to encourage the heavy units to move to ice tiles
         # and mine them and then bring them back to the factory and dump it
@@ -65,6 +72,7 @@ class CustomEnvWrapper(gym.Wrapper):
         unit_deliver_ice_reward = 0
         unit_move_to_ice_reward = 0
         unit_overmining_penalty = 0
+        penalize_power_waste = 0
 
         ice_map = shared_obs["board"]["ice"]
         ice_tile_locations = np.argwhere(ice_map == 1)
@@ -96,6 +104,9 @@ class CustomEnvWrapper(gym.Wrapper):
                         unit_deliver_ice_reward = (
                             0.2 + (1 - dist_penalty) * 0.1
                         )  # encourage unit to move back to factory
+                if action[agent] == 15 and unit["power"] < 70:
+                    # penalize the agent for trying to dig with insufficient power, which wastes 10 power for trying to update the action queue
+                    penalize_power_waste -= 0.005
 
         # save some stats to the info object so we can record it with our SB3 logger
         info = dict()
@@ -104,6 +115,8 @@ class CustomEnvWrapper(gym.Wrapper):
             stats["generation"]["ice"]["HEAVY"] + stats["generation"]["ice"]["LIGHT"]
         )
         metrics["water_produced"] = stats["generation"]["water"]
+        metrics["action_queue_updates_success"] = stats["action_queue_updates_success"]
+        metrics["action_queue_updates_total"] = stats["action_queue_updates_total"]
 
         metrics["unit_deliver_ice_reward"] = unit_deliver_ice_reward
         metrics["unit_move_to_ice_reward"] = unit_move_to_ice_reward
@@ -115,7 +128,7 @@ class CustomEnvWrapper(gym.Wrapper):
             + unit_move_to_ice_reward
             + unit_deliver_ice_reward
             + unit_overmining_penalty
-            + metrics["water_produced"] / 10
+            + metrics["water_produced"] / 10 + penalize_power_waste
         )
         reward = reward
         if self.prev_step_metrics is not None:
@@ -126,7 +139,6 @@ class CustomEnvWrapper(gym.Wrapper):
             # reward += ice_dug_this_step # reward agent for digging ice
             # reward += water_produced_this_step * 100 # reward agent even more producing water by delivering ice back to base
         self.prev_step_metrics = copy.deepcopy(metrics)
-        print(metrics, unit_power)
         return obs["player_0"], reward, done, info
 
     def reset(self, **kwargs):
@@ -181,9 +193,13 @@ def parse_args():
     return args
 
 
-def make_env(env_id: str, rank: int, seed: int = 0, record_dir: str = None):
+def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
     def _init() -> gym.Env:
-        env = gym.make(env_id, verbose=1, collect_stats=True)
+        # verbose = 0
+        # collect stats so we can create reward functions
+        # max factories set to 2 for simplification and keeping returns consistent as we survive longer if there are more initial resources
+        env = gym.make(env_id, verbose=0, collect_stats=True, MAX_FACTORIES=2)
+
         # Add a SB3 wrapper to make it work with SB3 and simplify the action space with the controller
         # this will remove the bidding phase and factory placement phase. For factory placement we use
         # the provided place_near_random_ice function which will randomly select an ice tile and place a factory near it.
@@ -198,7 +214,7 @@ def make_env(env_id: str, rank: int, seed: int = 0, record_dir: str = None):
         )  # changes observation to include a few simple features
         env = CustomEnvWrapper(env)  # convert to single agent and add our reward
         env = TimeLimit(
-            env, max_episode_steps=1000
+            env, max_episode_steps=max_episode_steps
         )  # set horizon to 100 to make training faster. Default is 1000
         env = Monitor(env)  # for SB3 to allow it to record metrics
         env.reset(seed=seed + rank)
@@ -219,35 +235,35 @@ class TensorboardCallback(BaseCallback):
         self.tag = tag
 
     def _on_step(self) -> bool:
-        stats = defaultdict(float)
         c = 0
-        for info in self.locals["infos"]:
-            c += 1
-            for k in info["metrics"]:
-                stat = info["metrics"][k]
-                stats[k] += stat
-        for k in stats.keys():
-            self.logger.record(f"{self.tag}/{k}", stats[k] / c)
+        
+        for i, done in enumerate(self.locals["dones"]):
+            if done:
+                info = self.locals["infos"][i]
+                c += 1
+                for k in info["metrics"]:
+                    stat = info["metrics"][k]
+                    self.logger.record_mean(f"{self.tag}/{k}", stat)
         return True
 
 
 def evaluate(args, model):
     model = model.load(args.model_path)
     video_length = 1000  # default horizon
-    eval_env = SubprocVecEnv([make_env(env_id, i) for i in range(args.n_envs)])
+    eval_env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=1000) for i in range(args.n_envs)])
     eval_env = VecVideoRecorder(
         eval_env,
-        "./logs/tutorial/videos",
+        osp.join(args.log_path, "eval_videos"),
         record_video_trigger=lambda x: x == 0,
         video_length=video_length,
         name_prefix=f"evaluation_video",
     )
     eval_env.reset()
-    evaluate_policy(model, eval_env, render=True, deterministic=False)
-
+    out =evaluate_policy(model, eval_env, render=False, deterministic=False)
+    print(out)
 
 def train(args, model: PPO):
-    eval_env = SubprocVecEnv([make_env(env_id, i) for i in range(4)])
+    eval_env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=1000) for i in range(4)])
     video_length = 1000
     eval_env = VecVideoRecorder(
         eval_env,
@@ -259,7 +275,6 @@ def train(args, model: PPO):
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path=osp.join(args.log_path, "models"),
-        callback_after_eval=TensorboardCallback(tag="eval_metrics"),
         log_path=osp.join(args.log_path, "eval_logs"),
         eval_freq=24_000,
         deterministic=False,
@@ -273,11 +288,12 @@ def train(args, model: PPO):
 
 
 def main(args):
+    print("Training with args", args)
     set_random_seed(args.seed)
 
-    env = SubprocVecEnv([make_env(env_id, i) for i in range(args.n_envs)])
+    env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=args.max_episode_steps) for i in range(args.n_envs)])
     env.reset()
-    rollout_steps = 4000
+    rollout_steps = 4_000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(
         "MlpPolicy",
@@ -299,4 +315,5 @@ def main(args):
 
 
 if __name__ == "__main__":
+    # python ../examples/sb3.py -l logs/exp_1 -s 42 -n 1
     main(parse_args())
