@@ -292,13 +292,6 @@ def main(args):
         gamma=0.97,
         tensorboard_log=osp.join(args.log_path),
     )
-    import ipdb
-
-    ipdb.set_trace()
-    exp_dir = osp.join(
-        args.log_path
-    )  # sb3 autogenerates a name for each experiment, we track it here
-
     if args.eval:
         evaluate(args, model)
     else:
