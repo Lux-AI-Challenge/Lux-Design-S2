@@ -2,6 +2,7 @@ import os
 
 from setuptools import find_packages, setup
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -25,7 +26,7 @@ setup(
         "pettingzoo",
         "vec_noise",
         "omegaconf",
-        "gym==0.21",
+        "gym==0.21.0",
         "scipy",
     ],
 )

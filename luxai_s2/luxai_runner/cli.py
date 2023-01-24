@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Dict, List
 
 import numpy as np
+from omegaconf import OmegaConf
+
 from luxai_runner.bot import Bot
 from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.logger import Logger
 from luxai_runner.tournament import Tournament, TournamentConfig
-from omegaconf import OmegaConf
-
 from luxai_s2 import LuxAI_S2
 
 
