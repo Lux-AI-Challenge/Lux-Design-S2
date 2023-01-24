@@ -293,7 +293,9 @@ All factories have their own special strains of lichen that can’t mix, so lich
 
 Factories also **gain power** equal to the number of their own connected lichen tiles each turn. For example, a factory with 12 attached lichen tiles (of any lichen value) gains 62 power each turn as opposed to the default 50.
 
-When rubble is added to a tile, that tile **loses all lichen.** Additionally, robots can dig on a tile with lichen and reduce it over time.
+When rubble is added to a tile, that tile **loses all lichen.** 
+
+Additionally, robots can dig on a tile with lichen and reduce it over time. If all lichen on a tile is removed in this way, rubble is added preventing lichen from regrowing back immediately.
 
 If a number of lichen tiles get disconnected from your factory (due to some rubble being added to a tile or being dug out), they cannot be watered (and thus will lose 1 lichen value) until connected again through lichen tiles. These tiles still count to your score however.
 
