@@ -85,7 +85,7 @@ class LuxAI_S2(ParallelEnv):
             seed_rng=None, seed=-1, env_cfg=self.env_cfg, env_steps=-1, board=None
         )
 
-        self.seed_rng: np.random.RandomState = None
+        self.seed_rng: np.random.RandomState = np.random.RandomState()
 
         self.py_visualizer: Visualizer = None
 
@@ -183,14 +183,16 @@ class LuxAI_S2(ParallelEnv):
 
         Returns the observations for each agent
         """
-        seed_rng = np.random.RandomState(seed=seed)
+        
         self.agents = self.possible_agents[:]
         self.env_steps = 0
-        self.seed = seed
-        board = Board(seed=seed, env_cfg=self.env_cfg)
+        if seed is not None:
+            self.seed_val = seed
+            self.seed_rng = np.random.RandomState(seed=seed)
+        board = Board(seed=self.seed_rng.randint(0, 2**32 - 1), env_cfg=self.env_cfg)
         self.state: State = State(
-            seed_rng=seed_rng,
-            seed=seed,
+            seed_rng=self.seed_rng,
+            seed=self.seed_val,
             env_cfg=self.state.env_cfg,
             env_steps=0,
             board=board,
