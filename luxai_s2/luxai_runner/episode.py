@@ -8,7 +8,6 @@ from typing import Any, Callable, Dict, List, Optional
 
 import gym
 import numpy as np
-
 from luxai_runner.bot import Bot
 from luxai_runner.logger import Logger
 from luxai_runner.utils import to_json
@@ -43,9 +42,7 @@ class Episode:
     def save_replay(self, replay):
         save_format = self.cfg.replay_options.save_format
         if save_format not in ["json", "html"]:
-            raise ValueError(
-                f"{save_format} is not a valid save format"
-            )
+            raise ValueError(f"{save_format} is not a valid save format")
 
         replay["observations"] = [to_json(x) for x in replay["observations"]]
         replay["actions"] = [to_json(x) for x in replay["actions"]]
@@ -67,7 +64,8 @@ class Episode:
             if save_format == "json":
                 json.dump(replay, f)
             else:
-                f.write(f"""
+                f.write(
+                    f"""
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -87,7 +85,8 @@ window.episode = {json.dumps(replay)};
     <div id="root"></div>
   </body>
 </html>
-                """.strip())
+                """.strip()
+                )
 
     async def run(self):
         if len(self.players) != 2:

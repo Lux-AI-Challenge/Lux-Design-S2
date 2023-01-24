@@ -16,7 +16,7 @@ setup(
     url="https://github.com/Lux-AI-Challenge/Lux-Design-S2",
     packages=find_packages(exclude="kits"),
     entry_points={"console_scripts": ["luxai-s2 = luxai_runner.cli:main"]},
-    version="2.0.0",
+    version="2.0.1",
     python_requires=">=3.7",
     install_requires=[
         "numpy",
