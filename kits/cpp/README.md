@@ -2,7 +2,7 @@
 
 This is the C++ implementation of the Python kit. It *should* have feature parity. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition.
 
-Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-2022-beta/discussion) for announcements if there are any breaking changes.
+Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-season-2/discussion) for announcements if there are any breaking changes.
 
 ## Getting Started
 
@@ -13,18 +13,17 @@ Your core agent code will go into `src/agent.cpp`, and you can create and use mo
 To quickly test run your agent, first compile your agent by running `./compile.sh` and then run
 
 ```
-luxai2022 build/agent.out build/agent.out --out=replay.json
+luxai_s2 build/agent.out build/agent.out --out=replay.json
 ```
 
 This will run the compiled `agent.cpp` code and generate a replay file saved to `replay.json`.
 
 ## Developing
-
 Now that you have the code up and running, you are ready to start programming and having some fun!
 
-If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-2022-beta). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/starter_python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-season-2-jupyter-notebook-tutorial#Lux-AI-Season-2-Jupyter-Notebook-Tutorial---Python-Kit)
+If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-s2). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/python/lux-ai-challenge-season-2-tutorial-python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-challenge-season-2-tutorial-python)
 
-All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-2022/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
+All of our kits follow a common API through which you can use to access various functions and properties that will help you develop your strategy and bot. The markdown version is here: https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/README.md, which also describes the observation and action structure/spaces.
 
 ## Submitting to Kaggle
 
@@ -42,7 +41,7 @@ And if you are running Ubuntu 18.04 natively run
 
 to skip using docker.
 
-If it has not been created already, then create a submission.tar.gz file with `tar -czvf submission.tar.gz *`. Upload this under the My Submissions tab and you should be good to go! Your submission will start with a scheduled game vs itself to ensure everything is working before being entered into the matchmaking pool against the rest of the leaderboard.
+If it has not been created already, then create a submission.tar.gz file with `tar -czvf submission.tar.gz *`. Upload this under the [My Submissions tab](https://www.kaggle.com/competitions/lux-ai-season-2/submissions) and you should be good to go! Your submission will start with a scheduled game vs itself to ensure everything is working before being entered into the matchmaking pool against the rest of the leaderboard.
 
 ## Additional Details
 
@@ -172,8 +171,36 @@ Just as the Python kit, this kit also provides some additional information not d
 - `lux::Unit` and `lux::Factory` provide functionality to calculate the cost of each action
 - `lux::Position` provides a static function `Delta(dir)` which will return a delta position for a given direction
 
-Besides that is also has a few unique features (in `lux/log.hpp` and `lux/exception.hpp`):
-- `lux::dumpToJsonFile` will write content of a `json` to an actual JSON file (every step the input is written to `input.json` in the build directory)
-- `LUX_LOG` macro can be used to log something (debug build only). It will simply be forwarded to `stderr`.
-- `LUX_ASSERT` macro can be used to perform assertions (debug build only). If an assertion fails, it will throw a `lux::Exception`.
+Besides that is also has a few unique features intended for debugging. To create a debug build, run `compile.sh` with the `-d` flag.  
+- inluding `lux/log.hpp` will give you access to:
+    - `lux::dumpToJsonFile` which will write the content of a `json` type variable to an actual JSON file (e.g. in `main.cpp` the input is written to `input.json` in the build directory every step) As of now, it will also do this in non-debug builds.
+    - `LUX_LOG` which can be used to log something in debug build only. It will simply be forwarded to `stderr`. In non-debug builds, this statement will not produce any code.
+- including `lux/exception.hpp` will give you access to:
+    - `LUX_ASSERT` which can be used to perform assertions in debug build only. If an assertion fails, it will throw a `lux::Exception`. In non-debug builds, this statement will not produce any code so don't perform any logic-critical function calls in the assertion expression!
+
+The following is a truncated example of the additional features:
+```cpp
+#include "lux/log.hpp"
+#include "lux/exception.hpp"
+
+// ...
+
+json Agent::act() {
+    json actions = json::object();
+
+    // ...
+
+    if (moveCost < unit.power) {
+        LUX_ASSERT(unit.power > 0, "unit must have some power at this point");
+        // ...
+    } else {
+        LUX_LOG("unit " << unit.unit_id << " does not have enough power");
+    }
+
+    // ...
+
+    lux::dumpToJsonFile("last_actions.json", actions);
+    return actions;
+}
+```
 

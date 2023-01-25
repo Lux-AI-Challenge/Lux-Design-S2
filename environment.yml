@@ -1,4 +1,4 @@
-name: luxai2022
+name: luxai_s2
 channels:
   - conda-forge
 dependencies:
