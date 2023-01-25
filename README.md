@@ -31,11 +31,12 @@ luxai-s2 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
 
 This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai-s2 tool, see the [tool's README](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/luxai_s2/luxai_runner/README.md), which also includes details on how to run a local tournament to mass evaluate your agents. To watch the replay, upload `replay.json` to https://s2vis.lux-ai.org/ (or change `-o replay.json` to `-o replay.html`)
 
-Each programming language has a starter kit, you can find general [API documentation here](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits).
+Each supported programming language/solution type has its own starter kit, you can find general [API documentation here](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits).
 
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
+- [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl/)
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - Javascript - TBA
 - Typescript - TBA
