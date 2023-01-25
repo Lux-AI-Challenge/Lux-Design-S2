@@ -44,7 +44,7 @@ The kits folder in this repository holds all of the available starter kits you c
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
 <!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
-- Javascript - TBA
+- [Javascript](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/js/)
 - Typescript - TBA
 - Java - TBA
 
