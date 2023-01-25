@@ -116,8 +116,7 @@ def agent(observation, configuration):
             env = LuxAI_S2(collect_stats=False, **copy.deepcopy(configuration["env_cfg"]))
             env.env_cfg.ROBOTS["LIGHT"] = UnitConfig(**configuration["env_cfg"]["ROBOTS"]["LIGHT"])
             env.env_cfg.ROBOTS["HEAVY"] = UnitConfig(**configuration["env_cfg"]["ROBOTS"]["HEAVY"])
-            env.reset()
-            
+            env.reset(seed=0)
             env.state = env.state.from_obs(game_state, env.env_cfg)
             env.env_steps = env.state.env_steps
             obs_inputs = [obs_inputs]

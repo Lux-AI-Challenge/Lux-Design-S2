@@ -9,7 +9,7 @@ def forward_sim(full_obs, env_cfg, n=2):
     import copy
     agent = "player_0"
     env = LuxAI_S2(collect_stats=False, verbose=0)
-    env.reset()
+    env.reset(seed=0)
     env.state = env.state.from_obs(full_obs, env_cfg)
     env.env_cfg = env.state.env_cfg
     env.env_cfg.verbose = 0
