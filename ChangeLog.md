@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v2.0.2
+
+Fix bug with seeding the map generation where the sampled seed is above allowed range
+
 ### v2.0.0
 
 Official release!
