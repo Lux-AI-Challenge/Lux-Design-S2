@@ -30,7 +30,7 @@ These two functions are where you define your agent's logic for both the early p
 
 ### Forward Simulation
 
-TODO
+(WIP)
 
 ## Environment Actions
 
