@@ -1,69 +1,20 @@
-import { Button, Center, Container, Grid, Loader, Paper, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
+import { Button, Center, Container, Grid, Paper, SimpleGrid, Space, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useStore } from '../../store';
-import { notifyError } from '../../utils/notifications';
 import { Board } from '../visualizer/Board';
 import { TeamBanner } from '../visualizer/TeamBanner';
 import { TeamCard } from '../visualizer/TeamCard';
 import { TurnControl } from '../visualizer/TurnControl';
 
-let hasData = false;
-
 export function LeaderboardPage(): JSX.Element {
   const episode = useStore(state => state.episode);
-  const load = useStore(state => state.load);
   const openInNewTab = useStore(state => state.openInNewTab);
 
   const { ref: boardContainerRef, width: maxBoardWidth } = useElementSize();
 
-  const [seconds, setSeconds] = useState(0);
-  const navigate = useNavigate();
-
-  const onWindowMessage = useCallback((event: MessageEvent<any>) => {
-    if (hasData) {
-      return;
-    }
-
-    if (event.data && event.data.environment) {
-      hasData = true;
-
-      try {
-        load(event.data.environment);
-      } catch (err: any) {
-        console.error(err);
-        notifyError('Cannot load episode from Kaggle', err.message);
-        navigate('/');
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('message', onWindowMessage);
-    return () => {
-      window.removeEventListener('message', onWindowMessage);
-    };
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds(s => s + 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   if (episode === null) {
-    return (
-      <Center style={{ height: '100vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Loader />
-          <Title>Waiting for episode data</Title>
-          {seconds >= 3 && <Text>This is taking longer than expected, please reopen the replay.</Text>}
-        </div>
-      </Center>
-    );
+    return <Navigate to="/" />;
   }
 
   const tabHeight = 350;
