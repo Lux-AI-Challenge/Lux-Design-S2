@@ -4,9 +4,14 @@
 
 Welcome to the Lux AI Challenge Season 2! 
 
-The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand. 
+The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand.
 
-To get started, go to our [Getting Started](#getting-started) section. The official competition runs until April 24th and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2. There is a **$55,000** prize pool this year thanks to contributions from Kaggle, and our sponsors [QuantCo](https://quantco.com/), [Regression Games](https://www.regression.gg/), and [TSVC](https://tsvcap.com)
+Key features this season!
+- GPU/TPU optimized environment via Jax
+- Asymmetric maps and novel mechanics (action efficiency and planning)
+- $55,000 Prize Pool
+
+Go to our [Getting Started](#getting-started) section to get started programming a bot. The official competition runs until April 24th and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2. There is a **$55,000** prize pool this year thanks to contributions from Kaggle, and our sponsors [QuantCo](https://quantco.com/), [Regression Games](https://www.regression.gg/), and [TSVC](https://tsvcap.com)
 
 Make sure to join our community discord at https://discord.gg/aWJt3UAcgn to chat, strategize, and learn with other competitors! We will be posting announcements on the Kaggle Forums and on the discord.
 
@@ -16,10 +21,11 @@ Interested in Season 1? Check out [last year's repository](https://github.com/Lu
 
 ## Getting Started
 
-You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment with
+You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment and optionally the GPU version with
 
 ```
 pip install --upgrade luxai_s2
+pip install juxai-s2 # installs the GPU version, requires a compatible GPU
 ```
 
 
@@ -43,6 +49,10 @@ The kits folder in this repository holds all of the available starter kits you c
 - Java - TBA
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
+
+Finally, if you want to learn how to use the GPU optimized env see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb
+
+For the RL starter kit that trains using the jax env, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/
 
 To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/ChangeLog.md) for a full change log.
 
