@@ -26,8 +26,8 @@ public class Agent {
     public String earlySetup() throws JsonProcessingException {
         if (this.step == 0)
             return Mapper.getJson(new BidAction("AlphaStrike", 0));
-        if (this.obs.playerToTeam.get(this.player).factories_to_place > 0
-                && MoveUtils.isMyTurnToPlaceFactory(this.step, this.obs.playerToTeam.get(this.player).place_first)) {
+        if (this.obs.playerToTeam.get(this.player).factoriesToPlace > 0
+                && MoveUtils.isMyTurnToPlaceFactory(this.step, this.obs.playerToTeam.get(this.player).placeFirst)) {
             int randomSpawnX = this.random.nextInt(this.obs.board.validSpawnsMask.length);
             int randomSpawnY = this.random.nextInt(this.obs.board.validSpawnsMask.length);
 

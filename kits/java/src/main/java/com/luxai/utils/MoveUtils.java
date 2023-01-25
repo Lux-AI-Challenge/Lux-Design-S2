@@ -38,8 +38,8 @@ public class MoveUtils {
         }
     }
 
-    public static boolean isMyTurnToPlaceFactory(int step, boolean place_first) {
-        if (place_first)
+    public static boolean isMyTurnToPlaceFactory(int step, boolean placeFirst) {
+        if (placeFirst)
             return (step % 2 == 1);
         else
             return (step % 2 == 0);

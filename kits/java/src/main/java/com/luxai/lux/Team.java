@@ -1,11 +1,17 @@
 package com.luxai.lux;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Team {
-    public int team_id;
+    @JsonProperty("team_id")
+    public int teamId;
     public String faction;
     public int water;
     public int metal;
-    public int factories_to_place;
-    public int[] factory_strains;
-    public boolean place_first;
+    @JsonProperty("factories_to_place")
+    public int factoriesToPlace;
+    @JsonProperty("factory_strains")
+    public int[] factoryStrains;
+    @JsonProperty("place_first")
+    public boolean placeFirst;
 }
