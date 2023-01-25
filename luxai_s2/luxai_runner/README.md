@@ -2,10 +2,11 @@
 
 To run a match between two agents, run
 
-
 ```
 luxai-s2 path/to/main.py path/to_another/main.py -o replay.json
 ```
+
+which saves a replay file to `replay.json` which can be watched at https://s2vis.lux-ai.org. You can also specify `-o replay.html` which lets you open the visualizer directly and auto load the replay.
 
 For additional help run `luxai-s2 --help`
 
@@ -27,7 +28,9 @@ luxai-s2 path/to/ \
 
 which will find agents `path/to/bot1/main.py`, `path/to/bot2/main.py` etc. Note that this feature currently only works for python agents so it won't find the C++ agent for example. The `-v 0` turns off logging (as multiple matches are being run). `--tournament_cfg.concurrent=2` specifies to run at most two episodes concurrently, this can be increased to speed up total evaluation speed.
 
-The above scripts will live print a running leaderboard like below, showing the bot/player, the ELO rating, and number of episodes its been in. At the moment it only computes an ELO rating (with K factor 32) and does random matchmaking. All replays are saved to `replays/replay_<episode_id>.json` as specified to the `-o` argument in the script above.
+The above scripts will live print a running leaderboard like below, showing the bot/player, their score/rating, and number of episodes its been in. 
+
+ELO rating (with K factor 32) and Win/Tie/Loss systems are support and matchmaking is random. All replays are saved to `replays/replay_<episode_id>.json` as specified to the `-o` argument in the script above.
 
 ```
 ==== luxai_s2_tourney ====
