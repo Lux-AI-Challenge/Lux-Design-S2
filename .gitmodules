@@ -1,0 +1,3 @@
+[submodule "juxai_s2"]
+	path = juxai_s2
+	url = https://github.com/RoboEden/jux

@@ -14,8 +14,7 @@ namespace lux {
 
     int64_t Factory::buildPowerCost(const Observation &obs,
                                     const std::string &unitType) const {
-        auto weather = obs.getCurrentWeather();
-        return std::ceil(obs.config.ROBOTS[unitType].POWER_COST * weather.POWER_CONSUMPTION);
+        return obs.config.ROBOTS[unitType].POWER_COST;
     }
 
     bool Factory::canBuild(const Observation &obs, const std::string &unitType) const {
@@ -52,7 +51,7 @@ namespace lux {
         };
         int64_t sum =
             std::accumulate(obs.board.lichen_strains.begin(), obs.board.lichen_strains.end(), 0, countMatchingStrains);
-        return std::ceil(sum / obs.config.LICHEN_WATERING_COST_FACTOR) + 1;
+        return std::ceil(sum / obs.config.LICHEN_WATERING_COST_FACTOR);
     }
 
     bool Factory::canWater(const Observation &obs) const { return cargo.water >= waterCost(obs); }

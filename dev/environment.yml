@@ -1,4 +1,4 @@
-name: luxai2022-dev
+name: luxai_s2-dev
 channels:
   - conda-forge
   - pytorch

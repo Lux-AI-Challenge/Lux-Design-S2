@@ -19,6 +19,8 @@ abort() {
 
 [ -f "$PWD/compile.sh" ] || abort "script not running from within the build directory"
 [ -z "$(which cmake)" ] && abort "cmake must be installed"
+[ -z "$(which make)" ] && abort "make must be installed"
+[ -z "$(which curl)" ] && abort "curl must be installed"
 
 build_warnings="ON"
 build_debug="OFF"
