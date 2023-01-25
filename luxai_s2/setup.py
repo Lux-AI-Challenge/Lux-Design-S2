@@ -29,5 +29,6 @@ setup(
         "omegaconf",
         "gym==0.21.0",
         "scipy",
+        "importlib-metadata<5.0" # fixes bug where they deprecated an endpoint that openai gym uses
     ],
 )
