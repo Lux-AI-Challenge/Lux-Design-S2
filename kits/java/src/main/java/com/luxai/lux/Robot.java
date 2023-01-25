@@ -75,7 +75,7 @@ public class Robot {
         return new Object[]{new int[]{4, 0, 0, 0, repeat, iterCount}};
     }
 
-    public Object recharge(int repeat, int awaitPower, int iterCount) {
+    public Object recharge(int awaitPower, int repeat, int iterCount) {
         return new Object[]{new int[]{5, 0, 0, awaitPower, repeat, iterCount}};
     }
 
