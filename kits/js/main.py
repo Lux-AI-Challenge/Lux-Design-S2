@@ -27,14 +27,18 @@ def agent(observation, configuration):
     a wrapper around a non-python agent
     """
     global agent_processes, t, q_stderr, q_stdout
-
+    import sys
+    if "__raw_path__" in configuration:
+        cwd = os.path.dirname(configuration["__raw_path__"])
+    else:
+        cwd = os.path.dirname(__file__)
+        if cwd == "":
+            cwd ="./"
     agent_process = agent_processes[observation.player]
     ### Do not edit ###
     if agent_process is None:
-        if "__raw_path__" in configuration:
-            cwd = os.path.dirname(configuration["__raw_path__"])
-        else:
-            cwd = os.path.dirname(__file__)
+        
+
         agent_process = Popen(["node", "main.js"], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
         agent_processes[observation.player] = agent_process
         atexit.register(cleanup_process)

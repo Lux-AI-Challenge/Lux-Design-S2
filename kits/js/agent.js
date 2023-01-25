@@ -1,7 +1,6 @@
-
 const { processObs } = require("./lux/obs");
 const { setup } = require("./lux/setup");
-
+const {myTurnToPlaceFactory} = require("./lux/utils");
 /**
  * Agent for sequential `Designs`
  */
@@ -19,7 +18,7 @@ class Agent {
     */
     const obs = this.gameState;
     // various maps to help aid in decision making over factory placement
-    
+
     const rubble = obs["board"]["rubble"];
     // if ice[x][y] > 0, then there is an ice tile at (x, y)
     const ice = obs["board"]["ice"];
@@ -27,16 +26,14 @@ class Agent {
     const ore = obs["board"]["ore"];
 
     if (step == 0) {
-      // decide on a faction, and make a bid for the extra factory.
-      // Each unit of bid removes one unit of water and metal from your initial pool
+      // # bid 0 to not waste resources bidding and declare as the default faction
       let faction = "MotherMars";
       if (this.player == "player_1") {
         faction = "AlphaStrike";
       }
-      console.error({faction})
       return {
         faction,
-        bid: 10,
+        bid: 0,
       };
     } else {
       // decide on where to spawn the next factory. Returning an empty dict() will skip your factory placement
@@ -45,26 +42,31 @@ class Agent {
       const water_left = obs["teams"][this.player]["water"];
       const metal_left = obs["teams"][this.player]["metal"];
       // how many factories you have left to place
-      const factories_to_place = obs["teams"][this.player]["factories_to_place"];
+      const factories_to_place =
+        obs["teams"][this.player]["factories_to_place"];
       // obs["teams"][this.opp_player] has the same information but for the other team
       // potential spawnable locations in your half of the map
       const possibleSpawns = [];
-      const width = obs['board']['valid_spawns_mask'].length;
-      const height = obs['board']['valid_spawns_mask'][0].length;
+      const width = obs["board"]["valid_spawns_mask"].length;
+      const height = obs["board"]["valid_spawns_mask"][0].length;
       for (let i = 0; i < width; i++) {
         for (let j = 0; j < height; j++) {
-          if (obs['board']['valid_spawns_mask'][i][j] === true) {
+          if (obs["board"]["valid_spawns_mask"][i][j] === true) {
             possibleSpawns.push([i, j]);
           }
         }
       }
-
-      // as a naive approach we randomly select a spawn location and spawn a factory there
-      const spawn_loc =
-      possibleSpawns[
-          parseInt(Math.floor(Math.random() * possibleSpawns.length))
-        ];
-      return { spawn: spawn_loc, metal: 62, water: 62 };
+      // whether it is your turn to place a factory
+      const myTurnToPlace = myTurnToPlaceFactory(obs["teams"][this.player].place_first, step)
+      if (factories_to_place > 0 && myTurnToPlace) {
+        // we will spawn our factory in a random location with 150 metal and water if it is our turn to place
+        const spawn_loc =
+          possibleSpawns[
+            parseInt(Math.floor(Math.random() * possibleSpawns.length))
+          ];
+        return { spawn: spawn_loc, metal: 150, water: 150 };
+      }
+      return {};
     }
   }
 
@@ -113,9 +115,9 @@ class Agent {
     const input = JSON.parse(await this.getLine());
     this.last_input = input;
     this.step = parseInt(input["step"]);
-    this.real_env_steps = parseInt(input["obs"]["real_env_steps"])
+    this.real_env_steps = parseInt(input["obs"]["real_env_steps"]);
     if (this.step === 0) {
-      this.env_cfg = input["info"]["env_cfg"]
+      this.env_cfg = input["info"]["env_cfg"];
     }
     this.player = input["player"];
     if (this.player == "player_0") {
