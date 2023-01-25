@@ -42,7 +42,7 @@ Each supported programming language/solution type has its own starter kit, you c
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
-- [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl/)
+<!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - Javascript - TBA
 - Typescript - TBA
@@ -50,9 +50,9 @@ The kits folder in this repository holds all of the available starter kits you c
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
-Finally, if you want to learn how to use the GPU optimized env see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb
+<!-- Finally, if you want to learn how to use the GPU optimized env see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb
 
-For the RL starter kit that trains using the jax env, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/
+For the RL starter kit that trains using the jax env, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/ -->
 
 To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/ChangeLog.md) for a full change log.
 
