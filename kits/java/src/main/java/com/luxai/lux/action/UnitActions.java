@@ -8,6 +8,9 @@ import java.util.Map;
 
 public class UnitActions {
 
+    public static final int NO_REPEAT_ACTION = 0;
+    public static final int REPEAT_ACTION = 1;
+
     private final Map<String, Object> actions;
 
     public UnitActions() {

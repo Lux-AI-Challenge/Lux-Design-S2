@@ -33,14 +33,14 @@ public class RobotProcessor {
                     // Factory orthogonally adjacent
                     if (factoryDistance <= 3) {
                         if (robot.power > robot.getActionQueueCost(obs, environment))
-                            unitActions.add(robot.unitId, robot.transfer(factoryDirection, 0, robot.cargo.ice, 0, 1));
+                            unitActions.add(robot.unitId, robot.transfer(factoryDirection, 0, robot.cargo.ice, UnitActions.NO_REPEAT_ACTION, 1));
                     }
                     // Factory long away
                     else {
                         int moveCost = robot.getMoveCost(obs, environment, player, factoryDirection);
                         if (moveCost != MoveUtils.MOVE_UNAVAILABLE
                                 && robot.power >= (moveCost + robot.getActionQueueCost(obs, environment)))
-                            unitActions.add(robot.unitId, robot.move(factoryDirection, 0, 1));
+                            unitActions.add(robot.unitId, robot.move(factoryDirection, UnitActions.NO_REPEAT_ACTION, 1));
                     }
                 }
                 // Need to mine recourses
@@ -75,7 +75,7 @@ public class RobotProcessor {
                     if (xIce != -1 && yIce != -1) {
                         if (xIce == xRobot && yIce == yRobot) {
                             if (robot.power >= (robot.getDigCost(obs, environment) + robot.getActionQueueCost(obs, environment)))
-                                unitActions.add(robot.unitId, robot.dig(0,1));
+                                unitActions.add(robot.unitId, robot.dig(UnitActions.NO_REPEAT_ACTION,1));
                         }
                         // Ice long away
                         else {
@@ -83,7 +83,7 @@ public class RobotProcessor {
                             int moveCost = robot.getMoveCost(obs, environment, player, iceDirection);
                             if (moveCost != MoveUtils.MOVE_UNAVAILABLE
                                     && robot.power >= (moveCost + robot.getActionQueueCost(obs, environment)))
-                                unitActions.add(robot.unitId, robot.move(iceDirection, 0,1));
+                                unitActions.add(robot.unitId, robot.move(iceDirection, UnitActions.NO_REPEAT_ACTION,1));
                         }
                     }
                 }
