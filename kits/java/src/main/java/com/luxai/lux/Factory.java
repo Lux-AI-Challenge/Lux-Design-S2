@@ -1,5 +1,7 @@
 package com.luxai.lux;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Factory {
 
     public static final int BUILD_LIGHT = 0;
@@ -11,9 +13,13 @@ public class Factory {
 
     public int[] pos;
     public int power;
-    public int strain_id;
-    public int team_id;
-    public String unit_id;
+    @JsonProperty("strain_id")
+    public int strainId;
+    @JsonProperty("team_id")
+    public int teamId;
+
+    @JsonProperty("unit_id")
+    public String unitId;
     public Cargo cargo;
 
     public boolean canBuildHeavy(Environment environment) {
@@ -30,7 +36,7 @@ public class Factory {
         int lichenCounter = 0;
         for (int[] row : obs.board.lichen_strains) {
             for (int lichenStrain : row) {
-                if (lichenStrain == this.strain_id)
+                if (lichenStrain == this.strainId)
                     lichenCounter++;
             }
         }

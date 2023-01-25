@@ -1,12 +1,18 @@
 package com.luxai.lux;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 
 public class Obs {
-    public Map<String, Map<String, Robot>> units;
-    public Map<String,Team> teams;
-    public Map<String,Map<String, Factory>> factories;
+    @JsonProperty("units")
+    public Map<String, Map<String, Robot>> playerToUnit;
+    @JsonProperty("teams")
+    public Map<String,Team> playerToTeam;
+    @JsonProperty("factories")
+    public Map<String,Map<String, Factory>> playerToFactories;
+    @JsonProperty("board")
     public Board board;
-    public int[] weather_schedule;
-    public int real_env_steps;
+    @JsonProperty("real_env_steps")
+    public int realEnvSteps;
 }

@@ -1,6 +1,5 @@
 package com.luxai.lux;
 
-import java.util.List;
 import java.util.Map;
 
 public class Environment {
@@ -31,8 +30,5 @@ public class Environment {
     public int ORE_METAL_RATIO;
     public int FACTORY_CHARGE;
     public int FACTORY_WATER_CONSUMPTION;
-    public List<String> WEATHER_ID_TO_NAME;
-    public int[] NUM_WEATHER_EVENTS_RANGE;
-    public Weather WEATHER;
 
 }

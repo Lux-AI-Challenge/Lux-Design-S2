@@ -2,7 +2,6 @@ package com.luxai.lux;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class Board {
@@ -24,6 +23,8 @@ public class Board {
     @JsonProperty("lichen_strains")
     public Map<String, Integer> lichen_strainsUpdate;
 
-    public boolean[][] valid_spawns_mask;
-    public int factories_per_team;
+    @JsonProperty("valid_spawns_mask")
+    public boolean[][] validSpawnsMask;
+    @JsonProperty("factories_per_team")
+    public int factoriesPerTeam;
 }
