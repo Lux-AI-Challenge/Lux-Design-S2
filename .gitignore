@@ -3,8 +3,6 @@ __pycache__
 .DS_Store
 replays
 
-visualizer/src/assets/replay.json
-
 kaggle-environments
 
 dist
@@ -17,3 +15,6 @@ node_modules
 dist
 
 .vscode
+
+replay.json
+replay.html

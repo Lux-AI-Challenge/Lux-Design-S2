@@ -758,7 +758,7 @@ class LuxAI_S2(ParallelEnv):
             raise ValueError("No actions given")
             self.agents = []
             return {}, {}, {}, {}
-
+        
         failed_agents = {agent: False for agent in self.agents}
         # Turn 1 logic, handle
         early_game = False

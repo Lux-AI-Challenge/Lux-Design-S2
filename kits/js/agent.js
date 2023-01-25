@@ -107,6 +107,11 @@ class Agent {
     }
     for (const [unit_id, unit] of Object.entries(units)) {
       const pos = unit["pos"];
+      const moveCost = unit.moveCost(this.gameState, 1);
+      if (unit.power > moveCost + unit.actionQueueCost(this.gameState)) {
+        actions[unit_id] = [unit.move(Math.floor(Math.random() * 5))];
+      }
+      
     }
     return actions;
   }
