@@ -6,7 +6,7 @@ Welcome to the Lux AI Challenge Season 2!
 
 The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand. 
 
-To get started, go to our [Getting Started](#getting-started) section. The official competition runs until TODO and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2
+To get started, go to our [Getting Started](#getting-started) section. The official competition runs until April 24th and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2. There is a **$55,000** prize pool this year thanks to contributions from Kaggle, and our sponsors [QuantCo](https://quantco.com/), [Regression Games](https://www.regression.gg/), and [TSVC](https://tsvcap.com)
 
 Make sure to join our community discord at https://discord.gg/aWJt3UAcgn to chat, strategize, and learn with other competitors! We will be posting announcements on the Kaggle Forums and on the discord.
 
@@ -29,7 +29,7 @@ To verify your installation, you can run the CLI tool by replacing `path/to/bot/
 luxai-s2 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
 ```
 
-This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai-s2 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/luxai_runner/README.md, which includes details on how to run a local tournament to mass evaluate your agents. To watch the replay, upload `replay.json` to https://s2vis.lux-ai.org/
+This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai-s2 tool, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/luxai_runner/README.md, which includes details on how to run a local tournament to mass evaluate your agents. To watch the replay, upload `replay.json` to https://s2vis.lux-ai.org/ (or change `-o replay.json` to `-o replay.html`)
 
 Each programming language has a starter kit, you can find general API documentation here: https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits
 
