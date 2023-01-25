@@ -35,6 +35,14 @@ class Agent():
 
     def act(self, step: int, obs, remainingOverageTime: int = 60):
         actions = dict()
+        
+        """
+        optionally do forward simulation to simulate positions of units, lichen, etc. in the future
+        from lux.forward_sim import forward_sim
+        forward_obs = forward_sim(obs, self.env_cfg, n=2)
+        forward_game_states = [obs_to_game_state(step + i, self.env_cfg, f_obs) for i, f_obs in enumerate(forward_obs)]
+        """
+
         game_state = obs_to_game_state(step, self.env_cfg, obs)
         factories = game_state.factories[self.player]
         game_state.teams[self.player].place_first

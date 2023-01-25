@@ -73,7 +73,6 @@ class LuxAI_S2(ParallelEnv):
     def __init__(self, collect_stats: bool = False, **kwargs):
         self.collect_stats = collect_stats  # note: added here instead of in configs since it would break existing bots
         default_config = EnvConfig(**kwargs)
-
         self.env_cfg = default_config
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(
@@ -189,6 +188,9 @@ class LuxAI_S2(ParallelEnv):
         if seed is not None:
             self.seed_val = seed
             self.seed_rng = np.random.RandomState(seed=seed)
+        else:
+            self.seed_val = np.random.randint(0, 2**32 - 1)
+            self.seed_rng = np.random.RandomState(seed=self.seed_val)
         board = Board(seed=self.seed_rng.randint(0, 2**32 - 1, dtype=np.int64), env_cfg=self.env_cfg)
         self.state: State = State(
             seed_rng=self.seed_rng,

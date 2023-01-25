@@ -77,6 +77,8 @@ class Agent {
     const obs = this.gameState;
     const actions = {};
 
+    // NOTE that if you set FORWARD_SIM in main.py > 0, then obs will be a list of game states;
+
     // various maps to help aid in decision making
     const rubble = obs["board"]["rubble"];
     // if ice[x][y] > 0, then there is an ice tile at (x, y)

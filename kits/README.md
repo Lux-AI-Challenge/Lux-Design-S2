@@ -1,6 +1,6 @@
 # Lux AI Season 2 Kits
 
-This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well the general [Kit API](#kit-api)
+This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well as the general [Kit API](#kit-api). For those interested in the RL starter kits/baselines, we highly recommend reading those respective docs as they don't use the standard Kit API.
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
@@ -28,9 +28,11 @@ In the `agent.py` file, we define a simple class that holds your agent, you can 
 
 These two functions are where you define your agent's logic for both the early phase and the actual game phase of Lux AI season 2. In all kits, example code has been provided to show how to read the observation and return an action to submit to the environment.
 
-### Forward Simulation
+## Forward Simulation
 
-(WIP)
+For certain strategies it helps to know where units are and what the lichen is like after a few steps.
+
+For the JS kit, forward simulation is possible by setting the `FORWARD_SIM` value in main.py. For the python kit you can simply use the `lux.forward_sim` tool in the `lux` kit folder. In all kits that have forward simulation enabled they will return a list of observations representing the current and next few observations.
 
 ## Environment Actions
 
@@ -120,7 +122,7 @@ Every kit has an `Agent` class that defines two functions, `early_setup` and `ac
 
 ## Kit API
 
-All kits come with a interactable API to get data about the current state/observation of the environment. The game state or formatted observation looks as so
+All kits come with a interactable API to get data about the current state/observation of the environment. For specific details of how to use it you should refer to the code/docs in the respective kit folders. The game state or formatted observation looks as so
 ```python
 class GameState:
     env_steps: int # number of env steps passed
@@ -142,7 +144,7 @@ class Board:
     lichen_strains: Array # the id of the lichen planted at each tile, corresponds with factory.strain_id
     factory_occupancy_map: Array # -1 everywhere. Otherwise has the numerical ID of the factory (equivalent to factory.strain_id) that occupies that tile
     factories_per_team: int # number of factories each team gets to place initially
-    spawns: Array # possible spawn locations on your team's half of the map
+    valid_spawns_mask: Array # A mask array of the map with 1s where you can spawn a factory and 0s where you can't
 ```
 
 Each `Unit` object comes with functions to generate the action vector for actions like move and dig, as well as cost functions that return the power cost to perform some actions.
