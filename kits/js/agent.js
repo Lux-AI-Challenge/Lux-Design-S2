@@ -1,7 +1,6 @@
-
 const { processObs } = require("./lux/obs");
 const { setup } = require("./lux/setup");
-
+const {myTurnToPlaceFactory} = require("./lux/utils");
 /**
  * Agent for sequential `Designs`
  */
@@ -19,24 +18,22 @@ class Agent {
     */
     const obs = this.gameState;
     // various maps to help aid in decision making over factory placement
-    
+
     const rubble = obs["board"]["rubble"];
-    // if ice[y][x] > 0, then there is an ice tile at (x, y)
+    // if ice[x][y] > 0, then there is an ice tile at (x, y)
     const ice = obs["board"]["ice"];
-    // if ore[y][x] > 0, then there is an ore tile at (x, y)
+    // if ore[x][y] > 0, then there is an ore tile at (x, y)
     const ore = obs["board"]["ore"];
 
     if (step == 0) {
-      // decide on a faction, and make a bid for the extra factory.
-      // Each unit of bid removes one unit of water and metal from your initial pool
+      // # bid 0 to not waste resources bidding and declare as the default faction
       let faction = "MotherMars";
       if (this.player == "player_1") {
         faction = "AlphaStrike";
       }
-      console.error({faction})
       return {
         faction,
-        bid: 10,
+        bid: 0,
       };
     } else {
       // decide on where to spawn the next factory. Returning an empty dict() will skip your factory placement
@@ -45,17 +42,31 @@ class Agent {
       const water_left = obs["teams"][this.player]["water"];
       const metal_left = obs["teams"][this.player]["metal"];
       // how many factories you have left to place
-      const factories_to_place = obs["teams"][this.player]["factories_to_place"];
+      const factories_to_place =
+        obs["teams"][this.player]["factories_to_place"];
       // obs["teams"][this.opp_player] has the same information but for the other team
       // potential spawnable locations in your half of the map
-      const potential_spawns = obs["board"]["spawns"][this.player]
-
-      // as a naive approach we randomly select a spawn location and spawn a factory there
-      const spawn_loc =
-        potential_spawns[
-          parseInt(Math.floor(Math.random() * potential_spawns.length))
-        ];
-      return { spawn: spawn_loc, metal: 62, water: 62 };
+      const possibleSpawns = [];
+      const width = obs["board"]["valid_spawns_mask"].length;
+      const height = obs["board"]["valid_spawns_mask"][0].length;
+      for (let i = 0; i < width; i++) {
+        for (let j = 0; j < height; j++) {
+          if (obs["board"]["valid_spawns_mask"][i][j] === true) {
+            possibleSpawns.push([i, j]);
+          }
+        }
+      }
+      // whether it is your turn to place a factory
+      const myTurnToPlace = myTurnToPlaceFactory(obs["teams"][this.player].place_first, step)
+      if (factories_to_place > 0 && myTurnToPlace) {
+        // we will spawn our factory in a random location with 150 metal and water if it is our turn to place
+        const spawn_loc =
+          possibleSpawns[
+            parseInt(Math.floor(Math.random() * possibleSpawns.length))
+          ];
+        return { spawn: spawn_loc, metal: 150, water: 150 };
+      }
+      return {};
     }
   }
 
@@ -68,14 +79,14 @@ class Agent {
 
     // various maps to help aid in decision making
     const rubble = obs["board"]["rubble"];
-    // if ice[y][x] > 0, then there is an ice tile at (x, y)
+    // if ice[x][y] > 0, then there is an ice tile at (x, y)
     const ice = obs["board"]["ice"];
-    // if ore[y][x] > 0, then there is an ore tile at (x, y)
+    // if ore[x][y] > 0, then there is an ore tile at (x, y)
     const ore = obs["board"]["ore"];
 
-    // lichen[y][x] = amount of lichen at tile (x, y)
+    // lichen[x][y] = amount of lichen at tile (x, y)
     const lichen = obs["board"]["lichen"];
-    // lichenStrains[y][x] = the strain id of the lichen at tile (x, y). Each strain id is
+    // lichenStrains[x][y] = the strain id of the lichen at tile (x, y). Each strain id is
     // associated with a single factory and cannot mix with other strains.
     // factory.strain_id defines the factory's strain id
     const lichenStrains = obs["board"]["lichen_strains"];
@@ -96,6 +107,11 @@ class Agent {
     }
     for (const [unit_id, unit] of Object.entries(units)) {
       const pos = unit["pos"];
+      const moveCost = unit.moveCost(this.gameState, 1);
+      if (unit.power > moveCost + unit.actionQueueCost(this.gameState)) {
+        actions[unit_id] = [unit.move(Math.floor(Math.random() * 5))];
+      }
+      
     }
     return actions;
   }
@@ -104,9 +120,9 @@ class Agent {
     const input = JSON.parse(await this.getLine());
     this.last_input = input;
     this.step = parseInt(input["step"]);
-    this.real_env_step = parseInt(input["obs"]["real_env_step"])
+    this.real_env_steps = parseInt(input["obs"]["real_env_steps"]);
     if (this.step === 0) {
-      this.env_cfg = input["info"]["env_cfg"]
+      this.env_cfg = input["info"]["env_cfg"];
     }
     this.player = input["player"];
     if (this.player == "player_0") {
