@@ -15,7 +15,6 @@ from luxai_s2 import LuxAI_S2
 
 
 def main():
-    np.random.seed(0)
     import argparse
 
     parser = argparse.ArgumentParser(description="Run the LuxAI Season 2 game.")
@@ -103,7 +102,8 @@ def main():
             output_ext = args.output.split(".")[-1]
             if output_ext in ["html", "json"]:
                 save_format = output_ext
-
+    if args.seed:
+        np.random.seed(args.seed)
     cfg = EpisodeConfig(
         players=args.players,
         env_cls=LuxAI_S2,

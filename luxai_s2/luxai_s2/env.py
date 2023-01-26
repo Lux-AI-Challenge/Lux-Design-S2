@@ -941,7 +941,7 @@ class LuxAI_S2(ParallelEnv):
                     # lichen/plant power
                     f.power = (
                         f.power
-                        + len(f.grow_lichen_positions)
+                        + len(f.connected_lichen_positions)
                         * self.env_cfg.POWER_PER_CONNECTED_LICHEN_TILE
                     )
                     if self.collect_stats:
