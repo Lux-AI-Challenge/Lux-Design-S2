@@ -1,5 +1,13 @@
 # ChangeLog
 
+### v2.0.6
+
+Fix bug where no seed provided to CLI meant no random maps
+
+Fixed bug where plant power uses the growing lichen positions, not the connected ones.
+
+Fix local config. Self destruct cost of lights is 10, not 5 (matching the specs document). Fixed sample env cfg json as well
+
 ### v2.0.2
 
 Fix bug with seeding the map generation where the sampled seed is above allowed range
