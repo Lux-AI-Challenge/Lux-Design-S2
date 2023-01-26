@@ -30,18 +30,18 @@ public class Mapper {
             agent.step = state.step;
             agent.remainingOverageTime = state.remainingOverageTime;
             agent.player = state.player;
-            agent.env_cfg = state.info.env_cfg;
+            agent.envConfig = state.info.envConfig;
         }
         else {
             State state = objectMapper.readValue(json, State.class);
             agent.step = state.step;
             agent.remainingOverageTime = state.remainingOverageTime;
-            agent.obs.teams = state.obs.teams;
-            agent.obs.real_env_steps = state.obs.real_env_steps;
-            agent.obs.units = state.obs.units;
-            agent.obs.factories = state.obs.factories;
-            if (state.obs.real_env_steps < 0)
-                agent.obs.board.valid_spawns_mask = state.obs.board.valid_spawns_mask;
+            agent.obs.playerToTeam = state.obs.playerToTeam;
+            agent.obs.realEnvSteps = state.obs.realEnvSteps;
+            agent.obs.playerToUnit = state.obs.playerToUnit;
+            agent.obs.playerToFactories = state.obs.playerToFactories;
+            if (state.obs.realEnvSteps < 0)
+                agent.obs.board.validSpawnsMask = state.obs.board.validSpawnsMask;
 
 
             if (state.obs.board.rubbleUpdate != null) {

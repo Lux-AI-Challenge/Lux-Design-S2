@@ -1,50 +1,39 @@
-# LUX-AI 2022 JAVA BOT
-## LOCAL RUN
-1. Create fat-jar by maven or javac (see below)
-2. Move jar to subfolder localrun
-3. Rename to JavaBot.jar
-4. Run with main.py
-```
-luxai2022 main.py main.py -o replay.json
-```
-#### Fat-jar by maven
+# Lux AI Season 2 Java Kit
+
+This is the folder for the Java kit. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition.
+
+Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-season2/discussion) for announcements if there are any breaking changes.
+
+## Requirements
+
+You will need Maven with Java 11 installed and Python >=3.7, <3.11 (which should come with the dependencies you installed for the environment).
+
+## Getting Started
+
+To get started, download this folder from this repository.
+
+Your core agent code will go into Agent class, and you can create and use more files to help you as well. You should leave `main.py` files alone as that code enables your agent to compete against other agents locally and on Kaggle.
+
+## Make fat jar with maven
+
 ```bash
 mvn clean compile assembly:single
 ```
-#### Fat-jar by javac
-1. Move to project folder. ${project.basedir} is your project folder that contain src and lib folder
+
+## Running local games
+
+1. Create fat-jar with maven
+2. Move jar to subfolder localrun
+3. Run with main.py
+
+```
+luxai-s2 main.py main.py -o replay.json
+```
+
+## Compile for uploading to leaderboard evaluation
+
+1. Create an archive with JavaBot.jar and main.py from root dir
     ```
-    cd ${project.basedir}
+    tar -cvzf submission.tar.gz main.py -C localrun JavaBot.jar
     ```
-2. Generate source list
-    ```
-    dir /s /B .\src\main\java\*.java > sources.txt
-    ```
-3. Compile source
-    ```
-    javac -classpath ".\lib\jackson-core-2.13.4.jar;.\lib\jackson-databind-2.13.4.jar;.\lib\jackson-annotations-2.13.4.jar" -d ".\build" @sources.txt
-    ```
-4. Add external libs
-    ```
-    unzip -o ".\lib\*.jar" -d .\build
-    ```
-5. Move to build folder
-    ```
-    cd .\build
-    ```
-6. Create fat-jar
-    ```
-    jar -cfe JavaBot.jar com.luxai.Bot com/
-    ```
-#### Fat-jar in linux
-1. Execute compile.sh
-    ```
-    sh compile.sh
-    ```
-## SERVER COMPILE AND RUN
-1. Compile with compile.sh
-2. Create archive with JavaBot.jar and main.py from root dir
-    ```
-    tar -cvzf submission.tar.gz *
-    ```
-3. Submit server
+2. Submit to leaderboard server

@@ -26,8 +26,8 @@ public class Bot
     public static String processing(Agent agent, String json) throws JsonProcessingException {
         Mapper.updateState(agent, json);            // Update state
         String jsonAction = null;
-        if (agent.obs.real_env_steps < 0)
-            jsonAction = agent.early_setup();
+        if (agent.obs.realEnvSteps < 0)
+            jsonAction = agent.earlySetup();
         else {
             jsonAction = agent.act();
         }

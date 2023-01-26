@@ -1,5 +1,8 @@
 package com.luxai.lux;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Info {
-    public Environment env_cfg;
+    @JsonProperty("env_cfg")
+    public Environment envConfig;
 }

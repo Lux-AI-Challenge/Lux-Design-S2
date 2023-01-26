@@ -11,11 +11,10 @@ public class FactoryProcessor {
 
     public static UnitActions getActions(Obs obs, Environment environment, String player) {
         UnitActions unitActions = new UnitActions();
-        Map<String, Factory> myFactories = obs.factories.get(player);
-        for (String unitId : myFactories.keySet()) {
-            Factory factory = myFactories.get(unitId);
-            if (factory.canBuildHeavy(environment))
-                unitActions.add(factory.unit_id, Factory.BUILD_HEAVY);
+        Map<String, Factory> myFactories = obs.playerToFactories.get(player);
+        for (Factory factory : myFactories.values()) {
+            if (factory.canBuildLight(environment))
+                unitActions.add(factory.unitId, Factory.BUILD_LIGHT);
         }
         return unitActions;
     }
