@@ -21,6 +21,7 @@ if %errorlevel% gtr 0 (
 )
 
 rem build inside the container
+docker exec -w /root %container_name% dos2unix ./compile.sh
 docker exec -w /root %container_name% bash ./compile.sh -b docker_build
 if %errorlevel% gtr 0 (
     call :abort "error during build inside docker container" & goto :eof
