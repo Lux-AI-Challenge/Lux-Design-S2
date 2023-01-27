@@ -19,11 +19,11 @@ abort() {
 
 [ -f "$PWD/compile.sh" ] || abort "script not running from within the build directory"
 [ -z "$(which cmake)" ] && abort "cmake must be installed"
-[ -z "$(which make)" ] && abort "make must be installed"
 [ -z "$(which curl)" ] && abort "curl must be installed"
 
 build_warnings="ON"
 build_debug="OFF"
+build_config="Release"
 build_dir="build"
 
 while [[ $# -gt 0 ]]; do
@@ -34,6 +34,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -d|--debug)
             build_debug="ON"
+            build_config="Debug"
             shift
             ;;
         -b|--build-dir)
@@ -56,6 +57,4 @@ cmake -B $build_dir -DBUILD_WARNINGS=$build_warnings -DBUILD_DEBUG=$build_debug
 
 [ $? -ne 0 ] && abort "error during cmake configuration"
 
-cd $build_dir
-make -j$(nproc)
-cd ..
+cmake --build $build_dir --config $build_config

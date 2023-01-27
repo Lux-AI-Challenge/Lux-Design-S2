@@ -13,7 +13,7 @@ container_name="luxai_cpp_compiler"
 
 if [ -z "$(docker images -q $container_name)" ]; then
     docker build -t $container_name .
-    [ $? -ne 0 ] && abort "error during container build"
+    [ $? -ne 0 ] && abort "error during image build"
 fi
 
 if [ -z "$(docker ps | grep -w $container_name)" ]; then
