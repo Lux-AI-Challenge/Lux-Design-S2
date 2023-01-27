@@ -20,7 +20,7 @@ The rest of the document will go through the key features of this game.
 
 The world of Lux is represented as a 2d grid. Coordinates increase east (right) and south (down). The map is always a square and is 48 tiles long. The (0, 0) coordinate is at the top left. The map has various features including [Raw Resources](#resources) (Ice, Ore), [Refined Resources](#resources) (Water, Metal), [Robots](#robots) (Light, Heavy), [Factories](#factories), [Rubble](#movement-collisions-and-rubble), and [Lichen](#lichen). Code wise, the coordinate (x, y) in a map feature such as rubble is indexed by `board.rubble[x][y]` for ease of use.
 
-Each player will start the game by bidding on an extra factory, then placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more details.
+Each player will start the game by bidding on factory placement order, then alternating placing several Factories and specifying their starting resources. See the [Starting Phase](#starting-phase) for more details.
 
 ## Day/Night Cycle
 
