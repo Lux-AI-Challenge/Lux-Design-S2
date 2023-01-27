@@ -28,6 +28,8 @@ public class Environment {
     public int ICE_WATER_RATIO;
     public int FACTORY_PROCESSING_RATE_METAL;
     public int ORE_METAL_RATIO;
+    public float POWER_LOSS_FACTOR;
+    public int POWER_PER_CONNECTED_LICHEN_TILE;
     public int FACTORY_CHARGE;
     public int FACTORY_WATER_CONSUMPTION;
 

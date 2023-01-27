@@ -18,3 +18,7 @@ dist
 
 replay.json
 replay.html
+/kits/java/target
+/kits/java/.idea/
+/kits/java/luxai2022.iml
+/kits/java/localrun/*.jar

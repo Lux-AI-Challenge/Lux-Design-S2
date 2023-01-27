@@ -9,7 +9,7 @@ public class RobotInfo {
     public int CHARGE;
     public int INIT_POWER;
     public int MOVE_COST;
-    public int RUBBLE_MOVEMENT_COST;
+    public float RUBBLE_MOVEMENT_COST;
     public int DIG_COST;
     public int DIG_RUBBLE_REMOVED;
     public int DIG_RESOURCE_GAIN;
