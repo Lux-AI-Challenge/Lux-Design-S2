@@ -20,8 +20,7 @@ public class Robot {
     public Cargo cargo;
 
     public double getActionQueueCost (Obs obs, Environment environment) {
-        int cost = environment.ROBOTS.get(this.unitType).ACTION_QUEUE_POWER_COST;
-        return cost;
+        return environment.ROBOTS.get(this.unitType).ACTION_QUEUE_POWER_COST;
     }
 
     public int getMoveCost(Obs obs, Environment environment, String me, int moveDirection) {
@@ -44,15 +43,15 @@ public class Robot {
 
         int targetRubble = obs.board.rubble[targetPos[MoveUtils.X]][targetPos[MoveUtils.Y]];
         RobotInfo robotInfo = environment.ROBOTS.get(this.unitType);
-        return (int) Math.ceil((robotInfo.MOVE_COST + robotInfo.RUBBLE_MOVEMENT_COST * targetRubble));
+        return (int) Math.floor((robotInfo.MOVE_COST + robotInfo.RUBBLE_MOVEMENT_COST * targetRubble));
     }
 
     public int getDigCost(Obs obs, Environment environment) {
-        return (int) Math.ceil(environment.ROBOTS.get(this.unitType).DIG_COST);
+        return environment.ROBOTS.get(this.unitType).DIG_COST;
     }
 
     public int getSelfDestructCost(Obs obs, Environment environment) {
-        return (int) Math.ceil(environment.ROBOTS.get(this.unitType).SELF_DESTRUCT_COST);
+        return environment.ROBOTS.get(this.unitType).SELF_DESTRUCT_COST;
     }
 
     public Object move(int dir, int repeat, int iterCount) {
