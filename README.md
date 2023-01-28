@@ -75,7 +75,7 @@ We like to extend thanks to some of our early core contributors: [@duanwilliam](
 
 We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer)
 
-We further like to thank the following contributors during the official competition: [@Paradite](https://github.com/paradite)(JS Kit), [@MountainOrc](https://github.com/MountainOrc)(Java Kit), [@ArturBloch](https://github.com/ArturBloch)(Java Kit), [@rooklift](https://github.com/rooklift)(Go Kit)
+We further like to thank the following contributors during the official competition: [@aradite](https://github.com/paradite)(JS Kit), [@MountainOrc](https://github.com/MountainOrc)(Java Kit), [@ArturBloch](https://github.com/ArturBloch)(Java Kit), [@rooklift](https://github.com/rooklift)(Go Kit)
 
 
 ## Citation
