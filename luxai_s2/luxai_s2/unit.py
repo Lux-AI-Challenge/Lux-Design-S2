@@ -2,6 +2,7 @@ import math
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
+
 try:
     from typing import TypedDict    
 except:
@@ -104,13 +105,13 @@ class Unit:
         return action
 
     def repeat_action(self, action):
-        action.n -= 1
-        if action.n <= 0:
+        action.execute_count += 1
+        if action.execute_count >= action.n:
             # remove from front of queue
             self.action_queue.pop(0)
             # endless repeat puts action back at end of queue
             if action.repeat:
-                action.n = 1
+                action.execute_count = 0
                 self.action_queue.append(action)
 
     def move_power_cost(self, rubble_at_target: int):

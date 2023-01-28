@@ -1,5 +1,8 @@
 # ChangeLog
 
+### v2.0.7
+
+Fix bug where repeated actions had their `n` value reset to 1. This now means actions internally have an `execution count`. This is not in the action space but in action queues the execution count is tracked and displayed.
 ### v2.0.6
 
 Fix bug where no seed provided to CLI meant no random maps

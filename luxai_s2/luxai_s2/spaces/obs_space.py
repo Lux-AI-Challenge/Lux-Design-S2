@@ -139,11 +139,12 @@ def get_obs_space(config: EnvConfig, agent_names: List[str], agent: int = 0):
             unit_type=UnitTypeSpace(),
         )
         if config.UNIT_ACTION_QUEUE_SIZE != 1:
-            # note, action queue space copied over from act_space.py
+            # note, action queue space is slightly different to the action space
+            # as each action has an execute count (the last dimension)
             obs_dict["action_queue"] = ActionsQueue(
                 spaces.Box(
-                    low=np.array([0, 0, 0, 0, 0, 1]),
-                    high=np.array([5, 4, 4, config.max_transfer_amount + 1, 1, 9999]),
+                    low=np.array([0, 0, 0, 0, 0, 1, 0]),
+                    high=np.array([5, 4, 4, config.max_transfer_amount + 1, 1, 9999, 9999]),
                     shape=(6,),
                     dtype=np.int64,
                 ),

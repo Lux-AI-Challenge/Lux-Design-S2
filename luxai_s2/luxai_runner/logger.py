@@ -1,5 +1,3 @@
-from turtle import color
-
 from luxai_s2.globals import TERM_COLORS
 
 try:
