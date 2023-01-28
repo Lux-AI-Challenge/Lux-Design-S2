@@ -106,7 +106,7 @@ class Unit:
 
     def repeat_action(self, action):
         action.n -= 1
-        if action.n < 0:
+        if action.n <= 0:
             # remove from front of queue
             self.action_queue.pop(0)
             # endless repeat puts action back at end of queue
