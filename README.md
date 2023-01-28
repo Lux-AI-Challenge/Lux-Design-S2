@@ -42,12 +42,13 @@ Each supported programming language/solution type has its own starter kit, you c
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
-<!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - [Javascript](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/js/)
 - [Java](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/java/)
+- [Go](https://github.com/rooklift/golux2/) - (A working bare-bones Go kit)
 - Typescript - TBA
-- [Go](https://github.com/rooklift/golux2/) - (Currently a bare-bones kit external to this repository at the moment)
+<!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
+
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
