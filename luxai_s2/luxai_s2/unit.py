@@ -105,13 +105,13 @@ class Unit:
         return action
 
     def repeat_action(self, action):
-        action.execute_count += 1
-        if action.execute_count >= action.n:
+        action.n -= 1
+        if action.n < 0:
             # remove from front of queue
             self.action_queue.pop(0)
             # endless repeat puts action back at end of queue
-            if action.repeat:
-                action.execute_count = action.repeat
+            if action.repeat > 0:
+                action.n = action.repeat
                 self.action_queue.append(action)
 
     def move_power_cost(self, rubble_at_target: int):
