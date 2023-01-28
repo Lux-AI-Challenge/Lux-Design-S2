@@ -13,7 +13,7 @@ container_name="luxai_cpp_compiler"
 
 if [ -z "$(docker images -q $container_name)" ]; then
     docker build -t $container_name .
-    [ $? -ne 0 ] && abort "error during container build"
+    [ $? -ne 0 ] && abort "error during image build"
 fi
 
 if [ -z "$(docker ps | grep -w $container_name)" ]; then
@@ -27,4 +27,4 @@ docker exec -w /root $container_name bash ./compile.sh -b docker_build
 
 submisson_archive="submission.tar.gz"
 [ -f "$submisson_archive" ] && rm "$submisson_archive"
-tar -czvf "$submisson_archive" * && echo "successfully built submission"
+tar --exclude=./$submisson_archive --warning=no-file-changed -czvf "$submisson_archive" . && echo "successfully built submission"

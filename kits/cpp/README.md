@@ -10,10 +10,16 @@ To get started, download this folder from this repository.
 
 Your core agent code will go into `src/agent.cpp`, and you can create and use more files to help you as well. You should leave `main.py, src/main.cpp` alone as that code enables your agent to compete against other agents on Kaggle.
 
-To quickly test run your agent, first compile your agent by running `./compile.sh` and then run
+To quickly test run your agent, first compile your agent by running `./compile.sh` (Linux & MacOS) or `.\compile.bat` (Windows). *It will report any missing dependencies or other errors*. If everything is successful, you should see where the created agent was placed. Then you can run:
 
+Linux & MacOS:
 ```
 luxai_s2 build/agent.out build/agent.out --out=replay.json
+```
+
+Windows:
+```
+luxai_s2 .\build\Release\agent.out.exe .\build\Release\agent.out.exe --out=replay.json
 ```
 
 This will run the compiled `agent.cpp` code and generate a replay file saved to `replay.json`.
@@ -27,13 +33,11 @@ All of our kits follow a common API through which you can use to access various 
 
 ## Submitting to Kaggle
 
-Submissions need to be a .tar.gz bundle with main.py at the top level directory (not nested). To create a submission, first create a binary compiled on Ubuntu (through docker or your computer). We provide a script to do so, for people working on a OS that is not Ubuntu, run
+Submissions need to be a `.tar.gz` bundle with `main.py` at the top level directory (not nested). To create a submission, first create a binary compiled on Ubuntu (through docker or your computer).
 
-```
-./create_submission.sh
-```
+We provide a script to do so, for people working on a OS that is not Ubuntu, `./create_submission.sh` (Linux & MacOS) or `.\create_submission.bat` (Windows).
 
-And if you are running Ubuntu 18.04 natively run
+And if you are running Ubuntu 20.04 natively run
 
 ```
 ./compile.sh -b docker_build
@@ -52,6 +56,8 @@ See the rest for more in-depth details regarding the C++ starter kit.
   - [1.2 Adding source files](#12-adding-source-files)
 - [2 Building the agent](#2-building-the-agent)
   - [2.1 Locally](#21-locally)
+    - [2.1.1 Linux & MacOS](#211-linux---macos)
+    - [2.1.2 Windows](#212-windows)
   - [2.2 Using Docker](#22-using-docker)
 - [3 Notes about the code](#3-notes-about-the-code)
   - [3.1 Observation](#31-observation)
@@ -82,17 +88,24 @@ Working with a single source file can get fairly cumbersome. You can add additio
 The agent can either be built locally or using a docker container. The former should be used for local testing of the
 bot. The latter is intended for submission to Kaggle.
 
-For Windows user: It's recommended to set up a Debian or Ubuntu WSL and work inside that, as the convenience
-scripts were neither built, nor tested on Windows.
+*For Windows user*: Running the `.\compile.bat` script with the `/d` option to create a debug build may sometimes report an error similar to this
+```
+action.obj : fatal error LNK1163: invalid selection for COMDAT section 0x995 [C:\path\to\Lux-Design-S2\kits\cpp\build\agent.out.vcxproj]
+```
+This is an issue with the MSVC compiler. Just running it again should do the trick.
+
+Additionally, it was reported that docker may give an error about missing privileges even when running the shell as administrator. This appears to be a known issue and most of the time a reinstall of docker and/or WSL should do the trick.
 
 ### 2.1 Locally
 
 Requirements:  
-- Linux (preferably a Debian based distro so it's close to the Kaggle environment)
+- `curl`
+- `tar`
 - CMake
-- make
-- curl
+- a build system (e.g. `make` or Visual Studio)
 - Recent C++ compiler
+
+#### 2.1.1 Linux & MacOS
 
 This kit provides a convenience script to build the agent. By default it will create a build directory named `build`,
 initialize the CMake project and run make to build the agent. The resulting binary is `build/agent.out`. This script
@@ -100,13 +113,25 @@ can take additional flags to alter some aspects of the process. E.g. disable ped
 
 Run `./compile.sh` to run the script. Add `--help` to see available options for it.
 
+#### 2.1.2 Windows
+
+`curl` and `tar` should be preinstalled on Windows.
+*If you just want to get started*: The rest of the requirements can be fulfilled by installing the latest Visual Studio Community Edition. It will be used as the build system and provide all other required tools. However, you don't need to use it to edit your code (especially if you are not experienced with C++ development).
+
+This kit provides a convenience script to build the agent. By default it will create a build directory named `build`,
+initialize the CMake project and run make to build the agent. The resulting binary is `build\Release\agent.out.exe`. This script
+can take additional flags to alter some aspects of the process. E.g. disable pedantic warnings or compile in debug mode.
+
+Run `.\compile.bat` to run the script. Add `/h` to see available options for it.
+
 ### 2.2 Using Docker and Submitting to Kaggle
 
 Requirements:  
 - Docker (if docker requires elevated privileges, then the script has to run with elevated privileges)
-- tar
+- `tar`
 
-Kaggle will run a compiled binary on their Ubuntu systems. Thus we provide another convenience script which will
+Kaggle will run a compiled binary on their Ubuntu systems. Thus we provide another convenience script
+(`./create_submission.sh` for Linux and MacOS or `.\create_submission.bat` for Windows) which will
 create an Ubuntu docker container to build your agent. The compiled content can then be found in a newly created
 `docker_build` folder.
 
@@ -118,11 +143,10 @@ should be used to submit your bot to Kaggle in the My Submissions Tab.
 ### 3.1 Observation
 
 The essential type of the code provided inside `lux/` is `lux::Observation`. This type contains everything the agent is
-provided with each turn. This includes the board state, units, factories and weather schedule. In addition to that
-it also stores the initial configuration so it is able to provide certain convenience functions such as
-`getCurrentWeather()`.
+provided with each turn. This includes the board state, units and factories. In addition to that
+it also stores the initial configuration so it is able to provide convenience functions.
 
-*Do not* store member of this type by reference longer than the current turn, because (besides the configuration)
+*Do not* store any member of this type by reference longer than the current turn, because (besides the configuration)
 every member may be replaced with new deserialized values the following turn.
 
 ### 3.2 Agent
@@ -166,8 +190,8 @@ debug build). Thus these convenience functions take an observation as their argu
 
 Just as the Python kit, this kit also provides some additional information not directly found in the JSON.  
 - each unit contains its respective `lux::UnitConfiguration`
-- the `lux::Board` contains a `factory_occupancy` map (a 2D array, like the `rubble`) where `factory_occupancy[y][x]` contains either the team id of the team that owns a factory there or -1 if there is no factory
-- `lux::Observation` provides `getCurrentWeather()` to get the current `lux::WeatherConfig` as well as `isDay()` to determine if it is day or not
+- the `lux::Board` contains a `factory_occupancy` map (a 2D array, like the `rubble`) where `factory_occupancy[y][x]` is `true` when a factory occupies the spot at `x` and `y`, false otherwise
+- `lux::Observation` provides `isDay()` to determine if it is day or not
 - `lux::Unit` and `lux::Factory` provide functionality to calculate the cost of each action
 - `lux::Position` provides a static function `Delta(dir)` which will return a delta position for a given direction
 
