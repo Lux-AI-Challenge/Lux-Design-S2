@@ -20,7 +20,7 @@ To quickly test run your agent, run
 luxai-s2 main.py main.py --out=replay.json
 ```
 
-This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`.
+This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`. Note that you should pass in **main.py** and not **main.js**.
 
 ## Developing
 Now that you have the code up and running, you are ready to start programming and having some fun!
