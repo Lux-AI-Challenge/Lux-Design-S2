@@ -111,7 +111,7 @@ class Unit:
             self.action_queue.pop(0)
             # endless repeat puts action back at end of queue
             if action.repeat:
-                action.execute_count = 0
+                action.execute_count = action.repeat
                 self.action_queue.append(action)
 
     def move_power_cost(self, rubble_at_target: int):

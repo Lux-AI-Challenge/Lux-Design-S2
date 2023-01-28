@@ -21,9 +21,8 @@ class Action:
     def __init__(self, act_type: str) -> None:
         self.act_type = act_type
         self.n = 1  # number of times to execute the action
-        self.execute_count = 0
         self.power_cost = 0
-        self.repeat = False  # whether to put action to the back of the action queue
+        self.repeat = 0  # if 0, no recycling. If > 0, we recycle action and set n equal to this.
 
     def state_dict(self):
         raise NotImplementedError("")
@@ -63,7 +62,7 @@ resource_to_name = ["ice", "ore", "water", "metal", "power"]
 
 class MoveAction(Action):
     def __init__(
-        self, move_dir: int, dist: int = 1, repeat: bool = False, n: int = 1
+        self, move_dir: int, dist: int = 1, repeat: int = 0, n: int = 1
     ) -> None:
         super().__init__("move")
         # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
@@ -74,7 +73,7 @@ class MoveAction(Action):
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([0, self.move_dir, 0, 0, self.repeat, self.n, self.execute_count])
+        return np.array([0, self.move_dir, 0, 0, self.repeat, self.n])
 
     def __str__(self) -> str:
         return f"{self.act_type} {direction_to_name[self.move_dir]} (n: {self.n}, r: {self.repeat})"
@@ -86,7 +85,7 @@ class TransferAction(Action):
         transfer_dir: int,
         resource: int,
         transfer_amount: int,
-        repeat: bool = False,
+        repeat: int = 0,
         n: int = 1,
     ) -> None:
         super().__init__("transfer")
@@ -106,7 +105,7 @@ class TransferAction(Action):
                 self.resource,
                 self.transfer_amount,
                 self.repeat,
-                self.n, self.execute_count
+                self.n
             ]
         )
 
@@ -116,7 +115,7 @@ class TransferAction(Action):
 
 class PickupAction(Action):
     def __init__(
-        self, resource: int, pickup_amount: int, repeat: bool = False, n: int = 1
+        self, resource: int, pickup_amount: int, repeat: int = 0, n: int = 1
     ) -> None:
         super().__init__("pickup")
         # a[2] = R = resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power)
@@ -127,42 +126,42 @@ class PickupAction(Action):
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([2, 0, self.resource, self.pickup_amount, self.repeat, self.n, self.execute_count])
+        return np.array([2, 0, self.resource, self.pickup_amount, self.repeat, self.n])
 
     def __str__(self) -> str:
         return f"{self.act_type} {self.pickup_amount} {resource_to_name[self.resource]} (n: {self.n}, r: {self.repeat})"
 
 
 class DigAction(Action):
-    def __init__(self, repeat: bool = False, n: int = 1) -> None:
+    def __init__(self, repeat: int = 0, n: int = 1) -> None:
         super().__init__("dig")
         self.repeat = repeat
         self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([3, 0, 0, 0, self.repeat, self.n, self.execute_count])
+        return np.array([3, 0, 0, 0, self.repeat, self.n])
 
     def __str__(self) -> str:
         return f"{self.act_type} (n: {self.n}, r: {self.repeat})"
 
 
 class SelfDestructAction(Action):
-    def __init__(self, repeat: bool = False, n: int = 1) -> None:
+    def __init__(self, repeat: int = 0, n: int = 1) -> None:
         super().__init__("self_destruct")
         self.repeat = repeat
         self.n = n
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([4, 0, 0, 0, self.repeat, self.n, self.execute_count])
+        return np.array([4, 0, 0, 0, self.repeat, self.n])
 
     def __str__(self) -> str:
         return f"{self.act_type} (n: {self.n}, r: {self.repeat})"
 
 
 class RechargeAction(Action):
-    def __init__(self, power: int, repeat: bool = False, n: int = 1) -> None:
+    def __init__(self, power: int, repeat: int = 0, n: int = 1) -> None:
         super().__init__("recharge")
         self.power = power
         self.repeat = repeat
@@ -170,7 +169,7 @@ class RechargeAction(Action):
         self.power_cost = 0
 
     def state_dict(self):
-        return np.array([5, 0, 0, self.power, self.repeat, self.n, self.execute_count])
+        return np.array([5, 0, 0, self.power, self.repeat, self.n])
 
     def __str__(self) -> str:
         return f"{self.act_type} {self.power} (n: {self.n}, r: {self.repeat})"
@@ -205,9 +204,6 @@ def format_action_vec(a: np.ndarray):
         act =  RechargeAction(a[3], repeat=a[4], n=a[5])
     else:
         raise ValueError(f"Action {a} is invalid type, {a[0]} is not valid")
-    if len(a) == 7:
-        # NOTE: v2.0.7 backward compatability fix for handling execution count
-        act.execute_count = a[6]
     return act
     
 
