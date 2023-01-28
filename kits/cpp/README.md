@@ -94,6 +94,8 @@ action.obj : fatal error LNK1163: invalid selection for COMDAT section 0x995 [C:
 ```
 This is an issue with the MSVC compiler. Just running it again should do the trick.
 
+Additionally, it was reported that docker may give an error about missing privileges even when running the shell as administrator. This appears to be a known issue and most of the time a reinstall of docker and/or WSL should do the trick.
+
 ### 2.1 Locally
 
 Requirements:  
