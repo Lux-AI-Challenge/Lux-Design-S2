@@ -12,7 +12,7 @@ const construct2DMat = (w, h, init=0) => {
   return mat;
 };
 
-const singleObsToGameState = (agent, obs) => {
+const singleObsToGameState = (agent, obs, envCfg) => {
   const gameState = obs;
   factory_occupancy_map = construct2DMat(
     gameState["board"].rubble.length,
@@ -22,8 +22,6 @@ const singleObsToGameState = (agent, obs) => {
   gameState["board"]["factory_occupancy_map"] = factory_occupancy_map;
   // process factories
   for (const player of [agent.player, agent.opp_player]) {
-    gameState["factories"][player] = {};
-    gameState["units"][player] = {};
     for (const k in obs["factories"][player]) {
       const f = obs["factories"][player][k];
       const factoryObj = new Factory(
@@ -100,12 +98,12 @@ const processObs = (agent, obs, step) => {
       // if this exists, then we have a list of observations meaning we have some that were forward simmed.
       const gameStates = [];
       for (let i = 0; i < rawObs.length; i++) {
-        gameStates.push(singleObsToGameState(agent, rawObs[i]));
+        gameStates.push(singleObsToGameState(agent, rawObs[i], envCfg));
       }
       return gameStates;
     } else {
       // otherwise return the single gameState object
-      return singleObsToGameState(agent, rawObs);
+      return singleObsToGameState(agent, rawObs, envCfg);
     }
     
   }
