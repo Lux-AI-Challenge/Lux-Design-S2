@@ -38,11 +38,11 @@ For the JS kit, forward simulation is possible by setting the `FORWARD_SIM` valu
 
 In each episode there are two competing teams, both of which control factories and units.
 
-In the early phase, the action space is different than the actual game phase. See the starter kit codes (agent.py file) for how they are different.
+In the early phase, the action space is different than the normal game phase. See the starter kit codes (agent.py file) for how they are different.
 
-During the actual game phase, factories have 3 possible actions, `build_light`, `build_heavy`, and `water`. Units/Robots (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
+During the normal game phase, factories have 3 possible actions, `build_light`, `build_heavy`, and `water`. Units/Robots (light or heavy robots) have 5 possible actions: `move`, `dig`, `transfer`, `pickup`, `self_destruct`, `recharge`; where `move, dig, self_destruct` have power costs
 
-In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue, and repeatedly does this a user-specified `n` times until exhausted. If the action is marked as to be repeated, it is replaced to the back of the queue.
+In Lux AI Season 2, the robots's actual action space is a list of actions representing it's action queue and your agent will set this action queue to control robots. This action queue max size is `env_cfg.UNIT_ACTION_QUEUE_SIZE`. Each turn, the unit executes the action at the front of the queue, and repeatedly executes this a user-specified `n` times. Moreover, action execution counts towards `n` only when it is succesful, so if your robot runs out of power or a resource to transfer, it won't be counted towards `n`. Finally, each action can specify a `repeat` value. If `repeat == 0` then after `n` executions the action is removed. If `repeat > 0`, then the action is recycled to the back of the queue and sets `n = repeat` insead of removing the action.
 
 In code, actions can be given to units as so
 
@@ -52,7 +52,7 @@ actions[unit_id] = [action_0, action_1, ...]
 
 Importantly, whenever you submit a new action queue, the unit incurs an additional power cost to update the queue of `env_cfg.ROBOTS[<robot_type>].ACTION_QUEUE_POWER_COST` power. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous. Lights consume 1 power and Heavies consume 10 power to update their action queue,
 
-See the example code in the corresponding `agent.py` file for how to give actions, how to set them to repeat or not, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
+See the example code in the corresponding `agent.py` file for how to give actions, how to set their `n` and `repeat` values to control execution count and recycling, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
 
 ## Environment Observations
 
@@ -72,7 +72,7 @@ The general observation given to your bot in the kits will look like below. `Arr
           "unit_type": "LIGHT" or "HEAVY",
           "pos": Array(2),
           "cargo": { "ice": int, "ore": int, "water": int, "metal": int },
-          "action_queue": Array(N, 5)
+          "action_queue": Array(N, 6)
         }
       }
     },
