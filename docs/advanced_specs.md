@@ -158,9 +158,13 @@ For every factory (which has IDs prefixed with "factory"), we directly keep the 
 
 For every robot (which has IDs prefixed with "unit"), we find its robot type via `unit.unit_type.name` and subsequently find its `ACTION_QUEUE_POWER_COST`. If the robot doesn't have enough power, we don't update the action queue.
 
-If it does, we use the new action queue given for the robot (the action space for this is defined in [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py), see comments to understand parameterization) and truncate it to length `UNIT_ACTION_QUEUE_SIZE`.
+We then check if the team's submitted action queue for this robot is formatted correctly (check if it's a list and it has 2 dimensions). If not, we fail that robot's team.
+
+If the new action queue is correct and the robot has enough power to update, we use the new action queue given for the robot (the action space for this is defined in [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py), see comments to understand parameterization) and truncate it to length `UNIT_ACTION_QUEUE_SIZE` and replace the old action queue. We then subtract `ACTION_QUEUE_POWER_COST` from this robot's power.
 
 ## Environment Step - Normal Phase: Tracking Actions by Type
+
+For each agent, if it was failed in a previous step we skip it. For functioning agents, we retrieve the action at the front of each owned unit's action queue, as well as each action from each factory if there is one. We then store them in `actions_by_type` which maps action type (e.g. Dig, Build) to a list of all actions from all agents of that type.
 
 ## Environment Step - Normal Phase: Handling Dig Actions
 ## Environment Step - Normal Phase: Handling Self Destruct Actions
