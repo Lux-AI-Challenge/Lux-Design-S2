@@ -9,6 +9,8 @@ Fix bug where repeated actions had their `n` value reset to 1. This now means ac
 Fix bug where two heavies entering a tile can both get destroyed if a single light unit there has more power.
 
 Fix bug where clearing action queues with an empty action queue `[]` was not permitted.
+
+Java kit and updated JS, C++ kits are merged in.
 ### v2.0.6
 
 Fix bug where no seed provided to CLI meant no random maps

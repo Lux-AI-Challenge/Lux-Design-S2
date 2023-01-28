@@ -45,8 +45,9 @@ The kits folder in this repository holds all of the available starter kits you c
 <!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - [Javascript](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/js/)
+- [Java](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/java/)
 - Typescript - TBA
-- Java - TBA
+- [Go](https://github.com/rooklift/golux2/) - (Currently a bare-bones kit external to this repository at the moment)
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
@@ -72,7 +73,9 @@ We are proud to announce our sponsors [QuantCo](https://quantco.com/), [Regressi
 
 We like to extend thanks to some of our early core contributors: [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Engine optimization).
 
-We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer), .
+We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer)
+
+We further like to thank the following contributors during the official competition: [@Paradite](https://github.com/paradite)(JS Kit), [@MountainOrc](https://github.com/MountainOrc)(Java Kit), [@ArturBloch](https://github.com/ArturBloch)(Java Kit), [@rooklift](https://github.com/rooklift)(Go Kit)
 
 
 ## Citation
