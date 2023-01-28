@@ -58,6 +58,9 @@ class ActionsQueue(spaces.Space):
             isinstance(x, np.ndarray) and len(x.shape) == 2 and len(x) > self.max_length
         ):
             return False
+        elif isinstance(x, np.ndarray) and x.shape[0] == 0:
+            # empty action
+            return True
         elif isinstance(x, np.ndarray) and len(x.shape) == 1:
             x = [x]
         # if (not isinstance(x, list) and not isinstance(x, np.ndarray)) or len(x) > self.max_length:

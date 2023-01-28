@@ -810,7 +810,7 @@ class LuxAI_S2(ParallelEnv):
                                 continue
                             formatted_actions = []
                             if type(action) == list or (
-                                type(action) == np.ndarray and len(action.shape) == 2
+                                type(action) == np.ndarray and (len(action.shape) == 2 or len(action) == 0)
                             ):
                                 trunked_actions = action[
                                     : self.env_cfg.UNIT_ACTION_QUEUE_SIZE
