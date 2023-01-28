@@ -613,7 +613,7 @@ class LuxAI_S2(ParallelEnv):
                 continue
             if len(heavy_entered_pos[pos_hash]) > 1:
                 # all units collide, find the top 2 units by power
-                (most_power_unit, next_most_power_unit) = get_top_two_power_units(units)
+                (most_power_unit, next_most_power_unit) = get_top_two_power_units(units, UnitType.HEAVY)
                 if most_power_unit.power == next_most_power_unit.power:
                     # tie, all units break
                     for u in units:
@@ -670,7 +670,7 @@ class LuxAI_S2(ParallelEnv):
                         (
                             most_power_unit,
                             next_most_power_unit,
-                        ) = get_top_two_power_units(units)
+                        ) = get_top_two_power_units(units, UnitType.LIGHT)
                         if most_power_unit.power == next_most_power_unit.power:
                             # tie, all units break
                             for u in units:

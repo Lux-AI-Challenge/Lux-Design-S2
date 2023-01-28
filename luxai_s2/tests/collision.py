@@ -3,76 +3,97 @@ import time
 import numpy as np
 
 from luxai_s2.env import LuxAI_S2
+from luxai_s2.utils import my_turn_to_place_factory
+from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
+from luxai_s2.unit import UnitType
+from luxai_s2.actions import MoveAction
+import math
+# TODO: replace with pytest some day
+def test_heavy_entering_only():
+    env: LuxAI_S2 = LuxAI_S2()
+    obs = env.reset(seed=0)
+    np.random.seed(0)
+    while env.state.real_env_steps < 0:
+        if env.env_steps == 0:
+            actions = dict()
+            for p in env.agents:
+                actions[p] = dict(bid=0, faction="AlphaStrike")
+            obs, _, _, _ = env.step(actions)
+        else:
+            actions = dict()
+            for p in env.agents:
+                if my_turn_to_place_factory(env.state.teams[p].place_first, env.state.env_steps):
+                    action = place_near_random_ice(p, obs[p])
+                else:
+                    action = dict()
+                actions[p] = action
+            obs, _, _, _ = env.step(actions)
+        # env.render()
+        # time.sleep(0.5)
+    
+    # add heavy
+    u1 = env.add_unit(env.state.teams["player_0"], UnitType.HEAVY, np.array([20, 10]))
+    u1.power = 10
+    u1.action_queue = [MoveAction(1)]
+    u2 = env.add_unit(env.state.teams["player_0"], UnitType.HEAVY, np.array([20, 10]))
+    u2.power = 5
+    u2.action_queue = [MoveAction(1)]
+
+    
+    actions_by_type = dict()
+    actions_by_type["move"] = [
+        (u1, MoveAction(1)), (u2, MoveAction(1))
+    ]
+    env._handle_movement_actions(actions_by_type)
+    assert u2.unit_id not in env.state.units["player_0"]
+    assert u1.unit_id in env.state.units["player_0"]
+    assert u1.power == 10 - math.ceil(5 / 2)
+
+def test_heavy_enter_with_light_entering():
+    env: LuxAI_S2 = LuxAI_S2()
+    obs = env.reset(seed=0)
+    np.random.seed(0)
+    while env.state.real_env_steps < 0:
+        if env.env_steps == 0:
+            actions = dict()
+            for p in env.agents:
+                actions[p] = dict(bid=0, faction="AlphaStrike")
+            obs, _, _, _ = env.step(actions)
+        else:
+            actions = dict()
+            for p in env.agents:
+                if my_turn_to_place_factory(env.state.teams[p].place_first, env.state.env_steps):
+                    action = place_near_random_ice(p, obs[p])
+                else:
+                    action = dict()
+                actions[p] = action
+            obs, _, _, _ = env.step(actions)
+        # env.render()
+        # time.sleep(0.5)
+    
+    # add heavy
+    u1 = env.add_unit(env.state.teams["player_0"], UnitType.HEAVY, np.array([20, 10]))
+    u1.power = 10
+    u1.action_queue = [MoveAction(1)]
+    u2 = env.add_unit(env.state.teams["player_0"], UnitType.HEAVY, np.array([20, 10]))
+    u2.power = 5
+    u2.action_queue = [MoveAction(1)]
+
+    light1 = env.add_unit(env.state.teams["player_0"], UnitType.LIGHT, np.array([20, 10]))
+    light1.power = 30
+    light1.action_queue = [MoveAction(1)]
+
+    
+    actions_by_type = dict()
+    actions_by_type["move"] = [
+        (u1, MoveAction(1)), (u2, MoveAction(1)), (light1, MoveAction(1))
+    ]
+    env._handle_movement_actions(actions_by_type)
+    assert u2.unit_id not in env.state.units["player_0"]
+    assert light1.unit_id not in env.state.units["player_0"]
+    assert u1.unit_id in env.state.units["player_0"]
+    assert u1.power == 10 - math.ceil(5 / 2)
 
 if __name__ == "__main__":
-    env: LuxAI_S2 = LuxAI_S2()
-    o = env.reset()
-    env.render()
-    time.sleep(0.5)
-    # u = Unit(team=Team(1, FactionTypes.MotherMars), unit_type=UnitType.HEAVY, unit_id='1s')
-    # env.state.units[1].append(u)
-    # observation, reward, done, info = env.last()
-    o, r, d, _ = env.step(
-        {
-            "player_0": dict(faction="MotherMars", spawns=np.array([[4, 4], [15, 5]])),
-            "player_1": dict(
-                faction="AlphaStrike", spawns=np.array([[56, 55], [40, 42]])
-            ),
-        }
-    )
-    env.render()
-    # print(o, r, d)
-    s_time = time.time_ns()
-    N = 10000
-    import ipdb
-
-    for i in range(N):
-        all_actions = dict()
-        for team_id, agent in enumerate(env.possible_agents):
-            obs = o[agent]
-            all_actions[agent] = dict()
-            # units = o[agent]["units"]
-            # actions = []
-            # for unit_id, unit in units.items():
-            #     actions.append(dict(unit_id=unit_id))
-            factories = obs["factories"][agent]
-            actions = dict()
-            if i == 0:
-                for unit_id, factory in factories.items():
-                    actions[unit_id] = 0
-            for unit_id, unit in obs["units"][agent].items():
-                # actions[unit_id] = np.array([0, np.random.randint(5), 0, 0, 0])
-                # make units go to 0, 0
-                pos = unit["pos"]
-                target_pos = np.array([32, 32])
-                diff = target_pos - pos
-                # print(pos, diff)
-                direc = 0
-                if diff[0] != 0:
-                    if diff[0] > 0:
-                        direc = 2
-                    else:
-                        direc = 4
-                elif diff[1] != 0:
-                    if diff[1] > 0:
-                        direc = 3
-                    else:
-                        direc = 1
-                actions[unit_id] = np.array([0, direc, 0, 0, 0])
-            all_actions[agent] = actions
-        # ipdb.set_trace()
-        # env.action_space("player_0").sample()
-        # print(all_actions)
-        # all_actions["player_0"] = all_actions["player_1"]
-        o, r, d, _ = env.step(all_actions)
-        for agent in env.agents:
-            for unit in env.state.units[agent].values():
-                unit.power = 100
-        if np.all([d[k] for k in d]):
-            o = env.reset()
-            env.render()
-            print(f"=== {i} ===")
-        env.render()
-        time.sleep(0.1)
-    e_time = time.time_ns()
-    print(f"FPS={N / ((e_time - s_time) * 1e-9)}")
+    test_heavy_entering_only()
+    test_heavy_enter_with_light_entering()
