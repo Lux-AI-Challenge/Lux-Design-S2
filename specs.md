@@ -248,7 +248,7 @@ Each factory can perform one of the following actions
 
 * Build a light robot
 * Build a heavy robot
-* Grow lichen - Waters [lichen](#lichen) around the factory, costing `ceil(connected lichen tiles / 10)` water
+* Grow lichen - Waters [lichen](#lichen) around the factory, costing `ceil(# connected and new lichen tiles / 10)` water. (Note that in starter kits the exact water cost is not provided, only a conservative estimate)
 
 The following is the cost to build the two classes of robots. Note that also robots when built will have their battery charged up to the power cost.
 
@@ -287,7 +287,7 @@ Lichen serves two purposes.
 1. At the end of the game, the amount of lichen on each square that a player owns is summed and **whoever has a higher value wins the game.**
 2. For each tile with lichen attached to a [Factory](#factories), that factory gains an extra power per turn.
 
-At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
+At the start, factories can perform the water action to start or continue lichen growing. Taking this action will seed lichen in all orthogonally adjacent squares to the factory if there is no rubble present (total of 3*4=12). Whenever a tile has a lichen value of 20 or more and is watered, it will spread lichen to new adjacent tiles without rubble, resources, or factories and give them lichen values of 1. The amount of water consumed by the water action grows with the number of tiles with lichen on them connected to the factory according to `ceil(# connected and new lichen tiles / 10)`. In each tile a maximum of 100 lichen value can be stored.
 
 All factories have their own special strains of lichen that can’t mix, so lichen tiles cannot spread to tiles adjacent to lichen tiles from other factories. This is for determinism and simplified water costs.
 
