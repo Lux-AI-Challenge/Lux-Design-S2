@@ -30,11 +30,16 @@ if %errorlevel% gtr 0 (
 rem create submission archive
 set submisson_archive="submission.tar.gz"
 if exist %submisson_archive% del %submisson_archive%
-tar -czvf %submisson_archive% * || call :abort "error during archive creation" & goto :eof
+docker exec -w /root %container_name% tar --exclude=./%submisson_archive% --warning=no-file-changed -czvf %submisson_archive% .
+if %errorlevel% gtr 1 (
+    call :abort "error during archive creation" & goto :eof
+)
 
 rem done
+echo "successfully built submission"
 goto :eof
 
+rem helper functions
 :abort
 echo %*
 echo Aborting...
