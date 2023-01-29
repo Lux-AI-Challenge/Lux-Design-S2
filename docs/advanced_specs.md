@@ -63,7 +63,7 @@ When both teams have submitted actions, we call `env.step(actions)` and enter th
 
 3. In the normal game phase, if `self.env_cfg.validate_action_space` is True, and then validate the actions using the current action_space of the game. This setting can be slow, but is always turned on in competition servers. [Validating Actions via Action Space](#environment-step---normal-phase-validating-actions-via-action-space)
 
-4. For each unit with an action provided by both teams, we save all the factory / robot actions and raise a `ValueError` if there's a formatting error. For robot's specifically, if a robot has `ACTION_QUEUE_POWER_COST` or more power, it is deducted from the robots power and its action queue is replaced with the new provided one. [Processing Actions and Updating Action Queues](#environment-step---normal-phase-processing-actions-and-updating-action-queues)
+4. For each unit with an action provided by both teams, we save all the factory / robot actions and raise a `ValueError` if there's a formatting error. For robots specifically, if a robot has `ACTION_QUEUE_POWER_COST` or more power, it is deducted from the robots power and its action queue is replaced with the new provided one. [Processing Actions and Updating Action Queues](#environment-step---normal-phase-processing-actions-and-updating-action-queues)
 
 5. For each factory we take its latest action, and for each robot we take the action at the front of its action queue and put them all into one `dict` called `actions_by_type` which tracks all actions by the action type (e.g. dig, move etc.). Then these actions are validated against the current state [Tracking Actions by Type and Validating Them](#environment-step---normal-phase-tracking-actions-by-type-and-validating-them)
 
