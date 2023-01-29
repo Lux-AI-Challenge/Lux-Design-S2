@@ -2,7 +2,7 @@
 
 This specifications document complements the original one at https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/specs.md but will cover the game engine line by line from [creating the environment](#environment-creation) to [receiving actions to returning observations](#environment-step---overview).
 
-For some notation, `self` will always reference the [LuxAI_S2](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/env.py#L70) environment object, and upper cased varibales refer to environment configuration parameters in [the EnvConfig object in config.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/config.py).
+For some notation, `self` will always reference the [LuxAI_S2](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/env.py#L70) environment object, and upper cased variables refer to environment configuration parameters in [the EnvConfig object in config.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/config.py).
 
 ## Environment Creation
 
@@ -47,7 +47,7 @@ new_env.set_state(state)
 
 There's an important distinction between `env.state.env_steps` and `env.state.real_env_steps`. `env_steps` counts from 0 and includes steps in the bidding and factory placement phases. `real_env_steps` starts negative, and becomes 0 when the normal game phase starts.
 
-For RL practioners, what this means is this is very non-standard and if you wish to do RL over the entire game, use `env_steps` as the time. If you wish to do RL over just the normal game phase (recommended) use `real_env_steps` as the timer or track it yourself.
+For RL practitioners, what this means is this is very non-standard and if you wish to do RL over the entire game, use `env_steps` as the time. If you wish to do RL over just the normal game phase (recommended) use `real_env_steps` as the timer or track it yourself.
 
 ## Environment Step - Overview
 
@@ -168,7 +168,7 @@ If the new action queue is correct and the robot has enough power to update, we 
 
 For each action a robot has, it keeps track of two values, it's execution count `n`, and the `repeat` value which is the value of `n` to reset to when recycling the action. In code, we call the `unit.repeat_action(action)` function to handle this after processing each validated action.
 
-For example, lets say there is a move up action with `n = 2` and `repeat=3`. The unit will try to move up twice. Each time the unit moves up succesfully, we decrement `n` by 1. If `n` is decremented to `0`, we check `repeat`. 
+For example, lets say there is a move up action with `n = 2` and `repeat=3`. The unit will try to move up twice. Each time the unit moves up successfully, we decrement `n` by 1. If `n` is decremented to `0`, we check `repeat`. 
 
 If `repeat == 0`, then the action is removed from the action queue.
 
@@ -184,7 +184,7 @@ We then use [validate_actions](https://github.com/Lux-AI-Challenge/Lux-Design-S2
 
 For dig, self destruct, movement, and factory building we check if the unit has enough power to do so. to perform the desired action, and if the action is formatted correctly.
 
-For movement, we further check if its moving onto a enemy factory or off the map and invalidate if so. Note that special to movement, power costs for movement depends on the amount of rubble on the target tile, so this is computed as well.
+For movement, we further check if it's moving onto an enemy factory or off the map and invalidate if so. Note that special to movement, power costs for movement depends on the amount of rubble on the target tile, so this is computed as well.
 
 For resource transfer and pickup, we validate that you transfer to a location on the map and pickup from a friendly factory, otherwise we invalidate it.
 
@@ -214,7 +214,7 @@ For each unit with this action, we remove it from the game and add `RUBBLE_AFTER
 
 ## Environment Step - Normal Phase: Handling Factory Build Actions
 
-Thse are handled with `self._handle_factory_build_actions(actions_by_type)`. 
+These are handled with `self._handle_factory_build_actions(actions_by_type)`. 
 
 For each factory with this action, we check first which unit the factory is building (HEAVY or LIGHT).
 
@@ -241,9 +241,9 @@ For each list of units in `new_units_map`, we do the following
 
 If there is more than one unit, but there is also more than one heavy unit entering that tile (checking `heavy_entered_pos`), then all units are colliding and we find the two heavy units with the most power. The most powered heavy unit survives and loses power equal to half that of the 2nd most powered heavy unit. Similarly, if there is more than one light unit entering that tile and no heavy units entering or there to begin with, we apply the same process. All units that don't survive are destroyed.
 
-If there is just one heavy unit entering a tile or just ne stationary heavy unit on that tile and no other heavy units entering, then all other units (which are lights) are destroyed.
+If there is just one heavy unit entering a tile or just one stationary heavy unit on that tile and no other heavy units entering, then all other units (which are lights) are destroyed.
 
-Any survivng unit is kept in `new_units_map_after_collision`, and we replace `self.state.board.units_map` with `new_units_map_after_collision`.
+Any surviving unit is kept in `new_units_map_after_collision`, and we replace `self.state.board.units_map` with `new_units_map_after_collision`.
 
 
 ## Environment Step - Normal Phase: Handling Recharge Actions
@@ -258,7 +258,7 @@ These are handled with `self._handle_factory_water_actions(actions_by_type)`
 
 We first check the water cost of the factory. If the factory doesn't have enough water we log a warning and skip the action. For details on the algorithm that computes water cost see [this](#environment-water-cost-computation)
 
-Otherwise we subtract the water cost from the factorie's cargo and for each position in `factory.grow_lichen_positions` computed using `factory.cache_water_info` we increase lichen by 2 there and set the lichen strain there equal to the factorie's `num_id` (also known as `strain_id`).
+Otherwise we subtract the water cost from the factory's cargo and for each position in `factory.grow_lichen_positions` computed using `factory.cache_water_info` we increase lichen by 2 there and set the lichen strain there equal to the factory's `num_id` (also known as `strain_id`).
 
 ## Environment Step - Normal Phase: Handling Resource Transfer Actions
 
@@ -268,7 +268,7 @@ This is simultaneous and generally any resources that overflow are wasted. Power
 
 We first iterate over each transfer action and determine how much each robot can actually transfer out. We permit transfer actions that specify transferring more than is possible, but we will only remove what is available of that resource from the unit's cargo.
 
-Then for each transfer action and the actually transferable `transfer_amount`, we first find the position on the map the transfer action transfers to by adding the transfer direction to the transferrring robot's position. 
+Then for each transfer action and the actually transferable `transfer_amount`, we first find the position on the map the transfer action transfers to by adding the transfer direction to the transferring robot's position. 
 
 If there is a factory there we transfer `transfer_amount` resources to the factory with no waste as factory's have infinite cargo.
 
