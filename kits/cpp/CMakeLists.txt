@@ -13,29 +13,29 @@ option(BUILD_DEBUG "Build in debug mode" OFF)
 option(BUILD_WARNINGS "Build using all reasonable warnings" ON)
 
 if(${BUILD_DEBUG})
-    add_compile_options(
-        -O0
-        -g
-    )
     add_compile_definitions(
         DEBUG_BUILD
-    )
-else()
-    add_compile_options(
-        -O3
     )
 endif()
 
 if(${BUILD_WARNINGS})
     add_compile_options(
         -Wall
-        -Werror
-        -Wextra
-        -Wpedantic
-        -Wcast-align
-        -Wunused
-        -Wshadow
     )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        add_compile_options(
+            -W3
+        )
+    else()
+        add_compile_options(
+            -Werror
+            -Wextra
+            -Wpedantic
+            -Wcast-align
+            -Wunused
+            -Wshadow
+        )
+    endif()
 endif()
 
 include(sources.cmake)

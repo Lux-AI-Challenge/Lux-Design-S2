@@ -4,8 +4,13 @@ import time
 from collections import deque
 from itertools import product
 from typing import List
+try:
+    from typing import TypedDict    
+except:
+    from typing_extensions import TypedDict
 
 import numpy as np
+import numpy.typing as npt
 
 from luxai_s2.actions import move_deltas
 from luxai_s2.config import EnvConfig
@@ -13,7 +18,7 @@ from luxai_s2.globals import TERM_COLORS
 from luxai_s2.map.board import Board
 from luxai_s2.map.position import Position
 from luxai_s2.team import Team
-from luxai_s2.unit import UnitCargo
+from luxai_s2.unit import UnitCargo, UnitCargoStateDict
 
 try:
     from termcolor import colored
@@ -34,6 +39,7 @@ def compute_water_info(
     frontier = deque(init)
     seen = set(map(tuple, init))
     grow_lichen_positions = set()
+    connected_lichen_positions = set()
     H, W = lichen.shape
     ct = 0
     while len(frontier) > 0:
@@ -91,7 +97,18 @@ def compute_water_info(
 
         if can_grow or (lichen_strains[pos[0], pos[1]] == strain_id):
             grow_lichen_positions.add((pos[0], pos[1]))
-    return grow_lichen_positions
+            if lichen_strains[pos[0], pos[1]] == strain_id:
+                connected_lichen_positions.add((pos[0], pos[1]))
+    return grow_lichen_positions, connected_lichen_positions
+
+
+class FactoryStateDict(TypedDict):
+    pos: npt.NDArray[np.int_]
+    power: int
+    cargo: UnitCargoStateDict
+    unit_id: str
+    strain_id: int
+    team_id: int
 
 
 class Factory:
@@ -105,6 +122,7 @@ class Factory:
         self.num_id = num_id
         self.action_queue = []
         self.grow_lichen_positions = set()
+        self.connected_lichen_positions = set()
 
     @property
     def pos_slice(self):
@@ -253,7 +271,7 @@ class Factory:
             np.array([-2, 1]),
         ]
         init_arr = np.stack(deltas) + self.pos.pos
-        self.grow_lichen_positions = compute_water_info(
+        self.grow_lichen_positions, self.connected_lichen_positions = compute_water_info(
             init_arr,
             env_cfg.MIN_LICHEN_TO_SPREAD,
             board.lichen,
@@ -307,7 +325,7 @@ class Factory:
             self.power -= transfer_amount
         return int(transfer_amount)
 
-    def state_dict(self):
+    def state_dict(self) -> FactoryStateDict:
         return dict(
             pos=self.pos.pos,
             power=self.power,

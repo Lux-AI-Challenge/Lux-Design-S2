@@ -25,6 +25,7 @@ This repository is organized as follows
 - luxai_s2/luxai_runner/ - all code related to running episodes between different bots of different languages
 - kits/ - all code for the starter kits that allow competitors to develop strategies and compete
 - visualizer/ - the web based visualizer for the competition
+- juxai_s2/ - a submodule which contains code for the GPU/TPU optimized version of the luxai_s2 engine
 
 ## Contributing Starter Kits
 
@@ -32,8 +33,8 @@ If you are interested in contributing a starter kit for a language that is not c
 
 Here are a few things to be aware of. The competition servers currently run on Ubuntu 18.04, and has Python, NodeJS, and Java installed on the system, along with a whole ton of other Python packages. Hence, any language that can compile to machine code / binaries on Ubuntu 18.04 can be easily added to the competition.
 
-If you want to get started, we recommend copying the structure of the folder `kits/cpp` or `kits/python`. We require you to provide a README similar to the other kit readmes, along with documentation on how to get started compiling code (if necessary), then running a match using the compiled code. To help understand what the raw observations given by the engine works, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/main/blob/sample_first_obs.json and https://github.com/Lux-AI-Challenge/Lux-Design-S2/main/blob/sample_obs.json for examples.
+If you want to get started, we recommend copying the structure of the folder `kits/cpp` or `kits/python`. We require you to provide a README similar to the other kit readmes, along with documentation on how to get started compiling code (if necessary), then running a match using the compiled code. To help understand what the raw data given by the engine are, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/sample_env_cfg.json and https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/sample_obs.json
 
 Moreover, for compiled languages, we recommend also copying over the `create_submission.sh` script and `Dockerfile` in `kits/cpp/` if the language's compiled binaries are OS dependent. For example, for the C++ kit, the dockerfile is used to compile the C++ agent code on Ubuntu 18.04 so then that code can be submitted to the competition servers.
 
-If you have any questions or need help adding a starter kit, the Lux AI team is more than happy to help! Message us anywhere (preferably Github). You can also follow this document https://github.com/themmj/Lux-Design-S2/blob/documentation/kits/starter-kit-notes.md which has some important notes to be aware of when understanding and building a new starter kit.
+If you have any questions or need help adding a starter kit, the Lux AI team is more than happy to help! Message us anywhere (preferably Github). You can also follow this document https://github.com/themmj/Lux-Design-2022/blob/documentation/kits/starter-kit-notes.md which has some important notes to be aware of when understanding and building a new starter kit.

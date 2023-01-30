@@ -1,4 +1,4 @@
-import { Badge, Grid, Paper, Space, Tabs, Title } from '@mantine/core';
+import { Badge, Grid, MantineShadow, Paper, Space, Tabs, Title } from '@mantine/core';
 import { IconCrown } from '@tabler/icons';
 import { useCallback, useMemo } from 'react';
 import { Episode, Faction, RobotType, SetupAction, Unit } from '../../episode/model';
@@ -81,9 +81,10 @@ function formatAction(action: SetupAction): string {
 interface TeamCardProps {
   id: number;
   tabHeight: number;
+  shadow?: MantineShadow;
 }
 
-export function TeamCard({ id, tabHeight }: TeamCardProps): JSX.Element {
+export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element {
   const episode = useStore(state => state.episode)!;
   const turn = useStore(state => state.turn);
 
@@ -107,7 +108,7 @@ export function TeamCard({ id, tabHeight }: TeamCardProps): JSX.Element {
   tabHeight = isWinner ? tabHeight - 24 : tabHeight;
 
   return (
-    <Paper shadow="xs" p="md" withBorder>
+    <Paper shadow={shadow} p="md" withBorder>
       <Title order={3} style={{ color: getTeamColor(id, 1.0) }}>
         {isWinner && <IconCrown style={{ verticalAlign: 'middle', marginRight: '2px' }} />}
         {team.name}

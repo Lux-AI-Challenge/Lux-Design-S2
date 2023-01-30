@@ -34,7 +34,7 @@ def agent(observation, configuration):
             cwd = os.path.dirname(configuration["__raw_path__"])
         else:
             cwd = os.path.dirname(__file__)
-        agent_process = Popen(["node", "main.js"], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+        agent_process = Popen(['java', '-jar', 'JavaBot.jar'], stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
         agent_processes[observation.player] = agent_process
         atexit.register(cleanup_process)
 
@@ -43,7 +43,7 @@ def agent(observation, configuration):
         t = Thread(target=enqueue_output, args=(agent_process.stderr, q_stderr))
         t.daemon = True # thread dies with the program
         t.start()
-    data = json.dumps(dict(obs=json.loads(observation.obs), step=observation.step, remainingOverageTime=observation.remainingOverageTime, player=observation.player, reward=observation.reward))
+    data = json.dumps(dict(obs=json.loads(observation.obs), step=observation.step, remainingOverageTime=observation.remainingOverageTime, player=observation.player, info=configuration))
     agent_process.stdin.write(f"{data}\n".encode())
     agent_process.stdin.flush()
 
@@ -59,6 +59,3 @@ def agent(observation, configuration):
     if agent1res == "":
         return {}
     return json.loads(agent1res)
-
-# def agent2(observation, configuration):
-#     return {}
