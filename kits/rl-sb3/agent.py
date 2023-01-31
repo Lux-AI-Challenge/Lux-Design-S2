@@ -7,7 +7,7 @@ import torch as th
 from nn import load_policy
 from wrappers import SimpleUnitDiscreteController
 from wrappers import SimpleUnitObservationWrapper
-
+import os.path as osp
 
 # change this to use weights stored elsewhere
 # make sure the model weights are submitted with the other code files
@@ -22,8 +22,9 @@ class Agent():
         np.random.seed(0)
         self.env_cfg: EnvConfig = env_cfg
 
+        directory = osp.dirname(__file__)
         # load our RL policy
-        self.policy = load_policy(MODEL_WEIGHTS_RELATIVE_PATH)
+        self.policy = load_policy(osp.join(directory, MODEL_WEIGHTS_RELATIVE_PATH))
         self.policy.eval()
         
         self.controller = SimpleUnitDiscreteController(self.env_cfg, max_robots=1)

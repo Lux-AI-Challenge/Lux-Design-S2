@@ -28,9 +28,10 @@ class Net(nn.Module):
 
 def load_policy(model_path):
     sb3_state_dict = th.load(model_path)
+
     model = Net()
     loaded_state_dict = {}
-    # import ipdb;ipdb.set_trace()
+
     # this code here works assuming the first keys in the sb3 state dict are aligned with the ones you define above in Net
     for sb3_key, model_key in zip(sb3_state_dict.keys(), model.state_dict().keys()):
         loaded_state_dict[model_key] = sb3_state_dict[sb3_key]
