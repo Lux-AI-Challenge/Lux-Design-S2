@@ -89,20 +89,13 @@ class SB3Wrapper(gym.Wrapper):
 
     def step(self, action: Dict[str, npt.NDArray]):
         lux_action = dict()
-        for agent in self.all_agents:
+        for agent in self.env.agents:
             if agent in action:
                 lux_action[agent] = self.controller.action_to_lux_action(
                     agent=agent, obs=self.prev_obs, action=action[agent]
                 )
             else:
                 lux_action[agent] = dict()
-            if self.heuristic_policy is not None:
-                heuristic_lux_action = self.heuristic_policy(
-                    agent, self.prev_obs[agent]
-                )
-                # override keys
-                for k in heuristic_lux_action:
-                    lux_action[agent][k] = heuristic_lux_action[k]
         obs, reward, done, info = self.env.step(lux_action)
         self.prev_obs = obs
         return obs, reward, done, info

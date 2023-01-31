@@ -1,3 +1,8 @@
+"""
+Implementation of RL agent
+"""
+
+
 import copy
 import os.path as osp
 
@@ -7,9 +12,7 @@ import torch as th
 import torch.nn as nn
 from gym import spaces
 from gym.wrappers import TimeLimit
-from luxai_s2.state import (ObservationStateDict, StatsStateDict,
-                            create_empty_stats)
-from luxai_s2.utils.heuristics.factory import build_single_heavy
+from luxai_s2.state import (ObservationStateDict, StatsStateDict)
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
 from luxai_s2.wrappers import (SB3Wrapper, SimpleUnitDiscreteController,
                                SimpleUnitObservationWrapper)
@@ -17,8 +20,7 @@ from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
-from stable_baselines3.common.vec_env import (DummyVecEnv, SubprocVecEnv,
-                                              VecCheckNan, VecVideoRecorder)
+from stable_baselines3.common.vec_env import (SubprocVecEnv, VecVideoRecorder)
 from stable_baselines3.ppo import PPO
 
 
@@ -28,105 +30,54 @@ class CustomEnvWrapper(gym.Wrapper):
         Adds a custom reward and turns the LuxAI_S2 environment into a single-agent environment for easy training
         """
         super().__init__(env)
+        self.prev_step_metrics = None
 
     def step(self, action):
         agent = "player_0"
         opp_agent = "player_1"
 
         opp_factories = self.env.state.factories[opp_agent]
-        for k in opp_factories:
+        for k in opp_factories.keys():
             factory = opp_factories[k]
-            factory.cargo.water = 1000  # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
+             # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
+            factory.cargo.water = 1000
 
+        # submit actions for just one agent to make it single-agent
+        # and save single-agent versions of the data below
         action = {agent: action}
         obs, reward, done, info = super().step(action)
-
-        # this is the observation seen by both agents
-        shared_obs: ObservationStateDict = self.env.prev_obs[agent]
+        obs = obs[agent]
         done = done[agent]
 
-        # we collect stats on teams here:
+        # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
 
-        # compute reward
-        # we simply want to encourage the heavy units to move to ice tiles
-        # and mine them and then bring them back to the factory and dump it
-        # as well as survive as long as possible
-
-        factories = shared_obs["factories"][agent]
-        factory_pos = None
-        for unit_id in factories:
-            factory = factories[unit_id]
-            # note that ice converts to water at a 4:1 ratio
-            factory_pos = np.array(factory["pos"])
-            break
-        units = shared_obs["units"][agent]
-        unit_deliver_ice_reward = 0
-        unit_move_to_ice_reward = 0
-        unit_overmining_penalty = 0
-        penalize_power_waste = 0
-
-        ice_map = shared_obs["board"]["ice"]
-        ice_tile_locations = np.argwhere(ice_map == 1)
-
-        def manhattan_dist(p1, p2):
-            return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-
-        unit_power = 0
-        for unit_id in units.keys():
-            unit = units[unit_id]
-            if unit["unit_type"] == "HEAVY":
-                pos = np.array(unit["pos"])
-                ice_tile_distances = np.mean((ice_tile_locations - pos) ** 2, 1)
-                closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
-                dist_to_ice = manhattan_dist(closest_ice_tile, pos)
-                unit_power = unit["power"]
-                if unit["cargo"]["ice"] < 20:
-
-                    dist_penalty = min(
-                        1.0, dist_to_ice / (10)
-                    )  # go beyond 12 squares manhattan dist and no reward
-                    unit_move_to_ice_reward += (
-                        1 - dist_penalty
-                    ) * 0.1  # encourage unit to move to ice
-                else:
-                    if factory_pos is not None:
-                        dist_to_factory = manhattan_dist(pos, factory_pos)
-                        dist_penalty = min(1.0, dist_to_factory / 10)
-                        unit_deliver_ice_reward = (
-                            0.2 + (1 - dist_penalty) * 0.1
-                        )  # encourage unit to move back to factory
-                # if action[agent]
-                # if action[agent] == 15 and unit["power"] < 70:
-                #     # penalize the agent for trying to dig with insufficient power, which wastes 10 power for trying to update the action queue
-                #     penalize_power_waste -= 0.005
-
-        # save some stats to the info object so we can record it with our SB3 logger
         info = dict()
         metrics = dict()
         metrics["ice_dug"] = (
             stats["generation"]["ice"]["HEAVY"] + stats["generation"]["ice"]["LIGHT"]
         )
         metrics["water_produced"] = stats["generation"]["water"]
+
+        # we save these two to see often the agent updates robot action queues and how often enough
+        # power to do so and succeed (less frequent updates = more power is saved)
         metrics["action_queue_updates_success"] = stats["action_queue_updates_success"]
         metrics["action_queue_updates_total"] = stats["action_queue_updates_total"]
 
-        metrics["unit_deliver_ice_reward"] = unit_deliver_ice_reward
-        metrics["unit_move_to_ice_reward"] = unit_move_to_ice_reward
-
+        # we can save the metrics to info so we can use tensorboard to log them to get a glimpse into how our agent is behaving
         info["metrics"] = metrics
 
-        reward = (
-            0
-            + unit_move_to_ice_reward
-            + unit_deliver_ice_reward
-            + unit_overmining_penalty
-            + metrics["water_produced"] / 10
-            + penalize_power_waste
-        )
-        reward = reward
-
-        return obs["player_0"], reward, done, info
+        reward = 0
+        if self.prev_step_metrics is not None:
+            # we check how much ice and water is produced and reward the agent for generating both
+            ice_dug_this_step = metrics["ice_dug"] - self.prev_step_metrics["ice_dug"]
+            water_produced_this_step = (
+                metrics["water_produced"] - self.prev_step_metrics["water_produced"]
+            )
+            # we reward water production more as it is the most important resource for survival
+            reward = ice_dug_this_step / 20 + water_produced_this_step
+        self.prev_step_metrics = copy.deepcopy(metrics)
+        return obs, reward, done, info
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)["player_0"]

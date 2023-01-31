@@ -33,7 +33,7 @@ class SimpleUnitDiscreteController(Controller):
         - 4 cardinal direction movement (4 dims)
         - a move center no-op action (1 dim)
         - transfer action just for transferring ice in 4 cardinal directions or center (5)
-        - pickup action for each resource (5 dims)
+        - pickup action for power (1 dims)
         - dig action (1 dim)
         - no op action (1 dim) - equivalent to not submitting an action queue which costs power
 
@@ -43,12 +43,16 @@ class SimpleUnitDiscreteController(Controller):
         - planning (via actions executing multiple times or repeating actions)
         - factory actions
         - transferring power or resources other than ice
+
+        To help understand how to this controller works to map one action space to the original lux action space,
+        see how the lux action space is defined in luxai_s2/spaces/action.py
+
         """
         self.max_robots = max_robots
         self.env_cfg = env_cfg
         self.move_act_dims = 4
-        self.transfer_act_dims = 5  # 5 * 5
-        self.pickup_act_dims = 5
+        self.transfer_act_dims = 5
+        self.pickup_act_dims = 1
         self.dig_act_dims = 1
         self.no_op_dims = 1
 
@@ -81,8 +85,7 @@ class SimpleUnitDiscreteController(Controller):
         return id < self.pickup_dim_high
 
     def _get_pickup_action(self, id):
-        id = id - self.transfer_dim_high
-        return np.array([2, 0, id % 5, self.env_cfg.max_transfer_amount, 0, 1])
+        return np.array([2, 0, 4, self.env_cfg.max_transfer_amount, 0, 1])
 
     def _is_dig_action(self, id):
         return id < self.dig_dim_high
@@ -111,7 +114,7 @@ class SimpleUnitDiscreteController(Controller):
             elif self._is_dig_action(choice):
                 action_queue = [self._get_dig_action(choice)]
             else:
-                # action is a no_op, no action to be saved
+                # action is a no_op, so we don't update the action queue
                 no_op = True
             
             # simple trick to help agents conserve power is to avoid updating the action queue
@@ -127,9 +130,9 @@ class SimpleUnitDiscreteController(Controller):
             if unit_ct >= self.max_robots:
                 break
 
-        factories = shared_obs[agent]
+        factories = shared_obs["factories"][agent]
         if len(units) == 0:
-            for unit_id in factories:
+            for unit_id in factories.keys():
                 lux_action[unit_id] = 1  # build a single heavy
 
         return lux_action
