@@ -7,26 +7,19 @@ import torch as th
 import torch.nn as nn
 from gym import spaces
 from gym.wrappers import TimeLimit
+from luxai_s2.state import (ObservationStateDict, StatsStateDict,
+                            create_empty_stats)
+from luxai_s2.utils.heuristics.factory import build_single_heavy
+from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
+from luxai_s2.wrappers import (SB3Wrapper, SimpleUnitDiscreteController,
+                               SimpleUnitObservationWrapper)
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
-from stable_baselines3.common.vec_env import (
-    DummyVecEnv,
-    SubprocVecEnv,
-    VecCheckNan,
-    VecVideoRecorder,
-)
+from stable_baselines3.common.vec_env import (DummyVecEnv, SubprocVecEnv,
+                                              VecCheckNan, VecVideoRecorder)
 from stable_baselines3.ppo import PPO
-
-from luxai_s2.state import ObservationStateDict, StatsStateDict, create_empty_stats
-from luxai_s2.utils.heuristics.factory import build_single_heavy
-from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
-from luxai_s2.wrappers import (
-    SB3Wrapper,
-    SimpleUnitDiscreteController,
-    SingleUnitObservationWrapper,
-)
 
 
 class CustomEnvWrapper(gym.Wrapper):
@@ -35,7 +28,6 @@ class CustomEnvWrapper(gym.Wrapper):
         Adds a custom reward and turns the LuxAI_S2 environment into a single-agent environment for easy training
         """
         super().__init__(env)
-        self.prev_step_metrics = None
 
     def step(self, action):
         agent = "player_0"
@@ -44,7 +36,7 @@ class CustomEnvWrapper(gym.Wrapper):
         opp_factories = self.env.state.factories[opp_agent]
         for k in opp_factories:
             factory = opp_factories[k]
-            factory.cargo.water = 1000 # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
+            factory.cargo.water = 1000  # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
 
         action = {agent: action}
         obs, reward, done, info = super().step(action)
@@ -55,7 +47,7 @@ class CustomEnvWrapper(gym.Wrapper):
 
         # we collect stats on teams here:
         stats: StatsStateDict = self.env.state.stats[agent]
-        
+
         # compute reward
         # we simply want to encourage the heavy units to move to ice tiles
         # and mine them and then bring them back to the factory and dump it
@@ -129,17 +121,11 @@ class CustomEnvWrapper(gym.Wrapper):
             + unit_move_to_ice_reward
             + unit_deliver_ice_reward
             + unit_overmining_penalty
-            + metrics["water_produced"] / 10 + penalize_power_waste
+            + metrics["water_produced"] / 10
+            + penalize_power_waste
         )
         reward = reward
-        if self.prev_step_metrics is not None:
-            ice_dug_this_step = metrics["ice_dug"] - self.prev_step_metrics["ice_dug"]
-            water_produced_this_step = (
-                metrics["water_produced"] - self.prev_step_metrics["water_produced"]
-            )
-            # reward += ice_dug_this_step # reward agent for digging ice
-            # reward += water_produced_this_step * 100 # reward agent even more producing water by delivering ice back to base
-        self.prev_step_metrics = copy.deepcopy(metrics)
+
         return obs["player_0"], reward, done, info
 
     def reset(self, **kwargs):
@@ -154,7 +140,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Simple script that simplifies Lux AI Season 2 as a single-agent environment with a reduced observation and action space. It trains a policy that can succesfully control a heavy unit to dig ice and transfer it back to a factory to keep it alive"
     )
-    parser.add_argument("-s", "--seed", type=int, help="seed for training")
+    parser.add_argument("-s", "--seed", type=int, default=12, help="seed for training")
     parser.add_argument(
         "-n",
         "--n-envs",
@@ -206,11 +192,10 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
         # the provided place_near_random_ice function which will randomly select an ice tile and place a factory near it.
         env = SB3Wrapper(
             env,
-            controller=SimpleUnitDiscreteController(env.state.env_cfg, max_robots=1),
             factory_placement_policy=place_near_random_ice,
-            heuristic_policy=build_single_heavy,
+            controller=SimpleUnitDiscreteController(env.env_cfg, max_robots=1),
         )
-        env = SingleUnitObservationWrapper(
+        env = SimpleUnitObservationWrapper(
             env, max_robots=1
         )  # changes observation to include a few simple features
         env = CustomEnvWrapper(env)  # convert to single agent and add our reward
@@ -225,11 +210,6 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
     return _init
 
 
-env_id = "LuxAI_S2-v0"
-
-from collections import defaultdict
-
-
 class TensorboardCallback(BaseCallback):
     def __init__(self, tag: str, verbose=0):
         super().__init__(verbose)
@@ -237,7 +217,7 @@ class TensorboardCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         c = 0
-        
+
         for i, done in enumerate(self.locals["dones"]):
             if done:
                 info = self.locals["infos"][i]
@@ -248,10 +228,12 @@ class TensorboardCallback(BaseCallback):
         return True
 
 
-def evaluate(args, model):
+def evaluate(args, env_id, model):
     model = model.load(args.model_path)
     video_length = 1000  # default horizon
-    eval_env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=1000) for i in range(args.n_envs)])
+    eval_env = SubprocVecEnv(
+        [make_env(env_id, i, max_episode_steps=1000) for i in range(args.n_envs)]
+    )
     eval_env = VecVideoRecorder(
         eval_env,
         osp.join(args.log_path, "eval_videos"),
@@ -260,11 +242,14 @@ def evaluate(args, model):
         name_prefix=f"evaluation_video",
     )
     eval_env.reset()
-    out =evaluate_policy(model, eval_env, render=False, deterministic=False)
+    out = evaluate_policy(model, eval_env, render=False, deterministic=False)
     print(out)
 
-def train(args, model: PPO):
-    eval_env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=1000) for i in range(4)])
+
+def train(args, env_id, model: PPO):
+    eval_env = SubprocVecEnv(
+        [make_env(env_id, i, max_episode_steps=1000) for i in range(4)]
+    )
     video_length = 1000
     eval_env = VecVideoRecorder(
         eval_env,
@@ -290,9 +275,15 @@ def train(args, model: PPO):
 
 def main(args):
     print("Training with args", args)
-    set_random_seed(args.seed)
-
-    env = SubprocVecEnv([make_env(env_id, i, max_episode_steps=args.max_episode_steps) for i in range(args.n_envs)])
+    if args.seed is not None:
+        set_random_seed(args.seed)
+    env_id = "LuxAI_S2-v0"
+    env = SubprocVecEnv(
+        [
+            make_env(env_id, i, max_episode_steps=args.max_episode_steps)
+            for i in range(args.n_envs)
+        ]
+    )
     env.reset()
     rollout_steps = 4_000
     policy_kwargs = dict(net_arch=(128, 128))
@@ -300,8 +291,8 @@ def main(args):
         "MlpPolicy",
         env,
         n_steps=rollout_steps // args.n_envs,
-        batch_size=800,
-        learning_rate=1e-3,
+        batch_size=1000,
+        learning_rate=3e-4,
         policy_kwargs=policy_kwargs,
         verbose=1,
         n_epochs=3,
@@ -310,9 +301,9 @@ def main(args):
         tensorboard_log=osp.join(args.log_path),
     )
     if args.eval:
-        evaluate(args, model)
+        evaluate(args, env_id, model)
     else:
-        train(args, model)
+        train(args, env_id, model)
 
 
 if __name__ == "__main__":

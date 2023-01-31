@@ -13,7 +13,6 @@ from luxai_s2.utils import my_turn_to_place_factory
 from luxai_s2.wrappers.controllers import (
     Controller,
     SimpleUnitDiscreteController,
-    GridDiscreteController,
 )
 
 
@@ -27,9 +26,6 @@ class SB3Wrapper(gym.Wrapper):
         factory_placement_policy: Callable[
             [str, ObservationStateDict], Dict[str, FactoryPlacementActionType]
         ] = None,
-        heuristic_policy: Callable[
-            [str, ObservationStateDict], Dict[str, ActionType]
-        ] = None,
         controller: Controller = None,
     ) -> None:
         """
@@ -37,7 +33,7 @@ class SB3Wrapper(gym.Wrapper):
         into a single phase game and places the first two phases (bidding and factory placement) into the env.reset function so that
         interacting agents directly start generating actions to play the third phase of the game.
 
-        It's highly recommended to use one of the observation wrappers as well
+        It's highly recommended to use one of the observation wrappers as well.
 
         Parameters
         ----------
@@ -50,16 +46,11 @@ class SB3Wrapper(gym.Wrapper):
         controller : Controller
             A controller that parameterizes the action space into something more usable and converts parameterized actions to lux actions.
             See luxai_s2/wrappers/controllers.py for available controllers and how to make your own
-
-        heuristic_policy: Function
-            A function accepting player: str and obs: ObservationStateDict as input and returns a lux action. This can be provided by the user
-            to define custom logic or a model to generate actions for any of the units or factories. For any action generate for a unit or factory, it will
-            override the original action for that unit or factory when the step function is called. By defalt this is None and not used
         """
         gym.Wrapper.__init__(self, env)
         self.env = env
         if controller is None:
-            controller = SimpleDiscreteController(self.env.state.env_cfg)
+            controller = SimpleUnitDiscreteController(self.env.state.env_cfg, max_robots=1)
         self.controller = controller
 
         self.action_space = controller.action_space
@@ -94,11 +85,7 @@ class SB3Wrapper(gym.Wrapper):
 
         self.bid_policy = bid_policy
 
-        self.heuristic_policy = heuristic_policy
-
         self.prev_obs = None
-        # list of all agents regardless of status
-        self.all_agents = []
 
     def step(self, action: Dict[str, npt.NDArray]):
         lux_action = dict()
@@ -122,14 +109,13 @@ class SB3Wrapper(gym.Wrapper):
 
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
-        self.all_agents = self.env.agents
         action = dict()
-        for agent in self.all_agents:
+        for agent in self.env.agents:
             action[agent] = self.bid_policy(agent, obs[agent])
         obs, _, _, _ = self.env.step(action)
         while self.env.state.real_env_steps < 0:
             action = dict()
-            for agent in self.all_agents:
+            for agent in self.env.agents:
                 if my_turn_to_place_factory(
                     obs["player_0"]["teams"][agent]["place_first"],
                     self.env.state.env_steps,
