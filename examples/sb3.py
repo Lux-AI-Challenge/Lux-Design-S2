@@ -16,7 +16,7 @@ from luxai_s2.state import (ObservationStateDict, StatsStateDict)
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
 from luxai_s2.wrappers import (SB3Wrapper, SimpleUnitDiscreteController,
                                SimpleUnitObservationWrapper)
-from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
+from stable_baselines3.common.callbacks import BaseCallback, EvalCallback, CheckpointCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
@@ -178,6 +178,11 @@ class TensorboardCallback(BaseCallback):
                     self.logger.record_mean(f"{self.tag}/{k}", stat)
         return True
 
+def save_model_state_dict(save_path, model):
+    # save the policy state dict for kaggle competition submission
+    state_dict = model.policy.state_dict()
+    th.save(state_dict, save_path)
+
 
 def evaluate(args, env_id, model):
     model = model.load(args.model_path)
@@ -201,14 +206,6 @@ def train(args, env_id, model: PPO):
     eval_env = SubprocVecEnv(
         [make_env(env_id, i, max_episode_steps=1000) for i in range(4)]
     )
-    video_length = 1000
-    eval_env = VecVideoRecorder(
-        eval_env,
-        osp.join(args.log_path, "eval_videos"),
-        record_video_trigger=lambda x: x == 0,
-        video_length=video_length,
-        name_prefix=f"evaluation-{env_id}",
-    )
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path=osp.join(args.log_path, "models"),
@@ -216,13 +213,15 @@ def train(args, env_id, model: PPO):
         eval_freq=24_000,
         deterministic=False,
         render=False,
+        n_eval_episodes=5,
     )
+
     model.learn(
         args.total_timesteps,
         callback=[TensorboardCallback(tag="train_metrics"), eval_callback],
     )
-    model.save(args.log_path, "latest_model")
-
+    model.save(osp.join(args.log_path, "models/latest_model"))
+    save_model_state_dict(osp.join(args.log_path, "models/latest_model.pth"), model)
 
 def main(args):
     print("Training with args", args)
@@ -247,8 +246,8 @@ def main(args):
         policy_kwargs=policy_kwargs,
         verbose=1,
         n_epochs=3,
-        target_kl=0.07,
-        gamma=0.97,
+        target_kl=0.05,
+        gamma=0.99,
         tensorboard_log=osp.join(args.log_path),
     )
     if args.eval:

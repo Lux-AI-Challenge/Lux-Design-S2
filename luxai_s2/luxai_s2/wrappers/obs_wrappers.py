@@ -6,7 +6,7 @@ import numpy.typing as npt
 from gym import spaces
 
 import luxai_s2.env
-from luxai_s2.env import LuxAI_S2
+from luxai_s2.env import LuxAI_S2, EnvConfig
 from luxai_s2.state import ObservationStateDict
 class SimpleUnitObservationWrapper(gym.ObservationWrapper):
     """
@@ -27,8 +27,12 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
         self.max_robots = max_robots
         self.observation_space = spaces.Box(-999, 999, shape=(13 * max_robots,))
 
-    def observation(
-        self, obs: Dict[str, ObservationStateDict]
+    def observation(self, obs):
+        return SimpleUnitObservationWrapper.convert_obs(obs, self.max_robots, self.env.state.env_cfg)
+
+    @staticmethod
+    def convert_obs(
+        obs: Dict[str, ObservationStateDict], max_robots: int, env_cfg: EnvConfig
     ) -> Dict[str, npt.NDArray]:
         observation = dict()
         shared_obs = obs["player_0"]
@@ -41,7 +45,7 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
             for k in factories.keys():
                 # here we track a normalized position of the first friendly factory
                 factory = factories[k]
-                factory_vec = np.array(factory["pos"]) / self.env.state.env_cfg.map_size
+                factory_vec = np.array(factory["pos"]) / env_cfg.map_size
                 break
             units = shared_obs["units"][agent]
             unit_ct = 0
@@ -50,10 +54,10 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
                 unit = units[k]
 
                 # store cargo+power values scaled to [0, 1]
-                cargo_space = self.env.state.env_cfg.ROBOTS[
+                cargo_space = env_cfg.ROBOTS[
                     unit["unit_type"]
                 ].CARGO_SPACE
-                battery_cap = self.env.state.env_cfg.ROBOTS[
+                battery_cap = env_cfg.ROBOTS[
                     unit["unit_type"]
                 ].BATTERY_CAPACITY
                 cargo_vec = np.array(
@@ -69,7 +73,7 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
                     0 if unit["unit_type"] == "LIGHT" else 1
                 )  # note that build actions use 0 to encode Light
                 # normalize the unit position
-                pos = np.array(unit["pos"]) / self.env.state.env_cfg.map_size
+                pos = np.array(unit["pos"]) / env_cfg.map_size
                 unit_vec = np.concatenate(
                     [pos, [unit_type], cargo_vec, [unit["team_id"]]], axis=-1
                 )
@@ -82,18 +86,18 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
                 # normalize the ice tile location
                 closest_ice_tile = (
                     ice_tile_locations[np.argmin(ice_tile_distances)]
-                    / self.env.state.env_cfg.map_size
+                    / env_cfg.map_size
                 )
                 obs_vec = np.concatenate(
                     [unit_vec, factory_vec - pos, closest_ice_tile - pos], axis=-1
                 )
                 unit_obs_vecs += [obs_vec]
                 unit_ct += 1
-                if unit_ct >= self.max_robots:
+                if unit_ct >= max_robots:
                     break
             # pad with zero vectors
-            if self.max_robots - unit_ct > 0:
-                unit_obs_vecs.append(np.zeros(13 * (self.max_robots - unit_ct)))
+            if max_robots - unit_ct > 0:
+                unit_obs_vecs.append(np.zeros(13 * (max_robots - unit_ct)))
             observation[agent] = np.concatenate(unit_obs_vecs, axis=-1)
 
         return observation

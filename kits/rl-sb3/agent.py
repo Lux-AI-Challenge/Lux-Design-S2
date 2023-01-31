@@ -3,9 +3,12 @@ from lux.config import EnvConfig
 from lux.utils import direction_to, my_turn_to_place_factory
 import numpy as np
 import sys
-from wrappers import SimpleSingleUnitDiscreteController
-from wrappers import SingleUnitObservationWrapper
 import torch as th
+from nn import load_policy
+from wrappers.controllers import SimpleUnitDiscreteController
+from wrappers.obs_wrappers import SimpleUnitObservationWrapper
+
+
 class Agent():
     def __init__(self, player: str, env_cfg: EnvConfig) -> None:
         self.player = player
@@ -14,7 +17,10 @@ class Agent():
         self.env_cfg: EnvConfig = env_cfg
 
         # load our RL policy
-        th.load("")
+        self.policy = load_policy("best_model.pth")
+        self.policy.eval()
+        
+        self.controller = SimpleUnitDiscreteController(self.env_cfg, max_robots=1)
 
     def bid_policy(self, step: int, obs, remainingOverageTime: int = 60):
         return dict(faction="AlphaStrike", bid=0)
@@ -55,5 +61,14 @@ class Agent():
         return dict(spawn=pos, metal=metal, water=metal)
 
     def act(self, step: int, obs, remainingOverageTime: int = 60):
+        # first convert observations using the same observation wrapper you used for training
+        # note that SimpleUnitObservationWrapper takes input as the full observation for both players and returns an obs for players
+        raw_obs = dict(player_0=obs, player_1=obs)
+        obs = SimpleUnitObservationWrapper.convert_obs(raw_obs, max_robots=1, env_cfg=self.env_cfg)
+        obs = obs[self.player]
         
-        return actions
+        obs = th.from_numpy(obs).float()
+        with th.no_grad():
+            actions = self.policy(obs.unsqueeze(0)).cpu().numpy()
+        lux_action = self.controller.action_to_lux_action(self.player, raw_obs, actions)
+        return lux_action
