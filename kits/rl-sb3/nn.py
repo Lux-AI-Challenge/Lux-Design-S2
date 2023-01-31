@@ -18,9 +18,10 @@ class Net(nn.Module):
             nn.Linear(128, action_dims),
         )
 
-    def act(self, x, deterministic=False):
+    def act(self, x, action_masks, deterministic=False):
         latent_pi = self.forward(x)
         action_logits = self.action_net(latent_pi)
+        action_logits[~action_masks] = -1e+8 # mask out invalid actions
         distribution = [th.distributions.Categorical(logits=split) for split in th.split(action_logits, tuple([self.action_dims]), dim=1)]
         if not deterministic:
             return th.stack([dist.sample() for dist in distribution], dim=1)

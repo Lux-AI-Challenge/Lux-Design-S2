@@ -75,7 +75,11 @@ class CustomEnvWrapper(gym.Wrapper):
                 metrics["water_produced"] - self.prev_step_metrics["water_produced"]
             )
             # we reward water production more as it is the most important resource for survival
-            reward = ice_dug_this_step / 20 + water_produced_this_step
+            reward = water_produced_this_step
+
+        # we penalize the agent whenever it tries to dig ice when it already has enough in cargo
+
+
         self.prev_step_metrics = copy.deepcopy(metrics)
         return obs, reward, done, info
 
@@ -188,7 +192,7 @@ def save_model_state_dict(save_path, model):
 def evaluate(args, env_id, model):
     model = model.load(args.model_path)
     video_length = 1000  # default horizon
-    eval_env = DummyVecEnv(
+    eval_env = SubprocVecEnv(
         [make_env(env_id, i, max_episode_steps=1000) for i in range(args.n_envs)]
     )
     eval_env = VecVideoRecorder(
@@ -236,7 +240,7 @@ def main(args):
         ]
     )
     env.reset()
-    rollout_steps = 4_000
+    rollout_steps = 10_000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(
         "MlpPolicy",
@@ -246,7 +250,7 @@ def main(args):
         learning_rate=3e-4,
         policy_kwargs=policy_kwargs,
         verbose=1,
-        n_epochs=3,
+        n_epochs=2,
         target_kl=0.05,
         gamma=0.99,
         tensorboard_log=osp.join(args.log_path),

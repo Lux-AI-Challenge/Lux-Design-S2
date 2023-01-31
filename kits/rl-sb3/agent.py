@@ -76,6 +76,12 @@ class Agent():
         
         obs = th.from_numpy(obs).float()
         with th.no_grad():
-            actions = self.policy.act(obs.unsqueeze(0), deterministic=False).cpu().numpy()
+            # NOTE: we set deterministic to False here, which is only recommended for RL agents
+            # that create too many invalid actions (less of an issue if you train with invalid action masking)
+
+            # to mitigate some performance drops, we have a rule based action mask generator for the controller used
+            # which will force the agent to generate actions that are valid only.
+            action_mask = th.from_numpy(self.controller.action_masks(self.player, raw_obs)).unsqueeze(0).bool()
+            actions = self.policy.act(obs.unsqueeze(0), deterministic=False, action_masks=action_mask).cpu().numpy()
         lux_action = self.controller.action_to_lux_action(self.player, raw_obs, actions[0])
         return lux_action

@@ -3,6 +3,7 @@ from typing import Dict, Any
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
+import sys
 
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
@@ -132,3 +133,70 @@ class SimpleUnitDiscreteController(Controller):
                 lux_action[unit_id] = 1  # build a single heavy
 
         return lux_action
+
+    def action_masks(self, agent: str, obs: Dict[str, Any]):
+        """
+        Defines a simplified action mask for this controller's action space
+        
+        Doesn't account for whether robot has enough power
+        """
+
+        shared_obs = obs[agent]
+        factory_occupancy_map = np.ones_like(shared_obs["board"]["rubble"], dtype=int) * -1
+        factories = dict()
+        for player in shared_obs["factories"]:
+            factories[player] = dict()
+            for unit_id in shared_obs["factories"][player]:
+                f_data = shared_obs["factories"][player][unit_id]
+                f_pos = f_data["pos"]
+                factory_occupancy_map[f_pos[0] - 1: f_pos[0] + 2, f_pos[1] - 1: f_pos[1] + 2] = f_data["strain_id"]
+
+
+        units = shared_obs["units"][agent]
+        action_masks = []
+        unit_ct = 0
+        for unit_id in units.keys():
+            unit_ct += 1
+
+            action_mask = np.zeros(self.total_act_dims)
+            # movement is always valid
+            action_mask[:4] = True
+
+            # transferring is valid only if the target exists
+            unit = units[unit_id]
+            pos = np.array(unit["pos"])
+            # a[1] = direction (0 = center, 1 = up, 2 = right, 3 = down, 4 = left)
+            move_deltas = np.array([[0, 0], [0, -1], [1, 0], [0, 1], [-1, 0]])
+            for i, move_delta in enumerate(move_deltas):
+                transfer_pos = np.array([pos[0] + move_delta[0], pos[1] + move_delta[1]])
+                # check if theres a factory tile there
+                if transfer_pos[0] < 0 or transfer_pos[1] < 0 or transfer_pos[0] >= len(factory_occupancy_map) or transfer_pos[1] >= len(factory_occupancy_map[0]): continue
+                factory_there = factory_occupancy_map[transfer_pos[0], transfer_pos[1]]
+                if factory_there in shared_obs["teams"][agent]["factory_strains"]:
+                    action_mask[self.transfer_dim_high - self.transfer_act_dims + i] = True
+
+            factory_there = factory_occupancy_map[pos[0], pos[1]]
+            on_top_of_factory = factory_there in shared_obs["teams"][agent]["factory_strains"]
+
+
+            # dig is valid only if on top of tile with rubble or resources or lichen
+            board_sum = shared_obs["board"]["ice"][pos[0], pos[1]] + shared_obs["board"]["ore"][pos[0], pos[1]] + shared_obs["board"]["rubble"][pos[0], pos[1]] + shared_obs["board"]["lichen"][pos[0], pos[1]]
+            if board_sum > 0 and not on_top_of_factory:
+                action_mask[self.dig_dim_high - self.dig_act_dims: self.dig_dim_high] = True
+            
+            # pickup is valid only if on top of factory tile
+            if on_top_of_factory:
+                action_mask[self.pickup_dim_high - self.pickup_act_dims: self.pickup_dim_high] = True
+                action_mask[self.dig_dim_high - self.dig_act_dims: self.dig_dim_high] = False
+
+            
+            # no-op is always valid
+            action_mask[-1] = True
+
+            action_masks.append(action_mask)
+            if unit_ct >= self.max_robots:
+                break
+        if self.max_robots - unit_ct > 0:
+            action_masks.append(np.zeros(self.total_act_dims * (self.max_robots - unit_ct), dtype=bool))
+        action_masks = np.concatenate(action_masks, axis=-1)
+        return action_masks
