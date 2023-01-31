@@ -87,12 +87,9 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
   for (let tileY = 0; tileY < config.tilesPerSide; tileY++) {
     for (let tileX = 0; tileX < config.tilesPerSide; tileX++) {
       const [canvasX, canvasY] = tileToCanvas(config, { x: tileX, y: tileY });
-      if (canvasY == 1363) {
-        console.log({ canvasX, canvasY, ts: config.tileSize });
-      }
       // ctx.fillStyle = 'white';
       // ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
-      const tilePadding = 4;
+      const tilePadding = 0;
       if (!config.minimalTheme && config.lichenTiles && config.rubbleTiles && config.iceTiles && config.oreTiles) {
         let color: string;
         if (board.ice[tileY][tileX] > 0) {
@@ -139,12 +136,12 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
         if (team !== undefined) {
           if (!config.minimalTheme && config.lichenTiles) {
             const bracket = Math.ceil(lichen / 20);
-            const ID = bracket * 8 + randomIds.get(`${tileX},${tileY}`);
+            const ID = bracket; // * 8 + randomIds.get(`${tileX},${tileY}`);
             // console.log({bracket, ID, }, config.lichenTiles.length)
             ctx.drawImage(
               config.lichenTiles[ID],
-              canvasX - tilePadding + 1,
-              canvasY - tilePadding + 1,
+              canvasX - tilePadding,
+              canvasY - tilePadding,
               config.tileSize + tilePadding * 2,
               config.tileSize + tilePadding * 2,
             );
