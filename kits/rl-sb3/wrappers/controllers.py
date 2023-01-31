@@ -8,6 +8,7 @@ from luxai_s2.config import EnvConfig
 from luxai_s2.state import ObservationStateDict
 from luxai_s2.unit import UnitStateDict
 
+from luxai_s2 import LuxAI_S2
 
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
@@ -56,14 +57,15 @@ class SimpleUnitDiscreteController(Controller):
         self.dig_act_dims = 1
         self.no_op_dims = 1
 
+
         self.move_dim_high = self.move_act_dims
         self.transfer_dim_high = self.move_dim_high + self.transfer_act_dims
         self.pickup_dim_high = self.transfer_dim_high + self.pickup_act_dims
         self.dig_dim_high = self.pickup_dim_high + self.dig_act_dims
         self.no_op_dim_high = self.dig_dim_high + self.no_op_dims
 
-        total_act_dims = self.no_op_dim_high
-        action_space = spaces.MultiDiscrete([total_act_dims] * max_robots)
+        self.total_act_dims = self.no_op_dim_high
+        action_space = spaces.MultiDiscrete([self.total_act_dims] * max_robots)
         super().__init__(action_space)
 
     def _is_move_action(self, id):
