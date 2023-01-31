@@ -9,6 +9,12 @@ from wrappers.controllers import SimpleUnitDiscreteController
 from wrappers.obs_wrappers import SimpleUnitObservationWrapper
 
 
+# change this to use weights stored elsewhere
+# make sure the model weights are submitted with the other code files
+# any files in the logs folder are not necessary
+MODEL_WEIGHTS_RELATIVE_PATH = "./latest_model.pth"
+
+
 class Agent():
     def __init__(self, player: str, env_cfg: EnvConfig) -> None:
         self.player = player
@@ -17,7 +23,7 @@ class Agent():
         self.env_cfg: EnvConfig = env_cfg
 
         # load our RL policy
-        self.policy = load_policy("best_model.pth")
+        self.policy = load_policy(MODEL_WEIGHTS_RELATIVE_PATH)
         self.policy.eval()
         
         self.controller = SimpleUnitDiscreteController(self.env_cfg, max_robots=1)

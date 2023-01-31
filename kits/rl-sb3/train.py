@@ -1,5 +1,5 @@
 """
-Implementation of RL agent
+Implementation of RL agent. Note that luxai_s2 and stable_baselines3 are packages not available during the competition running (ATM)
 """
 
 
