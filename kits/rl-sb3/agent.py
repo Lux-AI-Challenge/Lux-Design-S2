@@ -69,6 +69,6 @@ class Agent():
         
         obs = th.from_numpy(obs).float()
         with th.no_grad():
-            actions = self.policy(obs.unsqueeze(0)).cpu().numpy()
-        lux_action = self.controller.action_to_lux_action(self.player, raw_obs, actions)
+            actions = self.policy.act(obs.unsqueeze(0), deterministic=False).cpu().numpy()
+        lux_action = self.controller.action_to_lux_action(self.player, raw_obs, actions[0])
         return lux_action

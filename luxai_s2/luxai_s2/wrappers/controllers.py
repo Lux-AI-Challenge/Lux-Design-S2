@@ -62,8 +62,8 @@ class SimpleUnitDiscreteController(Controller):
         self.dig_dim_high = self.pickup_dim_high + self.dig_act_dims
         self.no_op_dim_high = self.dig_dim_high + self.no_op_dims
 
-        total_act_dims = self.no_op_dim_high
-        action_space = spaces.MultiDiscrete([total_act_dims] * max_robots)
+        self.total_act_dims = self.no_op_dim_high
+        action_space = spaces.MultiDiscrete([self.total_act_dims] * max_robots)
         super().__init__(action_space)
 
     def _is_move_action(self, id):
@@ -136,3 +136,4 @@ class SimpleUnitDiscreteController(Controller):
                 lux_action[unit_id] = 1  # build a single heavy
 
         return lux_action
+        
