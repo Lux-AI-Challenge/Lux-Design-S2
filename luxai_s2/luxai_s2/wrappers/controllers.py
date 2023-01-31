@@ -24,7 +24,7 @@ class Controller:
 
 
 class SimpleSingleUnitDiscreteController(Controller):
-    def __init__(self, env_cfg: EnvConfig) -> None:
+    def __init__(self, env_cfg: EnvConfig, max_units: 5) -> None:
         """
         A simple controller that controls only the heavy unit that will get spawned. This assumes for whichever environment wrapper you use
         you have defined a policy to generate the first factory action
@@ -56,7 +56,8 @@ class SimpleSingleUnitDiscreteController(Controller):
 
         total_act_dims = self.dig_dim_high
         # action_space = spaces.Box(0, 1, shape=(total_act_dims,))
-        action_space = spaces.Discrete(total_act_dims)
+        # action_space = spaces.Discrete(total_act_dims)
+        action_space = spaces.MultiDiscrete([total_act_dims] * max_units)
         super().__init__(action_space)
 
     def _is_move_action(self, id):
