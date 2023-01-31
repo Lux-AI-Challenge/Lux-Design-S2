@@ -1,3 +1,6 @@
+"""
+Code for neural network inference and loading SB3 model weights
+"""
 import torch as th
 import torch.nn as nn
 import sys

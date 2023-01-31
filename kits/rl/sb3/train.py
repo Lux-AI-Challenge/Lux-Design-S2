@@ -240,7 +240,7 @@ def main(args):
         ]
     )
     env.reset()
-    rollout_steps = 10_000
+    rollout_steps = 5000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(
         "MlpPolicy",
@@ -250,7 +250,7 @@ def main(args):
         learning_rate=3e-4,
         policy_kwargs=policy_kwargs,
         verbose=1,
-        n_epochs=2,
+        n_epochs=3,
         target_kl=0.05,
         gamma=0.99,
         tensorboard_log=osp.join(args.log_path),
