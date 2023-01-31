@@ -14,8 +14,7 @@ namespace lux {
 
     int64_t Factory::buildPowerCost(const Observation &obs,
                                     const std::string &unitType) const {
-        auto weather = obs.getCurrentWeather();
-        return std::ceil(obs.config.ROBOTS[unitType].POWER_COST * weather.POWER_CONSUMPTION);
+        return obs.config.ROBOTS[unitType].POWER_COST;
     }
 
     bool Factory::canBuild(const Observation &obs, const std::string &unitType) const {

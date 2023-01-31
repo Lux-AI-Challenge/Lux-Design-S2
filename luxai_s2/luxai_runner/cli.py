@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+from pathlib import Path
 from typing import Dict, List
 
 import numpy as np
@@ -14,7 +15,6 @@ from luxai_s2 import LuxAI_S2
 
 
 def main():
-    np.random.seed(0)
     import argparse
 
     parser = argparse.ArgumentParser(description="Run the LuxAI Season 2 game.")
@@ -35,7 +35,7 @@ def main():
     )
     parser.add_argument(
         "--replay.save_format",
-        help='Save format "json" works with the visualizer while pickle is a compact, python usable version',
+        help='Format of the replay file, can be either "html" or "json". HTML replays are easier to visualize, JSON replays are easier to analyze programmatically. Defaults to the extension of the path passed to --output, or "json" if there is no extension or it is invalid.',
         default="json",
     )
     parser.add_argument(
@@ -95,6 +95,15 @@ def main():
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
+    save_format = getattr(args, "replay.save_format")
+    if args.output is not None:
+        output_file = Path(args.output).name
+        if "." in output_file:
+            output_ext = args.output.split(".")[-1]
+            if output_ext in ["html", "json"]:
+                save_format = output_ext
+    if args.seed:
+        np.random.seed(args.seed)
     cfg = EpisodeConfig(
         players=args.players,
         env_cls=LuxAI_S2,
@@ -107,7 +116,7 @@ def main():
         verbosity=args.verbose,
         save_replay_path=args.output,
         replay_options=ReplayConfig(
-            save_format=getattr(args, "replay.save_format"),
+            save_format=save_format,
             compressed_obs=getattr(args, "replay.compressed_obs"),
         ),
         render=args.render,

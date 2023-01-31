@@ -44,8 +44,8 @@ class EnvConfig:
     validate_action_space: bool = True
 
     ### Constants ###
-    # you can only ever transfer in/out 1000 as this is the max cargo space.
-    max_transfer_amount: int = 10000
+    # you can only ever transfer in/out 3000 as this is the max cargo/power space.
+    max_transfer_amount: int = 3000
     MIN_FACTORIES: int = 2
     MAX_FACTORIES: int = 5
     CYCLE_LENGTH: int = 50
@@ -102,7 +102,7 @@ class EnvConfig:
                 MOVE_COST=1,
                 RUBBLE_MOVEMENT_COST=0.05,
                 DIG_COST=5,
-                SELF_DESTRUCT_COST=5,
+                SELF_DESTRUCT_COST=10,
                 DIG_RUBBLE_REMOVED=2,
                 DIG_RESOURCE_GAIN=2,
                 DIG_LICHEN_REMOVED=10,

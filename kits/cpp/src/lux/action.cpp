@@ -8,40 +8,54 @@
 namespace lux {
     UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
 
-    UnitAction::UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, int64_t repeat_)
+    UnitAction::UnitAction(Type      type_,
+                           Direction direction_,
+                           int64_t   distance_,
+                           int64_t   amount_,
+                           int64_t   repeat_,
+                           int64_t   n_)
         : type(type_),
           direction(direction_),
           distance(distance_),
           amount(amount_),
-          repeat(repeat_) {}
+          repeat(repeat_),
+          n(n_) {}
 
-    UnitAction::UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, int64_t repeat_)
+    UnitAction::UnitAction(Type      type_,
+                           Direction direction_,
+                           Resource  resource_,
+                           int64_t   amount_,
+                           int64_t   repeat_,
+                           int64_t   n_)
         : type(type_),
           direction(direction_),
           resource(resource_),
           amount(amount_),
-          repeat(repeat_) {}
+          repeat(repeat_),
+          n(n_) {}
 
-    UnitAction UnitAction::Move(Direction direction, int64_t repeat) {
-        return UnitAction(Type::MOVE, direction, 1, 0, repeat);
+    UnitAction UnitAction::Move(Direction direction, int64_t repeat, int64_t n) {
+        return UnitAction(Type::MOVE, direction, 1, 0, repeat, n);
     }
 
-    UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat) {
-        return UnitAction(Type::TRANSFER, direction, resource, amount, repeat);
+    UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat, int64_t n) {
+        return UnitAction(Type::TRANSFER, direction, resource, amount, repeat, n);
     }
 
-    UnitAction UnitAction::Pickup(Resource resource, int64_t amount, int64_t repeat) {
-        return UnitAction(Type::PICKUP, Direction::CENTER, resource, amount, repeat);
+    UnitAction UnitAction::Pickup(Resource resource, int64_t amount, int64_t repeat, int64_t n) {
+        return UnitAction(Type::PICKUP, Direction::CENTER, resource, amount, repeat, n);
     }
 
-    UnitAction UnitAction::Dig(int64_t repeat) { return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat); }
-
-    UnitAction UnitAction::SelfDestruct(int64_t repeat) {
-        return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, 0, repeat);
+    UnitAction UnitAction::Dig(int64_t repeat, int64_t n) {
+        return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat, n);
     }
 
-    UnitAction UnitAction::Recharge(int64_t amount, int64_t repeat) {
-        return UnitAction(Type::RECHARGE, Direction::CENTER, 0, amount, repeat);
+    UnitAction UnitAction::SelfDestruct(int64_t repeat, int64_t n) {
+        return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, 0, repeat, n);
+    }
+
+    UnitAction UnitAction::Recharge(int64_t amount, int64_t repeat, int64_t n) {
+        return UnitAction(Type::RECHARGE, Direction::CENTER, 0, amount, repeat, n);
     }
 
     void UnitAction::populateRaw() {
@@ -53,6 +67,7 @@ namespace lux {
         }
         raw[3] = amount;
         raw[4] = repeat;
+        raw[5] = n;
     }
 
     void UnitAction::populateMember() {
@@ -65,6 +80,7 @@ namespace lux {
         distance = raw[2];
         amount   = raw[3];
         repeat   = raw[4];
+        n        = raw[5];
     }
 
     void to_json(json &j, const UnitAction a) {

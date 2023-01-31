@@ -7,6 +7,8 @@ import { notifyError } from '../../utils/notifications';
 let hasData = false;
 
 export function OpenPage(): JSX.Element {
+  const load = useStore(state => state.load);
+
   const [seconds, setSeconds] = useState(0);
   const navigate = useNavigate();
 
@@ -19,7 +21,7 @@ export function OpenPage(): JSX.Element {
       hasData = true;
 
       try {
-        useStore.getState().load(event.data);
+        load(event.data);
         navigate('/visualizer');
       } catch (err: any) {
         console.error(err);

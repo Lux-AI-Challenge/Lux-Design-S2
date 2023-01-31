@@ -1,5 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
+try:
+    from typing import TypedDict    
+except:
+    from typing_extensions import TypedDict
 
 from luxai_s2.config import EnvConfig
 from luxai_s2.globals import TERM_COLORS
@@ -24,6 +29,17 @@ class FactionTypes(Enum):
     FirstMars = FactionInfo(color="red", faction_id=3)
 
 
+class TeamStateDict(TypedDict):
+    team_id: int
+    faction: str
+    water: int
+    metal: int
+    factories_to_place: int
+    factory_strains: List[int]
+    place_first: bool
+    bid: int
+
+
 class Team:
     def __init__(self, team_id: int, agent: str, faction: FactionTypes = None) -> None:
         self.faction = faction
@@ -42,7 +58,7 @@ class Team:
 
         self.bid = 0
 
-    def state_dict(self):
+    def state_dict(self) -> TeamStateDict:
         return dict(
             team_id=self.team_id,
             faction=self.faction.name,
@@ -52,7 +68,7 @@ class Team:
             factories_to_place=self.factories_to_place,
             factory_strains=self.factory_strains,
             place_first=self.place_first,
-            bid=self.bid
+            bid=self.bid,
         )
 
     def __str__(self) -> str:
