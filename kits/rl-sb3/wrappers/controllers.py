@@ -1,21 +1,15 @@
-from typing import Dict
+from typing import Dict, Any
 
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
-
-from luxai_s2.config import EnvConfig
-from luxai_s2.state import ObservationStateDict
-from luxai_s2.unit import UnitStateDict
-
-from luxai_s2 import LuxAI_S2
 
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
         self.action_space = action_space
 
     def action_to_lux_action(
-        self, agent: str, obs: Dict[str, ObservationStateDict], action: npt.NDArray
+        self, agent: str, obs: Dict[str, Any], action: npt.NDArray
     ):
         """
         Takes as input the current "raw observation" and the parameterized action and returns
@@ -25,7 +19,7 @@ class Controller:
 
 
 class SimpleUnitDiscreteController(Controller):
-    def __init__(self, env_cfg: EnvConfig, max_robots: int = 5) -> None:
+    def __init__(self, env_cfg, max_robots: int = 5) -> None:
         """
         A simple controller that controls only the robot that will get spawned. 
         Moreover, it will always try to spawn one heavy robot if there are none regardless of action given
@@ -96,14 +90,14 @@ class SimpleUnitDiscreteController(Controller):
         return np.array([3, 0, 0, 0, 0, 1])
 
     def action_to_lux_action(
-        self, agent: str, obs: Dict[str, ObservationStateDict], action: npt.NDArray
+        self, agent: str, obs: Dict[str, Any], action: npt.NDArray
     ):
         shared_obs = obs["player_0"]
         lux_action = dict()
         units = shared_obs["units"][agent]
         unit_ct = 0
         for unit_id in units.keys():
-            unit: UnitStateDict = units[unit_id]
+            unit: Any = units[unit_id]
             choice = action[unit_ct]
             action_queue = []
             no_op = False

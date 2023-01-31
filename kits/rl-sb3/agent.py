@@ -5,8 +5,8 @@ import numpy as np
 import sys
 import torch as th
 from nn import load_policy
-from wrappers.controllers import SimpleUnitDiscreteController
-from wrappers.obs_wrappers import SimpleUnitObservationWrapper
+from wrappers import SimpleUnitDiscreteController
+from wrappers import SimpleUnitObservationWrapper
 
 
 # change this to use weights stored elsewhere

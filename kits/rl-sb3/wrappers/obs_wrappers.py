@@ -1,13 +1,10 @@
-from typing import Dict
+from typing import Dict, Any
 
 import gym
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
 
-import luxai_s2.env
-from luxai_s2.env import LuxAI_S2, EnvConfig
-from luxai_s2.state import ObservationStateDict
 class SimpleUnitObservationWrapper(gym.ObservationWrapper):
     """
     A simple state based observation to work with in pair with the SimpleUnitDiscreteController
@@ -32,7 +29,7 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
 
     @staticmethod
     def convert_obs(
-        obs: Dict[str, ObservationStateDict], max_robots: int, env_cfg: EnvConfig
+        obs: Dict[str, Any], max_robots: int, env_cfg: Any
     ) -> Dict[str, npt.NDArray]:
         observation = dict()
         shared_obs = obs["player_0"]
