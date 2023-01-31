@@ -75,7 +75,7 @@ class CustomEnvWrapper(gym.Wrapper):
                 metrics["water_produced"] - self.prev_step_metrics["water_produced"]
             )
             # we reward water production more as it is the most important resource for survival
-            reward = water_produced_this_step
+            reward = ice_dug_this_step / 100 + water_produced_this_step
 
         # we penalize the agent whenever it tries to dig ice when it already has enough in cargo
 
