@@ -80,12 +80,14 @@ function parseRobotAction(data: any): RobotAction {
       return {
         type: 'move',
         repeat: data[4],
+        n: data[5],
         direction: data[1],
       };
     case 1:
       return {
         type: 'transfer',
         repeat: data[4],
+        n: data[5],
         direction: data[1],
         resource: data[2],
         amount: data[3],
@@ -94,6 +96,7 @@ function parseRobotAction(data: any): RobotAction {
       return {
         type: 'pickup',
         repeat: data[4],
+        n: data[5],
         resource: data[2],
         amount: data[3],
       };
@@ -101,16 +104,19 @@ function parseRobotAction(data: any): RobotAction {
       return {
         type: 'dig',
         repeat: data[4],
+        n: data[5],
       };
     case 4:
       return {
         type: 'selfDestruct',
         repeat: data[4],
+        n: data[5],
       };
     case 5:
       return {
         type: 'recharge',
         repeat: data[4],
+        n: data[5],
         targetPower: data[3],
       };
     default:

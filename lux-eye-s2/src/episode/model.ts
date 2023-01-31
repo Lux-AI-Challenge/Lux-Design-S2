@@ -71,6 +71,7 @@ export interface WaterAction extends Action {
 
 export interface RepeatableAction extends Action {
   repeat: number;
+  n?: number;
 }
 
 export interface MoveAction extends RepeatableAction {
