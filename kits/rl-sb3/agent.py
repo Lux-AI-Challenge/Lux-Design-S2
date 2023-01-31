@@ -12,7 +12,7 @@ import os.path as osp
 # change this to use weights stored elsewhere
 # make sure the model weights are submitted with the other code files
 # any files in the logs folder are not necessary
-MODEL_WEIGHTS_RELATIVE_PATH = "./latest_model.pth"
+MODEL_WEIGHTS_RELATIVE_PATH = "./best_model.zip"
 
 
 class Agent():
