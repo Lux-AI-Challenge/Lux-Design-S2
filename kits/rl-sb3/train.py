@@ -45,7 +45,7 @@ class CustomEnvWrapper(gym.Wrapper):
         # submit actions for just one agent to make it single-agent
         # and save single-agent versions of the data below
         action = {agent: action}
-        obs, reward, done, info = super().step(action)
+        obs, reward, done, info = self.env.step(action)
         obs = obs[agent]
         done = done[agent]
 
