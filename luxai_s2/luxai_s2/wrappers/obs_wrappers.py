@@ -1,4 +1,4 @@
-from typing import Callable, Dict
+from typing import Dict
 
 import gym
 import numpy as np
@@ -8,15 +8,6 @@ from gym import spaces
 import luxai_s2.env
 from luxai_s2.env import LuxAI_S2
 from luxai_s2.state import ObservationStateDict
-from luxai_s2.unit import ActionType, BidActionType, FactoryPlacementActionType
-from luxai_s2.utils import my_turn_to_place_factory
-from luxai_s2.wrappers.controllers import (
-    Controller,
-    SimpleDiscreteController,
-    SimpleSingleUnitDiscreteController,
-)
-
-
 class SingleUnitObservationWrapper(gym.ObservationWrapper):
     """
     A state based observation to work with in pair with the SimpleSingleUnitDiscreteController
@@ -32,9 +23,10 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
 
     """
 
-    def __init__(self, env: gym.Env) -> None:
+    def __init__(self, env: gym.Env, max_robots: int = 5) -> None:
         super().__init__(env)
-        self.observation_space = spaces.Box(-999, 999, shape=(13,))
+        self.max_robots = max_robots
+        self.observation_space = spaces.Box(-999, 999, shape=(13 * max_robots,))
 
     def observation(
         self, obs: Dict[str, ObservationStateDict]
@@ -43,6 +35,7 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
         shared_obs = obs["player_0"]
         ice_map = shared_obs["board"]["ice"]
         ice_tile_locations = np.argwhere(ice_map == 1)
+        unit_ct = 0
         for agent in obs.keys():
             factories = shared_obs["factories"][agent]
             factory_vec = np.zeros(2)
@@ -51,6 +44,8 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
                 factory_vec = np.array(factory["pos"]) / self.env.state.env_cfg.map_size
                 break
             units = shared_obs["units"][agent]
+            unit_ct = 0
+            unit_obs_vecs = []
             for k in units.keys():
                 unit = units[k]
                 cargo_space = self.env.state.env_cfg.ROBOTS[
@@ -71,7 +66,7 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
                 unit_type = (
                     0 if unit["unit_type"] == "LIGHT" else 1
                 )  # note that build actions use 0 to encode Light
-
+                # normalize the unit position
                 pos = np.array(unit["pos"]) / self.env.state.env_cfg.map_size
                 unit_vec = np.concatenate(
                     [pos, [unit_type], cargo_vec, [unit["team_id"]]], axis=-1
@@ -82,6 +77,7 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
                 ice_tile_distances = np.mean(
                     (ice_tile_locations - np.array(unit["pos"])) ** 2, 1
                 )
+                # normalize the ice tile location
                 closest_ice_tile = (
                     ice_tile_locations[np.argmin(ice_tile_distances)]
                     / self.env.state.env_cfg.map_size
@@ -89,11 +85,15 @@ class SingleUnitObservationWrapper(gym.ObservationWrapper):
                 obs_vec = np.concatenate(
                     [unit_vec, factory_vec - pos, closest_ice_tile - pos], axis=-1
                 )
+                unit_obs_vecs += [obs_vec]
+                unit_ct += 1
+                if unit_ct >= self.max_robots:
+                    break
+            # pad with zero vectors
+            if self.max_robots - unit_ct > 0:
+                unit_obs_vecs.append(np.zeros(13 * (self.max_robots - unit_ct)))
+            observation[agent] = np.concatenate(unit_obs_vecs, axis=-1)
 
-                observation[agent] = obs_vec
-                break
-            if agent not in observation:
-                observation[agent] = np.zeros(13)
         return observation
 
 

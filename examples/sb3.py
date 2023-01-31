@@ -24,7 +24,7 @@ from luxai_s2.utils.heuristics.factory import build_single_heavy
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
 from luxai_s2.wrappers import (
     SB3Wrapper,
-    SimpleSingleUnitDiscreteController,
+    SimpleUnitDiscreteController,
     SingleUnitObservationWrapper,
 )
 
@@ -81,7 +81,7 @@ class CustomEnvWrapper(gym.Wrapper):
             return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
         unit_power = 0
-        for unit_id in units:
+        for unit_id in units.keys():
             unit = units[unit_id]
             if unit["unit_type"] == "HEAVY":
                 pos = np.array(unit["pos"])
@@ -104,9 +104,10 @@ class CustomEnvWrapper(gym.Wrapper):
                         unit_deliver_ice_reward = (
                             0.2 + (1 - dist_penalty) * 0.1
                         )  # encourage unit to move back to factory
-                if action[agent] == 15 and unit["power"] < 70:
-                    # penalize the agent for trying to dig with insufficient power, which wastes 10 power for trying to update the action queue
-                    penalize_power_waste -= 0.005
+                # if action[agent]
+                # if action[agent] == 15 and unit["power"] < 70:
+                #     # penalize the agent for trying to dig with insufficient power, which wastes 10 power for trying to update the action queue
+                #     penalize_power_waste -= 0.005
 
         # save some stats to the info object so we can record it with our SB3 logger
         info = dict()
@@ -153,7 +154,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Simple script that simplifies Lux AI Season 2 as a single-agent environment with a reduced observation and action space. It trains a policy that can succesfully control a heavy unit to dig ice and transfer it back to a factory to keep it alive"
     )
-    parser.add_argument("-s", "--seed", type=int, default=12, help="seed for training")
+    parser.add_argument("-s", "--seed", type=int, help="seed for training")
     parser.add_argument(
         "-n",
         "--n-envs",
@@ -205,12 +206,12 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
         # the provided place_near_random_ice function which will randomly select an ice tile and place a factory near it.
         env = SB3Wrapper(
             env,
-            controller=SimpleSingleUnitDiscreteController(env.state.env_cfg),
+            controller=SimpleUnitDiscreteController(env.state.env_cfg, max_robots=1),
             factory_placement_policy=place_near_random_ice,
             heuristic_policy=build_single_heavy,
         )
         env = SingleUnitObservationWrapper(
-            env
+            env, max_robots=1
         )  # changes observation to include a few simple features
         env = CustomEnvWrapper(env)  # convert to single agent and add our reward
         env = TimeLimit(

@@ -12,8 +12,8 @@ from luxai_s2.unit import ActionType, BidActionType, FactoryPlacementActionType
 from luxai_s2.utils import my_turn_to_place_factory
 from luxai_s2.wrappers.controllers import (
     Controller,
-    SimpleDiscreteController,
-    SimpleSingleUnitDiscreteController,
+    SimpleUnitDiscreteController,
+    GridDiscreteController,
 )
 
 

@@ -2,22 +2,16 @@ import numpy as np
 from luxai_s2.unit import FactoryPlacementActionType
 from luxai_s2.state import ObservationStateDict
 
-def random_factory_placement(player, step: int, obs: ObservationStateDict) -> FactoryPlacementActionType:
+def random_factory_placement(player, obs: ObservationStateDict) -> FactoryPlacementActionType:
     """
     This policy places factories with 150 water and metal at random locations
     """
-    my_turn_to_place = False
-    place_first = obs["teams"][player]["place_first"]
-    if (place_first and step % 2 == 1) or (place_first and step % 2 == 0):
-        my_turn_to_place = True
-    if my_turn_to_place:
-        # we will spawn our factory in a random location with 150 metal and water if it is our turn to place
-        potential_spawns = np.array(list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1))))
-        spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
-        return dict(spawn=spawn_loc, metal=150, water=150)
-    return dict()
+    # we will spawn our factory in a random location with 150 metal and water if it is our turn to place
+    potential_spawns = np.array(list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1))))
+    spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
+    return dict(spawn=spawn_loc, metal=150, water=150)
 
-def place_near_random_ice(player, step: int, obs: ObservationStateDict):
+def place_near_random_ice(player, obs: ObservationStateDict):
     if obs["teams"][player]["metal"] == 0:
         return dict()
     potential_spawns = list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))
