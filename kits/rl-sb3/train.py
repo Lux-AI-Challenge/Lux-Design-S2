@@ -181,7 +181,7 @@ class TensorboardCallback(BaseCallback):
 
 def save_model_state_dict(save_path, model):
     # save the policy state dict for kaggle competition submission
-    state_dict = model.policy.state_dict()
+    state_dict = model.policy.to('cpu').state_dict()
     th.save(state_dict, save_path)
 
 
