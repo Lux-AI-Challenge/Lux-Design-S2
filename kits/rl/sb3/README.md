@@ -11,10 +11,10 @@ The general structure of this RL agent is that we use a heuristic policy to hand
 To use the training code, run `train.py --help` for help and to train an agent run
 
 ```
-python train.py --n-envs 10 --log-path logs/exp_2 --max-episode-steps=500  --total-timesteps 20000000 --seed 42
+python train.py --n-envs 10 --log-path logs/exp_1  --seed 42
 ```
 
-which trains an RL agent using the PPO algorithm with 10 parallel environments for 4,000,000 interactions. To view the training progress and various logged metrics (including Lux AI S2 specific metrics like total ice dug, water produced) you can use tensorboard as so. By the end of training you should see that the evaluation episode length increases over time to reach 1000, meaning the agent has learned to dig ice and produce water well enough to survive. This trained agent should also surpass the default rule-based python agent.
+which trains an RL agent using the PPO algorithm with 10 parallel environments for 7,500,000 interactions. To view the training progress and various logged metrics (including Lux AI S2 specific metrics like total ice dug, water produced) you can use tensorboard as so. By the end of training you should see that the evaluation episode length increases over time to reach 1000, meaning the agent has learned to dig ice and produce water well enough to survive. This trained agent should also surpass the default rule-based python agent.
 
 ```
 tensorboard --logdir logs

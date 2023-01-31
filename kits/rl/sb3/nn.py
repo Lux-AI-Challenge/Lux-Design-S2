@@ -25,12 +25,11 @@ class Net(nn.Module):
         latent_pi = self.forward(x)
         action_logits = self.action_net(latent_pi)
         action_logits[~action_masks] = -1e+8 # mask out invalid actions
-        distribution = [th.distributions.Categorical(logits=split) for split in th.split(action_logits, tuple([self.action_dims]), dim=1)]
+        dist = th.distributions.Categorical(logits=action_logits)
         if not deterministic:
-            return th.stack([dist.sample() for dist in distribution], dim=1)
+            return dist.sample()
         else:
-            return th.stack([dist.mode for dist in distribution], dim=1)
-
+            return dist.mode
     def forward(self, x):
         x = self.mlp(x)
         return x

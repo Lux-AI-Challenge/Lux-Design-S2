@@ -14,8 +14,8 @@ from gym import spaces
 from gym.wrappers import TimeLimit
 from luxai_s2.state import (ObservationStateDict, StatsStateDict)
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
-from luxai_s2.wrappers import (SB3Wrapper, SimpleUnitDiscreteController,
-                               SimpleUnitObservationWrapper)
+from luxai_s2.wrappers import (SB3Wrapper)
+from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback, CheckpointCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
@@ -149,10 +149,10 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
         env = SB3Wrapper(
             env,
             factory_placement_policy=place_near_random_ice,
-            controller=SimpleUnitDiscreteController(env.env_cfg, max_robots=1),
+            controller=SimpleUnitDiscreteController(env.env_cfg),
         )
         env = SimpleUnitObservationWrapper(
-            env, max_robots=1
+            env
         )  # changes observation to include a few simple features
         env = CustomEnvWrapper(env)  # convert to single agent, add our reward
         env = TimeLimit(

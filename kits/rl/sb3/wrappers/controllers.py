@@ -5,6 +5,7 @@ import numpy.typing as npt
 from gym import spaces
 import sys
 
+# Controller class copied here since you won't have access to the luxai_s2 package directly on the competition server
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
         self.action_space = action_space
@@ -17,10 +18,14 @@ class Controller:
         an action formatted for the Lux env
         """
         raise NotImplementedError()
-
-
+    def action_masks(self, agent: str, obs: Dict[str, Any]):
+        """
+        Generates a boolean action mask indicating in each discrete dimension whether it would be valid or not
+        """
+        raise NotImplementedError()
+    
 class SimpleUnitDiscreteController(Controller):
-    def __init__(self, env_cfg, max_robots: int = 5) -> None:
+    def __init__(self, env_cfg) -> None:
         """
         A simple controller that controls only the robot that will get spawned. 
         Moreover, it will always try to spawn one heavy robot if there are none regardless of action given
@@ -44,7 +49,6 @@ class SimpleUnitDiscreteController(Controller):
         see how the lux action space is defined in luxai_s2/spaces/action.py
 
         """
-        self.max_robots = max_robots
         self.env_cfg = env_cfg
         self.move_act_dims = 4
         self.transfer_act_dims = 5
@@ -60,7 +64,7 @@ class SimpleUnitDiscreteController(Controller):
         self.no_op_dim_high = self.dig_dim_high + self.no_op_dims
 
         self.total_act_dims = self.no_op_dim_high
-        action_space = spaces.MultiDiscrete([self.total_act_dims] * max_robots)
+        action_space = spaces.Discrete(self.total_act_dims)
         super().__init__(action_space)
 
     def _is_move_action(self, id):
@@ -96,10 +100,9 @@ class SimpleUnitDiscreteController(Controller):
         shared_obs = obs["player_0"]
         lux_action = dict()
         units = shared_obs["units"][agent]
-        unit_ct = 0
         for unit_id in units.keys():
-            unit: Any = units[unit_id]
-            choice = action[unit_ct]
+            unit = units[unit_id]
+            choice = action
             action_queue = []
             no_op = False
             if self._is_move_action(choice):
@@ -122,10 +125,7 @@ class SimpleUnitDiscreteController(Controller):
                     no_op = True
             if not no_op: lux_action[unit_id] = action_queue
             
-            # only control up to max_robots robots
-            unit_ct += 1
-            if unit_ct >= self.max_robots:
-                break
+            break
 
         factories = shared_obs["factories"][agent]
         if len(units) == 0:
@@ -140,7 +140,9 @@ class SimpleUnitDiscreteController(Controller):
         
         Doesn't account for whether robot has enough power
         """
-
+        
+        # compute a factory occupancy map that will be useful for checking if a board tile
+        # has a factory and which team's factory it is.
         shared_obs = obs[agent]
         factory_occupancy_map = np.ones_like(shared_obs["board"]["rubble"], dtype=int) * -1
         factories = dict()
@@ -149,15 +151,13 @@ class SimpleUnitDiscreteController(Controller):
             for unit_id in shared_obs["factories"][player]:
                 f_data = shared_obs["factories"][player][unit_id]
                 f_pos = f_data["pos"]
+                # store in a 3x3 space around the factory position it's strain id.
                 factory_occupancy_map[f_pos[0] - 1: f_pos[0] + 2, f_pos[1] - 1: f_pos[1] + 2] = f_data["strain_id"]
 
 
         units = shared_obs["units"][agent]
-        action_masks = []
-        unit_ct = 0
+        action_mask = np.zeros((self.total_act_dims), dtype=bool)
         for unit_id in units.keys():
-            unit_ct += 1
-
             action_mask = np.zeros(self.total_act_dims)
             # movement is always valid
             action_mask[:4] = True
@@ -178,7 +178,6 @@ class SimpleUnitDiscreteController(Controller):
             factory_there = factory_occupancy_map[pos[0], pos[1]]
             on_top_of_factory = factory_there in shared_obs["teams"][agent]["factory_strains"]
 
-
             # dig is valid only if on top of tile with rubble or resources or lichen
             board_sum = shared_obs["board"]["ice"][pos[0], pos[1]] + shared_obs["board"]["ore"][pos[0], pos[1]] + shared_obs["board"]["rubble"][pos[0], pos[1]] + shared_obs["board"]["lichen"][pos[0], pos[1]]
             if board_sum > 0 and not on_top_of_factory:
@@ -192,11 +191,5 @@ class SimpleUnitDiscreteController(Controller):
             
             # no-op is always valid
             action_mask[-1] = True
-
-            action_masks.append(action_mask)
-            if unit_ct >= self.max_robots:
-                break
-        if self.max_robots - unit_ct > 0:
-            action_masks.append(np.zeros(self.total_act_dims * (self.max_robots - unit_ct), dtype=bool))
-        action_masks = np.concatenate(action_masks, axis=-1)
-        return action_masks
+            break
+        return action_mask

@@ -27,7 +27,7 @@ class Agent():
         self.policy = load_policy(osp.join(directory, MODEL_WEIGHTS_RELATIVE_PATH))
         self.policy.eval()
         
-        self.controller = SimpleUnitDiscreteController(self.env_cfg, max_robots=1)
+        self.controller = SimpleUnitDiscreteController(self.env_cfg)
 
     def bid_policy(self, step: int, obs, remainingOverageTime: int = 60):
         return dict(faction="AlphaStrike", bid=0)
@@ -71,7 +71,7 @@ class Agent():
         # first convert observations using the same observation wrapper you used for training
         # note that SimpleUnitObservationWrapper takes input as the full observation for both players and returns an obs for players
         raw_obs = dict(player_0=obs, player_1=obs)
-        obs = SimpleUnitObservationWrapper.convert_obs(raw_obs, max_robots=1, env_cfg=self.env_cfg)
+        obs = SimpleUnitObservationWrapper.convert_obs(raw_obs, env_cfg=self.env_cfg)
         obs = obs[self.player]
         
         obs = th.from_numpy(obs).float()
