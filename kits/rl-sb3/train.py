@@ -20,7 +20,7 @@ from stable_baselines3.common.callbacks import BaseCallback, EvalCallback, Check
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
-from stable_baselines3.common.vec_env import (SubprocVecEnv, VecVideoRecorder)
+from stable_baselines3.common.vec_env import (SubprocVecEnv, VecVideoRecorder, DummyVecEnv)
 from stable_baselines3.ppo import PPO
 
 
@@ -45,10 +45,10 @@ class CustomEnvWrapper(gym.Wrapper):
         # submit actions for just one agent to make it single-agent
         # and save single-agent versions of the data below
         action = {agent: action}
-        obs, reward, done, info = self.env.step(action)
+        obs, _, done, info = self.env.step(action)
         obs = obs[agent]
         done = done[agent]
-
+        
         # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
 
@@ -188,7 +188,7 @@ def save_model_state_dict(save_path, model):
 def evaluate(args, env_id, model):
     model = model.load(args.model_path)
     video_length = 1000  # default horizon
-    eval_env = SubprocVecEnv(
+    eval_env = DummyVecEnv(
         [make_env(env_id, i, max_episode_steps=1000) for i in range(args.n_envs)]
     )
     eval_env = VecVideoRecorder(

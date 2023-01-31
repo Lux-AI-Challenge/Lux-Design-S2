@@ -9,7 +9,7 @@ The general structure of this RL agent is that we use a heuristic policy to hand
 To use the training code, run `train.py --help` for help and to train an agent run
 
 ```
-python train.py --n-envs 10 --log-path logs/exp_1  --total-timesteps 4000000 --seed 42
+python train.py --n-envs 10 --log-path logs/exp_1  --total-timesteps 3500000 --seed 42
 ```
 
 which trains an RL agent using the PPO algorithm with 10 parallel environments for 4,000,000 interactions. To view the training progress and various logged metrics (including Lux AI S2 specific metrics like total ice dug, water produced) you can use tensorboard as so.
