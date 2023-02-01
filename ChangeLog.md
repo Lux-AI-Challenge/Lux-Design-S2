@@ -1,6 +1,11 @@
 # ChangeLog
 
-### v2.0.7
+### v2.1.1
+
+Remove max episode timesteps from gym registration of the Lux AI env. Expect user to specify themselves
+
+
+### v2.1.0
 
 Added [advanced_specs](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/docs/advanced_specs.md) document that goes over CPU engine code in depth
 
