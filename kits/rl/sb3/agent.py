@@ -91,7 +91,7 @@ class Agent:
             # which will force the agent to generate actions that are valid only.
             action_mask = (
                 th.from_numpy(self.controller.action_masks(self.player, raw_obs))
-                .unsqueeze(0) # we unsqueeze/add an extra batch dimension =
+                .unsqueeze(0)  # we unsqueeze/add an extra batch dimension =
                 .bool()
             )
             actions = (
@@ -101,7 +101,7 @@ class Agent:
                 .cpu()
                 .numpy()
             )
-        
+
         # use our controller which we trained with in train.py to generate a Lux S2 compatible action
         lux_action = self.controller.action_to_lux_action(
             self.player, raw_obs, actions[0]
