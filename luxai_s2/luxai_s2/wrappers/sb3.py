@@ -32,7 +32,7 @@ class SB3Wrapper(gym.Wrapper):
         into a single phase game and places the first two phases (bidding and factory placement) into the env.reset function so that
         interacting agents directly start generating actions to play the third phase of the game.
 
-        It's highly recommended to use one of the observation wrappers as well.
+        It also accepts a Controller that translates action's in one action space to a Lux S2 compatible action
 
         Parameters
         ----------
@@ -48,22 +48,16 @@ class SB3Wrapper(gym.Wrapper):
         """
         gym.Wrapper.__init__(self, env)
         self.env = env
-        if controller is None:
-            controller = SimpleUnitDiscreteController(self.env.state.env_cfg, max_robots=1)
+        
+        assert controller is not None
+        
+        # set our controller and replace the action space
         self.controller = controller
-
         self.action_space = controller.action_space
-
-        obs_dims = 23  # see _convert_obs function for how this is computed
-        self.map_size = self.env.env_cfg.map_size
-        self.observation_space = spaces.Box(
-            -999, 999, shape=(self.map_size, self.map_size, obs_dims)
-        )
 
         # The simplified wrapper removes the first two phases of the game by using predefined policies (trained or heuristic)
         # to handle those two phases during each reset
         if factory_placement_policy is None:
-
             def factory_placement_policy(player, obs: ObservationStateDict):
                 potential_spawns = np.array(
                     list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))
@@ -75,7 +69,6 @@ class SB3Wrapper(gym.Wrapper):
 
         self.factory_placement_policy = factory_placement_policy
         if bid_policy is None:
-
             def bid_policy(player, obs: ObservationStateDict):
                 faction = "AlphaStrike"
                 if player == "player_1":
@@ -87,6 +80,8 @@ class SB3Wrapper(gym.Wrapper):
         self.prev_obs = None
 
     def step(self, action: Dict[str, npt.NDArray]):
+        
+        # here, for each agent in the game we translate their action into a Lux S2 action
         lux_action = dict()
         for agent in self.env.agents:
             if agent in action:
@@ -95,16 +90,26 @@ class SB3Wrapper(gym.Wrapper):
                 )
             else:
                 lux_action[agent] = dict()
+        
+        # lux_action is now a dict mapping agent name to an action
         obs, reward, done, info = self.env.step(lux_action)
         self.prev_obs = obs
         return obs, reward, done, info
 
     def reset(self, **kwargs):
+        # we upgrade the reset function here
+        
+        # we call the original reset function first
         obs = self.env.reset(**kwargs)
+        
+        # then use the bid policy to go through the bidding phase
         action = dict()
         for agent in self.env.agents:
             action[agent] = self.bid_policy(agent, obs[agent])
         obs, _, _, _ = self.env.step(action)
+        
+        # while real_env_steps < 0, we are in the factory placement phase
+        # so we use the factory placement policy to step through this
         while self.env.state.real_env_steps < 0:
             action = dict()
             for agent in self.env.agents:
@@ -117,4 +122,5 @@ class SB3Wrapper(gym.Wrapper):
                     action[agent] = dict()
             obs, _, _, _ = self.env.step(action)
         self.prev_obs = obs
+        
         return obs
