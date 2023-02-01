@@ -5,15 +5,13 @@ import numpy as np
 import torch as th
 
 from lux.config import EnvConfig
-from lux.kit import GameState, obs_to_game_state
-from lux.utils import direction_to, my_turn_to_place_factory
 from nn import load_policy
 from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
 # change this to use weights stored elsewhere
 # make sure the model weights are submitted with the other code files
 # any files in the logs folder are not necessary
-MODEL_WEIGHTS_RELATIVE_PATH = "./best_model20m.zip"
+MODEL_WEIGHTS_RELATIVE_PATH = "./best_model.zip"
 
 
 class Agent:
@@ -98,4 +96,13 @@ class Agent:
         lux_action = self.controller.action_to_lux_action(
             self.player, raw_obs, actions[0]
         )
+
+        # commented code below adds watering lichen which can easily improve your agent
+        # shared_obs = raw_obs[self.player]
+        # factories = shared_obs["factories"][self.player]
+        # for unit_id in factories.keys():
+        #     factory = factories[unit_id]
+        #     if 1000 - step < 50 and factory["cargo"]["water"] > 100:
+        #         lux_action[unit_id] = 2 # water and grow lichen at the very end of the game
+
         return lux_action
