@@ -45,7 +45,7 @@ json Agent::act() {
             if (moveCost >= 0 && unit.power >= moveCost + unit.actionQueueCost(obs)) {
                 LUX_LOG("ordering unit " << unit.unit_id << " to move in direction " << i);
                 // Alternatively, push lux::UnitAction::Move(direction, 0)
-                actions[unitId].push_back(unit.move(direction, 0));
+                actions[unitId].push_back(unit.move(direction, 2));
                 break;
             }
         }
