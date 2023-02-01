@@ -64,6 +64,3 @@ def load_policy(model_path):
 
     model.load_state_dict(loaded_state_dict)
     return model
-
-
-# pol=load_policy("./kits/rl-sb3/best_model.pth")

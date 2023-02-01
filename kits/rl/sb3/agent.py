@@ -1,3 +1,11 @@
+"""
+This file is where your agent's logic is kept. Define a bidding policy, factory placement policy, as well as a policy for playing the normal phase of the game
+
+The tutorial will learn an RL agent to play the normal phase and use heuristics for the other two phases.
+
+Note that like the other kits, you can only debug print to standard error e.g. print("message", file=sys.stderr)
+"""
+
 import os.path as osp
 import sys
 
@@ -79,11 +87,11 @@ class Agent:
             # NOTE: we set deterministic to False here, which is only recommended for RL agents
             # that create too many invalid actions (less of an issue if you train with invalid action masking)
 
-            # to mitigate some performance drops, we have a rule based action mask generator for the controller used
+            # to improve performance, we have a rule based action mask generator for the controller used
             # which will force the agent to generate actions that are valid only.
             action_mask = (
                 th.from_numpy(self.controller.action_masks(self.player, raw_obs))
-                .unsqueeze(0)
+                .unsqueeze(0) # we unsqueeze/add an extra batch dimension =
                 .bool()
             )
             actions = (
@@ -93,6 +101,8 @@ class Agent:
                 .cpu()
                 .numpy()
             )
+        
+        # use our controller which we trained with in train.py to generate a Lux S2 compatible action
         lux_action = self.controller.action_to_lux_action(
             self.player, raw_obs, actions[0]
         )
