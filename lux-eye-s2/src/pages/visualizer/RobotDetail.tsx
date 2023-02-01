@@ -88,7 +88,10 @@ export function RobotDetail({ robot }: RobotDetailProps): JSX.Element {
     let icon: JSX.Element;
     let suffix: string;
 
-    if (action.repeat != 0) {
+    if (action.repeat == 0 && (action.n === undefined || action.n === 1)) {
+      icon = <span>{getActionIcon(action)}</span>;
+      suffix = '';
+    } else if (action.n === undefined) {
       icon = (
         <Indicator inline color="dark" mt={4} size={12} label={action.repeat.toString()}>
           {getActionIcon(action)}
@@ -97,8 +100,13 @@ export function RobotDetail({ robot }: RobotDetailProps): JSX.Element {
 
       suffix = ` (repeat: ${action.repeat})`;
     } else {
-      icon = <span>{getActionIcon(action)}</span>;
-      suffix = '';
+      icon = (
+        <Indicator inline color="dark" mt={4} size={12} label={`${action.n}/${action.repeat}`}>
+          {getActionIcon(action)}
+        </Indicator>
+      );
+
+      suffix = ` (n: ${action.n}, repeat: ${action.repeat})`;
     }
 
     actionQueueIcons.push(

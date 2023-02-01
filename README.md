@@ -50,7 +50,6 @@ The kits folder in this repository holds all of the available starter kits you c
 - Typescript - TBA
 
 
-
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
 <!-- Finally, if you want to learn how to use the GPU optimized env see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb
