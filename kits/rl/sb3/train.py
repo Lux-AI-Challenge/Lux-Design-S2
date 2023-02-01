@@ -233,7 +233,6 @@ def train(args, env_id, model: PPO):
         callback=[TensorboardCallback(tag="train_metrics"), eval_callback],
     )
     model.save(osp.join(args.log_path, "models/latest_model"))
-    save_model_state_dict(osp.join(args.log_path, "models/latest_model.pth"), model)
 
 
 def main(args):
