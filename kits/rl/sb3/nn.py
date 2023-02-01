@@ -1,21 +1,22 @@
 """
 Code for neural network inference and loading SB3 model weights
 """
-import torch as th
-import torch.nn as nn
 import sys
 import zipfile
+
+import torch as th
+import torch.nn as nn
+
 
 class Net(nn.Module):
     def __init__(self, action_dims=12):
         super(Net, self).__init__()
-        self.action_dims=action_dims
+        self.action_dims = action_dims
         self.mlp = nn.Sequential(
             nn.Linear(13, 128),
             nn.Tanh(),
             nn.Linear(128, 128),
             nn.Tanh(),
-            
         )
         self.action_net = nn.Sequential(
             nn.Linear(128, action_dims),
@@ -24,17 +25,22 @@ class Net(nn.Module):
     def act(self, x, action_masks, deterministic=False):
         latent_pi = self.forward(x)
         action_logits = self.action_net(latent_pi)
-        action_logits[~action_masks] = -1e+8 # mask out invalid actions
+        action_logits[~action_masks] = -1e8  # mask out invalid actions
         dist = th.distributions.Categorical(logits=action_logits)
         if not deterministic:
             return dist.sample()
         else:
             return dist.mode
+
     def forward(self, x):
         x = self.mlp(x)
         return x
-import os.path as osp
+
+
 import io
+import os.path as osp
+
+
 def load_policy(model_path):
     # load .pth or .zip
     if model_path[-4:] == ".zip":
@@ -55,7 +61,7 @@ def load_policy(model_path):
     for sb3_key, model_key in zip(sb3_state_dict.keys(), model.state_dict().keys()):
         loaded_state_dict[model_key] = sb3_state_dict[sb3_key]
         print("loaded", sb3_key, "->", model_key, file=sys.stderr)
-    
+
     model.load_state_dict(loaded_state_dict)
     return model
 

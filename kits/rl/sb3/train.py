@@ -12,16 +12,25 @@ import torch as th
 import torch.nn as nn
 from gym import spaces
 from gym.wrappers import TimeLimit
-from luxai_s2.state import (ObservationStateDict, StatsStateDict)
+from luxai_s2.state import ObservationStateDict, StatsStateDict
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
-from luxai_s2.wrappers import (SB3Wrapper)
-from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
-from stable_baselines3.common.callbacks import BaseCallback, EvalCallback, CheckpointCallback
+from luxai_s2.wrappers import SB3Wrapper
+from stable_baselines3.common.callbacks import (
+    BaseCallback,
+    CheckpointCallback,
+    EvalCallback,
+)
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
-from stable_baselines3.common.vec_env import (SubprocVecEnv, VecVideoRecorder, DummyVecEnv)
+from stable_baselines3.common.vec_env import (
+    DummyVecEnv,
+    SubprocVecEnv,
+    VecVideoRecorder,
+)
 from stable_baselines3.ppo import PPO
+
+from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
 
 class CustomEnvWrapper(gym.Wrapper):
@@ -39,7 +48,7 @@ class CustomEnvWrapper(gym.Wrapper):
         opp_factories = self.env.state.factories[opp_agent]
         for k in opp_factories.keys():
             factory = opp_factories[k]
-             # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
+            # set enemy factories to have 1000 water to keep them alive the whole around and treat the game as single-agent
             factory.cargo.water = 1000
 
         # submit actions for just one agent to make it single-agent
@@ -48,7 +57,7 @@ class CustomEnvWrapper(gym.Wrapper):
         obs, _, done, info = self.env.step(action)
         obs = obs[agent]
         done = done[agent]
-        
+
         # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
 
@@ -76,9 +85,6 @@ class CustomEnvWrapper(gym.Wrapper):
             )
             # we reward water production more as it is the most important resource for survival
             reward = ice_dug_this_step / 100 + water_produced_this_step
-
-        # we penalize the agent whenever it tries to dig ice when it already has enough in cargo
-
 
         self.prev_step_metrics = copy.deepcopy(metrics)
         return obs, reward, done, info
@@ -145,7 +151,7 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
         # Add a SB3 wrapper to make it work with SB3 and simplify the action space with the controller
         # this will remove the bidding phase and factory placement phase. For factory placement we use
         # the provided place_near_random_ice function which will randomly select an ice tile and place a factory near it.
-        
+
         env = SB3Wrapper(
             env,
             factory_placement_policy=place_near_random_ice,
@@ -183,9 +189,10 @@ class TensorboardCallback(BaseCallback):
                     self.logger.record_mean(f"{self.tag}/{k}", stat)
         return True
 
+
 def save_model_state_dict(save_path, model):
     # save the policy state dict for kaggle competition submission
-    state_dict = model.policy.to('cpu').state_dict()
+    state_dict = model.policy.to("cpu").state_dict()
     th.save(state_dict, save_path)
 
 
@@ -227,6 +234,7 @@ def train(args, env_id, model: PPO):
     )
     model.save(osp.join(args.log_path, "models/latest_model"))
     save_model_state_dict(osp.join(args.log_path, "models/latest_model.pth"), model)
+
 
 def main(args):
     print("Training with args", args)

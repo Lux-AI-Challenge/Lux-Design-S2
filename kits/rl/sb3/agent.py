@@ -1,13 +1,14 @@
-from lux.kit import obs_to_game_state, GameState
-from lux.config import EnvConfig
-from lux.utils import direction_to, my_turn_to_place_factory
-import numpy as np
-import sys
-import torch as th
-from nn import load_policy
-from wrappers import SimpleUnitDiscreteController
-from wrappers import SimpleUnitObservationWrapper
 import os.path as osp
+import sys
+
+import numpy as np
+import torch as th
+
+from lux.config import EnvConfig
+from lux.kit import GameState, obs_to_game_state
+from lux.utils import direction_to, my_turn_to_place_factory
+from nn import load_policy
+from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
 # change this to use weights stored elsewhere
 # make sure the model weights are submitted with the other code files
@@ -15,7 +16,7 @@ import os.path as osp
 MODEL_WEIGHTS_RELATIVE_PATH = "./best_model.zip"
 
 
-class Agent():
+class Agent:
     def __init__(self, player: str, env_cfg: EnvConfig) -> None:
         self.player = player
         self.opp_player = "player_1" if self.player == "player_0" else "player_0"
@@ -26,11 +27,12 @@ class Agent():
         # load our RL policy
         self.policy = load_policy(osp.join(directory, MODEL_WEIGHTS_RELATIVE_PATH))
         self.policy.eval()
-        
+
         self.controller = SimpleUnitDiscreteController(self.env_cfg)
 
     def bid_policy(self, step: int, obs, remainingOverageTime: int = 60):
         return dict(faction="AlphaStrike", bid=0)
+
     def factory_placement_policy(self, step: int, obs, remainingOverageTime: int = 60):
         if obs["teams"][self.player]["metal"] == 0:
             return dict()
@@ -73,7 +75,7 @@ class Agent():
         raw_obs = dict(player_0=obs, player_1=obs)
         obs = SimpleUnitObservationWrapper.convert_obs(raw_obs, env_cfg=self.env_cfg)
         obs = obs[self.player]
-        
+
         obs = th.from_numpy(obs).float()
         with th.no_grad():
             # NOTE: we set deterministic to False here, which is only recommended for RL agents
@@ -81,7 +83,19 @@ class Agent():
 
             # to mitigate some performance drops, we have a rule based action mask generator for the controller used
             # which will force the agent to generate actions that are valid only.
-            action_mask = th.from_numpy(self.controller.action_masks(self.player, raw_obs)).unsqueeze(0).bool()
-            actions = self.policy.act(obs.unsqueeze(0), deterministic=False, action_masks=action_mask).cpu().numpy()
-        lux_action = self.controller.action_to_lux_action(self.player, raw_obs, actions[0])
+            action_mask = (
+                th.from_numpy(self.controller.action_masks(self.player, raw_obs))
+                .unsqueeze(0)
+                .bool()
+            )
+            actions = (
+                self.policy.act(
+                    obs.unsqueeze(0), deterministic=False, action_masks=action_mask
+                )
+                .cpu()
+                .numpy()
+            )
+        lux_action = self.controller.action_to_lux_action(
+            self.player, raw_obs, actions[0]
+        )
         return lux_action
