@@ -152,6 +152,8 @@ export interface Team {
   factoriesToPlace: number;
 
   action: SetupAction | null;
+
+  error: string | null;
 }
 
 export interface Step {
