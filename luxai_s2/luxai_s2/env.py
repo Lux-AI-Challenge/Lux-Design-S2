@@ -1099,6 +1099,5 @@ import gym
 
 gym.register(
     id="LuxAI_S2-v0",
-    entry_point="luxai_s2.env:LuxAI_S2",
-    max_episode_steps=1000,
+    entry_point="luxai_s2.env:LuxAI_S2"
 )
