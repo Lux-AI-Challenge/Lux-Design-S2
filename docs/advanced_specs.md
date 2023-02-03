@@ -150,13 +150,13 @@ The action space in the normal phase looks as so. We use [x] to represent a key 
   [factory id]: spaces.Discrete(3)
 }
 ```
-See the document on [spaces.Box/spaces.Discrete](https://gymnasium.farama.org/api/spaces/fundamental/) for how they work. See the [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py) file for details on how `ActionsQueue` works.
+See the document on [spaces.Box/spaces.Discrete](https://gymnasium.farama.org/api/spaces/fundamental/) for how they work. See the [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py) file for details on how `ActionsQueue` works. Moreover note that **there can be a maximum of `config.UNIT_ACTION_QUEUE_SIZE` actions in an action queue.**
 
-Actions don't need to include an action for every robot and factory, so we check for partial containment. 
+Actions don't need to include an action for every robot and factory, so we check for partial containment. Importantly not submitting an action for a robot leaves their current action queue unchanged.
 
 ### Action Vector Encoding
 
-This section details how each action in the action queue is encoded. If you plan to use the rule-based starter kits there you can skip this as this is useful for those who plan to read/write the actions directly instead of through an API.
+This section details how each action in the action queue is encoded. If you plan to use the rule-based starter kits there you can skip this as this is useful for those who plan to read/write the actions directly instead of through an API. Moreover note that there can be a maximum of `config.UNIT_ACTION_QUEUE_SIZE` actions in an action queue.
 
 Let the action be variable `a`. In general an action vector has 6 dimensions so `len(a) == 6`.
 
