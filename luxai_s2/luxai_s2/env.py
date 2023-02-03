@@ -340,6 +340,8 @@ class LuxAI_S2(ParallelEnv):
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None:
                     continue
+                a["water"] = math.floor(a["water"])
+                a["metal"] = math.floor(a["metal"])
                 factory.cargo.water = a["water"]
                 factory.cargo.metal = a["metal"]
                 factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
@@ -1097,5 +1099,6 @@ import gym
 
 gym.register(
     id="LuxAI_S2-v0",
-    entry_point="luxai_s2.env:LuxAI_S2"
+    entry_point="luxai_s2.env:LuxAI_S2",
+    max_episode_steps=1000,
 )
