@@ -141,7 +141,7 @@ The action space in the normal phase looks as so. We use [x] to represent a key 
     ActionsQueue(
       spaces.Box(
         low=np.array([0, 0, 0, 0, 0, 1]),
-        high=np.array([5, 4, 4, config.max_transfer_amount + 1, 1, 9999]),
+        high=np.array([5, 4, 4, config.max_transfer_amount + 1, 9999, 9999]),
         shape=(6,),
         dtype=np.int64,
       ),
