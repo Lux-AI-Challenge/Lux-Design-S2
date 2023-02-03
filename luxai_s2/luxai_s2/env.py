@@ -250,7 +250,7 @@ class LuxAI_S2(ParallelEnv):
                 ].factories_to_place = self.state.board.factories_per_team
                 # verify bid is valid
                 valid_action = True
-                bid = abs(a["bid"])
+                bid = math.floor(abs(a["bid"]))
                 self.state.teams[k].bid = a["bid"]
                 if bid > self.state.teams[k].init_water:
                     valid_action = False
@@ -340,6 +340,8 @@ class LuxAI_S2(ParallelEnv):
                 factory = self.add_factory(self.state.teams[k], a["spawn"])
                 if factory is None:
                     continue
+                a["water"] = math.floor(a["water"])
+                a["metal"] = math.floor(a["metal"])
                 factory.cargo.water = a["water"]
                 factory.cargo.metal = a["metal"]
                 factory.power = self.env_cfg.INIT_POWER_PER_FACTORY
@@ -1015,7 +1017,7 @@ class LuxAI_S2(ParallelEnv):
             unit_id=f"factory_{self.state.global_id}",
             num_id=self.state.global_id,
         )
-        factory.pos.pos = list(pos)
+        factory.pos.pos = np.array([pos[0], pos[1]]).astype(int)
         factory.cargo.water = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.cargo.metal = self.env_cfg.INIT_WATER_METAL_PER_FACTORY
         factory.power = self.env_cfg.INIT_POWER_PER_FACTORY

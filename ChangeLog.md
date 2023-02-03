@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v2.1.2
+
+Cast all numbers to ints, ensure all observations only contain ints, no floats.
+
 ### v2.1.1
 
 Remove max episode timesteps from gym registration of the Lux AI env. Expect user to specify themselves
