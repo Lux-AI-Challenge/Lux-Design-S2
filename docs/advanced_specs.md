@@ -168,7 +168,7 @@ Let the action be variable `a`. In general an action vector has 6 dimensions so 
 
 `a[3] = X`, which represents the amount of resources transferred or picked up. This value is only used for transfer/pickup actions and is ignored for other actions.
 
-`a[4]` encodes the `repeat` value. Once an action is exhausted we recycle the action to the back of the queue with `n = a[4] = repeat` if `repeat > 0`. Note that `repeat` must be between 1 and 9999 inclusive.
+`a[4]` encodes the `repeat` value. Once an action is exhausted we recycle the action to the back of the queue with `n = a[4] = repeat` if `repeat > 0`. Note that `repeat` must be between 0 and 9999 inclusive.
 
 `a[5]`encodes the `n` value, encoding the number of times left to execute this action. `n` only decrements when the action is succesfully executed (e.g. had enough power to run). When `n = 1` and is decremented we consider recycling the action based on `a[4] = repeat`. Note that `n` must be between 1 and 9999 inclusive.
 
