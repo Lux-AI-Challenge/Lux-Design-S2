@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v2.1.4
+
+Fix bug with action formatter not handling lists
+
 ### v2.1.3
 
 Fix bug where calling reset with no seed crashes the engine.
