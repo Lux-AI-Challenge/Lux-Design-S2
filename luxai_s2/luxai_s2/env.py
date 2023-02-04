@@ -189,7 +189,7 @@ class LuxAI_S2(ParallelEnv):
             self.seed_val = seed
             self.seed_rng = np.random.RandomState(seed=seed)
         else:
-            self.seed_val = np.random.randint(0, 2**32 - 1)
+            self.seed_val = np.random.randint(0, 2**32 - 1, dtype=np.int64)
             self.seed_rng = np.random.RandomState(seed=self.seed_val)
         board = Board(seed=self.seed_rng.randint(0, 2**32 - 1, dtype=np.int64), env_cfg=self.env_cfg)
         self.state: State = State(

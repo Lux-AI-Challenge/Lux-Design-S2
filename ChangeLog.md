@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v2.1.3
+
+Fix bug where calling reset with no seed crashes the engine.
+
 ### v2.1.2
 
 Cast all numbers to ints, ensure all observations only contain ints, no floats.
