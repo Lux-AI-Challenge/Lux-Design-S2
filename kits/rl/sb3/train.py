@@ -112,7 +112,7 @@ def parse_args():
     parser.add_argument(
         "--max-episode-steps",
         type=int,
-        default=100,
+        default=200,
         help="Max steps per episode before truncating them",
     )
     parser.add_argument(
