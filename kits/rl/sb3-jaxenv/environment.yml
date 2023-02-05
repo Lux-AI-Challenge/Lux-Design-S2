@@ -19,4 +19,6 @@ dependencies:
     - vec_noise
     - omegaconf
     - stable_baselines3
+    - luxai_s2
+    - juxai-s2
 

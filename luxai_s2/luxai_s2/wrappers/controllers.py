@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy.typing as npt
 from gym import spaces
+
 
 class Controller:
     def __init__(self, action_space: spaces.Space) -> None:
@@ -15,6 +16,7 @@ class Controller:
         an action formatted for the Lux env
         """
         raise NotImplementedError()
+
     def action_masks(self, agent: str, obs: Dict[str, Any]):
         """
         Generates a boolean action mask indicating in each discrete dimension whether it would be valid or not
