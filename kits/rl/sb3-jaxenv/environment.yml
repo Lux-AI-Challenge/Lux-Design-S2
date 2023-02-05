@@ -1,4 +1,4 @@
-name: luxai_s2
+name: luxai_s2_jax
 channels:
   - conda-forge
 dependencies:
@@ -18,4 +18,5 @@ dependencies:
     - pygame
     - vec_noise
     - omegaconf
+    - stable_baselines3
 
