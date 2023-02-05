@@ -15,10 +15,19 @@ export function getWinnerInfo(episode: Episode, team: number): [won: boolean, re
   const me = lastStep.teams[team];
   const opponent = lastStep.teams[team === 0 ? 1 : 0];
 
+  const meError = episode.steps.map(step => step.teams[team].error).some(error => error !== null);
+  const opponentError = episode.steps.map(step => step.teams[team === 0 ? 1 : 0].error).some(error => error !== null);
+
   const meLichen = me.factories.map(factory => factory.lichen).reduce((acc, val) => acc + val, 0);
   const opponentLichen = opponent.factories.map(factory => factory.lichen).reduce((acc, val) => acc + val, 0);
 
-  if (me.faction !== Faction.None && opponent.faction === Faction.None) {
+  if (meError && opponentError) {
+    return [true, 'Draw, both teams errored'];
+  } else if (meError && !opponentError) {
+    return [false, null];
+  } else if (!meError && opponentError) {
+    return [true, 'Winner by opponent error'];
+  } else if (me.faction !== Faction.None && opponent.faction === Faction.None) {
     return [true, 'Winner by opponent error'];
   } else if (me.faction === Faction.None && opponent.faction !== Faction.None) {
     return [false, null];
@@ -136,6 +145,11 @@ export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element 
         <Grid.Col span={1}>
           <b>Heavy robots:</b> {sortedRobots.filter(robot => robot.type === RobotType.Heavy).length}
         </Grid.Col>
+        {team.error && (
+          <Grid.Col span={2}>
+            <b>Error:</b> {team.error}
+          </Grid.Col>
+        )}
 
         {step.step < 0 && (
           <>

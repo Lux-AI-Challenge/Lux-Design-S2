@@ -141,18 +141,36 @@ The action space in the normal phase looks as so. We use [x] to represent a key 
     ActionsQueue(
       spaces.Box(
         low=np.array([0, 0, 0, 0, 0, 1]),
-        high=np.array([5, 4, 4, config.max_transfer_amount + 1, 1, 9999]),
+        high=np.array([5, 4, 4, config.max_transfer_amount + 1, 9999, 9999]),
         shape=(6,),
         dtype=np.int64,
       ),
       config.UNIT_ACTION_QUEUE_SIZE
-    )
+    ),
   [factory id]: spaces.Discrete(3)
 }
 ```
-See the document on [spaces.Box/spaces.Discrete](https://gymnasium.farama.org/api/spaces/fundamental/) for how they work. See the [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py) file for details on how `ActionsQueue` works.
+See the document on [spaces.Box/spaces.Discrete](https://gymnasium.farama.org/api/spaces/fundamental/) for how they work. See the [act_space.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/spaces/act_space.py) file for details on how `ActionsQueue` works. Moreover note that **there can be a maximum of `config.UNIT_ACTION_QUEUE_SIZE` actions in an action queue.**
 
-Actions don't need to include an action for every robot and factory, so we check for partial containment. 
+Actions don't need to include an action for every robot and factory, so we check for partial containment. Importantly not submitting an action for a robot leaves their current action queue unchanged.
+
+### Action Vector Encoding
+
+This section details how each action in the action queue is encoded. If you plan to use the rule-based starter kits there you can skip this as this is useful for those who plan to read/write the actions directly instead of through an API. Moreover note that there can be a maximum of `config.UNIT_ACTION_QUEUE_SIZE` actions in an action queue.
+
+Let the action be variable `a`. In general an action vector has 6 dimensions so `len(a) == 6`.
+
+`a[0]` encodes the type of action. 0 = move, 1 = transfer `X` amount of `R`, 2 = pickup `X` amount of `R`, 3 = dig, 4 = self destruct, 5 = recharge `X`. `X` represents an amount variable and `R` represents a resource encoding which are encoded in `a[3]` and `a[2]` respectively.
+
+`a[1]` encodes the direction. 0 = center, 1 = up, 2 = right, 3 = down, 4 = left. This value is only used for move and transfer and is ignored for other actions. Note that moving center is like a `no-op` action and can be used to add timed delays that cost no power. However updating an action queue with move centers will still incur action queue update costs
+
+`a[2] = R`, which represents the resource type (0 = ice, 1 = ore, 2 = water, 3 = metal, 4 power). This value is only used for transfer/pickup actions and is ignored for other actions.
+
+`a[3] = X`, which represents the amount of resources transferred or picked up. This value is only used for transfer/pickup actions and is ignored for other actions.
+
+`a[4]` encodes the `repeat` value. Once an action is exhausted we recycle the action to the back of the queue with `n = a[4] = repeat` if `repeat > 0`. Note that `repeat` must be between 0 and 9999 inclusive.
+
+`a[5]`encodes the `n` value, encoding the number of times left to execute this action. `n` only decrements when the action is succesfully executed (e.g. had enough power to run). When `n = 1` and is decremented we consider recycling the action based on `a[4] = repeat`. Note that `n` must be between 1 and 9999 inclusive.
 
 ## Environment Step - Normal Phase: Processing Actions and Updating Action Queues
 

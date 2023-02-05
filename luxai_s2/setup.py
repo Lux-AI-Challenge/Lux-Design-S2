@@ -17,7 +17,7 @@ setup(
     long_description="Code for the Lux AI Challenge Season 2",
     packages=find_packages(exclude="kits"),
     entry_points={"console_scripts": ["luxai-s2 = luxai_runner.cli:main"]},
-    version="2.1.1",
+    version="2.1.4",
     python_requires=">=3.7",
     install_requires=[
         "numpy",

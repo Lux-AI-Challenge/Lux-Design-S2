@@ -22,7 +22,7 @@ For an in-depth tutorial detailing how to start writing an agent, there is a [on
 
 ## Kit Structure
 
-Each agent is a folder of files with a `main.py` file and a language dependent `agent.py/agent.js/agent...` file. You can generally ignore `main.py` and focus on the `agent` file. For the rest of this document we will use a python based syntax and assume you are working with the python kit but the instructions apply to all kits.
+Each agent is a folder of files with a `main.py` file and a language dependent `agent.py/agent.js/agent...` file. You can generally ignore `main.py` and focus on the `agent` file which is where you write your logic. For the rest of this document we will use a python based syntax and assume you are working with the python kit but the instructions apply to all kits.
 
 In the `agent.py` file, we define a simple class that holds your agent, you can modify as you wish but be aware of the two functions given. By default, the kit calls the `early_setup` function for when the agent is bidding and placing down all its factories. It then calls the `act` function for the rest of the game. These functions have parameters `step` equal to the environment time step, `obs` equal to the actual observations, and `remainingOverageTime` representing how much extra time you have left before having to make a decision.
 
@@ -52,7 +52,7 @@ actions[unit_id] = [action_0, action_1, ...]
 
 Importantly, whenever you submit a new action queue, the unit incurs an additional power cost to update the queue of `env_cfg.ROBOTS[<robot_type>].ACTION_QUEUE_POWER_COST` power. While you can still compete by submitting a action queue with a single action to every unit (like most environments and Lux AI Season 1), this is power inefficient and would be disadvantageous. Lights consume 1 power and Heavies consume 10 power to update their action queue,
 
-See the example code in the corresponding `agent.py` file for how to give actions, how to set their `n` and `repeat` values to control execution count and recycling, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action).
+See the example code in the corresponding `agent.py` file for how to give actions, how to set their `n` and `repeat` values to control execution count and recycling, and the various utility functions to validate if an action is possible or not (e.g. does the unit have enough power to perform an action). For those interested in **how the exact `action_i` vector is encoded, see [this section on our advanced specs document](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/docs/advanced_specs.md#action-vector-encoding).**
 
 ## Environment Observations
 
