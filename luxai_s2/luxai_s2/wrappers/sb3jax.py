@@ -1,12 +1,13 @@
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Sequence, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, Union, Tuple
 
 import gym
 import jax
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
+import jax.numpy as jnp
 from jux.env import JuxEnv, JuxEnvBatch
 from stable_baselines3.common.vec_env.base_vec_env import (
     VecEnv,
@@ -19,6 +20,7 @@ from stable_baselines3.common.vec_env.util import (
     dict_to_obs,
     obs_space_info,
 )
+from chex import Array
 
 import luxai_s2.env
 from luxai_s2.env import LuxAI_S2
@@ -27,31 +29,33 @@ from luxai_s2.unit import ActionType, BidActionType, FactoryPlacementActionType
 from luxai_s2.utils import my_turn_to_place_factory
 from luxai_s2.wrappers.controllers import Controller
 
+from jux.state import State as JuxState
+
 
 class SB3JaxVecEnv(gym.Wrapper, VecEnv):
     """
-    Creates a simple vectorized wrapper for multiple environments, calling each environment in sequence on the current
-    Python process. This is useful for computationally simple environment such as ``cartpole-v1``,
-    as the overhead of multiprocess or multithread outweighs the environment computation time.
-    This can also be used for RL methods that
-    require a vectorized environment, but that you want a single environments to train with.
+    Jax based environment for Stable Baselines 3
 
-    :param env_fns: a list of functions
-        that return environments to vectorize
-    :raises ValueError: If the same environment instance is passed as the output of two or more different env_fn.
+    Converts Lux S2 into a single phase game by upgrading the reset function to handle the bidding and factory placement phase in it
+
+    Note that different to the CPU SB3Wrapper bid_policy and factory_placement_policy have different signatures. Namely,
+    they accept a jax key as the first input, then the team id (0 or 1), and a Jux State as the 2nd input.
+
+    Finally, the returned actions are pure Arrays. See TODO for how the actions are formatted. TODO alternatively you can submit lux format actions 
+    and use TODO utility to convert them
     """
 
     def __init__(
         self,
-        env: JuxEnvBatch,
+        env: JuxEnv,
         num_envs: int,
         bid_policy: Callable[
-            [str, ObservationStateDict], Dict[str, BidActionType]
+            [jax.random.KeyArray, int, JuxState], Tuple[Array, Array]
         ] = None,
         factory_placement_policy: Callable[
-            [str, ObservationStateDict], Dict[str, FactoryPlacementActionType]
+            [jax.random.KeyArray, int, JuxState], Tuple[Array, Array, Array]
         ] = None,
-        controller: Controller = None,
+        controller: Controller = None
     ):
         gym.Wrapper.__init__(self, env)
         self.env = env
@@ -67,14 +71,86 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
         VecEnv.__init__(self, num_envs, dummy_obs_space, action_space=self.action_space)
 
-        # self.keys, shapes, dtypes = obs_space_info(obs_space)
-
-        # self.buf_obs = OrderedDict([(k, np.zeros((self.num_envs,) + tuple(shapes[k]), dtype=dtypes[k])) for k in self.keys])
-        # self.buf_dones = np.zeros((self.num_envs,), dtype=bool)
-        # self.buf_rews = np.zeros((self.num_envs,), dtype=np.float32)
-        # self.buf_infos = [{} for _ in range(self.num_envs)]
-        # self.actions = None
         self.metadata = {}
+
+        if factory_placement_policy is None:
+            def factory_placement_policy(key, player, state):
+                # potential_spawns = np.array(
+                #     list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))
+                # )
+                spawn_loc = jax.random.randint(key, (2,), 0, self.env.env_cfg.map_size, dtype=jnp.int8)
+                return dict(spawn=spawn_loc, metal=150, water=150)
+
+        self.factory_placement_policy = factory_placement_policy
+        if bid_policy is None:
+
+            def bid_policy(key, player, state):
+                faction = 0
+                if player == 0:
+                    faction = 1
+                return dict(bid=0, faction=faction)
+
+        self.bid_policy = bid_policy
+        self.factory_placement_policy = factory_placement_policy
+
+        def _upgraded_reset(seed: int) -> Tuple[JuxState, Tuple[Dict, int, bool, Dict]]:
+            state: JuxState = self.env.reset(seed)
+            key, subkey = jax.random.split(state.rng_state)
+            state.teams.team_id
+            bids, factions = jnp.zeros(2, dtype=jnp.int8 ), jnp.zeros(2, dtype=jnp.int8 )
+            for i in range(2):
+                act = self.bid_policy(subkey, i, state)
+                bids.at[i].set(act["bid"])
+                factions.at[i].set (act["faction"])
+            state, _  = self.env.step_bid(state, bids, factions)
+            factories_per_team = state.board.factories_per_team
+
+            def body_fun(val):
+                state, key = val
+                key, subkey = jax.random.split(key)
+                
+                spawns, waters, metals = jnp.zeros((2, 2), dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8)
+                act = self.factory_placement_policy(subkey, state.next_player, state)
+                spawns.at[state.next_player].set(act["spawn"])
+                waters.at[state.next_player].set(act["water"])
+                metals.at[state.next_player].set(act["metal"])
+                # spawn = jax.random.randint(subkey, (batch_size, 2, 2), 0, jux_env_batch.env_cfg.map_size, dtype=jnp.int8)
+                state, (observations, _, _, _) = self.env.step_factory_placement(state, spawns, waters, metals)
+                return (state, key)
+            def cond_fun(val):
+                state, key = val
+                # jax.debug.breakpoint()
+                jax.debug.print(f"realenvsteps: {state.real_env_steps}")
+                return state.real_env_steps < 0
+            (state, key) = jax.lax.while_loop(cond_fun, body_fun, (state, key))
+            # while state.real_env_steps < 0:
+            #     for i in range(factories_per_team * 2):
+                    
+            return {'player_0': state, 'player_1': state}
+
+
+            # def f(data, _):
+            #     state, key = data
+            #     key, subkey = jax.random.split(key)
+                
+            #     spawns, waters, metals = jnp.zeros(2), jnp.zeros(2), jnp.zeros(2)
+            #     act = self.factory_placement_policy(subkey, state.next_player, state)
+            #     spawns.at[state.next_player].set(act["spawn"])
+            #     waters.at[state.next_player].set(act["water"])
+            #     metals.at[state.next_player].set(act["metal"])
+            #     # spawn = jax.random.randint(subkey, (batch_size, 2, 2), 0, jux_env_batch.env_cfg.map_size, dtype=jnp.int8)
+            #     state, (observations, _, _, _) = self.env.step_factory_placement(state, spawns, waters, metals)
+            #     return (state, key), None
+            
+            # (state, key), _ = jax.lax.scan(f, (state, key), None, length=factories_per_team * 2)
+
+            return {'player_0': state, 'player_1': state}
+
+        # attempt to jit _upgraded_reset function. This assumes the factory placement and bid policies are traceable
+        self._upgraded_reset = jax.jit(_upgraded_reset)
+
+
+        self.states: JuxState = None
 
     def step_async(self, actions: np.ndarray) -> None:
         self._async_actions = actions
@@ -95,31 +171,34 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
         if "seed" in kwargs:
             seed = kwargs["seed"]
-            jax
+            key = jax.random.PRNGKey(seed=seed)
+        else:
+            key = jax.random.PRNGKey(np.random.randint(0, 2 ** 32 - 1, dtype=np.int64))
+            key, *subkeys = jax.random.split(key, self.num_envs + 1)
 
         # we call the original reset function first
-        obs = self.env.reset(**kwargs)
+        self.states: JuxState = self.env.reset(subkeys)
 
         # then use the bid policy to go through the bidding phase
-        action = dict()
-        for agent in self.env.agents:
-            action[agent] = self.bid_policy(agent, obs[agent])
-        obs, _, _, _ = self.env.step(action)
+        # action = dict()
+        # for agent in self.env.agents:
+        #     action[agent] = self.bid_policy(agent, states)
+        # states, (obs, _, _, _) = self.env.step_bid(action)
 
-        # while real_env_steps < 0, we are in the factory placement phase
-        # so we use the factory placement policy to step through this
-        while self.env.state.real_env_steps < 0:
-            action = dict()
-            for agent in self.env.agents:
-                if my_turn_to_place_factory(
-                    obs["player_0"]["teams"][agent]["place_first"],
-                    self.env.state.env_steps,
-                ):
-                    action[agent] = self.factory_placement_policy(agent, obs[agent])
-                else:
-                    action[agent] = dict()
-            obs, _, _, _ = self.env.step(action)
-        self.prev_obs = obs
+        # # while real_env_steps < 0, we are in the factory placement phase
+        # # so we use the factory placement policy to step through this
+        # while self.env.state.real_env_steps < 0:
+        #     action = dict()
+        #     for agent in self.env.agents:
+        #         if my_turn_to_place_factory(
+        #             obs["player_0"]["teams"][agent]["place_first"],
+        #             self.env.state.env_steps,
+        #         ):
+        #             action[agent] = self.factory_placement_policy(agent, obs[agent])
+        #         else:
+        #             action[agent] = dict()
+        #     obs, _, _, _ = self.env.step(action)
+        # self.prev_obs = obs
 
         return obs
 
@@ -137,30 +216,10 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
     ) -> None:
         raise NotImplementedError
 
-    def env_method(
-        self,
-        method_name: str,
-        *method_args,
-        indices: VecEnvIndices = None,
-        **method_kwargs
-    ) -> List[Any]:
-        """Call instance methods of vectorized environments."""
-        target_envs = self._get_target_envs(indices)
-        return [
-            getattr(env_i, method_name)(*method_args, **method_kwargs)
-            for env_i in target_envs
-        ]
-
     def env_is_wrapped(
         self, wrapper_class: Type[gym.Wrapper], indices: VecEnvIndices = None
     ) -> List[bool]:
-        """Check if worker environments are wrapped with a given wrapper"""
-        target_envs = self._get_target_envs(indices)
-        # Import here to avoid a circular import
-        from stable_baselines3.common import env_util
-
-        return [env_util.is_wrapped(env_i, wrapper_class) for env_i in target_envs]
-
-    def _get_target_envs(self, indices: VecEnvIndices) -> List[gym.Env]:
-        indices = self._get_indices(indices)
-        return [self.envs[i] for i in indices]
+        raise NotImplementedError
+    
+    def env_method(self, method_name: str, *method_args, indices=None, **method_kwargs):  # noqa: D102
+        raise NotImplementedError

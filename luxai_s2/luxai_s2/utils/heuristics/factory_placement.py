@@ -11,7 +11,7 @@ def random_factory_placement(player, obs: ObservationStateDict) -> FactoryPlacem
     spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
     return dict(spawn=spawn_loc, metal=150, water=150)
 
-def place_near_random_ice(player, obs: ObservationStateDict):
+def place_near_random_ice(player, obs: ObservationStateDict) -> FactoryPlacementActionType:
     if obs["teams"][player]["metal"] == 0:
         return dict()
     potential_spawns = list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))

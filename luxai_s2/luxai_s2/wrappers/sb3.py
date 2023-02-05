@@ -18,10 +18,10 @@ class SB3Wrapper(gym.Wrapper):
         self,
         env: LuxAI_S2,
         bid_policy: Callable[
-            [str, ObservationStateDict], Dict[str, BidActionType]
+            [str, ObservationStateDict], BidActionType
         ] = None,
         factory_placement_policy: Callable[
-            [str, ObservationStateDict], Dict[str, FactoryPlacementActionType]
+            [str, ObservationStateDict], FactoryPlacementActionType
         ] = None,
         controller: Controller = None,
     ) -> None:
