@@ -93,6 +93,9 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         self.bid_policy = bid_policy
         self.factory_placement_policy = factory_placement_policy
 
+
+        # create a upgraded reset function that replaces the bid and placement phase
+        # it also handles the variable length in episodes by a while loop until real_env_steps is no longer < 0
         def _upgraded_reset(seed: int) -> Tuple[JuxState, Tuple[Dict, int, bool, Dict]]:
             state: JuxState = self.env.reset(seed)
             key, subkey = jax.random.split(state.rng_state)
@@ -119,36 +122,13 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                 return (state, key)
             def cond_fun(val):
                 state, key = val
-                # jax.debug.breakpoint()
-                jax.debug.print(f"realenvsteps: {state.real_env_steps}")
                 return state.real_env_steps < 0
             (state, key) = jax.lax.while_loop(cond_fun, body_fun, (state, key))
-            # while state.real_env_steps < 0:
-            #     for i in range(factories_per_team * 2):
-                    
-            return {'player_0': state, 'player_1': state}
-
-
-            # def f(data, _):
-            #     state, key = data
-            #     key, subkey = jax.random.split(key)
-                
-            #     spawns, waters, metals = jnp.zeros(2), jnp.zeros(2), jnp.zeros(2)
-            #     act = self.factory_placement_policy(subkey, state.next_player, state)
-            #     spawns.at[state.next_player].set(act["spawn"])
-            #     waters.at[state.next_player].set(act["water"])
-            #     metals.at[state.next_player].set(act["metal"])
-            #     # spawn = jax.random.randint(subkey, (batch_size, 2, 2), 0, jux_env_batch.env_cfg.map_size, dtype=jnp.int8)
-            #     state, (observations, _, _, _) = self.env.step_factory_placement(state, spawns, waters, metals)
-            #     return (state, key), None
-            
-            # (state, key), _ = jax.lax.scan(f, (state, key), None, length=factories_per_team * 2)
 
             return {'player_0': state, 'player_1': state}
 
-        # attempt to jit _upgraded_reset function. This assumes the factory placement and bid policies are traceable
+
         self._upgraded_reset = jax.jit(_upgraded_reset)
-
 
         self.states: JuxState = None
 

@@ -68,7 +68,6 @@ def process_obs(player, game_state, step, obs):
 
 
 def obs_to_game_state(step, env_cfg: EnvConfig, obs):
-
     units = dict()
     for agent in obs["units"]:
         units[agent] = dict()
