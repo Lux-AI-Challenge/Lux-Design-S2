@@ -128,9 +128,10 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             return {'player_0': state, 'player_1': state}
 
 
-        self._upgraded_reset = jax.jit(_upgraded_reset)
+        self._upgraded_reset = jax.vmap(jax.jit(_upgraded_reset))
 
         self.states: JuxState = None
+        self.key = jax.random.PRNGKey(np.random.randint(0, 2 ** 16 - 1, dtype=np.int32))
 
     def step_async(self, actions: np.ndarray) -> None:
         self._async_actions = actions
@@ -147,17 +148,15 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         return seeds
 
     def reset(self, **kwargs) -> VecEnvObs:
-        # we upgrade the reset function here
-
         if "seed" in kwargs:
             seed = kwargs["seed"]
-            key = jax.random.PRNGKey(seed=seed)
-        else:
-            key = jax.random.PRNGKey(np.random.randint(0, 2 ** 32 - 1, dtype=np.int64))
-            key, *subkeys = jax.random.split(key, self.num_envs + 1)
-
+            self.key = jax.random.PRNGKey(seed=seed)
+        
+        key, subkey = jax.random.split(self.key)
+        self.key = key
         # we call the original reset function first
-        self.states: JuxState = self.env.reset(subkeys)
+        seeds = jax.random.randint(subkey, shape=(self.num_envs, ), minval=0, maxval=2**16 - 1, dtype=jnp.int32)
+        self.states: JuxState = self._upgraded_reset(seed=seeds)
 
         # then use the bid policy to go through the bidding phase
         # action = dict()
@@ -180,7 +179,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         #     obs, _, _, _ = self.env.step(action)
         # self.prev_obs = obs
 
-        return obs
+        return self.states
 
     def close(self) -> None:
         return
