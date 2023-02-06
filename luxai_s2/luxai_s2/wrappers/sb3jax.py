@@ -75,9 +75,6 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
         if factory_placement_policy is None:
             def factory_placement_policy(key, player, state):
-                # potential_spawns = np.array(
-                #     list(zip(*np.where(obs["board"]["valid_spawns_mask"] == 1)))
-                # )
                 spawn_loc = jax.random.randint(key, (2,), 0, self.env.env_cfg.map_size, dtype=jnp.int8)
                 return dict(spawn=spawn_loc, metal=150, water=150)
 
@@ -99,14 +96,13 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         def _upgraded_reset(seed: int) -> Tuple[JuxState, Tuple[Dict, int, bool, Dict]]:
             state: JuxState = self.env.reset(seed)
             key, subkey = jax.random.split(state.rng_state)
-            state.teams.team_id
+
             bids, factions = jnp.zeros(2, dtype=jnp.int8 ), jnp.zeros(2, dtype=jnp.int8 )
             for i in range(2):
                 act = self.bid_policy(subkey, i, state)
-                bids.at[i].set(act["bid"])
-                factions.at[i].set (act["faction"])
+                bids = bids.at[i].set(act["bid"])
+                factions = factions.at[i].set (act["faction"])
             state, _  = self.env.step_bid(state, bids, factions)
-            factories_per_team = state.board.factories_per_team
 
             def body_fun(val):
                 state, key = val
@@ -114,10 +110,9 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                 
                 spawns, waters, metals = jnp.zeros((2, 2), dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8)
                 act = self.factory_placement_policy(subkey, state.next_player, state)
-                spawns.at[state.next_player].set(act["spawn"])
-                waters.at[state.next_player].set(act["water"])
-                metals.at[state.next_player].set(act["metal"])
-                # spawn = jax.random.randint(subkey, (batch_size, 2, 2), 0, jux_env_batch.env_cfg.map_size, dtype=jnp.int8)
+                spawns = spawns.at[state.next_player].set(act["spawn"])
+                waters = waters.at[state.next_player].set(act["water"])
+                metals = metals.at[state.next_player].set(act["metal"])
                 state, (observations, _, _, _) = self.env.step_factory_placement(state, spawns, waters, metals)
                 return (state, key)
             def cond_fun(val):
@@ -136,16 +131,11 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
     def step_async(self, actions: np.ndarray) -> None:
         self._async_actions = actions
 
-    def step_wait(self):  # noqa: D102
+    def step_wait(self):
         return self.step(self._async_actions)
 
-    def seed(self, seed: Optional[int] = None) -> List[Union[None, int]]:
-        if seed is None:
-            seed = np.random.randint(0, 2**32 - 1)
-        seeds = []
-        for idx, env in enumerate(self.envs):
-            seeds.append(env.seed(seed + idx))
-        return seeds
+    def seed(self):
+        raise NotImplementedError
 
     def reset(self, **kwargs) -> VecEnvObs:
         if "seed" in kwargs:
@@ -157,27 +147,6 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         # we call the original reset function first
         seeds = jax.random.randint(subkey, shape=(self.num_envs, ), minval=0, maxval=2**16 - 1, dtype=jnp.int32)
         self.states: JuxState = self._upgraded_reset(seed=seeds)
-
-        # then use the bid policy to go through the bidding phase
-        # action = dict()
-        # for agent in self.env.agents:
-        #     action[agent] = self.bid_policy(agent, states)
-        # states, (obs, _, _, _) = self.env.step_bid(action)
-
-        # # while real_env_steps < 0, we are in the factory placement phase
-        # # so we use the factory placement policy to step through this
-        # while self.env.state.real_env_steps < 0:
-        #     action = dict()
-        #     for agent in self.env.agents:
-        #         if my_turn_to_place_factory(
-        #             obs["player_0"]["teams"][agent]["place_first"],
-        #             self.env.state.env_steps,
-        #         ):
-        #             action[agent] = self.factory_placement_policy(agent, obs[agent])
-        #         else:
-        #             action[agent] = dict()
-        #     obs, _, _, _ = self.env.step(action)
-        # self.prev_obs = obs
 
         return self.states
 
