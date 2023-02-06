@@ -1,0 +1,1 @@
+from .factory import place_factory_near_random_ice

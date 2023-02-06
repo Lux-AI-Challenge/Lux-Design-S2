@@ -97,7 +97,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             state: JuxState = self.env.reset(seed)
             key, subkey = jax.random.split(state.rng_state)
 
-            bids, factions = jnp.zeros(2, dtype=jnp.int8 ), jnp.zeros(2, dtype=jnp.int8 )
+            bids, factions = jnp.zeros(2, dtype=jnp.int32 ), jnp.zeros(2, dtype=jnp.int32 )
             for i in range(2):
                 act = self.bid_policy(subkey, i, state)
                 bids = bids.at[i].set(act["bid"])
@@ -108,7 +108,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                 state, key = val
                 key, subkey = jax.random.split(key)
                 
-                spawns, waters, metals = jnp.zeros((2, 2), dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8), jnp.zeros(2, dtype=jnp.int8)
+                spawns, waters, metals = jnp.zeros((2, 2), dtype=jnp.int32), jnp.zeros(2, dtype=jnp.int32), jnp.zeros(2, dtype=jnp.int32)
                 act = self.factory_placement_policy(subkey, state.next_player, state)
                 spawns = spawns.at[state.next_player].set(act["spawn"])
                 waters = waters.at[state.next_player].set(act["water"])
