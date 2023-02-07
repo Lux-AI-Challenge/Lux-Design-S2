@@ -10,8 +10,7 @@ dependencies:
   - cython
   - tqdm
   - yaml
-  - gym=0.19
-  - cv2
+  - gym=0.21
 
   - pip:
     - pettingzoo
