@@ -277,7 +277,7 @@ class LuxAI_S2(ParallelEnv):
                     failed_agents[k] = True
             except Exception as e:
                 print(traceback.format_exc())
-                failed_agents[agent] = True
+                failed_agents[k] = True
         for agent in self.agents:
             if failed_agents[agent]:
                 return failed_agents
@@ -366,7 +366,7 @@ class LuxAI_S2(ParallelEnv):
                     pass
             except Exception as e:
                 print(traceback.format_exc())
-                failed_agents[agent] = True
+                failed_agents[k] = True
         return failed_agents
 
     def _handle_nobidding_early_game(self, actions):
