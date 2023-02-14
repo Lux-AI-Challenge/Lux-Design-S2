@@ -130,6 +130,9 @@ class BotProcess:
         # return " ".join(stderrs)
 
     async def cleanup(self):
-        self._agent_process._transport.close()
-        self._agent_process.terminate()
-        await self._agent_process.wait()
+        try:
+            self._agent_process._transport.close()
+            self._agent_process.terminate()
+            await self._agent_process.wait()
+        except:
+            pass
