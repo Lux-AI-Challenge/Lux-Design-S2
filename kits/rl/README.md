@@ -13,4 +13,4 @@ For a tutorial series on how to implement a simple RL agent, checkout these Kagg
 2. [RL Problem Solving](https://www.kaggle.com/code/stonet2000/rl-with-lux-2-rl-problem-solving)
 
 
-For japanese translated version, a member of our community kindly translated the above notebooks, see https://www.kaggle.com/competitions/lux-ai-season-2/code.
+For Japanese translated versions, a member of our community kindly translated the above notebooks, see https://www.kaggle.com/competitions/lux-ai-season-2/code.
