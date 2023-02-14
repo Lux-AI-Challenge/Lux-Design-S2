@@ -9,7 +9,6 @@ from luxai_runner.bot import Bot
 from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.logger import Logger
 from luxai_runner.tournament import Tournament, TournamentConfig
-from omegaconf import OmegaConf
 
 from luxai_s2 import LuxAI_S2
 
@@ -140,7 +139,7 @@ def main():
 
         tournament_config = TournamentConfig()
         tournament_config.agents = args.players
-        # TODO - in future replace this with OmegaConf or something that can parse these nicely
+
         tournament_config.max_concurrent_episodes = getattr(
             args, "tournament_cfg.concurrent"
         )
