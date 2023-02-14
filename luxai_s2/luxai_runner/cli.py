@@ -48,7 +48,7 @@ def main():
     parser.add_argument(
         "-v",
         "--verbose",
-        help="Verbose Level (0 = silent, 1 = errors, 2 = warnings, 3 = info)",
+        help="Verbose Level (0 = silent, 1 = errors + debug logs from agents, 2 = warnings, 3 = info)",
         type=int,
         default=1,
     )
