@@ -384,10 +384,9 @@ class LuxAI_S2(ParallelEnv):
                     faction=FactionTypes[a["faction"]],
                 )
                 if len(a["spawns"]) > self.state.board.factories_per_team:
-                    if self.env_cfg.verbose > 0:
-                        self.log_warning(
-                            f"{k} tried to spawn more factories than allocated in board.factories_per_team. Spawning only the first {self.state.board.factories_per_team} locations"
-                        )
+                    self.log_warning(
+                        f"{k} tried to spawn more factories than allocated in board.factories_per_team. Spawning only the first {self.state.board.factories_per_team} locations"
+                    )
                 for spawn_loc in a["spawns"][: self.state.board.factories_per_team]:
                     self.add_factory(self.state.teams[k], spawn_loc)
             else:

@@ -48,9 +48,9 @@ def main():
     parser.add_argument(
         "-v",
         "--verbose",
-        help="Verbose Level (0 = silent, 1 = errors + debug logs from agents, 2 = warnings, 3 = info)",
+        help="Verbose Level (0 = silent, 1 = (game-ending errors, debug logs from agents), 2 = warnings (non-game ending invalid actions), 3 = info (system info, unit collisions) )",
         type=int,
-        default=1,
+        default=2,
     )
     parser.add_argument(
         "-s",
