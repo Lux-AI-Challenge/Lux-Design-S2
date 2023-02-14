@@ -1,6 +1,6 @@
 {
   "name": "@lux-ai/lux-eye-s2",
-  "version": "2.1.1",
+  "version": "2.1.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
