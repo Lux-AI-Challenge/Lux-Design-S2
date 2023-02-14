@@ -17,5 +17,4 @@ dependencies:
     - termcolor
     - pygame
     - vec_noise
-    - omegaconf
 
