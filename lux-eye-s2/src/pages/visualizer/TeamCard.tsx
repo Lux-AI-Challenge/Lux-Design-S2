@@ -8,6 +8,7 @@ import { getTeamColor } from '../../utils/colors';
 import { FactoryDetail } from './FactoryDetail';
 import { RobotDetail } from './RobotDetail';
 import { UnitList } from './UnitList';
+import { funcLichen } from './VisualizerPage';
 
 export function getWinnerInfo(episode: Episode, team: number): [won: boolean, reason: string | null] {
   const lastStep = episode.steps[episode.steps.length - 1];
@@ -18,8 +19,8 @@ export function getWinnerInfo(episode: Episode, team: number): [won: boolean, re
   const meError = episode.steps.map(step => step.teams[team].error).some(error => error !== null);
   const opponentError = episode.steps.map(step => step.teams[team === 0 ? 1 : 0].error).some(error => error !== null);
 
-  const meLichen = me.factories.map(factory => factory.lichen).reduce((acc, val) => acc + val, 0);
-  const opponentLichen = opponent.factories.map(factory => factory.lichen).reduce((acc, val) => acc + val, 0);
+  const meLichen = funcLichen(me, lastStep.board);
+  const opponentLichen = funcLichen(opponent, lastStep.board);
 
   if (meError && opponentError) {
     return [true, 'Draw, both teams errored'];
@@ -134,7 +135,7 @@ export function TeamCard({ id, tabHeight, shadow }: TeamCardProps): JSX.Element 
 
       <Grid columns={2} gutter={0}>
         <Grid.Col span={1}>
-          <b>Lichen:</b> {team.factories.map(factory => factory.lichen).reduce((acc, val) => acc + val, 0)}
+          <b>Lichen:</b> {funcLichen(team, step.board)}
         </Grid.Col>
         <Grid.Col span={1}>
           <b>Light robots:</b> {sortedRobots.filter(robot => robot.type === RobotType.Light).length}
