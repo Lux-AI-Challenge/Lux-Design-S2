@@ -23,7 +23,20 @@ function funcCargo(unitType: 'factories' | 'robots', resource: keyof Cargo): Cha
   return team => (team[unitType] as Unit[]).reduce((acc, val) => acc + val.cargo[resource], 0);
 }
 
-const funcLichen: ChartFunction = team => team.factories.reduce((acc, val) => acc + val.lichen, 0);
+export const funcLichen: ChartFunction = (team, board) => {
+  let lichen = 0;
+
+  const size = board.lichen.length;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (board.lichen[y][x] > 0 && team.strains.has(board.strains[y][x])) {
+        lichen += board.lichen[y][x];
+      }
+    }
+  }
+
+  return lichen;
+};
 
 const funcTotalMetalValue: ChartFunction = team =>
   team.factories.reduce((acc, val) => acc + val.cargo.metal, 0) +
