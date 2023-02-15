@@ -32,7 +32,7 @@ export function UnitList({ name, height, itemCount, tileGetter, itemRenderer }: 
     });
 
     if (itemIndex > -1) {
-      ref.current?.scrollIntoView({ index: itemIndex, align: 'start', behavior: 'smooth' });
+      ref.current?.scrollToIndex({ index: itemIndex, align: 'start', behavior: 'smooth' });
     }
   }, [selectedTile]);
 
