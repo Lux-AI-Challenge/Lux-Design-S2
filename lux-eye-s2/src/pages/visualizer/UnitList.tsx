@@ -14,6 +14,7 @@ interface UnitListProps {
 
 export function UnitList({ name, height, itemCount, tileGetter, itemRenderer }: UnitListProps): JSX.Element {
   const selectedTile = useStore(state => state.selectedTile);
+  const scrollSelectedTileToTop = useStore(state => state.scrollSelectedTileToTop);
 
   const ref = useRef<VirtuosoHandle>(null);
 
@@ -23,7 +24,7 @@ export function UnitList({ name, height, itemCount, tileGetter, itemRenderer }: 
   }
 
   useEffect(() => {
-    if (selectedTile === null) {
+    if (selectedTile === null || !scrollSelectedTileToTop) {
       return;
     }
 
@@ -32,7 +33,7 @@ export function UnitList({ name, height, itemCount, tileGetter, itemRenderer }: 
     });
 
     if (itemIndex > -1) {
-      ref.current?.scrollIntoView({ index: itemIndex, behavior: 'smooth' });
+      ref.current?.scrollToIndex({ index: itemIndex, align: 'start', behavior: 'smooth' });
     }
   }, [selectedTile]);
 
