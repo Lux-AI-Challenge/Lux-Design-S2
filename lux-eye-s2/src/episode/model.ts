@@ -148,6 +148,8 @@ export interface Team {
   factories: Factory[];
   robots: Robot[];
 
+  strains: Set<number>;
+
   placeFirst: boolean;
   factoriesToPlace: number;
 

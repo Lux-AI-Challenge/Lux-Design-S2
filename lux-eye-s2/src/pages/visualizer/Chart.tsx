@@ -2,11 +2,11 @@ import { Paper } from '@mantine/core';
 import { ApexOptions } from 'apexcharts';
 import { useRef } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import { Team } from '../../episode/model';
+import { Board, Team } from '../../episode/model';
 import { useStore } from '../../store';
 import { getTeamColor } from '../../utils/colors';
 
-export type ChartFunction = (team: Team) => number;
+export type ChartFunction = (team: Team, board: Board) => number;
 
 interface ChartProps {
   title: string;
@@ -74,7 +74,7 @@ export function Chart({ title, func, step }: ChartProps): JSX.Element {
     for (let i = 0; i < steps[0].teams.length; i++) {
       series.push({
         name: steps[0].teams[i].name,
-        data: steps.map(step => func(step.teams[i])),
+        data: steps.map(step => func(step.teams[i], step.board)),
         color: getTeamColor(i, 1.0),
       });
     }

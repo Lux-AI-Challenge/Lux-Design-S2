@@ -204,6 +204,8 @@ export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['P
           factories: [],
           robots: [],
 
+          strains: new Set(),
+
           placeFirst: rawPlayer !== null ? rawPlayer.place_first : false,
           factoriesToPlace: rawPlayer !== null ? rawPlayer.factories_to_place : 0,
 
@@ -291,6 +293,8 @@ export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['P
 
         factories,
         robots,
+
+        strains: new Set(rawTeam.factory_strains),
 
         placeFirst: rawTeam.place_first,
         factoriesToPlace: rawTeam.factories_to_place,
