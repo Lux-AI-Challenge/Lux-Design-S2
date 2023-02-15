@@ -13,7 +13,9 @@ export interface State {
 
   turn: number;
   speed: number;
+
   selectedTile: Tile | null;
+  scrollSelectedTileToTop: boolean;
 
   loading: boolean;
   progress: number;
@@ -23,7 +25,7 @@ export interface State {
   setTurn: (turn: number) => void;
   increaseTurn: () => boolean;
   setSpeed: (speed: number) => void;
-  setSelectedTile: (selectedTile: Tile | null) => void;
+  setSelectedTile: (selectedTile: Tile | null, scrollSelectedTileToTop: boolean) => void;
 
   load: (data: any) => void;
   loadFromFile: (file: File) => Promise<void>;
@@ -43,7 +45,9 @@ export const useStore = create(
 
       turn: 1,
       speed: 1,
+
       selectedTile: null,
+      scrollSelectedTileToTop: false,
 
       loading: false,
       progress: 0,
@@ -71,13 +75,15 @@ export const useStore = create(
         }
       },
 
-      setSelectedTile: selectedTile => {
-        const current = get().selectedTile;
+      setSelectedTile: (selectedTile, scrollSelectedTileToTop) => {
+        const { selectedTile: currentSelectedTile, scrollSelectedTileToTop: currentScrollSelectedTileToTop } = get();
         if (
-          (selectedTile === null && current !== null) ||
-          (selectedTile !== null && (selectedTile.x !== current?.x || selectedTile.y !== current?.y))
+          (selectedTile === null && currentSelectedTile !== null) ||
+          (selectedTile !== null &&
+            (selectedTile.x !== currentSelectedTile?.x || selectedTile.y !== currentSelectedTile?.y)) ||
+          scrollSelectedTileToTop !== currentScrollSelectedTileToTop
         ) {
-          set({ selectedTile });
+          set({ selectedTile, scrollSelectedTileToTop });
         }
       },
 

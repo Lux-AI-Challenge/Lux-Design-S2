@@ -257,7 +257,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
   const step = episode!.steps[turn];
 
   const onMouseLeave = useCallback(() => {
-    setSelectedTile(null);
+    setSelectedTile(null, true);
   }, []);
 
   useEffect(() => {
@@ -288,7 +288,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
           mouseY >= canvasY &&
           mouseY < canvasY + sizeConfig.tileSize
         ) {
-          setSelectedTile(tile);
+          setSelectedTile(tile, true);
           return;
         }
       }
