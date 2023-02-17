@@ -55,8 +55,8 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
 
   const teamStrains = new Map<number, number>();
   for (let i = 0; i < 2; i++) {
-    for (const factory of step.teams[i].factories) {
-      teamStrains.set(factory.strain, i);
+    for (const strain of step.teams[i].strains) {
+      teamStrains.set(strain, i);
     }
   }
 
@@ -83,11 +83,9 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
 
       const lichen = board.lichen[tileY][tileX];
       if (lichen > 0) {
-        const team = teamStrains.get(board.strains[tileY][tileX]);
-        if (team !== undefined) {
-          ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
-          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
-        }
+        const team = teamStrains.get(board.strains[tileY][tileX])!;
+        ctx.fillStyle = getTeamColor(team, 0.1 + scale(lichen, 0, 100) * 0.4);
+        ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
       }
     }
   }
@@ -257,7 +255,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
   const step = episode!.steps[turn];
 
   const onMouseLeave = useCallback(() => {
-    setSelectedTile(null);
+    setSelectedTile(null, true);
   }, []);
 
   useEffect(() => {
@@ -288,7 +286,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
           mouseY >= canvasY &&
           mouseY < canvasY + sizeConfig.tileSize
         ) {
-          setSelectedTile(tile);
+          setSelectedTile(tile, true);
           return;
         }
       }

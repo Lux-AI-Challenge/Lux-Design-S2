@@ -1,6 +1,6 @@
 # Lux AI Season 2 Kits
 
-This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well as the general [Kit API](#kit-api). For those interested in the [RL starter kits/baselines](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl), we highly recommend reading those respective docs as they don't use the standard Kit API.
+This folder contains all kits for the Lux AI Challenge Season 2. It covers the [Kit Structure](#kit-structure), [Forward Simulation](#forward-simulation), Envionment [Actions](#environment-actions) and [Observations](#environment-observations), as well as the general [Kit API](#kit-api). For those interested in the [RL starter kits/baselines](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl), we highly recommend reading those respective docs as they don't use the standard Kit API. For those who need to know what python packages are available on the competition server, see [this](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/available_packages.txt)
 
 In each starter kit folder we give you all the tools necessary to compete. Make sure to read the README document carefully. For debugging, you may log to standard error e.g. `console.error("hello")` or `print("hello", file=sys.stderr)`, and will be recorded by the competition servers.
 
