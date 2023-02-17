@@ -35,6 +35,7 @@ def agent_fn(observation, configurations):
         agent_dict[player] = Agent(player, env_cfg)
         agent_prev_obs[player] = dict()
         agent = agent_dict[player]
+    
     agent = agent_dict[player]
     obs = process_obs(player, agent_prev_obs[player], step, json.loads(observation.obs))
     agent_prev_obs[player] = obs
