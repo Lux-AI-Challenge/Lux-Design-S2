@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 from gym import spaces
 import jax.numpy as jnp
-from jux.env import JuxEnv, JuxEnvBatch
+from jux.env import JuxEnv, JuxEnvBatch, JuxAction
 from stable_baselines3.common.vec_env.base_vec_env import (
     VecEnv,
     VecEnvIndices,
@@ -130,12 +130,27 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2 ** 16 - 1, dtype=np.int32))
 
-    def step(self, actions: np.ndarray) -> VecEnvStepReturn:
+    def step(self, actions: Dict[str, npt.NDArray]) -> VecEnvStepReturn:
         """
         Steps through the jax env. First using the controller converts actions into lux actions?
 
         Then converts all to jax actions? Slow???
+
+        actions: Dict[str, (B, N)]
         """
+
+
+        # create an empty action
+        jux_action = JuxAction.empty(
+            self.env.env_cfg, 
+            self.env.buf_cfg
+        )
+        jux_action = jax.tree_map(lambda x: x[None].repeat(self.num_envs, axis=0), jux_action)
+        
+
+
+
+
         # lux_action = dict()
         # for agent in self.env.agents:
         #     if agent in action:

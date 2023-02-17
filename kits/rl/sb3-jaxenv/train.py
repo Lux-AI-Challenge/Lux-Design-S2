@@ -13,13 +13,16 @@ import torch.nn as nn
 from gym import spaces
 from gym.wrappers import TimeLimit
 from luxai_s2.state import ObservationStateDict, StatsStateDict
-from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
-from luxai_s2.wrappers import SB3Wrapper
+from heuristics.factory import place_factory_near_random_ice
+from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
 from stable_baselines3.common.callbacks import (
     BaseCallback,
     CheckpointCallback,
     EvalCallback,
 )
+from jux.config import EnvConfig, JuxBufferConfig
+from jux.env import JuxEnv
+from jux.state import State as JuxState
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import set_random_seed
@@ -150,21 +153,26 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
 
         # Add a SB3 wrapper to make it work with SB3 and simplify the action space with the controller
         # this will remove the bidding phase and factory placement phase. For factory placement we use
-        # the provided place_near_random_ice function which will randomly select an ice tile and place a factory near it.
-
-        env = SB3Wrapper(
-            env,
-            factory_placement_policy=place_near_random_ice,
+        # the provided place_factory_near_random_ice function which will randomly select an ice tile and place a factory near it.
+        MAX_N_UNITS = 100
+        jux_env = JuxEnv(
+            env_cfg=EnvConfig(),
+            buf_cfg=JuxBufferConfig(MAX_N_UNITS=MAX_N_UNITS),
+        )
+        env = SB3JaxVecEnv(
+            jux_env,
+            num_envs=8,
+            factory_placement_policy=place_factory_near_random_ice,
             controller=SimpleUnitDiscreteController(env.env_cfg),
         )
         env = SimpleUnitObservationWrapper(
             env
         )  # changes observation to include a few simple features
-        env = CustomEnvWrapper(env)  # convert to single agent, add our reward
-        env = TimeLimit(
-            env, max_episode_steps=max_episode_steps
-        )  # set horizon to 100 to make training faster. Default is 1000
-        env = Monitor(env)  # for SB3 to allow it to record metrics
+        # env = CustomEnvWrapper(env)  # convert to single agent, add our reward
+        # env = TimeLimit(
+        #     env, max_episode_steps=max_episode_steps
+        # )  # set horizon to 100 to make training faster. Default is 1000
+        # env = Monitor(env)  # for SB3 to allow it to record metrics
         env.reset(seed=seed + rank)
         set_random_seed(seed)
         return env
@@ -240,13 +248,9 @@ def main(args):
     if args.seed is not None:
         set_random_seed(args.seed)
     env_id = "LuxAI_S2-v0"
-    env = SubprocVecEnv(
-        [
-            make_env(env_id, i, max_episode_steps=args.max_episode_steps)
-            for i in range(args.n_envs)
-        ]
-    )
+    env = make_env(env_id, 0, max_episode_steps=args.max_episode_steps)()
     env.reset()
+    import ipdb;ipdb.set_trace()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(

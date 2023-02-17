@@ -1,10 +1,18 @@
-from typing import Any, Dict
+from typing import Any, Dict, TypeVar
 
 import gym
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
-
+import jax
+import jax.numpy as jnp
+try:
+    # we try/except the jux package as its not installed on Kaggle-Environments
+    import jux
+    from jux.state import State
+except:
+    # State = TypeVar("State")
+    pass 
 
 class SimpleUnitObservationWrapper(gym.ObservationWrapper):
     """
@@ -20,12 +28,66 @@ class SimpleUnitObservationWrapper(gym.ObservationWrapper):
 
     """
 
-    def __init__(self, env: gym.Env) -> None:
+    def __init__(self, env) -> None:
         super().__init__(env)
-        self.observation_space = spaces.Box(-999, 999, shape=(13,))
+        self.observation_space = spaces.Box(-999, 999, shape=(11,))
 
     def observation(self, obs):
-        return SimpleUnitObservationWrapper.convert_obs(obs, self.env.state.env_cfg)
+        return SimpleUnitObservationWrapper.convert_jux_obs(obs)
+
+    @staticmethod
+    def convert_jux_obs(state: Dict[str, State]) -> Dict[str, npt.NDArray]:
+        # converts states into batch observations
+        # we know that the jax state of lux always has units and factories at the front of an array
+        state = state["player_0"]
+        MAX_MAP_SIZE = state.env_cfg.map_size.max()
+        
+        # below maps state.units to across batch dimensions, our team (0), and the first unit (0)
+        unit = jax.tree_map(lambda x : x[..., 0, 0], state.units)
+        
+        # below maps all factory positions to across batch dimensions, our team (0), and the first unit(0)
+        factory_pos = jax.tree_map(lambda x : x[..., 0, 0], state.factories.pos.pos) / MAX_MAP_SIZE
+
+        # store cargo+power values scaled to [0, 1]
+        cargo_space = state.env_cfg.ROBOTS[1].CARGO_SPACE.max()
+        battery_cap = state.env_cfg.ROBOTS[1].BATTERY_CAPACITY.max()
+        cargo_vec = jnp.hstack(
+            [
+                (unit.power / battery_cap)[..., None],
+                unit.cargo.stock / cargo_space
+            ]
+        )
+        unit_type = unit.unit_type  # note that build actions use 0 to encode Light
+        # normalize the unit position
+        pos = unit.pos.pos / MAX_MAP_SIZE
+        unit_vec = jnp.concatenate(
+            [pos, unit_type[..., None], cargo_vec, unit.team_id[..., None]], axis=-1
+        )
+        # we add some engineered features down here
+        # compute closest ice tile
+        ice_map = state.board.ice
+        def get_closest_ice_tile(unit, ice_map):
+            locs = jnp.argwhere(ice_map, size=64, fill_value=128) / MAX_MAP_SIZE
+            pos = unit.pos.pos / MAX_MAP_SIZE
+            ice_tile_distances = jnp.mean(
+                (locs - pos) ** 2, 1
+            )
+            closest_ice_tile = locs[jnp.argmin(ice_tile_distances)]
+            return closest_ice_tile
+        closest_ice_tile = jax.vmap(get_closest_ice_tile)(unit, ice_map) # (B, 2)
+
+        # mask out unit data if there are no units on our team
+        obs_mask = jax.tree_map(lambda x : x[..., 0], state.n_units) == 0
+
+        ice_feature = (closest_ice_tile - pos)
+        factory_feature = (factory_pos - pos)
+        unit_vec = unit_vec.at[obs_mask].set(0)
+
+        obs_vec = jnp.concatenate(
+            [unit_vec, factory_feature, ice_feature], axis=-1
+        )
+        obs_vec = obs_vec.at[obs_mask].set(0)
+        return obs_vec # (B, 11)
 
     # we make this method static so the submission/evaluation code can use this as well
     @staticmethod

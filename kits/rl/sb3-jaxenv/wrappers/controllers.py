@@ -3,8 +3,12 @@ from typing import Any, Dict
 
 import numpy as np
 import numpy.typing as npt
+import jax
 from gym import spaces
-
+try:
+    from jux.env import JuxEnv, JuxEnvBatch, JuxAction
+except:
+    pass
 
 # Controller class copied here since you won't have access to the luxai_s2 package directly on the competition server
 class Controller:
@@ -95,6 +99,20 @@ class SimpleUnitDiscreteController(Controller):
 
     def _get_dig_action(self, id):
         return np.array([3, 0, 0, 0, 0, 1])
+
+
+    def action_to_jux_action(
+        self, action: npt.NDArray
+    ):
+        # convert in batch
+        # note that the first unit is always controlled by actions in the front of an array.
+        # create an empty action
+        jux_action = JuxAction.empty(
+            self.env.env_cfg, 
+            self.env.buf_cfg
+        )
+        jux_action: JuxAction = jax.tree_map(lambda x: x[None].repeat(self.num_envs, axis=0), jux_action)
+        jux_action.unit_action_queue_count = 1 # queue size is always 1
 
     def action_to_lux_action(
         self, agent: str, obs: Dict[str, Any], action: npt.NDArray
