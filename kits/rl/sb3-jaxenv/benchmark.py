@@ -1,3 +1,6 @@
+"""
+Simple code to bencmark various parts of the Jux env
+"""
 import time
 
 import jax
@@ -8,9 +11,9 @@ from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
 from heuristics import place_factory_near_random_ice
 from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
-num_envs = 128
+num_envs = 1024
 N = 256
-MAX_N_UNITS = 2000
+MAX_N_UNITS = 200
 
 print(
     f"Benching env._upgraded_reset. N={N}, num_envs={num_envs}, MAX_N_UNITS={MAX_N_UNITS}"

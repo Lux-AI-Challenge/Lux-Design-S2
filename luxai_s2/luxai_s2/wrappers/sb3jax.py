@@ -125,8 +125,30 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
         self._upgraded_reset = jax.vmap(jax.jit(_upgraded_reset))
 
+        self._step_normal_phase = jax.vmap(jax.jit(self.env.step_late_game))
+
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2 ** 16 - 1, dtype=np.int32))
+
+    def step(self, actions: np.ndarray) -> VecEnvStepReturn:
+        """
+        Steps through the jax env. First using the controller converts actions into lux actions?
+
+        Then converts all to jax actions? Slow???
+        """
+        # lux_action = dict()
+        # for agent in self.env.agents:
+        #     if agent in action:
+        #         lux_action[agent] = self.controller.action_to_lux_action(
+        #             agent=agent, obs=self.prev_obs, action=action[agent]
+        #         )
+        #     else:
+        #         lux_action[agent] = dict()
+        self._step_normal_phase
+        
+
+        return obs, rew, dones, infos
+
 
     def step_async(self, actions: np.ndarray) -> None:
         self._async_actions = actions
