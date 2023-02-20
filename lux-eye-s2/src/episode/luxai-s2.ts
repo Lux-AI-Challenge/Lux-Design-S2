@@ -1,6 +1,7 @@
 import {
   Board,
   Episode,
+  EpisodeMetadata,
   Faction,
   Factory,
   FactoryAction,
@@ -128,9 +129,25 @@ export function isLuxAIS2Episode(data: any): boolean {
   return typeof data === 'object' && data.observations !== undefined && data.actions !== undefined;
 }
 
-export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['Player A', 'Player B']): Episode {
+export function parseLuxAIS2Episode(data: any, extra: Partial<EpisodeMetadata> = {}): Episode {
   if (data.observations[0].board.valid_spawns_mask === undefined) {
     throw new Error('Only Lux AI v1.1.0+ episodes are supported');
+  }
+
+  let metadata: EpisodeMetadata = { teamNames: ['Player A', 'Player B'], seed: undefined };
+  metadata = {
+    ...metadata,
+    ...extra,
+  };
+  if (data.metadata) {
+    if (data.metadata['players']) {
+      for (let i = 0; i < 2; i++) {
+        metadata.teamNames[i] = data.metadata['players'][`player_${i}`];
+      }
+    }
+    if (data.metadata['seed']) {
+      metadata.seed = data.metadata['seed'];
+    }
   }
 
   const steps: Step[] = [];
@@ -195,7 +212,7 @@ export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['P
           data.observations[1].teams[playerId] !== undefined ? data.observations[1].teams[playerId] : null;
 
         teams.push({
-          name: teamNames[j],
+          name: metadata.teamNames[j],
           faction: rawPlayer !== null ? rawPlayer.faction : Faction.None,
 
           water: 0,
@@ -285,7 +302,7 @@ export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['P
 
       const rawTeam = obs.teams[playerId];
       teams.push({
-        name: teamNames[j],
+        name: metadata.teamNames[j],
         faction: rawTeam.faction,
 
         water: rawTeam.water,
@@ -311,5 +328,5 @@ export function parseLuxAIS2Episode(data: any, teamNames: [string, string] = ['P
     });
   }
 
-  return { steps };
+  return { steps, metadata };
 }

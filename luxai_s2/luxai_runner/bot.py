@@ -82,6 +82,8 @@ class Bot:
                 )
         except asyncio.TimeoutError:
             action, stderr = None, None
+        except:
+            action, stderr = None, None
         time_used = time.time() - stime
 
         if stderr != "" and stderr is not None:
