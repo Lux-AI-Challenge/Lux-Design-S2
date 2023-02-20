@@ -8,7 +8,6 @@ Note that like the other kits, you can only debug print to standard error e.g. p
 
 import os.path as osp
 import sys
-
 import numpy as np
 import torch as th
 from stable_baselines3.ppo import PPO
@@ -17,8 +16,8 @@ from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
 # change this to use weights stored elsewhere
 # make sure the model weights are submitted with the other code files
-# any files in the logs folder are not necessary
-MODEL_WEIGHTS_RELATIVE_PATH = "./best_model.zip"
+# any files in the logs folder are not necessary. Make sure to exclude the .zip extension here
+MODEL_WEIGHTS_RELATIVE_PATH = "./best_model"
 
 class Agent:
     def __init__(self, player: str, env_cfg: EnvConfig) -> None:
@@ -28,7 +27,6 @@ class Agent:
         self.env_cfg: EnvConfig = env_cfg
 
         directory = osp.dirname(__file__)
-
         self.policy = PPO.load(osp.join(directory, MODEL_WEIGHTS_RELATIVE_PATH))
 
         self.controller = SimpleUnitDiscreteController(self.env_cfg)

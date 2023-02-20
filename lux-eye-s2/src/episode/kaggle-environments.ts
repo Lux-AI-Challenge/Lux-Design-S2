@@ -1,5 +1,5 @@
 import { parseLuxAIS2Episode } from './luxai-s2';
-import { Episode } from './model';
+import { Episode, EpisodeMetadata } from './model';
 
 export function isKaggleEnvironmentsEpisode(data: any): boolean {
   return typeof data === 'object' && data.steps !== undefined;
@@ -9,9 +9,12 @@ export function parseKaggleEnvironmentsEpisode(data: any): Episode {
   const observations = [];
   const actions = [];
 
-  let teamNames: [string, string] | undefined = undefined;
+  const extra: Partial<EpisodeMetadata> = {};
   if (typeof data.info === 'object' && data.info.TeamNames !== undefined) {
-    teamNames = data.info.TeamNames;
+    extra.teamNames = data.info.TeamNames;
+  }
+  if (typeof data.configuration == 'object' && data.configuration.seed !== undefined) {
+    extra.seed = data.configuration.seed;
   }
 
   for (const step of data.steps) {
@@ -26,5 +29,5 @@ export function parseKaggleEnvironmentsEpisode(data: any): Episode {
     });
   }
 
-  return parseLuxAIS2Episode({ observations, actions }, teamNames);
+  return parseLuxAIS2Episode({ observations, actions }, extra);
 }
