@@ -134,7 +134,7 @@ export function parseLuxAIS2Episode(data: any, extra: Partial<EpisodeMetadata> =
     throw new Error('Only Lux AI v1.1.0+ episodes are supported');
   }
 
-  let metadata: EpisodeMetadata = { teamNames: ['Player A', 'Player B'], seed: -1 };
+  let metadata: EpisodeMetadata = { teamNames: ['Player A', 'Player B'], seed: undefined };
   metadata = {
     ...metadata,
     ...extra,

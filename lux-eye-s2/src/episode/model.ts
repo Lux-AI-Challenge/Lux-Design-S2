@@ -170,5 +170,5 @@ export interface Episode {
 }
 export interface EpisodeMetadata {
   teamNames: [string, string];
-  seed: number;
+  seed?: number;
 }
