@@ -166,4 +166,9 @@ export interface Step {
 
 export interface Episode {
   steps: Step[];
+  metadata: EpisodeMetadata;
+}
+export interface EpisodeMetadata {
+  teamNames: [string, string];
+  seed?: number;
 }
