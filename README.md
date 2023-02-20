@@ -28,6 +28,8 @@ pip install --upgrade luxai_s2
 pip install juxai-s2 # installs the GPU version, requires a compatible GPU
 ```
 
+If you have `gym` installation issues, we recommend running `pip install setuptools==56.2.0`. If you use conda, we highly recommend creating an environment based on the [environment.yml file in this repo](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/environment.yml).
+
 
 To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
 
