@@ -1,5 +1,21 @@
 # ChangeLog
 
+### v2.1.8
+
+fix bug on mac where non python kits assumed a windows platform
+
+### v2.1.7
+removed omegaconf as dependency
+
+
+### v2.1.6
+
+some bug fixes
+
+### v2.1.5
+
+verbosity is nicer and more bug fixes
+
 ### v2.1.4
 
 Fix bug with action formatter not handling lists
