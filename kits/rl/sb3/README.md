@@ -1,6 +1,6 @@
 # Stable Baselines 3 Simple RL Kit
 
-This is a simple stable baselines 3 RL kit based off of part 2 of the [RL tutorial series]()
+This is a simple stable baselines 3 RL kit based off of part 2 of the [RL tutorial series](https://www.kaggle.com/code/stonet2000/rl-with-lux-2-rl-problem-solving)
 
 `train.py` implements a very simple approach to training an RL agent to dig ice and deliver it back to factories to generate water and survive longer.
 
