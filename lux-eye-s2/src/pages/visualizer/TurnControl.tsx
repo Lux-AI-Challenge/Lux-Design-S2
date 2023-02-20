@@ -287,6 +287,7 @@ export function TurnControl({ showHotkeysButton, showOpenButton }: TurnControlPr
 
       <Group position="apart">
         <Text>{isDay ? 'Day' : 'Night'}</Text>
+        <Text>Seed: {episode.metadata.seed}</Text>
         {selectedTile !== null && (
           <Text>
             Tile: ({selectedTile.x}, {selectedTile.y})
