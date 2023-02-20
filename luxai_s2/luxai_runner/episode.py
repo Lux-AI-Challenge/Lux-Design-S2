@@ -39,13 +39,14 @@ class Episode:
         self.seed = cfg.seed if cfg.seed is not None else np.random.randint(9999999)
         self.players = cfg.players
 
-    def save_replay(self, replay):
+    def save_replay(self, replay, metadata):
         save_format = self.cfg.replay_options.save_format
         if save_format not in ["json", "html"]:
             raise ValueError(f"{save_format} is not a valid save format")
-
+        replay["metadata"] = metadata
         replay["observations"] = [to_json(x) for x in replay["observations"]]
         replay["actions"] = [to_json(x) for x in replay["actions"]]
+        replay["default_seed"] = self.cfg.seed
         del replay["dones"]
         del replay["rewards"]
 
@@ -102,10 +103,17 @@ window.episode = {json.dumps(replay)};
             start_tasks += [player.proc.start()]
         await asyncio.wait(start_tasks, return_when=asyncio.ALL_COMPLETED)
 
+        metadata = dict()
+
         obs = self.env.reset(seed=self.seed)
         env_cfg = self.env.state.env_cfg
         state_obs = self.env.state.get_compressed_obs()
         obs = to_json(state_obs)
+
+        metadata["seed"] = self.env.seed_val
+        metadata["players"] = dict()
+        for player_id, bot in players.items():
+            metadata["players"][player_id] = bot.main_file_path
 
         if self.cfg.render:
             self.env.render()
@@ -181,7 +189,7 @@ window.episode = {json.dumps(replay)};
                 game_done = True
         self.log.info(f"Final Scores: {rewards}")
         if save_replay:
-            self.save_replay(replay)
+            self.save_replay(replay, metadata)
 
         for player in players.values():
             await player.proc.cleanup()
