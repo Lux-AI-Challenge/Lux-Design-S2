@@ -4,6 +4,11 @@
 
 fix bug on mac where non python kits assumed a windows platform
 
+store replay seed and player paths on CLI tool.
+
+visualizer shows the player paths as well as seed on kaggle and local replays
+
+
 ### v2.1.7
 removed omegaconf as dependency
 
