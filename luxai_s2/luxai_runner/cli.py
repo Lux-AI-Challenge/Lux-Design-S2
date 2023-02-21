@@ -9,7 +9,6 @@ from luxai_runner.bot import Bot
 from luxai_runner.episode import Episode, EpisodeConfig, ReplayConfig
 from luxai_runner.logger import Logger
 from luxai_runner.tournament import Tournament, TournamentConfig
-from omegaconf import OmegaConf
 
 from luxai_s2 import LuxAI_S2
 
@@ -48,9 +47,9 @@ def main():
     parser.add_argument(
         "-v",
         "--verbose",
-        help="Verbose Level (0 = silent, 1 = errors, 2 = warnings, 3 = info)",
+        help="Verbose Level (0 = silent, 1 = (game-ending errors, debug logs from agents), 2 = warnings (non-game ending invalid actions), 3 = info (system info, unit collisions) )",
         type=int,
-        default=1,
+        default=2,
     )
     parser.add_argument(
         "-s",
@@ -140,7 +139,7 @@ def main():
 
         tournament_config = TournamentConfig()
         tournament_config.agents = args.players
-        # TODO - in future replace this with OmegaConf or something that can parse these nicely
+
         tournament_config.max_concurrent_episodes = getattr(
             args, "tournament_cfg.concurrent"
         )

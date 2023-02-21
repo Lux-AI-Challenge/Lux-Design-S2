@@ -54,7 +54,7 @@ class BotProcess:
         base_file_path = os.path.basename(self.file_path)
         if self.is_binary:
             self._agent_process = await asyncio.create_subprocess_exec(
-                f"{cwd}\{base_file_path}" if "win" in sys.platform else f"./{base_file_path}",
+                f"{cwd}\{base_file_path}" if sys.platform.startswith('win') else f"./{base_file_path}",
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -130,6 +130,9 @@ class BotProcess:
         # return " ".join(stderrs)
 
     async def cleanup(self):
-        self._agent_process._transport.close()
-        self._agent_process.terminate()
-        await self._agent_process.wait()
+        try:
+            self._agent_process._transport.close()
+            self._agent_process.terminate()
+            await self._agent_process.wait()
+        except:
+            pass

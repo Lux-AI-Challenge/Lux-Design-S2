@@ -10,12 +10,11 @@ dependencies:
   - cython
   - tqdm
   - yaml
-  - gym=0.19
+  - gym=0.21
 
   - pip:
     - pettingzoo
     - termcolor
     - pygame
     - vec_noise
-    - omegaconf
 

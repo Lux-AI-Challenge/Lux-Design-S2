@@ -22,7 +22,7 @@ dependencies:
   - black
   - isort
 
-  - gym=0.19
+  - gym=0.21
 
   - pip:
     - pettingzoo

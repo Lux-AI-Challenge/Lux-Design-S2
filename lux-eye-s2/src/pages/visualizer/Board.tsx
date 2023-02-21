@@ -2,6 +2,8 @@ import { useHover, useMergedRef, useMouse } from '@mantine/hooks';
 import { useCallback, useEffect, useState } from 'react';
 import factoryGreen from '../../assets/factory_green.svg';
 import factoryRed from '../../assets/factory_red.svg';
+import heavy0 from '../../assets/robots/heavy0.png';
+import heavy1 from '../../assets/robots/heavy1.png';
 import light0 from '../../assets/robots/light0.png';
 import light1 from '../../assets/robots/light1.png';
 import rubble100 from '../../assets/rubble/r100.png';
@@ -39,7 +41,7 @@ type Config = SizeConfig & ThemeConfig & AssetConfig;
 function getSizeConfig(maxWidth: number, step: Step): SizeConfig {
   const gutterSize = 1;
   const tilesPerSide = step.board.rubble.length;
-
+  // maxWidth =00;
   let tileSize = Math.floor(Math.sqrt(maxWidth));
   let boardSize = tileSize * tilesPerSide + gutterSize * (tilesPerSide + 1);
 
@@ -47,6 +49,7 @@ function getSizeConfig(maxWidth: number, step: Step): SizeConfig {
     tileSize--;
     boardSize -= tilesPerSide;
   }
+  // boardSize = 1400;
 
   return {
     gutterSize,
@@ -79,8 +82,8 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
 
   const teamStrains = new Map<number, number>();
   for (let i = 0; i < 2; i++) {
-    for (const factory of step.teams[i].factories) {
-      teamStrains.set(factory.strain, i);
+    for (const strain of step.teams[i].strains) {
+      teamStrains.set(strain, i);
     }
   }
 
@@ -89,7 +92,8 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
       const [canvasX, canvasY] = tileToCanvas(config, { x: tileX, y: tileY });
       // ctx.fillStyle = 'white';
       // ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
-      const tilePadding = 0;
+      const tilePadding = 2;
+      ctx.filter = 'hue-rotate(-100deg)';
       if (!config.minimalTheme && config.lichenTiles && config.rubbleTiles && config.iceTiles && config.oreTiles) {
         let color: string;
         if (board.ice[tileY][tileX] > 0) {
@@ -129,8 +133,10 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
         ctx.fillStyle = color;
         ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
       }
+      ctx.filter = 'none';
 
       const lichen = board.lichen[tileY][tileX];
+      ctx.filter = 'hue-rotate(90deg)';
       if (lichen > 0) {
         const team = teamStrains.get(board.strains[tileY][tileX]);
         if (team !== undefined) {
@@ -138,6 +144,7 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
             const bracket = Math.ceil(lichen / 20);
             const ID = bracket; // * 8 + randomIds.get(`${tileX},${tileY}`);
             // console.log({bracket, ID, }, config.lichenTiles.length)
+
             ctx.drawImage(
               config.lichenTiles[ID],
               canvasX - tilePadding,
@@ -151,6 +158,7 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
           }
         }
       }
+      ctx.filter = 'none';
     }
   }
 
@@ -205,10 +213,17 @@ function drawRobot(
   const [canvasX, canvasY] = tileToCanvas(config, robot.tile);
 
   const isSelected = selectedTile !== null && robot.tile.x === selectedTile.x && robot.tile.y === selectedTile.y;
-
+  let tilePadding = 3;
   if (robot.type === RobotType.Light) {
     if (!config.minimalTheme) {
-      ctx.drawImage(config.lights[team], canvasX, canvasY, config.tileSize, config.tileSize);
+      tilePadding = 0;
+      ctx.drawImage(
+        config.lights[team],
+        canvasX - tilePadding + 2,
+        canvasY - tilePadding - 1,
+        config.tileSize + tilePadding * 2 - 4,
+        config.tileSize + tilePadding * 2,
+      );
     } else {
       ctx.fillStyle = getTeamColor(team, 1.0);
       ctx.strokeStyle = 'black';
@@ -222,18 +237,29 @@ function drawRobot(
       ctx.stroke();
     }
   } else {
-    const borderSize = isSelected ? 1 : 2;
+    if (!config.minimalTheme) {
+      tilePadding = 1;
+      ctx.drawImage(
+        config.heavies[team],
+        canvasX - tilePadding,
+        canvasY - tilePadding,
+        config.tileSize + tilePadding * 2,
+        config.tileSize + tilePadding * 2,
+      );
+    } else {
+      const borderSize = isSelected ? 1 : 2;
 
-    ctx.fillStyle = 'black';
-    ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+      ctx.fillStyle = 'black';
+      ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
 
-    ctx.fillStyle = getTeamColor(team, 1.0);
-    ctx.fillRect(
-      canvasX + borderSize,
-      canvasY + borderSize,
-      config.tileSize - borderSize * 2,
-      config.tileSize - borderSize * 2,
-    );
+      ctx.fillStyle = getTeamColor(team, 1.0);
+      ctx.fillRect(
+        canvasX + borderSize,
+        canvasY + borderSize,
+        config.tileSize - borderSize * 2,
+        config.tileSize - borderSize * 2,
+      );
+    }
   }
 
   ctx.restore();
@@ -336,7 +362,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
   const step = episode!.steps[turn];
 
   const onMouseLeave = useCallback(() => {
-    setSelectedTile(null);
+    setSelectedTile(null, true);
   }, []);
 
   useEffect(() => {
@@ -380,6 +406,11 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       elem.src = image;
       lights.push(elem);
     }
+    for (const image of [heavy0, heavy1]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      heavies.push(elem);
+    }
 
     setAssetConfig({ factories, lichenTiles, rubbleTiles, heavies, lights, iceTiles, oreTiles });
 
@@ -409,7 +440,7 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
           mouseY >= canvasY &&
           mouseY < canvasY + sizeConfig.tileSize
         ) {
-          setSelectedTile(tile);
+          setSelectedTile(tile, true);
           return;
         }
       }

@@ -1,0 +1,5 @@
+logs
+*.pth
+*.tar.gz
+luxai_s2
+*.zip

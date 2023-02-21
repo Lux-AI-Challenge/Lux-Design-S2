@@ -8,18 +8,8 @@
 namespace lux {
     UnitAction::UnitAction(UnitAction::RawType raw_) : Action(raw_) { populateMember(); }
 
-    UnitAction::UnitAction(Type      type_,
-                           Direction direction_,
-                           int64_t   distance_,
-                           int64_t   amount_,
-                           int64_t   repeat_,
-                           int64_t   n_)
-        : type(type_),
-          direction(direction_),
-          distance(distance_),
-          amount(amount_),
-          repeat(repeat_),
-          n(n_) {}
+    UnitAction::UnitAction(Type type_, Direction direction_, int64_t amount_, int64_t repeat_, int64_t n_)
+        : UnitAction(type_, direction_, resourceFromInt(0), amount_, repeat_, n_) {}
 
     UnitAction::UnitAction(Type      type_,
                            Direction direction_,
@@ -35,7 +25,7 @@ namespace lux {
           n(n_) {}
 
     UnitAction UnitAction::Move(Direction direction, int64_t repeat, int64_t n) {
-        return UnitAction(Type::MOVE, direction, 1, 0, repeat, n);
+        return UnitAction(Type::MOVE, direction, 0, repeat, n);
     }
 
     UnitAction UnitAction::Transfer(Direction direction, Resource resource, int64_t amount, int64_t repeat, int64_t n) {
@@ -47,24 +37,21 @@ namespace lux {
     }
 
     UnitAction UnitAction::Dig(int64_t repeat, int64_t n) {
-        return UnitAction(Type::DIG, Direction::CENTER, 0, 0, repeat, n);
+        return UnitAction(Type::DIG, Direction::CENTER, 0, repeat, n);
     }
 
     UnitAction UnitAction::SelfDestruct(int64_t repeat, int64_t n) {
-        return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, 0, repeat, n);
+        return UnitAction(Type::SELF_DESTRUCT, Direction::CENTER, 0, repeat, n);
     }
 
     UnitAction UnitAction::Recharge(int64_t amount, int64_t repeat, int64_t n) {
-        return UnitAction(Type::RECHARGE, Direction::CENTER, 0, amount, repeat, n);
+        return UnitAction(Type::RECHARGE, Direction::CENTER, amount, repeat, n);
     }
 
     void UnitAction::populateRaw() {
         raw[0] = std::underlying_type_t<UnitAction::Type>(type);
         raw[1] = std::underlying_type_t<Direction>(direction);
-        raw[2] = distance;
-        if (isTransferAction() || isPickupAction()) {
-            raw[2] = std::underlying_type_t<Resource>(resource);
-        }
+        raw[2] = std::underlying_type_t<Resource>(resource);
         raw[3] = amount;
         raw[4] = repeat;
         raw[5] = n;
@@ -74,10 +61,7 @@ namespace lux {
         LUX_ASSERT(raw[0] >= 0 && raw[0] <= 5, "got invalid UnitAction type " + std::to_string(raw[0]));
         type      = static_cast<UnitAction::Type>(raw[0]);
         direction = directionFromInt(raw[1]);
-        if (isTransferAction() || isPickupAction()) {
-            resource = resourceFromInt(raw[2]);
-        }
-        distance = raw[2];
+        resource  = resourceFromInt(raw[2]);
         amount   = raw[3];
         repeat   = raw[4];
         n        = raw[5];

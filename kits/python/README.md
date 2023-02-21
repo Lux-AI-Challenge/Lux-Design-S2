@@ -1,6 +1,6 @@
 # Lux AI Season 2 Python Kit
 
-This is the folder for the Python kit. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition.
+This is the folder for the Python kit. Please make sure to read the instructions as they are important regarding how you will write a bot and submit it to the competition. For those who need to know what python packages are available on the competition server, see [this](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/available_packages.txt)
 
 Make sure to check our [Discord](https://discord.gg/aWJt3UAcgn) or the [Kaggle forums](https://www.kaggle.com/c/lux-ai-season2/discussion) for announcements if there are any breaking changes.
 

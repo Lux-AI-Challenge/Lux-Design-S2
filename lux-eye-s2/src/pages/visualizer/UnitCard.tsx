@@ -15,8 +15,8 @@ export function UnitCard({ tiles, tileToSelect, children }: UnitCardProps): JSX.
 
   const isSelected = tiles.some(tile => selectedTile?.x === tile.x && selectedTile?.y === tile.y);
 
-  const onMouseEnter = useCallback(() => setSelectedTile(tileToSelect), [tileToSelect]);
-  const onMouseLeave = useCallback(() => setSelectedTile(null), []);
+  const onMouseEnter = useCallback(() => setSelectedTile(tileToSelect, false), [tileToSelect]);
+  const onMouseLeave = useCallback(() => setSelectedTile(null, false), []);
   const style = useMemo(() => ({ background: isSelected ? '#ecf0f1' : 'transparent' }), [isSelected]);
 
   return (

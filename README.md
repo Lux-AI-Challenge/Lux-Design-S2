@@ -28,6 +28,8 @@ pip install --upgrade luxai_s2
 pip install juxai-s2 # installs the GPU version, requires a compatible GPU
 ```
 
+If you have `gym` installation issues, we recommend running `pip install setuptools==56.2.0`. If you use conda, we highly recommend creating an environment based on the [environment.yml file in this repo](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/environment.yml).
+
 
 To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
 
@@ -42,12 +44,12 @@ Each supported programming language/solution type has its own starter kit, you c
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
+- [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl/)
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - [Javascript](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/js/)
 - [Java](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/java/)
 - [Go](https://github.com/rooklift/golux2/) - (A working bare-bones Go kit)
 - Typescript - TBA
-<!-- - [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3/) and [Reinforcement Learning (Python + Jax Env)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/) -->
 
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
@@ -72,7 +74,7 @@ We are proud to announce our sponsors [QuantCo](https://quantco.com/), [Regressi
 
 ## Core Contributors
 
-We like to extend thanks to some of our early core contributors: [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Engine optimization).
+We like to extend thanks to some of our early core contributors: [@duanwilliam](https://github.com/duanwilliam) (Frontend), [@programjames](https://github.com/programjames) (Map generation, Engine optimization), and [@themmj](https://github.com/themmj) (C++ kit, Go kit, Engine optimization).
 
 We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer)
 

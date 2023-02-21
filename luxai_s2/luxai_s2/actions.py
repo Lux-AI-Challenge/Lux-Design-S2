@@ -189,6 +189,7 @@ def format_factory_action(a: int):
 
 def format_action_vec(a: np.ndarray):
     # (0 = move, 1 = transfer X amount of R, 2 = pickup X amount of R, 3 = dig, 4 = self destruct, 5 = recharge X)
+    a = np.array(a).astype(int)
     a_type = a[0]
     if a_type == 0:
         act = MoveAction(a[1], dist=1, repeat=a[4], n=a[5])
@@ -223,7 +224,7 @@ def validate_actions(env_cfg: EnvConfig, state: "State", actions_by_type, verbos
     def invalidate_action(msg):
         nonlocal valid_action
         valid_action = False
-        if verbose > 0:
+        if verbose > 1:
             print(f"{state.real_env_steps}: {msg}")
 
     for unit, transfer_action in actions_by_type["transfer"]:

@@ -40,7 +40,6 @@ namespace lux {
             RECHARGE,
         } type;
         Direction direction;
-        int64_t   distance;
         Resource  resource;
         int64_t   amount;
         int64_t   repeat;
@@ -48,7 +47,7 @@ namespace lux {
 
         UnitAction() = default;
         UnitAction(UnitAction::RawType raw_);
-        UnitAction(Type type_, Direction direction_, int64_t distance_, int64_t amount_, int64_t repeat_, int64_t n_);
+        UnitAction(Type type_, Direction direction_, int64_t amount_, int64_t repeat_, int64_t n_);
         UnitAction(Type type_, Direction direction_, Resource resource_, int64_t amount_, int64_t repeat_, int64_t n_);
 
         static UnitAction Move(Direction direction, int64_t repeat, int64_t n);
