@@ -23,6 +23,7 @@ luxai-s2 main.py main.py --out=replay.json
 This will run the `agent.py` code in the same folder as `main.py` and generate a replay file saved to `replay.json`.
 
 ## Developing
+
 Now that you have the code up and running, you are ready to start programming and having some fun!
 
 If you haven't read it already, take a look at the [design specifications for the competition](https://www.lux-ai.org/specs-s2). This will go through the rules and objectives of the competition. For a in-depth tutorial, we provide a jupyter notebook both [locally](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/kits/python/lux-ai-challenge-season-2-tutorial-python.ipynb) and on [Kaggle](https://www.kaggle.com/code/stonet2000/lux-ai-challenge-season-2-tutorial-python)
@@ -36,3 +37,9 @@ Submissions need to be a .tar.gz bundle with main.py at the top level directory 
 ## FAQ
 
 As questions come up, this will be populated with frequently asked questions regarding the Python kit.
+
+## Dependencias detectadas
+
+pip install opencv-python
+sudo apt-get update -y
+sudo apt-get install -y libgl1-mesa-dev
