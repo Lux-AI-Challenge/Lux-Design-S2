@@ -1,5 +1,8 @@
 # ChangeLog
 
+### v2.1.9
+
+Fix bug where setuptools was causing runtime errors
 ### v2.1.8
 
 fix bug on mac where non python kits assumed a windows platform

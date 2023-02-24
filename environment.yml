@@ -13,7 +13,7 @@ dependencies:
   - gym=0.21
 
   - pip:
-    - pettingzoo
+    - pettingzoo==1.12.0
     - termcolor
     - pygame
     - vec_noise
