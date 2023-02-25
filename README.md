@@ -30,6 +30,12 @@ pip install juxai-s2 # installs the GPU version, requires a compatible GPU
 
 If you have `gym` installation issues, we recommend running `pip install setuptools==59.8.0`. If you have issues installing `vec-noise`, make sure to read the error output, it's usually because you are missing some C/C++ build tools. If you use conda, we highly recommend creating an environment based on the [environment.yml file in this repo](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/environment.yml). If you don't know how conda works, I highly recommend setting it up, see the [install instructions](https://conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation).
 
+To create a conda environment and use it run
+```
+conda env create -f environment.yml
+conda activate luxai_s2
+```
+
 
 To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
 
