@@ -6,6 +6,7 @@ import numpy.typing as npt
 import jax
 from gym import spaces
 try:
+    # Note that jux is not available on kaggle. So we don't import these on competition servers
     from jux.env import JuxEnv, JuxEnvBatch, JuxAction
 except:
     pass
@@ -108,52 +109,53 @@ class SimpleUnitDiscreteController(Controller):
         # note that the first unit is always controlled by actions in the front of an array.
         # create an empty action
         jux_action = JuxAction.empty(
-            self.env.env_cfg, 
+            self.env.env_cfg,
             self.env.buf_cfg
         )
         jux_action: JuxAction = jax.tree_map(lambda x: x[None].repeat(self.num_envs, axis=0), jux_action)
         jux_action.unit_action_queue_count = 1 # queue size is always 1
+        jux_action.unit_action_queue
 
-    def action_to_lux_action(
-        self, agent: str, obs: Dict[str, Any], action: npt.NDArray
-    ):
-        shared_obs = obs["player_0"]
-        lux_action = dict()
-        units = shared_obs["units"][agent]
-        for unit_id in units.keys():
-            unit = units[unit_id]
-            choice = action
-            action_queue = []
-            no_op = False
-            if self._is_move_action(choice):
-                action_queue = [self._get_move_action(choice)]
-            elif self._is_transfer_action(choice):
-                action_queue = [self._get_transfer_action(choice)]
-            elif self._is_pickup_action(choice):
-                action_queue = [self._get_pickup_action(choice)]
-            elif self._is_dig_action(choice):
-                action_queue = [self._get_dig_action(choice)]
-            else:
-                # action is a no_op, so we don't update the action queue
-                no_op = True
+    # def action_to_lux_action(
+    #     self, agent: str, obs: Dict[str, Any], action: npt.NDArray
+    # ):
+    #     shared_obs = obs["player_0"]
+    #     lux_action = dict()
+    #     units = shared_obs["units"][agent]
+    #     for unit_id in units.keys():
+    #         unit = units[unit_id]
+    #         choice = action
+    #         action_queue = []
+    #         no_op = False
+    #         if self._is_move_action(choice):
+    #             action_queue = [self._get_move_action(choice)]
+    #         elif self._is_transfer_action(choice):
+    #             action_queue = [self._get_transfer_action(choice)]
+    #         elif self._is_pickup_action(choice):
+    #             action_queue = [self._get_pickup_action(choice)]
+    #         elif self._is_dig_action(choice):
+    #             action_queue = [self._get_dig_action(choice)]
+    #         else:
+    #             # action is a no_op, so we don't update the action queue
+    #             no_op = True
 
-            # simple trick to help agents conserve power is to avoid updating the action queue
-            # if the agent was previously trying to do that particular action already
-            if len(unit["action_queue"]) > 0 and len(action_queue) > 0:
-                same_actions = (unit["action_queue"][0] == action_queue[0]).all()
-                if same_actions:
-                    no_op = True
-            if not no_op:
-                lux_action[unit_id] = action_queue
+    #         # simple trick to help agents conserve power is to avoid updating the action queue
+    #         # if the agent was previously trying to do that particular action already
+    #         if len(unit["action_queue"]) > 0 and len(action_queue) > 0:
+    #             same_actions = (unit["action_queue"][0] == action_queue[0]).all()
+    #             if same_actions:
+    #                 no_op = True
+    #         if not no_op:
+    #             lux_action[unit_id] = action_queue
 
-            break
+    #         break
 
-        factories = shared_obs["factories"][agent]
-        if len(units) == 0:
-            for unit_id in factories.keys():
-                lux_action[unit_id] = 1  # build a single heavy
+    #     factories = shared_obs["factories"][agent]
+    #     if len(units) == 0:
+    #         for unit_id in factories.keys():
+    #             lux_action[unit_id] = 1  # build a single heavy
 
-        return lux_action
+    #     return lux_action
 
     def action_masks(self, agent: str, obs: Dict[str, Any]):
         """

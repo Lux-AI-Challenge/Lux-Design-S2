@@ -14,7 +14,7 @@ except:
     # State = TypeVar("State")
     pass 
 
-class SimpleUnitObservationWrapper(gym.ObservationWrapper):
+class SimpleUnitObservationWrapper(gym.vector.VectorEnvWrapper):
     """
     A simple state based observation to work with in pair with the SimpleUnitDiscreteController
 

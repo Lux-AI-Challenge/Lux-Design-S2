@@ -8,18 +8,18 @@ from lux.config import EnvConfig
 from lux.factory import Factory
 from lux.team import FactionTypes, Team
 from lux.unit import Unit
-
+import jax.numpy as jnp
 
 def process_action(action):
     return to_json(action)
 
 
 def to_json(obj):
-    if isinstance(obj, np.ndarray):
+    if isinstance(obj, np.ndarray) or isinstance(obj, jnp.ndarray):
         return obj.tolist()
-    elif isinstance(obj, np.integer):
+    elif isinstance(obj, np.integer) or isinstance(obj, jnp.integer):
         return int(obj)
-    elif isinstance(obj, np.floating):
+    elif isinstance(obj, np.floating) or isinstance(obj, jnp.floating):
         return float(obj)
     elif isinstance(obj, list) or isinstance(obj, tuple):
         return [to_json(s) for s in obj]

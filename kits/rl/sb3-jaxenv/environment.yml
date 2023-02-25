@@ -1,4 +1,4 @@
-name: luxai_s2_jax
+name: luxai_s2_jax_test
 channels:
   - conda-forge
 dependencies:

@@ -17,3 +17,35 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.XX
 ```
 
 Jax by default allocates 90% of GPU memory to Jax, meaning if you using e.g. PyTorch code with cuda you will easily hit out of memory errors.
+
+
+```
+XLA_PYTHON_CLIENT_PREALLOCATE=false luxai-s2 main.py main.py -o replay.html -v 3
+```
+## Setup/Installation
+
+First run
+
+```
+conda env create -f environment.yml
+conda activate luxai_s2_jax
+```
+
+```
+
+## Submission
+
+First git clone luxai_s2 repo and juxai_s2 repo
+
+## Data Flow Diagram
+
+TODO
+
+
+Agent (SB3) -> Batch of Actions ---Controller---> Batch of Jux Actions ----> Jux Env
+                                                        |
+Observation                                 jux_action_to_lux_action
+                                                        |
+                                                        |
+                                                        v
+                                                Batch of Lux Actions
