@@ -31,7 +31,7 @@ conda env create -f environment.yml
 conda activate luxai_s2_jax
 ```
 
-```
+Then follow the installation instructions on the [Jax Repository](https://github.com/google/jax#installation)
 
 ## Submission
 
