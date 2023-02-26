@@ -130,6 +130,8 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2 ** 16 - 1, dtype=np.int32))
 
+        self.action_to_jux_action = jax.vmap(self.controller.action_to_jux_action)
+
     def step(self, actions: Dict[str, npt.NDArray]) -> VecEnvStepReturn:
         """
         Steps through the jax env. First using the controller converts actions into lux actions?
@@ -145,24 +147,24 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             self.env.env_cfg, 
             self.env.buf_cfg
         )
-        jux_action = jax.tree_map(lambda x: x[None].repeat(self.num_envs, axis=0), jux_action)
+
+        # Get the actions of both teams in the JuxAction format
+        jux_action_0 = self.action_to_jux_action(jnp.zeros(self.num_envs,dtype=jnp.int8), self.states, actions["player_0"])
+        jux_action_1 = self.action_to_jux_action(jnp.ones(self.num_envs, dtype=jnp.int8), self.states, actions["player_1"])
         
-
-
-
-
-        # lux_action = dict()
-        # for agent in self.env.agents:
-        #     if agent in action:
-        #         lux_action[agent] = self.controller.action_to_lux_action(
-        #             agent=agent, obs=self.prev_obs, action=action[agent]
-        #         )
-        #     else:
-        #         lux_action[agent] = dict()
-        self._step_normal_phase
+        jux_action: JuxAction = jax.tree_map(lambda x : x[None].repeat(self.num_envs, axis=0), jux_action)
+        # now every leaf of jux_action is shape (B, 2, ....)
+        # jux_action = jax.tree_map(lambda x : x.at[:, 0].set(), jux_action)
         
+        def update_team_actions(x,y, team):
+            # stack along team dimension
+            return jnp.stack([x[:, team], y[:, team]], 1)
+        jux_action: JuxAction = jax.tree_map(lambda x, y : update_team_actions(x, y, 0), jux_action, jux_action_0)
+        jux_action: JuxAction = jax.tree_map(lambda x, y : update_team_actions(x, y, 1), jux_action, jux_action_1)
+        state, (observations, rewards, dones, infos) = self._step_normal_phase(self.states, jux_action)
+        self.states = state
 
-        return obs, rew, dones, infos
+        return observations, rewards, dones, infos
 
 
     def step_async(self, actions: np.ndarray) -> None:
@@ -183,15 +185,16 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         self.key = key
         # we call the original reset function first
         seeds = jax.random.randint(subkey, shape=(self.num_envs, ), minval=0, maxval=2**16 - 1, dtype=jnp.int32)
-        self.states: JuxState = self._upgraded_reset(seed=seeds)
-
-        return self.states
+        states_for_players: Dict[str, JuxState] = self._upgraded_reset(seed=seeds)
+        self.states = states_for_players["player_0"]
+        return {'player_0': self.states, 'player_1': self.states}
 
     def close(self) -> None:
         return
 
     def render(self, mode: str = "human") -> Optional[np.ndarray]:
-        return
+        state = jax.tree_map(lambda x: x[0], self.states)
+        self.env.render(state)
 
     def get_attr(self, attr_name: str, indices: VecEnvIndices = None) -> List[Any]:
         raise NotImplementedError

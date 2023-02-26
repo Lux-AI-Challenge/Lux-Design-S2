@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict
 
+import jax.numpy as jnp
 import numpy as np
 
 from lux.cargo import UnitCargo
@@ -8,7 +9,7 @@ from lux.config import EnvConfig
 from lux.factory import Factory
 from lux.team import FactionTypes, Team
 from lux.unit import Unit
-import jax.numpy as jnp
+
 
 def process_action(action):
     return to_json(action)

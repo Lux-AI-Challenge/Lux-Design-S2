@@ -8,6 +8,7 @@ import jax.numpy as jnp
 from jux.config import EnvConfig, JuxBufferConfig
 from jux.env import JuxEnv
 from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
+
 from heuristics import place_factory_near_random_ice
 from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
 
@@ -25,7 +26,10 @@ jux_env = JuxEnv(
 
 jux_env.buf_cfg
 env = SB3JaxVecEnv(
-    jux_env, num_envs=num_envs, controller=SimpleUnitDiscreteController(jux_env.env_cfg), factory_placement_policy=place_factory_near_random_ice
+    jux_env,
+    num_envs=num_envs,
+    controller=SimpleUnitDiscreteController(jux_env.env_cfg),
+    factory_placement_policy=place_factory_near_random_ice,
 )
 stime = time.time()
 env.reset(seed=0)

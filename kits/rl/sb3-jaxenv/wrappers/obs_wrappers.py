@@ -1,20 +1,26 @@
 from typing import Any, Dict, TypeVar
 
 import gym
+import jax
+import jax.numpy as jnp
 import numpy as np
 import numpy.typing as npt
 from gym import spaces
-import jax
-import jax.numpy as jnp
+from stable_baselines3.common.vec_env import VecEnvWrapper
+from stable_baselines3.common.vec_env.base_vec_env import VecEnvObs
+
 try:
     # we try/except the jux package as its not installed on Kaggle-Environments
     import jux
+    from jux.env import JuxEnv
     from jux.state import State
+    from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
 except:
     # State = TypeVar("State")
-    pass 
+    pass
 
-class SimpleUnitObservationWrapper(gym.vector.VectorEnvWrapper):
+
+class SimpleUnitObservationWrapper(VecEnvWrapper):
     """
     A simple state based observation to work with in pair with the SimpleUnitDiscreteController
 
@@ -28,9 +34,24 @@ class SimpleUnitObservationWrapper(gym.vector.VectorEnvWrapper):
 
     """
 
-    def __init__(self, env) -> None:
+    def __init__(self, env: SB3JaxVecEnv) -> None:
+        self.env = env
         super().__init__(env)
         self.observation_space = spaces.Box(-999, 999, shape=(11,))
+
+    def reset(self, *args, **kwargs) -> VecEnvObs:
+        observations = self.env.reset(*args, **kwargs)
+        obs = SimpleUnitObservationWrapper.convert_jux_obs(observations)
+        return {"player_0": obs, "player_1": obs}
+
+    def step_wait(self):
+        # this function is not needed, its originally used by SB3's own SubProcEnv setup
+        pass
+
+    def step(self, actions):
+        observations, rewards, dones, infos = self.env.step(actions)
+        obs = SimpleUnitObservationWrapper.convert_jux_obs(observations)
+        return {"player_0": obs, "player_1": obs}, rewards, dones, infos
 
     def observation(self, obs):
         return SimpleUnitObservationWrapper.convert_jux_obs(obs)
@@ -41,21 +62,20 @@ class SimpleUnitObservationWrapper(gym.vector.VectorEnvWrapper):
         # we know that the jax state of lux always has units and factories at the front of an array
         state = state["player_0"]
         MAX_MAP_SIZE = state.env_cfg.map_size.max()
-        
+
         # below maps state.units to across batch dimensions, our team (0), and the first unit (0)
-        unit = jax.tree_map(lambda x : x[..., 0, 0], state.units)
-        
+        unit = jax.tree_map(lambda x: x[..., 0, 0], state.units)
+
         # below maps all factory positions to across batch dimensions, our team (0), and the first unit(0)
-        factory_pos = jax.tree_map(lambda x : x[..., 0, 0], state.factories.pos.pos) / MAX_MAP_SIZE
+        factory_pos = (
+            jax.tree_map(lambda x: x[..., 0, 0], state.factories.pos.pos) / MAX_MAP_SIZE
+        )
 
         # store cargo+power values scaled to [0, 1]
         cargo_space = state.env_cfg.ROBOTS[1].CARGO_SPACE.max()
         battery_cap = state.env_cfg.ROBOTS[1].BATTERY_CAPACITY.max()
         cargo_vec = jnp.hstack(
-            [
-                (unit.power / battery_cap)[..., None],
-                unit.cargo.stock / cargo_space
-            ]
+            [(unit.power / battery_cap)[..., None], unit.cargo.stock / cargo_space]
         )
         unit_type = unit.unit_type  # note that build actions use 0 to encode Light
         # normalize the unit position
@@ -66,28 +86,26 @@ class SimpleUnitObservationWrapper(gym.vector.VectorEnvWrapper):
         # we add some engineered features down here
         # compute closest ice tile
         ice_map = state.board.ice
+
         def get_closest_ice_tile(unit, ice_map):
             locs = jnp.argwhere(ice_map, size=64, fill_value=128) / MAX_MAP_SIZE
             pos = unit.pos.pos / MAX_MAP_SIZE
-            ice_tile_distances = jnp.mean(
-                (locs - pos) ** 2, 1
-            )
+            ice_tile_distances = jnp.mean((locs - pos) ** 2, 1)
             closest_ice_tile = locs[jnp.argmin(ice_tile_distances)]
             return closest_ice_tile
-        closest_ice_tile = jax.vmap(get_closest_ice_tile)(unit, ice_map) # (B, 2)
+
+        closest_ice_tile = jax.vmap(get_closest_ice_tile)(unit, ice_map)  # (B, 2)
 
         # mask out unit data if there are no units on our team
-        obs_mask = jax.tree_map(lambda x : x[..., 0], state.n_units) == 0
+        obs_mask = jax.tree_map(lambda x: x[..., 0], state.n_units) == 0
 
-        ice_feature = (closest_ice_tile - pos)
-        factory_feature = (factory_pos - pos)
+        ice_feature = closest_ice_tile - pos
+        factory_feature = factory_pos - pos
         unit_vec = unit_vec.at[obs_mask].set(0)
 
-        obs_vec = jnp.concatenate(
-            [unit_vec, factory_feature, ice_feature], axis=-1
-        )
+        obs_vec = jnp.concatenate([unit_vec, factory_feature, ice_feature], axis=-1)
         obs_vec = obs_vec.at[obs_mask].set(0)
-        return obs_vec # (B, 11)
+        return obs_vec  # (B, 11)
 
     # we make this method static so the submission/evaluation code can use this as well
     @staticmethod
