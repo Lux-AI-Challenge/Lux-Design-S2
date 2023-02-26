@@ -239,25 +239,39 @@ def train(args, env_id, model: PPO):
     )
     model.save(osp.join(args.log_path, "models/latest_model"))
 
-
+import time
 def main(args):
     print("Training with args", args)
     if args.seed is not None:
         set_random_seed(args.seed)
     env_id = "LuxAI_S2-v0"
+    stime = time.time()
     env = make_env(
-        env_id, 0, max_episode_steps=args.max_episode_steps, num_envs=args.n_envs
+        env_id, args.seed, max_episode_steps=args.max_episode_steps, num_envs=args.n_envs
     )
+
     env.reset()
-    # import ipdb;ipdb.set_trace()
-    for i in range(1000900):
-        print(i)
-        env.render()
+    for i in range(100):
+        # print(i)
+
         env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
-    env.step(dict(player_0=np.zeros(args.n_envs), player_1=np.zeros(args.n_envs)))
+    print(f"COMPILE TIME: {time.time() - stime}")
+    env.reset()
 
+    stime = time.time()
+    for i in range(100):
+        # print(i)
+
+        env.step(
+            dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
+        )
+        # env.render()
+    etime = time.time()
+    print(f"FPS {150*args.n_envs / (etime - stime)}")
+    import ipdb;ipdb.set_trace()
+    exit()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(

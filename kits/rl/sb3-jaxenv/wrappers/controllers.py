@@ -38,7 +38,9 @@ class SimpleUnitDiscreteController(Controller):
     def __init__(self, env: JuxEnv) -> None:
         """
         A simple controller that controls only the robot that will get spawned.
-        Moreover, it will always try to spawn one heavy robot if there are none regardless of action given
+        Moreover, it will always try to spawn one heavy robot if there are none regardless of action given.
+
+        This is a jax based controller. Functions here are defined without the batch dimension, are jax.vmap easily adds the batching
 
         For the robot unit
         - 4 cardinal direction movement (4 dims)
@@ -141,7 +143,7 @@ class SimpleUnitDiscreteController(Controller):
 
         # always spawn a heavy unit if thre isn't one already
         factory_action = jnp.where(
-            exists_heavy, FactoryAction.BUILD_HEAVY, FactoryAction.DO_NOTHING
+            ~exists_heavy, FactoryAction.BUILD_HEAVY, FactoryAction.DO_NOTHING
         )
         jux_action = jux_action._replace(
             factory_action=jux_action.factory_action.at[agent, 0].set(factory_action)
@@ -182,7 +184,6 @@ class SimpleUnitDiscreteController(Controller):
         jux_action = JuxAction.empty(
             self.env.env_cfg, self.env.buf_cfg
         )  # every leaf is of shape (2, N, 20)
-        no_op = is_noop  # | same_action
         # TODO - force cast to right types of int8/int16
         jux_action = jux_action._replace(
             unit_action_queue=jux_action.unit_action_queue._replace(
@@ -206,13 +207,52 @@ class SimpleUnitDiscreteController(Controller):
             unit_action_queue_count=jux_action.unit_action_queue_count.at[agent, 0].set(
                 1
             ),
+        )
+        unit_idx = 0
+
+        # for speed purposes the action queue is stored as a Ring Buffer, with a front and rear and a counter.
+        # So an action queue in memory might looks like this
+        #         Front     Rear
+        #           |        |
+        #           v        v
+        # [0, 0, Action1, Action2, 0, 0, 0, ....]
+        # counter = 2, front = 2, rear = 3
+        #
+        # If action_queue.count is 0, then action queue is empty.
+        # If it is not 0, the first action is stored in index action_queue.front
+
+        # we retrieve the first heavy unit's data by indexing the team (agent), then 0 (unit_idx) for the first unit, then 0 for the first action in the queue
+        # note that we use state.units.action_queue.front[agent, 0], which retrieves the index of the first action in the action queue. See above comment for
+        # how action queues are stored
+        unit_action: UnitAction = jax.tree_map(
+            lambda x: x[agent, unit_idx, state.units.action_queue.front[agent, 0]],
+            state.units.action_queue.data,
+        )
+        nonzero_action_queue = ~(state.units.action_queue.count[agent, unit_idx] == 0)
+        new_unit_action: UnitAction = jax.tree_map(
+            lambda x: x[agent, unit_idx, 0], jux_action.unit_action_queue
+        )
+        same_action_type = unit_action.action_type == new_unit_action.action_type
+        same_dir = unit_action.direction == new_unit_action.direction
+        same_amt = unit_action.amount == new_unit_action.amount
+        same_r = unit_action.resource_type == new_unit_action.resource_type
+        same_n = unit_action.n == new_unit_action.n
+        same_rpt = unit_action.repeat == new_unit_action.repeat
+        same_action = (
+            nonzero_action_queue
+            & same_action_type
+            & same_dir
+            & same_amt
+            & same_r
+            & same_n
+            & same_rpt
+        )
+        no_op = is_noop | same_action
+        jux_action = jux_action._replace(
             unit_action_queue_update=jux_action.unit_action_queue_update.at[
                 agent, 0
             ].set(~no_op),
         )
-        # TODO set no_op true if action queue is exact same as before!
-        # state.units.action_queue.data
-
         return jux_action
 
     def action_masks(self, agent: str, obs: Dict[str, Any]):
