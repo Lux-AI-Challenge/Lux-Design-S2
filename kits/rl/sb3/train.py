@@ -56,7 +56,8 @@ class CustomEnvWrapper(gym.Wrapper):
         action = {agent: action}
         obs, _, done, info = self.env.step(action)
         obs = obs[agent]
-        done = done[agent]
+        if type(done) == type({}): done = done[agent]
+        elif type(done) == type(True): done = {agent: done, opp_agent: False}
 
         # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
