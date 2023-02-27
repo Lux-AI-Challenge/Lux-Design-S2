@@ -155,6 +155,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         _upgraded_reset = jax.jit(_upgraded_reset)
         self._upgraded_reset = jax.vmap(_upgraded_reset)
 
+        @jax.jit
         def _step_normal_phase_with_auto_reset(
             key: jax.random.PRNGKey, state: JuxState, jux_action: JuxAction
         ):
@@ -166,22 +167,26 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             truncated = ~done.any()
             eps_done = done.any() | over_timelimit
             done = {"player_0": eps_done, "player_1": eps_done}
-
-            # def auto_reset(key: jax.random.PRNGKey):
-            #     key, subkey = jax.random.split(key)
-            #     seed = jax.random.randint(
-            #         subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32
-            #     )[0]
-            #     observation: Dict[str, JuxState] = _upgraded_reset(seed)
-            #     return observation['player_0']
+            key, subkey = jax.random.split(key)
+            
+            def auto_reset():
+                # 
+                seed = jax.random.randint(
+                    subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32
+                )[0]
+                observation: Dict[str, JuxState] = _upgraded_reset(seed)
+                return observation['player_0']
 
             # perform an auto reset when the episode is over
-            # state = jax.lax.cond(eps_done, auto_reset, lambda x: state, key)
+            # TODO - It looks like this doesn't short circuit, seems to run auto_reset and state 
+            # is there a way to fix this? Seems like no due to vmap operation: see https://github.com/google/jax/issues/14327
+            state = jax.lax.cond(eps_done, auto_reset, lambda : state)
+
             obs_0 = self.observer.convert_jux_obs(state, 0)
             obs_1 = self.observer.convert_jux_obs(state, 1)
             observation = {"player_0": obs_0, "player_1": obs_1}
-            # NOTE: If you want to customize anything about the reward function, to ensure good speed you should modify it here
 
+            # NOTE: If you want to customize anything about the reward function, to ensure good speed you should modify it here
             reward = {"player_0": reward[0], "player_1": reward[1]}
 
             # juxenv info is empty so we can override it here.
@@ -191,7 +196,8 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             }
             infos = {"player_0": info, "player_1": info}
 
-            return state, (observation, reward, done, info)
+            # return state, (observation, reward, done, infos)
+            return state, (observation["player_0"], reward["player_0"], done["player_0"], infos["player_0"])
 
         def batch_step(key: jax.random.PRNGKey, states: JuxState, actions: Dict[str, npt.NDArray]):
             # create an empty action
@@ -217,7 +223,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                 lambda x, y: x.at[:, 1].set(y[:, 1]), jux_action, jux_action_1
             )
             keys = jax.random.split(key, self.num_envs + 1)
-            state, (observation, reward, done, info) = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))(keys[1:], states, jux_action)
+            state, (observation, reward, done, info) = jax.vmap(_step_normal_phase_with_auto_reset)(keys[1:], states, jux_action)
             return keys[0], state, (observation, reward, done, info)
 
         self._step_jax = jax.jit(batch_step)
@@ -241,10 +247,10 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         )
         self.key = key
         self.states = state
-        self.env_steps += 1
-        if self.env_steps >= self.max_episode_steps:
-            observations = self.reset()
-            self.env_steps = 0
+        # self.env_steps += 1
+        # if self.env_steps >= self.max_episode_steps:
+        #     observations = self.reset()
+        #     self.env_steps = 0
         return observations, rewards, dones, infos
 
     def step_async(self, actions: np.ndarray) -> None:

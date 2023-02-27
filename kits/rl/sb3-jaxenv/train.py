@@ -223,20 +223,20 @@ def train(args, env_id, model: PPO):
     # eval_env = SubprocVecEnv(
     #     [make_env(env_id, i, max_episode_steps=1000) for i in range(4)]
     # )
-    eval_env = make_env(env_id, args.seed, max_episode_steps=1000, num_envs=4)
-    eval_callback = EvalCallback(
-        eval_env,
-        best_model_save_path=osp.join(args.log_path, "models"),
-        log_path=osp.join(args.log_path, "eval_logs"),
-        eval_freq=24_000,
-        deterministic=False,
-        render=False,
-        n_eval_episodes=5,
-    )
+    # eval_env = make_env(env_id, args.seed, max_episode_steps=1000, num_envs=4)
+    # eval_callback = EvalCallback(
+    #     eval_env,
+    #     best_model_save_path=osp.join(args.log_path, "models"),
+    #     log_path=osp.join(args.log_path, "eval_logs"),
+    #     eval_freq=24_000,
+    #     deterministic=False,
+    #     render=False,
+    #     n_eval_episodes=5,
+    # )
 
     model.learn(
         args.total_timesteps,
-        callback=[TensorboardCallback(tag="train_metrics"), eval_callback],
+        callback=[TensorboardCallback(tag="train_metrics")],
     )
     model.save(osp.join(args.log_path, "models/latest_model"))
 
@@ -259,26 +259,11 @@ def main(args):
     )
     
     env.reset()
-    for i in range(2):
-        obs_dict, rewards, dones, infos = env.step(
-            dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
-        )
+    env.step(
+        dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
+    )
     print(f"Compile + Warmup Time: {time.time() - stime}")
-    env.reset()
-    stime = time.time()
-    rounds = 4
-    N = args.max_episode_steps * rounds
-    
-    for i in range(N):
-        # print(i)
-        env.step(
-            dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
-        )
-        # env.render()
-        # import ipdb;ipdb.set_trace()
-    etime = time.time()
-    print(f"FPS {(N / (etime - stime)):.4f}. Frames {args.max_episode_steps*args.n_envs}. One Episode Time: {(etime - stime) / rounds:.4f}s")
-    exit()
+
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(
