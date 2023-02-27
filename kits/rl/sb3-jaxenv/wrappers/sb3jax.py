@@ -167,16 +167,16 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             eps_done = done.any() | over_timelimit
             done = {"player_0": eps_done, "player_1": eps_done}
 
-            def auto_reset(key: jax.random.PRNGKey):
-                key, subkey = jax.random.split(key)
-                seed = jax.random.randint(
-                    subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32
-                )[0]
-                observation: Dict[str, JuxState] = _upgraded_reset(seed)
-                return observation['player_0']
+            # def auto_reset(key: jax.random.PRNGKey):
+            #     key, subkey = jax.random.split(key)
+            #     seed = jax.random.randint(
+            #         subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32
+            #     )[0]
+            #     observation: Dict[str, JuxState] = _upgraded_reset(seed)
+            #     return observation['player_0']
 
             # perform an auto reset when the episode is over
-            state = jax.lax.cond(eps_done, auto_reset, lambda x: state, key)
+            # state = jax.lax.cond(eps_done, auto_reset, lambda x: state, key)
             obs_0 = self.observer.convert_jux_obs(state, 0)
             obs_1 = self.observer.convert_jux_obs(state, 1)
             observation = {"player_0": obs_0, "player_1": obs_1}
@@ -226,7 +226,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         self.key = jax.random.PRNGKey(np.random.randint(0, 2**16 - 1, dtype=np.int32))
 
         self.action_to_jux_action = jax.vmap(self.controller.action_to_jux_action)
-
+        self.env_steps = 0
     def step(self, actions: Dict[str, npt.NDArray]) -> VecEnvStepReturn:
         """
         Steps through the jax env. First using the controller converts actions into lux actions?
@@ -241,7 +241,10 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         )
         self.key = key
         self.states = state
-
+        self.env_steps += 1
+        if self.env_steps >= self.max_episode_steps:
+            observations = self.reset()
+            self.env_steps = 0
         return observations, rewards, dones, infos
 
     def step_async(self, actions: np.ndarray) -> None:

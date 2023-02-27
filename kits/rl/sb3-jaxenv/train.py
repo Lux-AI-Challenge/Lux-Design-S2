@@ -154,7 +154,7 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100, num_e
     # Add a SB3 wrapper to make it work with SB3 and simplify the action space with the controller
     # this will remove the bidding phase and factory placement phase. For factory placement we use
     # the provided place_factory_near_random_ice function which will randomly select an ice tile and place a factory near it.
-    MAX_N_UNITS = 100
+    MAX_N_UNITS = 20
     env_cfg = EnvConfig(MAX_FACTORIES=2)
     print(env_cfg)
     jux_env = JuxEnv(
@@ -266,7 +266,10 @@ def main(args):
     print(f"Compile + Warmup Time: {time.time() - stime}")
     env.reset()
     stime = time.time()
-    for i in range(args.max_episode_steps):
+    rounds = 4
+    N = args.max_episode_steps * rounds
+    
+    for i in range(N):
         # print(i)
         env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
@@ -274,7 +277,7 @@ def main(args):
         # env.render()
         # import ipdb;ipdb.set_trace()
     etime = time.time()
-    print(f"FPS {(args.max_episode_steps*args.n_envs / (etime - stime)):.4f}. One Episode Time: {(etime - stime):.4f}s")
+    print(f"FPS {(N / (etime - stime)):.4f}. Frames {args.max_episode_steps*args.n_envs}. One Episode Time: {(etime - stime) / rounds:.4f}s")
     exit()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
