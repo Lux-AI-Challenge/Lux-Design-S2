@@ -158,6 +158,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         def _step_normal_phase_with_auto_reset(
             key: jax.random.PRNGKey, state: JuxState, jux_action: JuxAction
         ):
+
             state, (observation, reward, done, info) = self.env.step_late_game(
                 state, jux_action
             )
@@ -165,13 +166,6 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             truncated = ~done.any()
             eps_done = done.any() | over_timelimit
             done = {"player_0": eps_done, "player_1": eps_done}
-
-            # juxenv info is empty so we can override it here.
-            info = {
-                "TimeLimit.truncated": truncated,
-                "terminal_observation": observation['player_0'],
-            }
-            infos = {"player_0": info, "player_1": info}
 
             def auto_reset(key: jax.random.PRNGKey):
                 key, subkey = jax.random.split(key)
@@ -181,7 +175,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                 observation: Dict[str, JuxState] = _upgraded_reset(seed)
                 return observation['player_0']
 
-            # prform an auto reset when the episode is over
+            # perform an auto reset when the episode is over
             state = jax.lax.cond(eps_done, auto_reset, lambda x: state, key)
             obs_0 = self.observer.convert_jux_obs(state, 0)
             obs_1 = self.observer.convert_jux_obs(state, 1)
@@ -189,9 +183,44 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             # NOTE: If you want to customize anything about the reward function, to ensure good speed you should modify it here
 
             reward = {"player_0": reward[0], "player_1": reward[1]}
-            return state, (observation, reward, done, infos)
 
-        self._step_jax: Callable[[jax.random.PRNGKey, JuxState, JuxAction], Tuple[JuxState, JuxState, int, bool, Dict]] = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))
+            # juxenv info is empty so we can override it here.
+            info = {
+                "TimeLimit.truncated": truncated,
+                "terminal_observation": observation['player_0'],
+            }
+            infos = {"player_0": info, "player_1": info}
+
+            return state, (observation, reward, done, info)
+
+        def batch_step(key: jax.random.PRNGKey, states: JuxState, actions: Dict[str, npt.NDArray]):
+            # create an empty action
+            jux_action = JuxAction.empty(self.env.env_cfg, self.env.buf_cfg)
+
+            # Get the actions of both teams in the JuxAction format
+            jux_action_0 = self.action_to_jux_action(
+                jnp.zeros(self.num_envs, dtype=jnp.int8), states, actions["player_0"]
+            )
+            jux_action_1 = self.action_to_jux_action(
+                jnp.ones(self.num_envs, dtype=jnp.int8), states, actions["player_1"]
+            )
+
+            jux_action: JuxAction = jax.tree_map(
+                lambda x: x[None].repeat(self.num_envs, axis=0), jux_action
+            )
+            # now every leaf of jux_action is shape (B, 2, ....)
+
+            jux_action: JuxAction = jax.tree_map(
+                lambda x, y: x.at[:, 0].set(y[:, 0]), jux_action, jux_action_0
+            )
+            jux_action: JuxAction = jax.tree_map(
+                lambda x, y: x.at[:, 1].set(y[:, 1]), jux_action, jux_action_1
+            )
+            keys = jax.random.split(key, self.num_envs + 1)
+            state, (observation, reward, done, info) = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))(keys[1:], states, jux_action)
+            return keys[0], state, (observation, reward, done, info)
+
+        self._step_jax = jax.jit(batch_step)
 
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2**16 - 1, dtype=np.int32))
@@ -207,37 +236,10 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         actions: Dict[str, (B, N)]
         """
 
-        # create an empty action
-        jux_action = JuxAction.empty(self.env.env_cfg, self.env.buf_cfg)
-
-        # Get the actions of both teams in the JuxAction format
-        jux_action_0 = self.action_to_jux_action(
-            jnp.zeros(self.num_envs, dtype=jnp.int8), self.states, actions["player_0"]
+        key, state, (observations, rewards, dones, infos) = self._step_jax(
+            self.key, self.states, actions
         )
-        jux_action_1 = self.action_to_jux_action(
-            jnp.ones(self.num_envs, dtype=jnp.int8), self.states, actions["player_1"]
-        )
-
-        jux_action: JuxAction = jax.tree_map(
-            lambda x: x[None].repeat(self.num_envs, axis=0), jux_action
-        )
-        # now every leaf of jux_action is shape (B, 2, ....)
-
-        def update_team_actions(x, y, team):
-            # stack along team dimension
-            return jnp.stack([x[:, team], y[:, team]], 1)
-
-        jux_action: JuxAction = jax.tree_map(
-            lambda x, y: update_team_actions(x, y, 0), jux_action, jux_action_0
-        )
-        jux_action: JuxAction = jax.tree_map(
-            lambda x, y: update_team_actions(x, y, 1), jux_action, jux_action_1
-        )
-        key, *subkeys = jax.random.split(self.key, self.num_envs + 1)
         self.key = key
-        state, (observations, rewards, dones, infos) = self._step_jax(
-            jnp.array(subkeys), self.states, jux_action
-        )
         self.states = state
 
         return observations, rewards, dones, infos

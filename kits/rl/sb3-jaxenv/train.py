@@ -115,7 +115,7 @@ def parse_args():
     parser.add_argument(
         "--max-episode-steps",
         type=int,
-        default=100,
+        default=200,
         help="Max steps per episode before truncating them",
     )
     parser.add_argument(
@@ -266,15 +266,15 @@ def main(args):
     print(f"Compile + Warmup Time: {time.time() - stime}")
     env.reset()
     stime = time.time()
-    for i in range(200):
+    for i in range(args.max_episode_steps):
         # print(i)
-
         env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
         # env.render()
+        # import ipdb;ipdb.set_trace()
     etime = time.time()
-    print(f"FPS {200*args.n_envs / (etime - stime)}")
+    print(f"FPS {(args.max_episode_steps*args.n_envs / (etime - stime)):.4f}. One Episode Time: {(etime - stime):.4f}s")
     exit()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
