@@ -155,8 +155,10 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100, num_e
     # this will remove the bidding phase and factory placement phase. For factory placement we use
     # the provided place_factory_near_random_ice function which will randomly select an ice tile and place a factory near it.
     MAX_N_UNITS = 100
+    env_cfg = EnvConfig(MAX_FACTORIES=2)
+    print(env_cfg)
     jux_env = JuxEnv(
-        env_cfg=EnvConfig(),
+        env_cfg=env_cfg,
         buf_cfg=JuxBufferConfig(MAX_N_UNITS=MAX_N_UNITS),
     )
     env = SB3JaxVecEnv(
@@ -247,6 +249,7 @@ def main(args):
     if args.seed is not None:
         set_random_seed(args.seed)
     env_id = "LuxAI_S2-v0"
+    print(f"=== Compiling + Warmup ===")
     stime = time.time()
     env = make_env(
         env_id,
@@ -254,30 +257,25 @@ def main(args):
         max_episode_steps=args.max_episode_steps,
         num_envs=args.n_envs,
     )
-
+    
     env.reset()
-    for i in range(100):
-        print(i)
+    for i in range(2):
         obs_dict, rewards, dones, infos = env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
-        env.render()
-        import ipdb;ipdb.set_trace()
-    print(f"COMPILE TIME: {time.time() - stime}")
+    print(f"Compile + Warmup Time: {time.time() - stime}")
     env.reset()
+    stime = time.time()
+    for i in range(200):
+        # print(i)
 
-    # stime = time.time()
-    # for i in range(100):
-    #     # print(i)
-
-    #     env.step(
-    #         dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
-    #     )
-    #     # env.render()
-    # etime = time.time()
-    # print(f"FPS {150*args.n_envs / (etime - stime)}")
-    # import ipdb;ipdb.set_trace()
-    # exit()
+        env.step(
+            dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
+        )
+        # env.render()
+    etime = time.time()
+    print(f"FPS {200*args.n_envs / (etime - stime)}")
+    exit()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(

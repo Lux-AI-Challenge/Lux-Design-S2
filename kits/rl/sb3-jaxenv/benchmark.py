@@ -7,14 +7,14 @@ import jax
 import jax.numpy as jnp
 from jux.config import EnvConfig, JuxBufferConfig
 from jux.env import JuxEnv
-from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
+from wrappers.sb3jax import SB3JaxVecEnv
 
 from heuristics import place_factory_near_random_ice
-from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
+from wrappers import SimpleUnitDiscreteController, SimpleUnitObserver
 
-num_envs = 1024
+num_envs = 4096
 N = 256
-MAX_N_UNITS = 200
+MAX_N_UNITS = 20
 
 print(
     f"Benching env._upgraded_reset. N={N}, num_envs={num_envs}, MAX_N_UNITS={MAX_N_UNITS}"
@@ -30,6 +30,7 @@ env = SB3JaxVecEnv(
     num_envs=num_envs,
     controller=SimpleUnitDiscreteController(jux_env.env_cfg),
     factory_placement_policy=place_factory_near_random_ice,
+    observer=SimpleUnitObserver(),
 )
 stime = time.time()
 env.reset(seed=0)

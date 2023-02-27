@@ -77,8 +77,6 @@ class SimpleUnitObserver(Observer):
         closest_ice_tile = locs[jnp.argmin(ice_tile_distances)]
             # return closest_ice_tile
 
-        # closest_ice_tile = jax.vmap(get_closest_ice_tile)(unit, ice_map)  # (B, 2)
-
         # mask out unit data if there are no units on our team
         own_units = state.n_units[agent] != 0
 

@@ -222,7 +222,6 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             lambda x: x[None].repeat(self.num_envs, axis=0), jux_action
         )
         # now every leaf of jux_action is shape (B, 2, ....)
-        # jux_action = jax.tree_map(lambda x : x.at[:, 0].set(), jux_action)
 
         def update_team_actions(x, y, team):
             # stack along team dimension
