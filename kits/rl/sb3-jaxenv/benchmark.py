@@ -83,7 +83,7 @@ def main(args):
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
     etime = time.time()
-    total_frames = N * args.num_envs
+    total_frames = N * args.n_envs
     print(f"FPS {(total_frames / (etime - stime)):.4f}. Frames {total_frames}. One Episode Time: {(etime - stime) / rounds:.4f}s")
     exit()
 
