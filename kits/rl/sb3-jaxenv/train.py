@@ -32,7 +32,7 @@ from stable_baselines3.common.vec_env import (
 from stable_baselines3.ppo import PPO
 
 from heuristics.factory import place_factory_near_random_ice
-from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
+from wrappers import SimpleUnitDiscreteController, SimpleUnitObserver
 from wrappers.sb3jax import SB3JaxVecEnv
 
 
@@ -164,11 +164,9 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100, num_e
         num_envs=num_envs,
         factory_placement_policy=place_factory_near_random_ice,
         controller=SimpleUnitDiscreteController(jux_env),
+        observer=SimpleUnitObserver(),
         max_episode_steps=max_episode_steps,
     )
-    env = SimpleUnitObservationWrapper(
-        env
-    )  # changes observation to include a few simple features
     # env = CustomEnvWrapper(env)  # convert to single agent, add our reward
     # env = TimeLimit(
     #     env, max_episode_steps=max_episode_steps
@@ -260,10 +258,11 @@ def main(args):
     env.reset()
     for i in range(100):
         print(i)
-        env.step(
+        obs_dict, rewards, dones, infos = env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
         env.render()
+        import ipdb;ipdb.set_trace()
     print(f"COMPILE TIME: {time.time() - stime}")
     env.reset()
 

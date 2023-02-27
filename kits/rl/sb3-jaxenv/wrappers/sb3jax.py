@@ -1,5 +1,3 @@
-from collections import OrderedDict
-from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 import gym
@@ -10,12 +8,8 @@ import numpy as np
 import numpy.typing as npt
 from chex import Array
 from gym import spaces
-from jux.env import JuxAction, JuxEnv, JuxEnvBatch
+from jux.env import JuxAction, JuxEnv
 from jux.state import State as JuxState
-from luxai_s2.env import LuxAI_S2
-from luxai_s2.state import ObservationStateDict
-from luxai_s2.unit import ActionType, BidActionType, FactoryPlacementActionType
-from luxai_s2.utils import my_turn_to_place_factory
 from luxai_s2.wrappers.controllers import Controller
 from stable_baselines3.common.vec_env.base_vec_env import (
     VecEnv,
@@ -23,11 +17,7 @@ from stable_baselines3.common.vec_env.base_vec_env import (
     VecEnvObs,
     VecEnvStepReturn,
 )
-from stable_baselines3.common.vec_env.util import (
-    copy_obs_dict,
-    dict_to_obs,
-    obs_space_info,
-)
+from .observers import Observer
 
 
 class SB3JaxVecEnv(gym.Wrapper, VecEnv):
@@ -38,6 +28,35 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
     Note that different to the CPU SB3Wrapper bid_policy and factory_placement_policy have different signatures. Namely,
     they accept a jax key as the first input, then the team id (0 or 1), and a Jux State as the 2nd input.
+
+    Moreover, different to using multiple processes to parallel envs, it is not trivial to build a wrapper for each environment like you
+    normally would in other frameworks. Instead of wrappers, you must provide a controller and observer.
+
+    The controller transformers given actions in the step function into JuxAction objects, in addition to defining the action space
+
+    The observer transforms the environment observations, which are JuxState objects, into usable observations. It also defines the
+    observation space.
+
+    Parameters
+    ----------
+
+    env: JuxEnv
+        A JuxEnv instance which should have the env and buffer configs set
+    
+    num_envs: int
+        number of parallel envs to run
+    
+    bid_policy
+        A callable function given a PRNGKey, team id, and JuxState that should return a bid for a JuxEnv
+    factory_placement_policy
+        A callable function given a PRNGKey, team id, and JuxState that should return a factory spawn action for a JuxEnv
+
+    controller: Controller
+        An Controiller object that provides a function to convert an action into JuxAction
+
+    observer: Observer
+        An Observer object that provides a function to convert a given JuxState for a particular team into a desired observation as well as define an
+        observation space
     """
 
     def __init__(
@@ -51,22 +70,24 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             [jax.random.KeyArray, int, JuxState], Tuple[Array, Array, Array]
         ] = None,
         controller: Controller = None,
+        observer: Observer = None,
         max_episode_steps: int = 1000,
     ):
         gym.Wrapper.__init__(self, env)
         self.env = env
 
         assert controller is not None
+        assert observer is not None
 
         # set our controller and replace the action space
         self.controller = controller
         self.action_space = controller.action_space
-        dummy_obs_space = spaces.Box(-1, 1, (1,))
 
-        self.observation_space = dummy_obs_space
+        self.observer = observer
+        self.observation_space = self.observer.observation_space
         self.max_episode_steps = max_episode_steps
 
-        VecEnv.__init__(self, num_envs, dummy_obs_space, action_space=self.action_space)
+        VecEnv.__init__(self, num_envs, self.observation_space, action_space=self.action_space)
 
         self.metadata = {}
 
@@ -143,12 +164,12 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             over_timelimit = state.real_env_steps >= self.max_episode_steps
             truncated = ~done.any()
             eps_done = done.any() | over_timelimit
-            done = jnp.array([eps_done, eps_done])
+            done = {"player_0": eps_done, "player_1": eps_done}
 
             # juxenv info is empty so we can override it here.
             info = {
                 "TimeLimit.truncated": truncated,
-                "terminal_observation": observation,
+                "terminal_observation": observation['player_0'],
             }
             infos = {"player_0": info, "player_1": info}
 
@@ -158,16 +179,19 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
                     subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32
                 )[0]
                 observation: Dict[str, JuxState] = _upgraded_reset(seed)
-                return observation
+                return observation['player_0']
 
             # prform an auto reset when the episode is over
-            observation = jax.lax.cond(eps_done, auto_reset, lambda x: observation, key)
-
+            state = jax.lax.cond(eps_done, auto_reset, lambda x: state, key)
+            obs_0 = self.observer.convert_jux_obs(state, 0)
+            obs_1 = self.observer.convert_jux_obs(state, 1)
+            observation = {"player_0": obs_0, "player_1": obs_1}
             # NOTE: If you want to customize anything about the reward function, to ensure good speed you should modify it here
 
-            return observation["player_0"], (observation, reward, done, infos)
+            reward = {"player_0": reward[0], "player_1": reward[1]}
+            return state, (observation, reward, done, infos)
 
-        self._step_normal_phase = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))
+        self._step_jax: Callable[[jax.random.PRNGKey, JuxState, JuxAction], Tuple[JuxState, JuxState, int, bool, Dict]] = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))
 
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2**16 - 1, dtype=np.int32))
@@ -212,7 +236,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         )
         key, *subkeys = jax.random.split(self.key, self.num_envs + 1)
         self.key = key
-        state, (observations, rewards, dones, infos) = self._step_normal_phase(
+        state, (observations, rewards, dones, infos) = self._step_jax(
             jnp.array(subkeys), self.states, jux_action
         )
         self.states = state
