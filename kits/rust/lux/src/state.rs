@@ -39,10 +39,11 @@ impl State {
         }
     }
     pub fn update_from_event(&mut self, event: Event) {
+        // FIXME(seamooo) uncertain if this is correct for steps
+        self.env_steps = event.obs.real_env_steps;
         self.board = event.obs.board;
         self.units = event.obs.units;
         self.factories = event.obs.factories;
         self.teams = event.obs.teams;
-        unimplemented!();
     }
 }

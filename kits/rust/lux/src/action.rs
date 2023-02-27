@@ -13,6 +13,19 @@ pub enum Direction {
     Left = 4,
 }
 
+impl Direction {
+    #[inline]
+    pub fn to_pos(&self) -> (i64, i64) {
+        match self {
+            Self::Center => (0, 0),
+            Self::Up => (0, -1),
+            Self::Right => (1, 0),
+            Self::Down => (0, 1),
+            Self::Left => (-1, 0),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum ResourceType {
     Ice = 0,
@@ -24,9 +37,9 @@ pub enum ResourceType {
 
 #[derive(Debug, Clone)]
 pub struct UnitActionCommand {
-    action: UnitAction,
-    repeat: u64,
-    n: u64,
+    pub action: UnitAction,
+    pub repeat: u64,
+    pub n: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +59,72 @@ pub enum UnitAction {
     Dig,
     SelfDestruct,
     Recharge,
+}
+
+impl UnitActionCommand {
+    #[inline(always)]
+    fn default_repeat_n(repeat_n: (Option<u64>, Option<u64>)) -> (u64, u64) {
+        let (repeat, n) = repeat_n;
+        (repeat.unwrap_or(0), n.unwrap_or(1))
+    }
+    pub fn move_(direction: Direction, repeat: Option<u64>, n: Option<u64>) -> Self {
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        let action = UnitAction::Move { direction };
+        Self { action, repeat, n }
+    }
+    pub fn transfer(
+        direction: Direction,
+        resource_type: ResourceType,
+        amount: u64,
+        repeat: Option<u64>,
+        n: Option<u64>,
+    ) -> Self {
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        let action = UnitAction::Transfer {
+            direction,
+            resource_type,
+            amount,
+        };
+        Self { action, repeat, n }
+    }
+    pub fn pickup(
+        resource_type: ResourceType,
+        amount: u64,
+        repeat: Option<u64>,
+        n: Option<u64>,
+    ) -> Self {
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        let action = UnitAction::Pickup {
+            resource_type,
+            amount,
+        };
+        Self { action, repeat, n }
+    }
+    pub fn dig(repeat: Option<u64>, n: Option<u64>) -> Self {
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        Self {
+            action: UnitAction::Dig,
+            repeat,
+            n,
+        }
+    }
+    pub fn self_destruct(repeat: Option<u64>, n: Option<u64>) -> Self {
+        // TODO(seamooo) should it be possible to repeat self destruct?
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        Self {
+            action: UnitAction::SelfDestruct,
+            repeat,
+            n,
+        }
+    }
+    pub fn recharge(repeat: Option<u64>, n: Option<u64>) -> Self {
+        let (repeat, n) = Self::default_repeat_n((repeat, n));
+        Self {
+            action: UnitAction::Recharge,
+            repeat,
+            n,
+        }
+    }
 }
 
 pub type UnitActions = std::collections::HashMap<String, UnitActionCommand>;
@@ -120,13 +199,8 @@ impl Serialize for UnitActionCommand {
 
 impl<'de> Deserialize<'de> for UnitActionCommand {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let array = <[u64; 6] as Deserialize<'de>>::deserialize(deserializer)?;
-        let ty = array[0];
-        let direction = array[1];
-        let resource_type = array[2];
-        let amount = array[3];
-        let repeat = array[4];
-        let n = array[5];
+        let (ty, direction, resource_type, amount, repeat, n) =
+            <(u64, u64, u64, u64, u64, u64) as Deserialize<'de>>::deserialize(deserializer)?;
         // lazily do enum conversions as they are don't cares prior
         let make_direction = || match direction {
             0 => Ok(Direction::Center),
