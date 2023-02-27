@@ -16,7 +16,6 @@ from jux.config import EnvConfig, JuxBufferConfig
 from jux.env import JuxEnv
 from jux.state import State as JuxState
 from luxai_s2.state import ObservationStateDict, StatsStateDict
-from wrappers.sb3jax import SB3JaxVecEnv
 from stable_baselines3.common.callbacks import (
     BaseCallback,
     CheckpointCallback,
@@ -34,6 +33,7 @@ from stable_baselines3.ppo import PPO
 
 from heuristics.factory import place_factory_near_random_ice
 from wrappers import SimpleUnitDiscreteController, SimpleUnitObservationWrapper
+from wrappers.sb3jax import SB3JaxVecEnv
 
 
 class CustomEnvWrapper(gym.Wrapper):
@@ -240,7 +240,10 @@ def train(args, env_id, model: PPO):
     )
     model.save(osp.join(args.log_path, "models/latest_model"))
 
+
 import time
+
+
 def main(args):
     print("Training with args", args)
     if args.seed is not None:
@@ -248,7 +251,10 @@ def main(args):
     env_id = "LuxAI_S2-v0"
     stime = time.time()
     env = make_env(
-        env_id, args.seed, max_episode_steps=args.max_episode_steps, num_envs=args.n_envs
+        env_id,
+        args.seed,
+        max_episode_steps=args.max_episode_steps,
+        num_envs=args.n_envs,
     )
 
     env.reset()

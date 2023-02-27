@@ -11,7 +11,6 @@ from jux.actions import FactoryAction, UnitAction, UnitActionType
 from jux.env import JuxAction, JuxEnv, JuxEnvBatch
 from jux.env import State as JuxState
 from jux.unit import UnitType
-
 from luxai_s2.wrappers import Controller
 
 
