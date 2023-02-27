@@ -16,7 +16,7 @@ from jux.config import EnvConfig, JuxBufferConfig
 from jux.env import JuxEnv
 from jux.state import State as JuxState
 from luxai_s2.state import ObservationStateDict, StatsStateDict
-from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
+from wrappers.sb3jax import SB3JaxVecEnv
 from stable_baselines3.common.callbacks import (
     BaseCallback,
     CheckpointCallback,
@@ -164,6 +164,7 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100, num_e
         num_envs=num_envs,
         factory_placement_policy=place_factory_near_random_ice,
         controller=SimpleUnitDiscreteController(jux_env),
+        max_episode_steps=max_episode_steps,
     )
     env = SimpleUnitObservationWrapper(
         env
@@ -252,26 +253,26 @@ def main(args):
 
     env.reset()
     for i in range(100):
-        # print(i)
-
+        print(i)
         env.step(
             dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
         )
+        env.render()
     print(f"COMPILE TIME: {time.time() - stime}")
     env.reset()
 
-    stime = time.time()
-    for i in range(100):
-        # print(i)
+    # stime = time.time()
+    # for i in range(100):
+    #     # print(i)
 
-        env.step(
-            dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
-        )
-        # env.render()
-    etime = time.time()
-    print(f"FPS {150*args.n_envs / (etime - stime)}")
-    import ipdb;ipdb.set_trace()
-    exit()
+    #     env.step(
+    #         dict(player_0=np.zeros(args.n_envs) + 1, player_1=np.zeros(args.n_envs))
+    #     )
+    #     # env.render()
+    # etime = time.time()
+    # print(f"FPS {150*args.n_envs / (etime - stime)}")
+    # import ipdb;ipdb.set_trace()
+    # exit()
     rollout_steps = 4000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(

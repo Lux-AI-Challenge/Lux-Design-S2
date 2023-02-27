@@ -9,16 +9,11 @@ from gym import spaces
 from stable_baselines3.common.vec_env import VecEnvWrapper
 from stable_baselines3.common.vec_env.base_vec_env import VecEnvObs
 
-try:
-    # we try/except the jux package as its not installed on Kaggle-Environments
-    import jux
-    from jux.env import JuxEnv
-    from jux.state import State
-    from luxai_s2.wrappers.sb3jax import SB3JaxVecEnv
-except:
-    # State = TypeVar("State")
-    pass
-
+# we try/except the jux package as its not installed on Kaggle-Environments
+import jux
+from jux.env import JuxEnv
+from jux.state import State
+from .sb3jax import SB3JaxVecEnv
 
 class SimpleUnitObservationWrapper(VecEnvWrapper):
     """

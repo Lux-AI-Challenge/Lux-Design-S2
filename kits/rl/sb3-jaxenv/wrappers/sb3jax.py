@@ -40,9 +40,6 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
 
     Note that different to the CPU SB3Wrapper bid_policy and factory_placement_policy have different signatures. Namely,
     they accept a jax key as the first input, then the team id (0 or 1), and a Jux State as the 2nd input.
-
-    Finally, the returned actions are pure Arrays. See TODO for how the actions are formatted. TODO alternatively you can submit lux format actions 
-    and use TODO utility to convert them
     """
 
     def __init__(
@@ -55,7 +52,8 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         factory_placement_policy: Callable[
             [jax.random.KeyArray, int, JuxState], Tuple[Array, Array, Array]
         ] = None,
-        controller: Controller = None
+        controller: Controller = None,
+        max_episode_steps: int = 1000
     ):
         gym.Wrapper.__init__(self, env)
         self.env = env
@@ -68,6 +66,7 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
         dummy_obs_space = spaces.Box(-1, 1, (1,))
 
         self.observation_space = dummy_obs_space
+        self.max_episode_steps = max_episode_steps
 
         VecEnv.__init__(self, num_envs, dummy_obs_space, action_space=self.action_space)
 
@@ -121,11 +120,35 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             (state, key) = jax.lax.while_loop(cond_fun, body_fun, (state, key))
 
             return {'player_0': state, 'player_1': state}
+        _upgraded_reset = jax.jit(_upgraded_reset)
+        self._upgraded_reset = jax.vmap(_upgraded_reset)
 
+        def _step_normal_phase_with_auto_reset(key: jax.random.PRNGKey, state: JuxState, jux_action: JuxAction):
+            state, (observation, reward, done, info) = self.env.step_late_game(state, jux_action)
+            over_timelimit = (state.real_env_steps >= self.max_episode_steps)
+            truncated = ~done.any()
+            eps_done = done.any() | over_timelimit
+            done = jnp.array([eps_done, eps_done])
+            
 
-        self._upgraded_reset = jax.vmap(jax.jit(_upgraded_reset))
+            # juxenv info is empty so we can override it here.
+            info = {'TimeLimit.truncated': truncated, 'terminal_observation': observation}
+            infos = {'player_0': info, 'player_1': info}
+            
+            def auto_reset(key: jax.random.PRNGKey):
+                key, subkey = jax.random.split(key)
+                seed = jax.random.randint(subkey, (1,), minval=0, maxval=2**16 - 1, dtype=jnp.int32)[0]
+                observation: Dict[str, JuxState] = _upgraded_reset(seed)
+                return observation
 
-        self._step_normal_phase = jax.vmap(jax.jit(self.env.step_late_game))
+            # prform an auto reset when the episode is over
+            observation = jax.lax.cond(eps_done, auto_reset, lambda x : observation, key)
+
+            # NOTE: If you want to customize anything about the reward function, to ensure good speed you should modify it here 
+            
+            return observation['player_0'], (observation, reward, done, infos)
+    
+        self._step_normal_phase = jax.vmap(jax.jit(_step_normal_phase_with_auto_reset))
 
         self.states: JuxState = None
         self.key = jax.random.PRNGKey(np.random.randint(0, 2 ** 16 - 1, dtype=np.int32))
@@ -161,7 +184,9 @@ class SB3JaxVecEnv(gym.Wrapper, VecEnv):
             return jnp.stack([x[:, team], y[:, team]], 1)
         jux_action: JuxAction = jax.tree_map(lambda x, y : update_team_actions(x, y, 0), jux_action, jux_action_0)
         jux_action: JuxAction = jax.tree_map(lambda x, y : update_team_actions(x, y, 1), jux_action, jux_action_1)
-        state, (observations, rewards, dones, infos) = self._step_normal_phase(self.states, jux_action)
+        key, *subkeys = jax.random.split(self.key, self.num_envs + 1)
+        self.key = key
+        state, (observations, rewards, dones, infos) = self._step_normal_phase(jnp.array(subkeys), self.states, jux_action)
         self.states = state
 
         return observations, rewards, dones, infos
