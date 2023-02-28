@@ -19,7 +19,10 @@ pub use factory::Factory;
 pub use observation::Observation;
 pub use robot::Robot;
 pub use state::State;
-pub use team::Team;
+pub use team::{Faction, Team};
+
+// FIXME(seamooo) design choice to seperate state into initial conditions and mutable
+// vs block struct
 
 pub trait Agent {
     fn setup(&mut self, state: &State) -> Option<SetupAction>;

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct RobotTypeConfig {
     pub metal_cost: u64,
@@ -20,7 +20,7 @@ pub struct RobotTypeConfig {
     pub action_queue_power_cost: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RobotConfig {
     #[serde(rename = "HEAVY")]
     pub heavy: RobotTypeConfig,
@@ -28,7 +28,7 @@ pub struct RobotConfig {
     pub light: RobotTypeConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub max_episode_length: u64,
     pub map_size: u64,

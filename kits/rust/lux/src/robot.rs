@@ -4,7 +4,7 @@ use crate::config::RobotTypeConfig;
 use crate::state::State;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RobotType {
     #[serde(rename = "LIGHT")]
     Light,
@@ -12,14 +12,14 @@ pub enum RobotType {
     Heavy,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Robot {
     pub team_id: u64,
     pub unit_id: String,
     pub power: u64,
     pub unit_type: RobotType,
 
-    /// pos cannot be negative but keeping signed to avoid casting for delta
+    /// Pos cannot be negative but keeping signed to avoid casting for delta
     /// computations
     pub pos: (i64, i64),
     pub cargo: Cargo,
@@ -87,5 +87,8 @@ impl Robot {
     #[inline(always)]
     pub fn self_destruct_cost(&self, state: &State) -> u64 {
         self.cfg(state).self_destruct_cost
+    }
+    pub fn is_valid_action(&self, _action: &UnitActionCommand) -> bool {
+        unimplemented!();
     }
 }

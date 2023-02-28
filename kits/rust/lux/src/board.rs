@@ -37,6 +37,7 @@ impl<'a> From<&'a Board> for BoardDataRef<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct Board {
     pub rubble: Vec<Vec<u64>>,
     pub ore: Vec<Vec<u64>>,
@@ -107,5 +108,18 @@ impl Board {
     #[inline]
     pub fn rubble(&self, pos: &(i64, i64)) -> u64 {
         self.rubble[pos.0 as usize][pos.1 as usize]
+    }
+    #[inline]
+    pub fn iter_valid_spawns(&self) -> impl Iterator<Item = (i64, i64)> + '_ {
+        self.valid_spawns_mask
+            .iter()
+            .enumerate()
+            .flat_map(|(i, y_vals)| {
+                y_vals
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, val)| **val)
+                    .map(move |(j, _)| (i as i64, j as i64))
+            })
     }
 }

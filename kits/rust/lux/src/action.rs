@@ -1,3 +1,4 @@
+use crate::team::Faction;
 use serde::{
     de::{self, Error as DeError},
     ser::SerializeTuple,
@@ -133,12 +134,12 @@ pub type UnitActions = std::collections::HashMap<String, UnitActionCommand>;
 #[serde(untagged)]
 pub enum SetupAction {
     Spawn {
-        spawn: Vec<u64>,
+        spawn: (i64, i64),
         metal: u64,
         water: u64,
     },
     Bid {
-        faction: String,
+        faction: Faction,
         // TODO(seamooo) is u64 enough for this?
         bid: u64,
     },

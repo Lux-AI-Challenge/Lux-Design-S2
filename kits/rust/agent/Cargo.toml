@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 lux = { path = "../lux" }
+rand = { version = "0.8.5", features = ["small_rng"] }

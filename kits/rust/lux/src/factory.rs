@@ -2,7 +2,7 @@ use crate::cargo::Cargo;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Factory {
     pub team_id: u64,
     pub unit_id: String,

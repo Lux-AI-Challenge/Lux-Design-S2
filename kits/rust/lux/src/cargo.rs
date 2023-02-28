@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cargo {
-    ice: u64,
-    ore: u64,
-    water: u64,
-    metal: u64,
+    pub ice: u64,
+    pub ore: u64,
+    pub water: u64,
+    pub metal: u64,
 }
