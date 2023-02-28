@@ -24,7 +24,17 @@ pub use team::{Faction, Team};
 // FIXME(seamooo) design choice to seperate state into initial conditions and mutable
 // vs block struct
 
+/// Trait for using an agent in a competition / simulation
 pub trait Agent {
+    /// Expected to be called during bid phase and setup phase
     fn setup(&mut self, state: &State) -> Option<SetupAction>;
+
+    /// Expected to be called during the action phase
     fn act(&mut self, state: &State) -> UnitActions;
 }
+
+/// Position representation used universally
+///
+/// A signed type has been used such that delta representation is possible
+/// with with the same type, however coordinates will all be unsigned
+pub type Pos = (i64, i64);

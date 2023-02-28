@@ -1,4 +1,5 @@
 use crate::team::Faction;
+use crate::Pos;
 use serde::{
     de::{self, Error as DeError},
     ser::SerializeTuple,
@@ -16,7 +17,7 @@ pub enum Direction {
 
 impl Direction {
     #[inline]
-    pub fn to_pos(&self) -> (i64, i64) {
+    pub fn to_pos(&self) -> Pos {
         match self {
             Self::Center => (0, 0),
             Self::Up => (0, -1),
@@ -134,7 +135,7 @@ pub type UnitActions = std::collections::HashMap<String, UnitActionCommand>;
 #[serde(untagged)]
 pub enum SetupAction {
     Spawn {
-        spawn: (i64, i64),
+        spawn: Pos,
         metal: u64,
         water: u64,
     },

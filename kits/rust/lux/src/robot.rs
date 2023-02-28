@@ -2,6 +2,7 @@ use crate::action::{Direction, UnitActionCommand};
 use crate::cargo::Cargo;
 use crate::config::RobotTypeConfig;
 use crate::state::State;
+use crate::Pos;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -18,10 +19,7 @@ pub struct Robot {
     pub unit_id: String,
     pub power: u64,
     pub unit_type: RobotType,
-
-    /// Pos cannot be negative but keeping signed to avoid casting for delta
-    /// computations
-    pub pos: (i64, i64),
+    pub pos: Pos,
     pub cargo: Cargo,
     pub action_queue: Vec<UnitActionCommand>,
 }

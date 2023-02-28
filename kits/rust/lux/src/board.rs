@@ -1,5 +1,6 @@
 use crate::factory::Factory;
 use crate::utils::OpaqueRectArrDbg;
+use crate::Pos;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
@@ -106,11 +107,11 @@ impl Board {
         }
     }
     #[inline]
-    pub fn rubble(&self, pos: &(i64, i64)) -> u64 {
+    pub fn rubble(&self, pos: &Pos) -> u64 {
         self.rubble[pos.0 as usize][pos.1 as usize]
     }
     #[inline]
-    pub fn iter_valid_spawns(&self) -> impl Iterator<Item = (i64, i64)> + '_ {
+    pub fn iter_valid_spawns(&self) -> impl Iterator<Item = Pos> + '_ {
         self.valid_spawns_mask
             .iter()
             .enumerate()

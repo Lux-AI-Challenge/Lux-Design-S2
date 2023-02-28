@@ -1,4 +1,5 @@
 use crate::cargo::Cargo;
+use crate::Pos;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
 
@@ -7,7 +8,7 @@ pub struct Factory {
     pub team_id: u64,
     pub unit_id: String,
     pub power: u64,
-    pub pos: (i64, i64),
+    pub pos: Pos,
     pub cargo: Cargo,
     pub strain_id: u64,
 }
