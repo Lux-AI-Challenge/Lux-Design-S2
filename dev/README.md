@@ -13,7 +13,7 @@ Set version = "" in version.py file as its not a "package" in the kaggle-environ
 The visualizer on lux-ai.org auto updates on commits to main.
 
 To update kaggle frontend run
-```
+```Python console
 npm publish --access=public
 ```
 
@@ -21,7 +21,7 @@ npm publish --access=public
 
 Change version number, remove previoust `dist` folder, and then run
 
-```
+```Python console
 python -m build
 twine upload dist/* --verbose
 ```
