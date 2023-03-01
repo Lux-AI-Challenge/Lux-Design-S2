@@ -10,7 +10,7 @@ And of course, please be aware of and read the [Code Of Conduct](https://github.
 
 For development, we recommend using conda to setup your python environment. Once you have conda (or the faster mamba), clone this repository and setup the environment
 
-```
+```Python console
 git clone https://github.com/Lux-AI-Challenge/Lux-Design-S2.git
 conda env create -f environment.yml
 conda activate luxai_s2
