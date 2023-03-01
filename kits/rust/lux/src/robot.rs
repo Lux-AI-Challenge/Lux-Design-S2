@@ -1,4 +1,4 @@
-use crate::action::{Direction, UnitActionCommand};
+use crate::action::{Direction, RobotActionCommand};
 use crate::cargo::Cargo;
 use crate::config::RobotTypeConfig;
 use crate::state::State;
@@ -21,7 +21,7 @@ pub struct Robot {
     pub unit_type: RobotType,
     pub pos: Pos,
     pub cargo: Cargo,
-    pub action_queue: Vec<UnitActionCommand>,
+    pub action_queue: Vec<RobotActionCommand>,
 }
 
 impl Robot {
@@ -53,9 +53,9 @@ impl Robot {
             (self.pos.0 + x, self.pos.1 + y)
         };
         if target_pos.0 < 0
-            || target_pos.0 >= state.board.rubble.len() as i64
+            || target_pos.0 >= state.board.x_len() as i64
             || target_pos.1 < 0
-            || target_pos.1 >= state.board.rubble[0].len() as i64
+            || target_pos.1 >= state.board.y_len() as i64
         {
             return None;
         }
@@ -86,7 +86,26 @@ impl Robot {
     pub fn self_destruct_cost(&self, state: &State) -> u64 {
         self.cfg(state).self_destruct_cost
     }
-    pub fn is_valid_action(&self, _action: &UnitActionCommand) -> bool {
-        unimplemented!();
+    #[inline(always)]
+    pub fn can_dig(&self, state: &State) -> bool {
+        self.dig_cost(state) + self.action_queue_cost(state) <= self.power
+    }
+    #[inline(always)]
+    pub fn can_transfer(&self, state: &State) -> bool {
+        self.action_queue_cost(state) <= self.power
+    }
+    #[inline(always)]
+    pub fn can_move(&self, state: &State, direction: &Direction) -> bool {
+        match self.move_cost(state, direction) {
+            Some(cost) => cost + self.action_queue_cost(state) <= self.power,
+            None => false,
+        }
+    }
+
+    /// Utility for typecasting from `crate::Pos` to indices
+    #[inline(always)]
+    pub fn pos_idx(&self) -> (usize, usize) {
+        let (x, y) = &self.pos;
+        (*x as usize, *y as usize)
     }
 }

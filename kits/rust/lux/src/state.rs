@@ -90,4 +90,12 @@ impl State {
     pub fn my_team(&self) -> &Team {
         self.teams.get(&self.player).unwrap()
     }
+    #[inline(always)]
+    pub fn my_factories(&self) -> &HashMap<String, Factory> {
+        self.factories.get(&self.player).unwrap()
+    }
+    #[inline(always)]
+    pub fn my_units(&self) -> &HashMap<String, Robot> {
+        self.units.get(&self.player).unwrap()
+    }
 }

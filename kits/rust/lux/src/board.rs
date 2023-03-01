@@ -8,6 +8,7 @@ use std::fmt;
 #[derive(Deserialize)]
 pub(crate) struct BoardData {
     rubble: Vec<Vec<u64>>,
+    ice: Vec<Vec<u64>>,
     ore: Vec<Vec<u64>>,
     lichen: Vec<Vec<u64>>,
     lichen_strains: Vec<Vec<u64>>,
@@ -18,6 +19,7 @@ pub(crate) struct BoardData {
 #[derive(Serialize)]
 pub(crate) struct BoardDataRef<'a> {
     rubble: &'a Vec<Vec<u64>>,
+    ice: &'a Vec<Vec<u64>>,
     ore: &'a Vec<Vec<u64>>,
     lichen: &'a Vec<Vec<u64>>,
     lichen_strains: &'a Vec<Vec<u64>>,
@@ -29,6 +31,7 @@ impl<'a> From<&'a Board> for BoardDataRef<'a> {
     fn from(val: &'a Board) -> Self {
         Self {
             rubble: &val.rubble,
+            ice: &val.ice,
             ore: &val.ore,
             lichen: &val.lichen,
             lichen_strains: &val.lichen_strains,
@@ -41,6 +44,7 @@ impl<'a> From<&'a Board> for BoardDataRef<'a> {
 #[derive(Clone)]
 pub struct Board {
     pub rubble: Vec<Vec<u64>>,
+    pub ice: Vec<Vec<u64>>,
     pub ore: Vec<Vec<u64>>,
     pub lichen: Vec<Vec<u64>>,
     pub lichen_strains: Vec<Vec<u64>>,
@@ -52,6 +56,7 @@ pub struct Board {
 impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         let rubble = OpaqueRectArrDbg(&self.rubble);
+        let ice = OpaqueRectArrDbg(&self.ice);
         let ore = OpaqueRectArrDbg(&self.ore);
         let lichen = OpaqueRectArrDbg(&self.lichen);
         let lichen_strains = OpaqueRectArrDbg(&self.lichen_strains);
@@ -59,6 +64,7 @@ impl fmt::Debug for Board {
         let factory_occupancy = OpaqueRectArrDbg(&self.factory_occupancy);
         f.debug_struct("Board")
             .field("rubble", &rubble)
+            .field("ice", &ice)
             .field("ore", &ore)
             .field("lichen", &lichen)
             .field("lichen_strains", &lichen_strains)
@@ -98,6 +104,7 @@ impl Board {
         };
         Self {
             rubble: board_data.rubble,
+            ice: board_data.ice,
             ore: board_data.ore,
             lichen: board_data.lichen,
             lichen_strains: board_data.lichen_strains,
@@ -122,5 +129,17 @@ impl Board {
                     .filter(|(_, val)| **val)
                     .map(move |(j, _)| (i as i64, j as i64))
             })
+    }
+    #[inline]
+    pub fn x_len(&self) -> usize {
+        self.rubble.len()
+    }
+    #[inline]
+    pub fn y_len(&self) -> usize {
+        if self.rubble.is_empty() {
+            0
+        } else {
+            self.rubble[0].len()
+        }
     }
 }

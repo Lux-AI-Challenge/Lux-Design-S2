@@ -14,3 +14,11 @@ game rules.
 - What's the use of factions / should names outside of the 4 valid values be supported
 - I've seen some implementations use BigInteger reprs for bid amounts, is this necessary?
 - Is there a meaning to repeating a self destruct action
+
+## Tasks remaining
+
+- Better path finding
+- Errors over panics
+- Executable verification
+- Coverage tests
+

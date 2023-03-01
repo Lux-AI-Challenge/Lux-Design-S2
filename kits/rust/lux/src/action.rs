@@ -16,7 +16,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    #[inline]
+    #[inline(always)]
     pub fn to_pos(&self) -> Pos {
         match self {
             Self::Center => (0, 0),
@@ -24,6 +24,29 @@ impl Direction {
             Self::Right => (1, 0),
             Self::Down => (0, 1),
             Self::Left => (-1, 0),
+        }
+    }
+    #[inline(always)]
+    pub fn iter_all() -> impl Iterator<Item = Self> {
+        [Self::Center, Self::Up, Self::Right, Self::Down, Self::Left].into_iter()
+    }
+    pub fn move_towards(src: &Pos, dst: &Pos) -> Self {
+        // TODO(seamooo) should have an optional obstruction map here
+        let dx = dst.0 - src.0;
+        let dy = dst.1 - src.1;
+        if dx == dy && dx == 0 {
+            Direction::Center
+        } else {
+            match dx.abs().cmp(&dy.abs()) {
+                std::cmp::Ordering::Greater => match dx.signum() {
+                    1 => Direction::Right,
+                    _ => Direction::Left,
+                },
+                _ => match dy.signum() {
+                    1 => Direction::Down,
+                    _ => Direction::Up,
+                },
+            }
         }
     }
 }
@@ -38,14 +61,14 @@ pub enum ResourceType {
 }
 
 #[derive(Debug, Clone)]
-pub struct UnitActionCommand {
-    pub action: UnitAction,
+pub struct RobotActionCommand {
+    pub action: RobotAction,
     pub repeat: u64,
     pub n: u64,
 }
 
 #[derive(Debug, Clone)]
-pub enum UnitAction {
+pub enum RobotAction {
     Move {
         direction: Direction,
     },
@@ -63,7 +86,7 @@ pub enum UnitAction {
     Recharge,
 }
 
-impl UnitActionCommand {
+impl RobotActionCommand {
     #[inline(always)]
     fn default_repeat_n(repeat_n: (Option<u64>, Option<u64>)) -> (u64, u64) {
         let (repeat, n) = repeat_n;
@@ -71,7 +94,7 @@ impl UnitActionCommand {
     }
     pub fn move_(direction: Direction, repeat: Option<u64>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
-        let action = UnitAction::Move { direction };
+        let action = RobotAction::Move { direction };
         Self { action, repeat, n }
     }
     pub fn transfer(
@@ -82,7 +105,7 @@ impl UnitActionCommand {
         n: Option<u64>,
     ) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
-        let action = UnitAction::Transfer {
+        let action = RobotAction::Transfer {
             direction,
             resource_type,
             amount,
@@ -96,7 +119,7 @@ impl UnitActionCommand {
         n: Option<u64>,
     ) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
-        let action = UnitAction::Pickup {
+        let action = RobotAction::Pickup {
             resource_type,
             amount,
         };
@@ -105,7 +128,7 @@ impl UnitActionCommand {
     pub fn dig(repeat: Option<u64>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         Self {
-            action: UnitAction::Dig,
+            action: RobotAction::Dig,
             repeat,
             n,
         }
@@ -114,7 +137,7 @@ impl UnitActionCommand {
         // TODO(seamooo) should it be possible to repeat self destruct?
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         Self {
-            action: UnitAction::SelfDestruct,
+            action: RobotAction::SelfDestruct,
             repeat,
             n,
         }
@@ -122,14 +145,52 @@ impl UnitActionCommand {
     pub fn recharge(repeat: Option<u64>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         Self {
-            action: UnitAction::Recharge,
+            action: RobotAction::Recharge,
             repeat,
             n,
         }
     }
+    pub fn move_towards(src: &Pos, dst: &Pos) -> Self {
+        let direction = Direction::move_towards(src, dst);
+        let action = RobotAction::Move { direction };
+        Self {
+            action,
+            repeat: 0,
+            n: 1,
+        }
+    }
 }
 
-pub type UnitActions = std::collections::HashMap<String, UnitActionCommand>;
+#[derive(Debug, Deserialize, Serialize)]
+pub enum FactoryAction {
+    BuildLight = 0,
+    BuildHeavy = 1,
+    Water = 2,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum UnitAction {
+    Robot(Vec<RobotActionCommand>),
+    Factory(FactoryAction),
+}
+
+impl UnitAction {
+    #[inline(always)]
+    pub fn factory_build_light() -> Self {
+        Self::Factory(FactoryAction::BuildLight)
+    }
+    #[inline(always)]
+    pub fn factory_build_heavy() -> Self {
+        Self::Factory(FactoryAction::BuildHeavy)
+    }
+    #[inline(always)]
+    pub fn factory_water() -> Self {
+        Self::Factory(FactoryAction::Water)
+    }
+}
+
+pub type UnitActions = std::collections::HashMap<String, UnitAction>;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
@@ -146,16 +207,16 @@ pub enum SetupAction {
     },
 }
 
-impl Serialize for UnitActionCommand {
+impl Serialize for RobotActionCommand {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let (ty, direction, resource_type, amount): (u64, u64, u64, u64) = match &self.action {
-            UnitAction::Move { direction } => (
+            RobotAction::Move { direction } => (
                 0,
                 direction.clone() as u64,
                 Default::default(),
                 Default::default(),
             ),
-            UnitAction::Transfer {
+            RobotAction::Transfer {
                 direction,
                 resource_type,
                 amount,
@@ -165,23 +226,23 @@ impl Serialize for UnitActionCommand {
                 resource_type.clone() as u64,
                 *amount,
             ),
-            UnitAction::Pickup {
+            RobotAction::Pickup {
                 resource_type,
                 amount,
             } => (2, Default::default(), resource_type.clone() as u64, *amount),
-            UnitAction::Dig => (
+            RobotAction::Dig => (
                 3,
                 Default::default(),
                 Default::default(),
                 Default::default(),
             ),
-            UnitAction::SelfDestruct => (
+            RobotAction::SelfDestruct => (
                 4,
                 Default::default(),
                 Default::default(),
                 Default::default(),
             ),
-            UnitAction::Recharge => (
+            RobotAction::Recharge => (
                 5,
                 Default::default(),
                 Default::default(),
@@ -199,7 +260,7 @@ impl Serialize for UnitActionCommand {
     }
 }
 
-impl<'de> Deserialize<'de> for UnitActionCommand {
+impl<'de> Deserialize<'de> for RobotActionCommand {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let (ty, direction, resource_type, amount, repeat, n) =
             <(u64, u64, u64, u64, u64, u64) as Deserialize<'de>>::deserialize(deserializer)?;
@@ -227,21 +288,21 @@ impl<'de> Deserialize<'de> for UnitActionCommand {
             )),
         };
         let action = match ty {
-            0 => Ok(UnitAction::Move {
+            0 => Ok(RobotAction::Move {
                 direction: make_direction()?,
             }),
-            1 => Ok(UnitAction::Transfer {
+            1 => Ok(RobotAction::Transfer {
                 direction: make_direction()?,
                 resource_type: make_resource_type()?,
                 amount,
             }),
-            2 => Ok(UnitAction::Pickup {
+            2 => Ok(RobotAction::Pickup {
                 resource_type: make_resource_type()?,
                 amount,
             }),
-            3 => Ok(UnitAction::Dig),
-            4 => Ok(UnitAction::SelfDestruct),
-            5 => Ok(UnitAction::Recharge),
+            3 => Ok(RobotAction::Dig),
+            4 => Ok(RobotAction::SelfDestruct),
+            5 => Ok(RobotAction::Recharge),
             _ => Err(D::Error::invalid_value(
                 de::Unexpected::Unsigned(direction),
                 &"expected a value in the range 0..=5",

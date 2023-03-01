@@ -10,7 +10,7 @@ pub mod state;
 pub mod team;
 mod utils;
 
-pub use action::{SetupAction, UnitActionCommand, UnitActions};
+pub use action::{FactoryAction, RobotActionCommand, SetupAction, UnitAction, UnitActions};
 pub use board::Board;
 pub use cargo::Cargo;
 pub use config::Config;
@@ -21,7 +21,7 @@ pub use robot::Robot;
 pub use state::State;
 pub use team::{Faction, Team};
 
-// FIXME(seamooo) design choice to seperate state into initial conditions and mutable
+// FIXME(seamooo) design choice to separate state into initial conditions and mutable
 // vs block struct
 
 /// Trait for using an agent in a competition / simulation
