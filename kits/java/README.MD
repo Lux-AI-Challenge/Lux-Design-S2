@@ -26,14 +26,14 @@ mvn clean compile assembly:single
 2. Move jar to subfolder localrun
 3. Run with main.py
 
-```
+```Python console
 luxai-s2 main.py main.py -o replay.json
 ```
 
 ## Compile for uploading to leaderboard evaluation
 
 1. Create an archive with JavaBot.jar and main.py from root dir
-    ```
+    ```Python console
     tar -cvzf submission.tar.gz main.py -C localrun JavaBot.jar
     ```
 2. Submit to leaderboard server
