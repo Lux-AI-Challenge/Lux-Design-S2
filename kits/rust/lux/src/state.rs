@@ -1,3 +1,5 @@
+//! A module for creating, updating and interacting with state
+
 use crate::board::Board;
 use crate::config::Config;
 use crate::event::Event;
@@ -43,6 +45,7 @@ pub struct State {
 }
 
 impl State {
+    /// Creates a state struct from an initial event
     pub fn from_init_event(event: Event) -> Self {
         if event.step != 0 {
             panic!("event was not an initial event");
@@ -67,6 +70,7 @@ impl State {
         }
     }
 
+    /// Updates the mutable portions of state from the given [`Event`]
     pub fn update_from_event(&mut self, event: Event) {
         self.step = event.step;
         self.env_steps = event.obs.real_env_steps;
@@ -86,14 +90,20 @@ impl State {
         };
         self.step & 0x1 == bit
     }
+
+    /// Retrieves the team for the owner of this state
     #[inline(always)]
     pub fn my_team(&self) -> &Team {
         self.teams.get(&self.player).unwrap()
     }
+
+    /// Retrieves the factories for the owner of this state
     #[inline(always)]
     pub fn my_factories(&self) -> &HashMap<String, Factory> {
         self.factories.get(&self.player).unwrap()
     }
+
+    /// Retrieves the units (i.e. robots) for the owner of this state
     #[inline(always)]
     pub fn my_units(&self) -> &HashMap<String, Robot> {
         self.units.get(&self.player).unwrap()

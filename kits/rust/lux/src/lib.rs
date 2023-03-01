@@ -1,3 +1,14 @@
+#![warn(missing_docs)]
+
+//! This is a rust implementation inteded for enabling communication and validation
+//! of agent actions, as well as providing some helpful utilities for interacting with
+//! game rules.
+//!
+//! **Disclaimer**: Although this kit is heavily documented and well tested. It has
+//! been implemented by a third party based on the specification and python
+//! implementation. As such, any deviation from the python implementation with
+//! regards to documentation or behaviour is unintended and should be logged as a bug
+
 pub mod action;
 pub mod board;
 pub mod cargo;

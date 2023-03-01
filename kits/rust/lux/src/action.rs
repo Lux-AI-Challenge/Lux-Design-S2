@@ -1,3 +1,6 @@
+//! Handles unit and setup actions. Additionally enables serializing,
+//! and deserializing of aforementioned actions.
+
 use crate::team::Faction;
 use crate::Pos;
 use serde::{
@@ -6,6 +9,10 @@ use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
 };
 
+/// Represents direction for move and transfer actions
+///
+/// [`Direction::Center`] represents a no-op for move
+#[allow(missing_docs)]
 #[derive(Debug, Clone)]
 pub enum Direction {
     Center = 0,
@@ -16,6 +23,7 @@ pub enum Direction {
 }
 
 impl Direction {
+    /// Get position delta represented by the direction
     #[inline(always)]
     pub fn to_pos(&self) -> Pos {
         match self {
@@ -26,10 +34,14 @@ impl Direction {
             Self::Left => (-1, 0),
         }
     }
+
+    /// Iterate across all directions
     #[inline(always)]
     pub fn iter_all() -> impl Iterator<Item = Self> {
         [Self::Center, Self::Up, Self::Right, Self::Down, Self::Left].into_iter()
     }
+
+    /// Calculate the next move direction for a given source, destination pair
     pub fn move_towards(src: &Pos, dst: &Pos) -> Self {
         // TODO(seamooo) should have an optional obstruction map here
         let dx = dst.0 - src.0;
@@ -51,6 +63,8 @@ impl Direction {
     }
 }
 
+/// Type of resource used in action
+#[allow(missing_docs)]
 #[derive(Debug, Clone)]
 pub enum ResourceType {
     Ice = 0,
@@ -60,48 +74,97 @@ pub enum ResourceType {
     Power = 4,
 }
 
+/// Higher level representation of a unit action vector
 #[derive(Debug, Clone)]
 pub struct RobotActionCommand {
+    /// The action to perform
     pub action: RobotAction,
-    pub repeat: u64,
+
+    /// Should this action be recycled by the [`action_queue`](crate::robot::Robot::action_queue)
+    pub repeat: bool,
+
+    /// How many times the action should be executed before cycling the action queue
     pub n: u64,
 }
 
+/// Action a robot can perform.
+///
+/// Should only be used as part of constructing a [`RobotActionCommand`]
 #[derive(Debug, Clone)]
 pub enum RobotAction {
+    /// Moves robot in the direction given.
+    ///
+    /// Moving to [`Direction::Center`] is a no-op
     Move {
+        /// Direction of movement
         direction: Direction,
     },
+    /// Transfers an amount of a resource to another unit in the given direction
+    ///
+    /// # Notes
+    /// - The receiving unit can only receive up to it's capacity
+    /// - Overflow resources are wasted
     Transfer {
+        /// Direction of transfer
         direction: Direction,
+        /// Type of resource to transfer
         resource_type: ResourceType,
+        /// Amount of resource to transfer
         amount: u64,
     },
+    /// Pickup an amount of resource on the factory present at the same tile
+    /// as the robot
+    ///
+    /// # Notes
+    /// - Preference is given to robots with lower ids
+    /// - Pickup not on a factory is invalid
     Pickup {
+        /// Type of resource to pickup
         resource_type: ResourceType,
+        /// Amount of resource to pickup
         amount: u64,
     },
+    /// Performs a dig at the same tile as the unit
+    ///
+    /// If the tile is a resource tile (ore / ice) it retrieves the resource.
+    ///
+    /// If the tile is rubble the rubble is reduced by 2 if a light robot is performing
+    /// the action and 20 if a heavy robot is instead.
+    ///
+    /// If the tile is lichen the lichen value is reduced by 10. If this reduces this value
+    /// to zero, rubble is added. 20 rubble is added if the unit is heavy, and 2 if it is instead
+    /// light.
     Dig,
+    /// Destroys the robot on the spot, creating rubble corresponding to
+    /// [`RobotTypeConfig::rubble_after_desctruction`](crate::config::RobotTypeConfig::dig_cost)
     SelfDestruct,
-    Recharge,
+    /// Waits until robot has `amount` power
+    ///
+    /// This action is not removed from the queue until the robot has `amount` power
+    Recharge {
+        /// Target power to wait until
+        amount: u64,
+    },
 }
 
 impl RobotActionCommand {
     #[inline(always)]
-    fn default_repeat_n(repeat_n: (Option<u64>, Option<u64>)) -> (u64, u64) {
+    fn default_repeat_n(repeat_n: (Option<bool>, Option<u64>)) -> (bool, u64) {
         let (repeat, n) = repeat_n;
-        (repeat.unwrap_or(0), n.unwrap_or(1))
+        (repeat.unwrap_or(false), n.unwrap_or(1))
     }
-    pub fn move_(direction: Direction, repeat: Option<u64>, n: Option<u64>) -> Self {
+    /// Constructs a [`RobotAction::Move`] action as an action command
+    pub fn move_(direction: Direction, repeat: Option<bool>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         let action = RobotAction::Move { direction };
         Self { action, repeat, n }
     }
+    /// Constructs a [`RobotAction::Transfer`] action as an action command
     pub fn transfer(
         direction: Direction,
         resource_type: ResourceType,
         amount: u64,
-        repeat: Option<u64>,
+        repeat: Option<bool>,
         n: Option<u64>,
     ) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
@@ -112,10 +175,11 @@ impl RobotActionCommand {
         };
         Self { action, repeat, n }
     }
+    /// Constructs a [`RobotAction::Pickup`] action as an action command
     pub fn pickup(
         resource_type: ResourceType,
         amount: u64,
-        repeat: Option<u64>,
+        repeat: Option<bool>,
         n: Option<u64>,
     ) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
@@ -125,7 +189,8 @@ impl RobotActionCommand {
         };
         Self { action, repeat, n }
     }
-    pub fn dig(repeat: Option<u64>, n: Option<u64>) -> Self {
+    /// Constructs a [`RobotAction::Dig`] action as an action command
+    pub fn dig(repeat: Option<bool>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         Self {
             action: RobotAction::Dig,
@@ -133,76 +198,110 @@ impl RobotActionCommand {
             n,
         }
     }
-    pub fn self_destruct(repeat: Option<u64>, n: Option<u64>) -> Self {
-        // TODO(seamooo) should it be possible to repeat self destruct?
-        let (repeat, n) = Self::default_repeat_n((repeat, n));
+    /// Constructs a [`RobotAction::SelfDestruct`] action as an action command
+    pub fn self_destruct() -> Self {
         Self {
             action: RobotAction::SelfDestruct,
-            repeat,
-            n,
+            repeat: false,
+            n: 1,
         }
     }
-    pub fn recharge(repeat: Option<u64>, n: Option<u64>) -> Self {
+    /// Constructs a [`RobotAction::Recharge`] action as an action command
+    pub fn recharge(amount: u64, repeat: Option<bool>, n: Option<u64>) -> Self {
         let (repeat, n) = Self::default_repeat_n((repeat, n));
         Self {
-            action: RobotAction::Recharge,
+            action: RobotAction::Recharge { amount },
             repeat,
             n,
         }
     }
+    /// Constructs a [`RobotAction::Move`] action as an action command
+    /// in the direction given by `src` to `dest`
     pub fn move_towards(src: &Pos, dst: &Pos) -> Self {
         let direction = Direction::move_towards(src, dst);
         let action = RobotAction::Move { direction };
         Self {
             action,
-            repeat: 0,
+            repeat: false,
             n: 1,
         }
     }
 }
 
+/// An action able to be performed by a factory unit
 #[derive(Debug, Deserialize, Serialize)]
 pub enum FactoryAction {
+    /// Build a light robot
     BuildLight = 0,
+
+    /// Build a heavy robot
     BuildHeavy = 1,
+
+    /// Grow lichen by watering lichen around the factory
     Water = 2,
 }
 
+/// A type encapsulating both robot and factory actions for serialization,
+/// deserialization and storage.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum UnitAction {
+    /// A vector of robot actions to be performed for a single unit
     Robot(Vec<RobotActionCommand>),
+
+    /// A factory action performed by a single unit
     Factory(FactoryAction),
 }
 
 impl UnitAction {
+    /// Constructs a [`UnitAction`] from [`FactoryAction::BuildLight`]
     #[inline(always)]
     pub fn factory_build_light() -> Self {
         Self::Factory(FactoryAction::BuildLight)
     }
+
+    /// Constructs a [`UnitAction`] from [`FactoryAction::BuildHeavy`]
     #[inline(always)]
     pub fn factory_build_heavy() -> Self {
         Self::Factory(FactoryAction::BuildHeavy)
     }
+
+    /// Constructs a [`UnitAction`] from [`FactoryAction::Water`]
     #[inline(always)]
     pub fn factory_water() -> Self {
         Self::Factory(FactoryAction::Water)
     }
 }
 
+/// Unit id to [`UnitAction`] mapping expected to be returned from an
+/// agent in the action phase
 pub type UnitActions = std::collections::HashMap<String, UnitAction>;
 
+/// Actions possible to perform in the setup phase
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum SetupAction {
+    /// Spawns a factory, and supplies it with the given amonut of metal and water
     Spawn {
+        /// Center of the 3x3 factory
         spawn: Pos,
+        /// Starting supply of metal for the factory
         metal: u64,
+        /// Starting supply of water for the factory
         water: u64,
     },
+    /// Selects faction places a bid on the maximum number of resources offered for
+    /// the chance to go first.
     Bid {
+        /// Faction to initialize as.
+        ///
+        /// Useful for coloring your agent in a gui
         faction: Faction,
+
         // TODO(seamooo) is u64 enough for this?
+        /// Bid for the maximum resources offered for the chance to go first.
+        ///
+        /// If the bid is successful, this many water, and metal resources will be removed
         bid: u64,
     },
 }
@@ -242,19 +341,17 @@ impl Serialize for RobotActionCommand {
                 Default::default(),
                 Default::default(),
             ),
-            RobotAction::Recharge => (
-                5,
-                Default::default(),
-                Default::default(),
-                Default::default(),
-            ),
+            RobotAction::Recharge { amount } => {
+                (5, Default::default(), Default::default(), *amount)
+            }
         };
+        let repeat: u64 = if self.repeat { 1 } else { 0 };
         let mut rv = serializer.serialize_tuple(6)?;
         rv.serialize_element(&ty)?;
         rv.serialize_element(&direction)?;
         rv.serialize_element(&resource_type)?;
         rv.serialize_element(&amount)?;
-        rv.serialize_element(&self.repeat)?;
+        rv.serialize_element(&repeat)?;
         rv.serialize_element(&self.n)?;
         rv.end()
     }
@@ -262,8 +359,12 @@ impl Serialize for RobotActionCommand {
 
 impl<'de> Deserialize<'de> for RobotActionCommand {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let (ty, direction, resource_type, amount, repeat, n) =
+        let (ty, direction, resource_type, amount, repeat_u64, n) =
             <(u64, u64, u64, u64, u64, u64) as Deserialize<'de>>::deserialize(deserializer)?;
+        let repeat = match repeat_u64 {
+            0 => false,
+            _ => true,
+        };
         // lazily do enum conversions as they are don't cares prior
         let make_direction = || match direction {
             0 => Ok(Direction::Center),
@@ -302,7 +403,7 @@ impl<'de> Deserialize<'de> for RobotActionCommand {
             }),
             3 => Ok(RobotAction::Dig),
             4 => Ok(RobotAction::SelfDestruct),
-            5 => Ok(RobotAction::Recharge),
+            5 => Ok(RobotAction::Recharge { amount }),
             _ => Err(D::Error::invalid_value(
                 de::Unexpected::Unsigned(direction),
                 &"expected a value in the range 0..=5",

@@ -1,3 +1,5 @@
+//! Serializes and deserializes observation data
+
 use crate::board::{Board, BoardData, BoardDataRef};
 use crate::factory::Factory;
 use crate::robot::Robot;
@@ -5,6 +7,7 @@ use crate::team::Team;
 use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Utility struct for deserializing into [`Observation`]
 #[derive(Deserialize)]
 struct ObservationData {
     units: HashMap<String, HashMap<String, Robot>>,
@@ -15,6 +18,7 @@ struct ObservationData {
     global_id: u64,
 }
 
+/// Utility struct for serializing [`Observation`]
 #[derive(Serialize)]
 struct ObservationDataRef<'a> {
     units: &'a HashMap<String, HashMap<String, Robot>>,
@@ -25,14 +29,27 @@ struct ObservationDataRef<'a> {
     global_id: &'a u64,
 }
 
+/// Current snapshot of the game including all mutated state
 #[derive(Debug)]
 pub struct Observation {
+    /// Map of player_id to Map of unit_id to [`Robot`]
     pub units: HashMap<String, HashMap<String, Robot>>,
+
+    /// Map of player_id to Map of unit_id to [`Factory`]
     pub factories: HashMap<String, HashMap<String, Factory>>,
+
+    /// Current board state
     pub board: Board,
+
+    /// Map of player_id to [`Team`]
     pub teams: HashMap<String, Team>,
+
     /// Can be negative due to there being two phases of gameplay
     pub real_env_steps: i64,
+
+    /// Id to uniquely identify game state
+    ///
+    /// It is guaranteed that this id would map to this observation and no other
     pub global_id: u64,
 }
 
