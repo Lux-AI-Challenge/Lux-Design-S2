@@ -19,7 +19,7 @@ pub mod observation;
 pub mod robot;
 pub mod state;
 pub mod team;
-mod utils;
+pub mod utils;
 
 pub use action::{FactoryAction, RobotActionCommand, SetupAction, UnitAction, UnitActions};
 pub use board::Board;
@@ -31,6 +31,8 @@ pub use observation::Observation;
 pub use robot::Robot;
 pub use state::State;
 pub use team::{Faction, Team};
+
+use serde::{Deserialize, Serialize};
 
 // FIXME(seamooo) design choice to separate state into initial conditions and mutable
 // vs block struct
@@ -48,4 +50,33 @@ pub trait Agent {
 ///
 /// A signed type has been used such that delta representation is possible
 /// with with the same type, however coordinates will all be unsigned
-pub type Pos = (i64, i64);
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct Pos(pub i64, pub i64);
+
+impl Pos {
+    /// # Panics
+    ///
+    /// Function panics if either parameter is less than 0
+    pub fn as_idx(&self) -> (usize, usize) {
+        (self.0 as usize, self.1 as usize)
+    }
+}
+
+impl std::ops::Add<Pos> for Pos {
+    type Output = Self;
+    fn add(self, rhs: Pos) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1)
+    }
+}
+
+impl std::ops::Sub<Pos> for Pos {
+    type Output = Self;
+    fn sub(self, rhs: Pos) -> Self::Output {
+        Self(self.0 - rhs.0, self.1 - rhs.1)
+    }
+}
+
+/// Module for including essential types in scope
+pub mod prelude {
+    pub use super::Pos;
+}

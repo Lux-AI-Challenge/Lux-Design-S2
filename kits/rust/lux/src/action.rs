@@ -8,6 +8,7 @@ use serde::{
     ser::SerializeTuple,
     Deserialize, Deserializer, Serialize, Serializer,
 };
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Represents direction for move and transfer actions
 ///
@@ -27,11 +28,11 @@ impl Direction {
     #[inline(always)]
     pub fn to_pos(&self) -> Pos {
         match self {
-            Self::Center => (0, 0),
-            Self::Up => (0, -1),
-            Self::Right => (1, 0),
-            Self::Down => (0, 1),
-            Self::Left => (-1, 0),
+            Self::Center => Pos(0, 0),
+            Self::Up => Pos(0, -1),
+            Self::Right => Pos(1, 0),
+            Self::Down => Pos(0, 1),
+            Self::Left => Pos(-1, 0),
         }
     }
 
@@ -229,7 +230,8 @@ impl RobotActionCommand {
 }
 
 /// An action able to be performed by a factory unit
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Serialize_repr, Deserialize_repr, Debug)]
+#[repr(u8)]
 pub enum FactoryAction {
     /// Build a light robot
     BuildLight = 0,
@@ -361,10 +363,7 @@ impl<'de> Deserialize<'de> for RobotActionCommand {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let (ty, direction, resource_type, amount, repeat_u64, n) =
             <(u64, u64, u64, u64, u64, u64) as Deserialize<'de>>::deserialize(deserializer)?;
-        let repeat = match repeat_u64 {
-            0 => false,
-            _ => true,
-        };
+        let repeat = repeat_u64 != 0;
         // lazily do enum conversions as they are don't cares prior
         let make_direction = || match direction {
             0 => Ok(Direction::Center),

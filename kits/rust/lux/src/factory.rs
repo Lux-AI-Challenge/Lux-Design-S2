@@ -76,14 +76,13 @@ impl Factory {
     pub fn water_cost(&self, state: &State) -> u64 {
         let tile_count = state
             .board
-            .lichen_strains
+            .tiles
             .iter()
-            .flat_map(|x| x.iter())
-            .filter(|strain_id| {
-                if **strain_id < 0 {
-                    false
+            .filter(|tile| {
+                if let Some(lichen) = &tile.lichen {
+                    lichen.strain == self.strain_id
                 } else {
-                    (**strain_id) as u64 == self.strain_id
+                    false
                 }
             })
             .count() as f64;

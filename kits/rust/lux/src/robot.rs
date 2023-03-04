@@ -83,10 +83,7 @@ impl Robot {
         if matches!(direction, Direction::Center) {
             return Some(0);
         }
-        let target_pos = {
-            let (x, y) = direction.to_pos();
-            (self.pos.0 + x, self.pos.1 + y)
-        };
+        let target_pos = self.pos + direction.to_pos();
         if target_pos.0 < 0
             || target_pos.0 >= state.board.x_len() as i64
             || target_pos.1 < 0
@@ -94,9 +91,7 @@ impl Robot {
         {
             return None;
         }
-        if let Some(strain_id) =
-            &state.board.factory_occupancy[target_pos.0 as usize][target_pos.1 as usize]
-        {
+        if let Some(strain_id) = &state.board.factory_occupancy(&target_pos) {
             if state
                 .teams
                 .get(&self.agent_id())
@@ -145,12 +140,5 @@ impl Robot {
             Some(cost) => cost + self.action_queue_cost(state) <= self.power,
             None => false,
         }
-    }
-
-    /// Utility for typecasting from `crate::Pos` to indices
-    #[inline(always)]
-    pub fn pos_idx(&self) -> (usize, usize) {
-        let (x, y) = &self.pos;
-        (*x as usize, *y as usize)
     }
 }

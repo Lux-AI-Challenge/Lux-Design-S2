@@ -1,36 +1,15 @@
 //! Serializes and deserializes observation data
 
-use crate::board::{Board, BoardData, BoardDataRef};
+use crate::board::{BoardData, BoardDelta};
 use crate::factory::Factory;
 use crate::robot::Robot;
 use crate::team::Team;
-use serde::{de::Deserializer, ser::Serializer, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Utility struct for deserializing into [`Observation`]
-#[derive(Deserialize)]
-struct ObservationData {
-    units: HashMap<String, HashMap<String, Robot>>,
-    factories: HashMap<String, HashMap<String, Factory>>,
-    board: BoardData,
-    teams: HashMap<String, Team>,
-    real_env_steps: i64,
-    global_id: u64,
-}
-
-/// Utility struct for serializing [`Observation`]
-#[derive(Serialize)]
-struct ObservationDataRef<'a> {
-    units: &'a HashMap<String, HashMap<String, Robot>>,
-    factories: &'a HashMap<String, HashMap<String, Factory>>,
-    board: BoardDataRef<'a>,
-    teams: &'a HashMap<String, Team>,
-    real_env_steps: &'a i64,
-    global_id: &'a u64,
-}
-
+/// Observation for change in conditions
 /// Current snapshot of the game including all mutated state
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Observation {
     /// Map of player_id to Map of unit_id to [`Robot`]
     pub units: HashMap<String, HashMap<String, Robot>>,
@@ -38,8 +17,8 @@ pub struct Observation {
     /// Map of player_id to Map of unit_id to [`Factory`]
     pub factories: HashMap<String, HashMap<String, Factory>>,
 
-    /// Current board state
-    pub board: Board,
+    /// Initial board state
+    pub board: BoardData,
 
     /// Map of player_id to [`Team`]
     pub teams: HashMap<String, Team>,
@@ -53,32 +32,26 @@ pub struct Observation {
     pub global_id: u64,
 }
 
-impl Serialize for Observation {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let ser_val = ObservationDataRef {
-            units: &self.units,
-            factories: &self.factories,
-            board: BoardDataRef::from(&self.board),
-            teams: &self.teams,
-            real_env_steps: &self.real_env_steps,
-            global_id: &self.global_id,
-        };
-        ser_val.serialize(serializer)
-    }
-}
+/// Data struct for incremental observations
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ObservationDelta {
+    /// Map of player_id to Map of unit_id to [`Robot`]
+    pub units: HashMap<String, HashMap<String, Robot>>,
 
-impl<'de> Deserialize<'de> for Observation {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let obs_data = ObservationData::deserialize(deserializer)?;
-        let board = Board::from_data_and_factories(obs_data.board, &obs_data.factories);
-        let rv = Self {
-            units: obs_data.units,
-            factories: obs_data.factories,
-            board,
-            teams: obs_data.teams,
-            real_env_steps: obs_data.real_env_steps,
-            global_id: obs_data.global_id,
-        };
-        Ok(rv)
-    }
+    /// Map of player_id to Map of unit_id to [`Factory`]
+    pub factories: HashMap<String, HashMap<String, Factory>>,
+
+    /// Board delta for incremental observations
+    pub board: BoardDelta,
+
+    /// Map of player_id to [`Team`]
+    pub teams: HashMap<String, Team>,
+
+    /// Can be negative due to there being two phases of gameplay
+    pub real_env_steps: i64,
+
+    /// Id to uniquely identify game state
+    ///
+    /// It is guaranteed that this id would map to this observation and no other
+    pub global_id: u64,
 }

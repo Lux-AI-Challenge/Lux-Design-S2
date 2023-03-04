@@ -44,13 +44,13 @@ depending on your platform
 MacOS / linux / unix:
 
 ```bash
-luxai_s2 target/debug/lux-runtime target/debug/lux-runtime --out=replay.json
+luxai-s2 target/debug/lux-runtime target/debug/lux-runtime --out=replay.json
 ```
 
 Windows:
 
 ```bat
-luxai_s2 .\target\debug\lux-runtime.exe .\target\debug\lux-runtime.exe --out=replay.json
+luxai-s2 .\target\debug\lux-runtime.exe .\target\debug\lux-runtime.exe --out=replay.json
 ```
 
 ### Building an agent

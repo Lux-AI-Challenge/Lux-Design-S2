@@ -11,6 +11,7 @@ use std::collections::HashMap;
 /// Struct representing both the initial config and current game state
 ///
 /// # Performance notes
+///
 /// Although this struct is cloneable, it is quite large, especially the
 /// `board` member. As such, minimising clones, or using a compressed representation,
 /// would be preferable for performance.
@@ -42,42 +43,72 @@ pub struct State {
 
     /// player id set on init
     pub player: String,
+
+    /// Amount of time left
+    pub remaining_overage_time: i64,
 }
 
 impl State {
     /// Creates a state struct from an initial event
+    ///
+    /// # Panics
+    ///
+    /// Panics if the event sent was not an [`Event::InitEvent`] variant
     pub fn from_init_event(event: Event) -> Self {
-        if event.step != 0 {
-            panic!("event was not an initial event");
-        }
-        let step = event.step;
-        let env_steps = event.obs.real_env_steps;
-        let env_cfg = event.info.unwrap().env_cfg;
-        let board = event.obs.board;
-        let units = event.obs.units;
-        let factories = event.obs.factories;
-        let teams = event.obs.teams;
-        let player = event.player;
-        Self {
-            env_steps,
+        if let Event::InitEvent {
+            obs,
             step,
-            env_cfg,
-            board,
-            units,
-            factories,
-            teams,
+            remaining_overage_time,
+            info,
             player,
+        } = event
+        {
+            let env_steps = obs.real_env_steps;
+            let env_cfg = info.env_cfg;
+            let factories = obs.factories;
+            let board = Board::from_data_and_factories(obs.board, &factories);
+            let units = obs.units;
+            let teams = obs.teams;
+            Self {
+                env_steps,
+                step,
+                env_cfg,
+                board,
+                units,
+                factories,
+                teams,
+                player,
+                remaining_overage_time,
+            }
+        } else {
+            panic!("event was not an initial event");
         }
     }
 
     /// Updates the mutable portions of state from the given [`Event`]
-    pub fn update_from_event(&mut self, event: Event) {
-        self.step = event.step;
-        self.env_steps = event.obs.real_env_steps;
-        self.board = event.obs.board;
-        self.units = event.obs.units;
-        self.factories = event.obs.factories;
-        self.teams = event.obs.teams;
+    ///
+    /// # Panics
+    ///
+    /// Panics if the event sent was not an [`Event::DeltaEvent`] variant
+    pub fn update_from_delta_event(&mut self, event: Event) {
+        if let Event::DeltaEvent {
+            obs,
+            step,
+            remaining_overage_time,
+            ..
+        } = event
+        {
+            // TODO(seamooo) assert that this is correct for units / factories
+            self.step = step;
+            self.env_steps = obs.real_env_steps;
+            self.board.update_from_delta(obs.board);
+            self.units = obs.units;
+            self.factories = obs.factories;
+            self.teams = obs.teams;
+            self.remaining_overage_time = remaining_overage_time;
+        } else {
+            panic!("event was not a delta event");
+        }
     }
 
     /// Evaluates if the player owning this state can place a factory
