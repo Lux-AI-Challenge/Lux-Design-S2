@@ -216,6 +216,15 @@ impl<T> TryFrom<Vec<Vec<T>>> for RectMat<T> {
     }
 }
 
+/// This is a convenience implementation
+///
+/// TODO(seamooo) make the fast
+impl<T: Clone> From<RectMat<T>> for Vec<Vec<T>> {
+    fn from(val: RectMat<T>) -> Self {
+        val.iter_rows().map(|x| x.cloned().collect()).collect()
+    }
+}
+
 impl<T: Default> RectMat<T> {
     /// Creates a row-major matrix copying the iterator values to the start,
     /// with default values being used to pad the remaining size

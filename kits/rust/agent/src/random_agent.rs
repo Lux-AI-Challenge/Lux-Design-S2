@@ -28,10 +28,13 @@ impl RandomAgent {
 /// closest `true` result in the mask_board if it is possible to move on a path
 /// else the position will be `None`
 ///
-/// # Note
-/// Assumes that the all boolean vectors are the same length (ie a rectangular
+/// # Notes
+///
+/// - Assumes that the all boolean vectors are the same length (ie a rectangular
 /// 2d array), additionally assumes `mask_board` and `obstruction_board` are the
 /// same length
+/// - The implementation solves same distance equality by prioritising the
+/// position with the lowest row-major coordinate
 fn build_closest_board(
     mask_board: &RectMat<bool>,
     obstruction_board: Option<&RectMat<bool>>,
@@ -57,12 +60,12 @@ fn build_closest_board(
                     .iter()
                     .flat_map(|pos| {
                         if pos.0 < 0 || pos.1 < 0 || pos.0 >= m as i64 || pos.1 >= n as i64 {
-                            return vec![].into_iter();
+                            return vec![];
                         }
                         let idx = pos.as_idx();
                         if let Some(obstruction_board) = obstruction_board {
                             if *obstruction_board.get(idx).unwrap() {
-                                return vec![].into_iter();
+                                return vec![];
                             }
                         }
                         if rv.get_unchecked(idx).is_none() {
@@ -71,19 +74,20 @@ fn build_closest_board(
                         } else {
                             vec![]
                         }
-                        .into_iter()
                     })
                     .collect::<BTreeSet<_>>();
                 (val, next_set)
             })
-            .filter(|(_, next_set)| next_set.is_empty())
+            .filter(|(_, next_set)| !next_set.is_empty())
             .collect::<Vec<_>>();
     }
     rv
 }
 
 /// Builds a board grid to answer the query for if there is an obstruction at
-/// the given index
+/// the given index.
+///
+/// ie `board.get(Pos(x,y))` being `true` would indicate there is an obstruction
 fn build_obstruction_board(state: &State) -> RectMat<bool> {
     state
         .board
@@ -109,7 +113,7 @@ fn build_closest_ice_map(
     state: &State,
     obstruction_board: Option<&RectMat<bool>>,
 ) -> RectMat<Option<Pos>> {
-    let mask_board = state.board.tiles.map_new(|tile| tile.ice == 1);
+    let mask_board = state.board.tiles.map_new(|tile| tile.ice > 0);
     let tp_obstruction_board;
     let obstruction_board = {
         if let Some(rv) = obstruction_board {

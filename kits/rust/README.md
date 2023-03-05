@@ -25,27 +25,31 @@ regards to documentation or behaviour is unintended and should be logged as a bu
 - Better path finding
 - Forward sim?
 - Errors over panics
-- Executable verification
 - Coverage tests
 - Integration tests
 
 ## Getting started
 
+For unix users there is a convenience `Makefile` provided for aliasing basic commands.
+This has been chosen mainly because there are some slight subtleties for the
+agent executable not present in Windows.
+
+This provides `make run`, `make build`, and `make build-dev` for running a
+simulation, building a release executable, and building a debug executable respectively
+
 ### Running the demo
 
 To get started there is a provided Random agent that randomly places factories,
-whilst creating new heavy robots to gather ice.
+then creaes heavy robots to gather ice for the factories.
 
 You can run this demo by firstly compiling the runtime by running `cargo build`
 
-Then to run a simulation using just the demo agent you can run the below
-depending on your platform
+Then to run a simulation using just the demo agent you can run the below,
+depending on your platform, from the root directory of the kit.
 
 MacOS / linux / unix:
 
-```bash
-luxai-s2 target/debug/lux-runtime target/debug/lux-runtime --out=replay.json
-```
+`make run`
 
 Windows:
 
@@ -65,6 +69,7 @@ and run your agent
 
 ```diff
  fn main() {
+     env_logger::init();
      // swap out agents here
 -    let mut agent = RandomAgent::default();
 +    let mut agent = MyAgent::default();
@@ -87,8 +92,13 @@ MacOS / linux / unix:
 Windows:
 
 ```bat
-.\create_sbumission.bat
+.\create_submission.bat
 ```
 
 Your submission will be available at `./submission.tar.gz`
+
+## Common Pitfalls
+
+- Unix executables must have a `.out` extension to use with the provided runner.
+  This is not a requirement for submission builds
 

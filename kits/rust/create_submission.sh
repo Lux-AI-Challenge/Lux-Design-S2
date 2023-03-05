@@ -15,8 +15,6 @@ if [ -z "$(docker images -q $container_name)" ]; then
     docker build -t "$container_name" . || abort "error during image build"
 fi
 
-echo here
-
 if [ -z "$(docker ps | grep -w $container_name)" ]; then
     docker run -it -d --name "$container_name" -v "$PWD:/root" --rm "$container_name" bash || abort "error during container start"
 fi
