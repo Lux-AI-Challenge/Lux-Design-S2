@@ -194,20 +194,16 @@ impl<T> TryFrom<Vec<Vec<T>>> for RectMat<T> {
     fn try_from(val: Vec<Vec<T>>) -> Result<Self, Self::Error> {
         let r_dim = val.len();
         let c_dim = if val.is_empty() { 0 } else { val[0].len() };
-        // FIXME(seamooo) dislike double collect
-        let buffer: Vec<_> = val
-            .into_iter()
-            .map(|x| {
-                if x.len() == c_dim {
-                    Ok(x)
-                } else {
-                    Err("Cannot convert a ragged vector to a RectMat")
+        let buffer = {
+            let mut rv = Vec::with_capacity(r_dim * c_dim);
+            for x in val.into_iter() {
+                if x.len() != c_dim {
+                    return Err("Cannot convert a ragged vector to a RectMat");
                 }
-            })
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .flatten()
-            .collect();
+                rv.extend(x.into_iter());
+            }
+            rv
+        };
         Ok(Self {
             r_dim,
             c_dim,
@@ -216,12 +212,14 @@ impl<T> TryFrom<Vec<Vec<T>>> for RectMat<T> {
     }
 }
 
-/// This is a convenience implementation
-///
-/// TODO(seamooo) make the fast
-impl<T: Clone> From<RectMat<T>> for Vec<Vec<T>> {
-    fn from(val: RectMat<T>) -> Self {
-        val.iter_rows().map(|x| x.cloned().collect()).collect()
+impl<T> From<RectMat<T>> for Vec<Vec<T>> {
+    fn from(coll: RectMat<T>) -> Self {
+        let r_dim = coll.r_dim;
+        let c_dim = coll.c_dim;
+        let mut val_iter = coll.into_iter();
+        (0..r_dim)
+            .map(|_| (0..c_dim).map(|_| val_iter.next().unwrap()).collect())
+            .collect()
     }
 }
 
@@ -274,6 +272,12 @@ impl<T> RectMat<T> {
         let mut iter = iter.peekable();
         if c_size == 0 && iter.peek().is_some() {
             return Err("Cannot create zero-sized RectMat from non-empty iterator");
+        } else if c_size == 0 {
+            return Ok(Self {
+                buffer: Vec::new(),
+                r_dim: 0,
+                c_dim: 0,
+            });
         }
         let buffer = iter.collect::<Vec<_>>();
         let r_dim = buffer.len() / c_size;
@@ -449,5 +453,82 @@ impl<T: Serialize + Clone> Serialize for RectMat<T> {
             .map(|row_idx| self.iter_row(row_idx).cloned().collect::<Vec<_>>())
             .collect::<Vec<_>>();
         <Vec<Vec<T>> as Serialize>::serialize(&vec_2d, serializer)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[inline]
+    fn make_simple_mat() -> RectMat<i32> {
+        RectMat::try_from(vec![vec![11, 12, 13], vec![21, 22, 23], vec![31, 32, 33]]).unwrap()
+    }
+
+    #[test]
+    fn rect_mat_iter() {
+        let expected = vec![11, 12, 13, 21, 22, 23, 31, 32, 33];
+        let result = make_simple_mat().iter().cloned().collect::<Vec<_>>();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_into_iter() {
+        let expected = vec![11, 12, 13, 21, 22, 23, 31, 32, 33];
+        let result = make_simple_mat().into_iter().collect::<Vec<_>>();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_iter_rows() {
+        let expected = vec![vec![11, 12, 13], vec![21, 22, 23], vec![31, 32, 33]];
+        let result: Vec<Vec<_>> = make_simple_mat()
+            .iter_rows()
+            .map(|x| x.cloned().collect())
+            .collect();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_iter_cols() {
+        let expected = vec![vec![11, 21, 31], vec![12, 22, 32], vec![13, 23, 33]];
+        let result: Vec<Vec<_>> = make_simple_mat()
+            .iter_cols()
+            .map(|x| x.cloned().collect())
+            .collect();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_zero_size() {
+        let mat: Result<RectMat<()>, _> = RectMat::from_chunkable_iter(std::iter::empty(), 0);
+        assert!(mat.is_ok());
+        let mat: Result<RectMat<()>, _> = RectMat::from_chunkable_iter(vec![()].into_iter(), 0);
+        assert!(mat.is_err());
+    }
+
+    #[test]
+    fn rect_mat_from_iter_padded() {
+        let expected = vec![vec![1, 2, 3], vec![4, 0, 0], vec![0, 0, 0]];
+        let mat = RectMat::from_iter_padded(vec![1, 2, 3, 4].into_iter(), 3, 3);
+        let result: Vec<Vec<_>> = mat.iter_rows().map(|x| x.cloned().collect()).collect();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_from_dims_default() {
+        let expected = vec![vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0]];
+        let mat = RectMat::<i32>::from_dims_default((3, 3));
+        let result: Vec<Vec<_>> = mat.iter_rows().map(|x| x.cloned().collect()).collect();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn rect_mat_map_new() {
+        let expected = vec![vec![1, 1, 1], vec![1, 1, 1], vec![1, 1, 1]];
+        let mat = RectMat::<i32>::from_dims_default((3, 3));
+        let new_mat = mat.map_new(|_| 1);
+        let result: Vec<Vec<_>> = new_mat.iter_rows().map(|x| x.cloned().collect()).collect();
+        assert_eq!(result, expected);
     }
 }
