@@ -41,7 +41,6 @@ impl Factory {
     /// Gets 3x3 range as two range iterators
     #[inline]
     pub fn occupied_range(&self) -> (Range<i64>, Range<i64>) {
-        // TODO(seamooo) is this guaranteed to be in bounds?
         (
             (self.pos.0 - 1..self.pos.0 + 2),
             (self.pos.1 - 1..self.pos.1 + 2),

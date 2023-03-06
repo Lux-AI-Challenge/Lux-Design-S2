@@ -43,8 +43,12 @@ impl Direction {
     }
 
     /// Calculate the next move direction for a given source, destination pair
+    ///
+    /// # Note
+    ///
+    /// This does not account for obstructions and as such should not be trusted
+    /// to always path towards the destination
     pub fn move_towards(src: &Pos, dst: &Pos) -> Self {
-        // TODO(seamooo) should have an optional obstruction map here
         let dx = dst.0 - src.0;
         let dy = dst.1 - src.1;
         if dx == dy && dx == 0 {
@@ -300,7 +304,6 @@ pub enum SetupAction {
         /// Useful for coloring your agent in a gui
         faction: Faction,
 
-        // TODO(seamooo) is u64 enough for this?
         /// Bid for the maximum resources offered for the chance to go first.
         ///
         /// If the bid is successful, this many water, and metal resources will be removed
@@ -363,7 +366,9 @@ impl<'de> Deserialize<'de> for RobotActionCommand {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let (ty, direction, resource_type, amount, repeat_u64, n) =
             <(u64, u64, u64, u64, u64, u64) as Deserialize<'de>>::deserialize(deserializer)?;
-        let repeat = repeat_u64 != 0;
+        // below technically allows out of bounds values for repeat but will behave
+        // correctly for any server implementing the spec correctly
+        let repeat = repeat_u64 > 0;
         // lazily do enum conversions as they are don't cares prior
         let make_direction = || match direction {
             0 => Ok(Direction::Center),
@@ -408,7 +413,12 @@ impl<'de> Deserialize<'de> for RobotActionCommand {
                 &"expected a value in the range 0..=5",
             )),
         }?;
-        // TODO(seamooo) should validation for limits on repeat / n be done here
+        if n == 0 || n > 9999 {
+            return Err(de::Error::invalid_value(
+                de::Unexpected::Unsigned(direction),
+                &"n must be between 1 and 9999 inclusive",
+            ));
+        }
         Ok(Self { action, repeat, n })
     }
 }

@@ -4,29 +4,18 @@ This is a rust implementation inteded for enabling communication and validation
 of agent actions, as well as providing some helpful utilities for interacting with
 game rules.
 
-**Disclaimer**: Although this kit is heavily documented and well tested. It has
-been implemented by a third party based on the specification and python
+**Disclaimer**: Although this kit is heavily documented and  reasonably tested.
+It has been implemented by a third party based on the specification and python
 implementation. As such, any deviation from the python implementation with
 regards to documentation or behaviour is unintended and should be logged as a bug
 
 ## Implementation Clarifications
 
-- Are factories guaranteed to to have an origin at least `(1,1)` and at most
-  `(n-2, m-2)`
-- Are the player ids guaranteed to be `player_0`, `player_1` every match, if so
-  is it worthwhile calling them a generic player_id or just denoting them the
-  same way `LIGHT` and `HEAVY` is denoted
 - What's the use of factions / should names outside of the 4 valid values be supported
-- I've seen some implementations use BigInteger reprs for bid amounts, is this necessary?
-- Is there a meaning to repeating a self destruct action
 
 ## Tasks remaining
 
-- Better path finding
-- Forward sim?
 - Errors over panics
-- Coverage tests
-- Integration tests
 
 ## Getting started
 
@@ -76,6 +65,10 @@ and run your agent
      run(&mut agent).unwrap();
  }
 ```
+
+The runtime provides `env_logger` as its way of using the `log` crate, as such
+all logging is recommended to be done through using the macros provided by the `log`
+crate
 
 ## Create Submission
 

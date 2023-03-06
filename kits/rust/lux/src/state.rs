@@ -98,7 +98,6 @@ impl State {
             ..
         } = event
         {
-            // TODO(seamooo) assert that this is correct for units / factories
             self.step = step;
             self.env_steps = obs.real_env_steps;
             self.board.update_from_delta(obs.board);

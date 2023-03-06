@@ -54,7 +54,6 @@ pub struct Robot {
 }
 
 impl Robot {
-    // TODO(seamooo) cache below rather than allocate every time
     /// Gets the identifier for the robot's team
     #[inline]
     pub fn agent_id(&self) -> String {

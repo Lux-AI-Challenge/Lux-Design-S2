@@ -1,3 +1,4 @@
+use log::debug;
 use lux::{
     action::{Direction, ResourceType},
     utils::RectMat,
@@ -167,7 +168,8 @@ fn gather_ice_logic(
     robot: &Robot,
     state: &State,
 ) -> Option<UnitAction> {
-    // TODO(seamooo) pathing should account for obstructions, maybe A* but might be overkill
+    // note pathing does not account for obstructions, as such it is possible that a move towards
+    // the closest destination won't be on the shortest path
     let idx = robot.pos.as_idx();
     if robot.cargo.ice < 40 {
         // move and dig
@@ -238,9 +240,10 @@ fn gather_ice_logic(
 }
 
 /// An implementation mirroring the logic of the python kit's agent with some slightly
-/// better pathing / path computation logic
+/// better path computation logic
 impl Agent for RandomAgent {
     fn setup(&mut self, state: &State) -> Option<SetupAction> {
+        debug!("requested setup");
         if state.step == 0 {
             Some(SetupAction::Bid {
                 faction: Faction::AlphaStrike,
@@ -259,6 +262,7 @@ impl Agent for RandomAgent {
         }
     }
     fn act(&mut self, state: &State) -> UnitActions {
+        debug!("requested act");
         let obstruction_board = build_obstruction_board(state);
         let closest_ice_map = build_closest_ice_map(state, Some(&obstruction_board));
         let closest_self_factory_map =
