@@ -1,12 +1,36 @@
 //! A module for creating, updating and interacting with state
 
-use crate::board::Board;
+use crate::board::{Board, BoardError};
 use crate::config::Config;
 use crate::event::Event;
 use crate::factory::Factory;
 use crate::robot::Robot;
 use crate::team::Team;
 use std::collections::HashMap;
+use thiserror::Error;
+
+/// Type capturing all errors for the [`state`](crate::state) module
+#[derive(Error, Debug, Clone)]
+pub enum StateError {
+    /// Expected an Event::InitEvent variant
+    #[error("Event passed was not an initial event")]
+    NotInitialEvent,
+
+    /// Expected an Event::DeltaEvent variant
+    #[error("Event passed was not a delta event")]
+    NotDeltaEvent,
+
+    /// A map of player_id to `T` could not find the corresponding
+    /// player_id
+    ///
+    /// This is almost always an internal error
+    #[error("Player id was not present in the collection")]
+    PlayerNotFound,
+
+    /// Error whilst updating state from a board delta
+    #[error("Error while updating board ({0})")]
+    BoardUpdateError(#[from] BoardError),
+}
 
 /// Struct representing both the initial config and current game state
 ///
@@ -15,7 +39,15 @@ use std::collections::HashMap;
 /// Although this struct is cloneable, it is quite large, especially the
 /// `board` member. As such, minimising clones, or using a compressed representation,
 /// would be preferable for performance.
+///
+/// # Note
+///
+/// This must be created using [`State::from_initial_event`], and should be updated
+/// by [`State::update_from_delta_event`] such that expected checks are performed.
+/// As such this has been marked as `non_exaustive`, and should be treated as
+/// immutable outside of [`State::update_from_delta_event`]
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct State {
     /// Signed step indicating game phase and step
     ///
@@ -50,11 +82,7 @@ pub struct State {
 
 impl State {
     /// Creates a state struct from an initial event
-    ///
-    /// # Panics
-    ///
-    /// Panics if the event sent was not an [`Event::InitEvent`] variant
-    pub fn from_init_event(event: Event) -> Self {
+    pub fn from_init_event(event: Event) -> Result<Self, StateError> {
         if let Event::InitEvent {
             obs,
             step,
@@ -65,11 +93,13 @@ impl State {
         {
             let env_steps = obs.real_env_steps;
             let env_cfg = info.env_cfg;
-            let factories = obs.factories;
+            let mut factories = obs.factories;
             let board = Board::from_data_and_factories(obs.board, &factories);
-            let units = obs.units;
+            let mut units = obs.units;
             let teams = obs.teams;
-            Self {
+            units.entry(player.clone()).or_default();
+            factories.entry(player.clone()).or_default();
+            Ok(Self {
                 env_steps,
                 step,
                 env_cfg,
@@ -79,18 +109,14 @@ impl State {
                 teams,
                 player,
                 remaining_overage_time,
-            }
+            })
         } else {
-            panic!("event was not an initial event");
+            Err(StateError::NotInitialEvent)
         }
     }
 
     /// Updates the mutable portions of state from the given [`Event`]
-    ///
-    /// # Panics
-    ///
-    /// Panics if the event sent was not an [`Event::DeltaEvent`] variant
-    pub fn update_from_delta_event(&mut self, event: Event) {
+    pub fn update_from_delta_event(&mut self, event: Event) -> Result<(), StateError> {
         if let Event::DeltaEvent {
             obs,
             step,
@@ -100,31 +126,37 @@ impl State {
         {
             self.step = step;
             self.env_steps = obs.real_env_steps;
-            self.board.update_from_delta(obs.board);
+            self.board.update_from_delta(obs.board)?;
             self.units = obs.units;
             self.factories = obs.factories;
             self.teams = obs.teams;
+            self.units.entry(self.player.clone()).or_default();
+            self.factories.entry(self.player.clone()).or_default();
             self.remaining_overage_time = remaining_overage_time;
+            Ok(())
         } else {
-            panic!("event was not a delta event");
+            Err(StateError::NotDeltaEvent)
         }
     }
 
     /// Evaluates if the player owning this state can place a factory
     /// this turn.
-    pub fn can_place_factory(&self) -> bool {
-        let bit = if self.teams.get(&self.player).unwrap().place_first {
-            1
-        } else {
-            0
-        };
-        self.step & 0x1 == bit
+    ///
+    /// This is impossible during the initialization event and will error
+    pub fn can_place_factory(&self) -> Result<bool, StateError> {
+        let bit = if self.my_team()?.place_first { 1 } else { 0 };
+        Ok(self.step & 0x1 == bit)
     }
 
     /// Retrieves the team for the owner of this state
+    ///
+    /// If this is used during the initialization event the info
+    /// will not be populated and this will error
     #[inline(always)]
-    pub fn my_team(&self) -> &Team {
-        self.teams.get(&self.player).unwrap()
+    pub fn my_team(&self) -> Result<&Team, StateError> {
+        self.teams
+            .get(&self.player)
+            .ok_or(StateError::PlayerNotFound)
     }
 
     /// Retrieves the factories for the owner of this state

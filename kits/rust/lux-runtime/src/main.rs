@@ -36,10 +36,10 @@ fn send_msg(msg_val: &serde_json::Value) -> Result<()> {
 
 fn run<A: Agent>(agent: &mut A) -> Result<()> {
     let init_event: Event = next_event()?;
-    let mut state = State::from_init_event(init_event);
+    let mut state = State::from_init_event(init_event)?;
     send_msg(&exec_step(agent, &state))?;
     while let Ok(event) = next_event() {
-        state.update_from_delta_event(event);
+        state.update_from_delta_event(event)?;
         send_msg(&exec_step(agent, &state))?;
     }
     Ok(())

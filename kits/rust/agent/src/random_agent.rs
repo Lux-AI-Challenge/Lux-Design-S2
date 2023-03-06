@@ -1,8 +1,9 @@
 use log::debug;
+use lux::prelude::*;
 use lux::{
     action::{Direction, ResourceType},
     utils::RectMat,
-    Agent, Faction, Pos, Robot, RobotActionCommand, SetupAction, State, UnitAction, UnitActions,
+    Faction, Robot, RobotActionCommand, SetupAction, State, UnitAction, UnitActions,
 };
 use rand::{distributions::Uniform, rngs::SmallRng, Rng, SeedableRng};
 use std::collections::BTreeSet;
@@ -96,6 +97,7 @@ fn build_obstruction_board(state: &State) -> RectMat<bool> {
         .map_new(|tile| match &tile.factory_occupancy {
             Some(strain_id) => !state
                 .my_team()
+                .unwrap()
                 .factory_strains
                 .iter()
                 .any(|x| x == strain_id),
@@ -249,7 +251,9 @@ impl Agent for RandomAgent {
                 faction: Faction::AlphaStrike,
                 bid: 0,
             })
-        } else if state.can_place_factory() && state.my_team().factories_to_place > 0 {
+        } else if state.can_place_factory().unwrap()
+            && state.my_team().unwrap().factories_to_place > 0
+        {
             let valid_spawns = state.board.iter_valid_spawns().collect::<Vec<_>>();
             let idx: usize = self.rng.sample(Uniform::new(0, valid_spawns.len()));
             Some(SetupAction::Spawn {

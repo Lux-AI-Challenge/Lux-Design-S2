@@ -13,6 +13,7 @@ pub mod action;
 pub mod board;
 pub mod cargo;
 pub mod config;
+pub mod error;
 pub mod event;
 pub mod factory;
 pub mod observation;
@@ -73,7 +74,10 @@ impl std::ops::Sub<Pos> for Pos {
     }
 }
 
+/// General result type that all library function results can transform to
+pub type LuxResult<T> = Result<T, error::LuxError>;
+
 /// Module for including essential types in scope
 pub mod prelude {
-    pub use super::Pos;
+    pub use super::{error::LuxError, Agent, LuxResult, Pos};
 }

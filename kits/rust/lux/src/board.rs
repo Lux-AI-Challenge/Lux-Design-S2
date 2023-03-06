@@ -5,6 +5,16 @@ use crate::utils::RectMat;
 use crate::Pos;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use thiserror::Error;
+
+/// Type capturing all errors for the [`board`](crate::board) module
+#[derive(Error, Debug, Clone)]
+pub enum BoardError {
+    /// Found a key not of the form "x,y" for one of the delta
+    /// fields in [`BoardDelta`]
+    #[error("Delta key was not of the form \"x,y\"")]
+    BadDeltaKeyFormat,
+}
 
 /// Utility struct for communicating [`Board`]
 #[derive(Debug, Deserialize, Serialize)]
@@ -100,12 +110,16 @@ pub struct BoardDelta {
 }
 
 impl BoardDelta {
-    fn key_to_idx(key: &str) -> (usize, usize) {
+    fn key_to_idx(key: &str) -> Result<(usize, usize), BoardError> {
         let mut idx_iter = key.split(',');
-        (
-            idx_iter.next().unwrap().parse().unwrap(),
-            idx_iter.next().unwrap().parse().unwrap(),
-        )
+        move || -> Result<(usize, usize), ()> {
+            let rv: (usize, usize) = (
+                idx_iter.next().ok_or(())?.parse().map_err(|_| ())?,
+                idx_iter.next().ok_or(())?.parse().map_err(|_| ())?,
+            );
+            Ok(rv)
+        }()
+        .map_err(|_| BoardError::BadDeltaKeyFormat)
     }
 }
 
@@ -279,16 +293,16 @@ impl Board {
         self.dims.1
     }
 
-    pub(crate) fn update_from_delta(&mut self, delta: BoardDelta) {
+    pub(crate) fn update_from_delta(&mut self, delta: BoardDelta) -> Result<(), BoardError> {
         if let Some(valid_spawns_mask) = delta.valid_spawns_mask {
             self.valid_spawns_mask = valid_spawns_mask.try_into().unwrap();
         }
         for (key, val) in delta.rubble.into_iter() {
-            let idx = BoardDelta::key_to_idx(&key);
+            let idx = BoardDelta::key_to_idx(&key)?;
             self.tiles.get_mut(idx).unwrap().rubble = val;
         }
         for (key, val) in delta.lichen_strains.into_iter() {
-            let idx = BoardDelta::key_to_idx(&key);
+            let idx = BoardDelta::key_to_idx(&key)?;
             self.tiles.get_mut(idx).unwrap().lichen = match val.cmp(&0) {
                 std::cmp::Ordering::Less => None,
                 _ => Some(Lichen {
@@ -298,10 +312,11 @@ impl Board {
             };
         }
         for (key, val) in delta.lichen.into_iter() {
-            let idx = BoardDelta::key_to_idx(&key);
+            let idx = BoardDelta::key_to_idx(&key)?;
             if let Some(lichen) = &mut self.tiles.get_mut(idx).unwrap().lichen {
                 lichen.count = val;
             }
         }
+        Ok(())
     }
 }
