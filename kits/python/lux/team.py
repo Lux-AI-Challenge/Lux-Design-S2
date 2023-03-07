@@ -39,8 +39,8 @@ class Team:
             team_id=self.team_id,
             faction=self.faction.name,
             # note for optimization, water,metal, factories_to_place doesn't change after the early game.
-            water=self.init_water,
-            metal=self.init_metal,
+            water=self.water,
+            metal=self.metal,
             factories_to_place=self.factories_to_place,
             factory_strains=self.factory_strains,
             place_first=self.place_first,
