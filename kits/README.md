@@ -14,7 +14,7 @@ To then watch the replay, upload replay.json to http://s2vis.lux-ai.org/
 
 Alternatively you can generate a openable HTML file to watch it as well by specifying the output as .html
 
-```Python console
+```python
 luxai-s2 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.html
 ```
 
