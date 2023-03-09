@@ -6,7 +6,7 @@ In each starter kit folder we give you all the tools necessary to compete. Make 
 
 To run a episode with verbosity level 2 (higher is more verbose), seed 42, and save a replay to replay.json:
 
-```Python console
+```Python
 luxai-s2 kits/python/main.py kits/python/main.py -s 42 -v 2 -o replay.json
 ```
 

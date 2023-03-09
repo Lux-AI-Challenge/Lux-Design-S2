@@ -2,7 +2,7 @@
 
 To run a match between two agents, run
 
-```Python console
+```Python
 luxai-s2 path/to/main.py path/to_another/main.py -o replay.json
 ```
 
@@ -12,7 +12,7 @@ For additional help run `luxai-s2 --help`
 
 To run a tournament style leaderboard with all kinds of agents, run 
 
-```Python console
+```Python
 luxai-s2 \
   path/to/bot1/main.py path/to/bot2/main.py \
   path/to/bot3/main.py path/to/bot4_cpp/build/agent.out \
@@ -21,7 +21,7 @@ luxai-s2 \
 
 or specify a folder where each sub-folder contains a main.py file e.g.
 
-```Python console
+```Python
 luxai-s2 path/to/ \
   -o replays/replay.json --tournament -v 0 --tournament_cfg.concurrent=2
 ```
