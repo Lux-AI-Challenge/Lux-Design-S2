@@ -5,6 +5,8 @@ import factoryGreen from '../../assets/factory_green.svg';
 import factoryRed from '../../assets/factory_red.svg';
 import ice0 from '../../assets/ice0.png';
 import ice1 from '../../assets/ice1.png';
+import ore0 from '../../assets/ore0.png';
+import ore1 from '../../assets/ore1.png';
 import heavy0 from '../../assets/robots/heavy0.png';
 import heavy1 from '../../assets/robots/heavy1.png';
 import light0 from '../../assets/robots/light0.png';
@@ -113,9 +115,21 @@ function drawTileBackgrounds(ctx: CanvasRenderingContext2D, config: Config, step
             config.tileSize + tilePadding * 2,
           );
         } else if (board.ore[tileY][tileX] > 0) {
-          color = '#2c3e50';
-          ctx.fillStyle = color;
-          ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
+          let type = 1;
+          const rng = seedrandom(`${tileX * tileY}`);
+          if (rng() < 0.5) {
+            type = 0;
+          }
+          ctx.drawImage(
+            config.oreTiles[type],
+            canvasX - tilePadding,
+            canvasY - tilePadding,
+            config.tileSize + tilePadding * 2,
+            config.tileSize + tilePadding * 2,
+          );
+          // color = '#2c3e50';
+          // ctx.fillStyle = color;
+          // ctx.fillRect(canvasX, canvasY, config.tileSize, config.tileSize);
         } else if (board.lichen[tileY][tileX] == 0) {
           const bracket = Math.ceil(board.rubble[tileY][tileX] / 20);
           ctx.drawImage(
@@ -427,6 +441,11 @@ export function Board({ maxWidth }: BoardProps): JSX.Element {
       const elem = document.createElement('img');
       elem.src = image;
       iceTiles.push(elem);
+    }
+    for (const image of [ore0, ore1]) {
+      const elem = document.createElement('img');
+      elem.src = image;
+      oreTiles.push(elem);
     }
 
     setAssetConfig({ factories, lichenTiles, rubbleTiles, heavies, lights, iceTiles, oreTiles });
