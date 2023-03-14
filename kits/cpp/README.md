@@ -13,12 +13,12 @@ Your core agent code will go into `src/agent.cpp`, and you can create and use mo
 To quickly test run your agent, first compile your agent by running `./compile.sh` (Linux & MacOS) or `.\compile.bat` (Windows). *It will report any missing dependencies or other errors*. If everything is successful, you should see where the created agent was placed. Then you can run:
 
 Linux & MacOS:
-```Python
+```python
 luxai_s2 build/agent.out build/agent.out --out=replay.json
 ```
 
 Windows:
-```Python
+```python
 luxai_s2 .\build\Release\agent.out.exe .\build\Release\agent.out.exe --out=replay.json
 ```
 
@@ -39,7 +39,7 @@ We provide a script to do so, for people working on a OS that is not Ubuntu, `./
 
 And if you are running Ubuntu 20.04 natively run
 
-```Python
+```
 ./compile.sh -b docker_build
 ```
 
