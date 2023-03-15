@@ -1,5 +1,6 @@
 //! Error types for the lux lib
 
+use crate::board::BoardError;
 use crate::state::StateError;
 use thiserror::Error;
 
@@ -13,6 +14,9 @@ pub enum LuxError {
     /// Error originating from the [`state`](crate::state) module
     #[error("State error: {0}")]
     StateError(#[from] StateError),
+
+    /// Error originating from the [`board`](crate::board) module
+    BoardError(#[from] BoardError),
 }
 
 impl From<&'static str> for LuxError {

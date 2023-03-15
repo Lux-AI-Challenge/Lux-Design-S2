@@ -4,8 +4,8 @@
 //! of agent actions, as well as providing some helpful utilities for interacting with
 //! game rules.
 //!
-//! **Disclaimer**: Although this kit is heavily documented and  reasonably tested.
-//! It has been implemented by a third party based on the specification and python
+//! **Disclaimer**: Although this kit is heavily documented and reasonably tested,
+//! it has been implemented by a third party based on the specification and python
 //! implementation. As such, any deviation from the python implementation with
 //! regards to documentation or behaviour is unintended and should be logged as a bug
 
