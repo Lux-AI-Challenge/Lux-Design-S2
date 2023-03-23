@@ -1,0 +1,15 @@
+[package]
+name = "lux-runtime"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+agent = { path = "../agent" }
+anyhow = "1.0.69"
+env_logger = "0.10.0"
+log = "0.4.17"
+lux = { path = "../lux" }
+serde = "1.0.152"
+serde_json = "1.0.93"
