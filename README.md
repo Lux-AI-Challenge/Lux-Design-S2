@@ -90,7 +90,7 @@ We further like to thank the following contributors during the official competit
 ## Citation
 If you use the Lux AI Season 2 environment in your work, please cite this repository as so
 
-```
+```BibTex
 @software{Lux_AI_Challenge_S1,
   author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
   month = {10},

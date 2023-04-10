@@ -46,7 +46,7 @@ In Lux AI Season 2, the robots's actual action space is a list of actions repres
 
 In code, actions can be given to units as so
 
-```
+```python
 actions[unit_id] = [action_0, action_1, ...]
 ```
 
@@ -60,7 +60,7 @@ First, the environment configuration being run is given to your agent. It will b
 
 The general observation given to your bot in the kits will look like below. `Array(n, m)` indicates an array with `n` rows and `m` columns. `[player_id]: {...}` indicates that `{...}` data can be under any player_id key, and the same logic follows for `[unit_id]: {...}`. Note that the gym interface returns just the "obs" key as the observation. For a concrete version of the env configurations and observations with numbers, see `sample_obs.json` and `sample_env_cfg.json` in this folder.
 
-```
+```python
 {
   "obs": {
     "units": {

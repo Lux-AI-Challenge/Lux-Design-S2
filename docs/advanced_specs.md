@@ -19,7 +19,7 @@ where `collect_stats=True` will collect aggregate stats for an episode stored in
 
 The other way to create an environment is to do
 
-```
+```python
 import luxai_s2
 custom_env_cfg = dict()
 env = gym.make("LuxAI_S2-v0", collect_stats=False, **custom_env_cfg)
@@ -32,7 +32,7 @@ Upon creation, an empty `State` object is created and the default agent names gi
 
 When an environment is created, it carries along with it a [State](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/state/state.py) object, which contains every point of data necessary to recreate a state. This allows you to do the following to set and get states
 
-```
+```python
 import copy
 state = env.get_state()
 copy.deepcopy(state)
@@ -135,7 +135,7 @@ Once entering the normal phase, if `self.env_cfg.validate_action_space` is true,
 
 The action space in the normal phase looks as so. We use [x] to represent a key with variable name x.
 
-```
+```python
 {
   [robot id]: 
     ActionsQueue(
@@ -324,7 +324,7 @@ Importantly, the observations returned by `env.step` are the full observations. 
 
 The full observation includes
 
-```
+```python
 {
   units: { [robot id]: UnitStateDict },
   teams: { ["player_0" or "player_1"]: TeamStateDict },
