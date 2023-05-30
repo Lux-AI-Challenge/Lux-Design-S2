@@ -19,6 +19,20 @@ Season 2 specifications can be found here: https://lux-ai.org/specs-s2. These de
 
 Interested in Season 1? Check out [last year's repository](https://github.com/Lux-AI-Challenge/Lux-Design-2021) where we received 22,000+ submissions from 1,100+ teams around the world ranging from scripted agents to Deep Reinforcement Learning.
 
+If you use the Lux AI Season 2 environment in your work, please cite this repository as so
+
+```
+@software{Lux_AI_Challenge_S1,
+  author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
+  doi = {https://doi.org/10.5281/zenodo.7988163},
+  month = {10},
+  title = {{Lux AI Challenge Season 2}},
+  url = {https://github.com/Lux-AI-Challenge/Lux-Design-S2},
+  version = {1.0.0},
+  year = {2023}
+}
+```
+
 ## Getting Started
 
 You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment and optionally the GPU version with
@@ -85,18 +99,3 @@ We like to extend thanks to some of our early core contributors: [@duanwilliam](
 We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer)
 
 We further like to thank the following contributors during the official competition: [@aradite](https://github.com/paradite)(JS Kit), [@MountainOrc](https://github.com/MountainOrc)(Java Kit), [@ArturBloch](https://github.com/ArturBloch)(Java Kit), [@rooklift](https://github.com/rooklift)(Go Kit)
-
-
-## Citation
-If you use the Lux AI Season 2 environment in your work, please cite this repository as so
-
-```
-@software{Lux_AI_Challenge_S1,
-  author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
-  month = {10},
-  title = {{Lux AI Challenge Season 2}},
-  url = {https://github.com/Lux-AI-Challenge/Lux-Design-S2},
-  version = {1.0.0},
-  year = {2023}
-}
-```
