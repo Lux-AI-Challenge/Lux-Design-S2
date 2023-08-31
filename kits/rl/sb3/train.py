@@ -6,12 +6,12 @@ Implementation of RL agent. Note that luxai_s2 and stable_baselines3 are package
 import copy
 import os.path as osp
 
-import gym
+import gymnasium as gym
 import numpy as np
 import torch as th
 import torch.nn as nn
-from gym import spaces
-from gym.wrappers import TimeLimit
+from gymnasium import spaces
+from gymnasium.wrappers import TimeLimit
 from luxai_s2.state import ObservationStateDict, StatsStateDict
 from luxai_s2.utils.heuristics.factory_placement import place_near_random_ice
 from luxai_s2.wrappers import SB3Wrapper
@@ -54,9 +54,11 @@ class CustomEnvWrapper(gym.Wrapper):
         # submit actions for just one agent to make it single-agent
         # and save single-agent versions of the data below
         action = {agent: action}
-        obs, _, done, info = self.env.step(action)
+        obs, _, termination, truncation, info = self.env.step(action)
+        done = dict()
+        for k in termination:
+            done[k] = termination[k] | truncation[k]
         obs = obs[agent]
-        done = done[agent]
 
         # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
@@ -87,12 +89,12 @@ class CustomEnvWrapper(gym.Wrapper):
             reward = ice_dug_this_step / 100 + water_produced_this_step
 
         self.prev_step_metrics = copy.deepcopy(metrics)
-        return obs, reward, done, info
+        return obs, reward, termination[agent], truncation[agent], info
 
     def reset(self, **kwargs):
-        obs = self.env.reset(**kwargs)["player_0"]
+        obs, reset_info = self.env.reset(**kwargs)["player_0"]
         self.prev_step_metrics = None
-        return obs
+        return obs, reset_info
 
 
 def parse_args():

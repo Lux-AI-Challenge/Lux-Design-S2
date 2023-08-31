@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
-import gym
+import gymnasium as gym
 import numpy as np
 from luxai_runner.bot import Bot
 from luxai_runner.logger import Logger
@@ -105,7 +105,7 @@ window.episode = {json.dumps(replay)};
 
         metadata = dict()
 
-        obs = self.env.reset(seed=self.seed)
+        obs, _ = self.env.reset(seed=self.seed)
         env_cfg = self.env.state.env_cfg
         state_obs = self.env.state.get_compressed_obs()
         obs = to_json(state_obs)
@@ -165,7 +165,10 @@ window.episode = {json.dumps(replay)};
                         else:
                             print(f"{agent_id} sent a invalid action {action}")
                     actions[agent_id] = None
-            new_state_obs, rewards, dones, infos = self.env.step(actions)
+            new_state_obs, rewards, terminations, truncations, infos = self.env.step(actions)
+            dones = dict()
+            for k in terminations:
+                dones[k] = terminations[k] | truncations[k]
             change_obs = self.env.state.get_change_obs(state_obs)
             state_obs = new_state_obs["player_0"]
             obs = to_json(change_obs)

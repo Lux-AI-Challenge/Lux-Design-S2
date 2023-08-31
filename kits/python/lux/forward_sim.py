@@ -22,6 +22,6 @@ def forward_sim(full_obs, env_cfg, n=2):
         if len(env.agents) == 0:
             # can't step any further
             return [full_obs]
-        obs, _, _, _ = env.step(empty_actions)
+        obs, _, _, _, _ = env.step(empty_actions)
         forward_obs.append(obs[agent])
     return forward_obs
