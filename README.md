@@ -35,19 +35,20 @@ If you use the Lux AI Season 2 environment in your work, please cite this reposi
 
 ## Getting Started
 
-You will need Python >=3.7, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment and optionally the GPU version with
+You will need Python >=3.8, <3.11  installed on your system. Once installed, you can install the Lux AI season 2 environment and optionally the GPU version with
 
 ```
 pip install --upgrade luxai_s2
 pip install juxai-s2 # installs the GPU version, requires a compatible GPU
 ```
 
-If you have `gym` installation issues, we recommend running `pip install setuptools==59.8.0`. If you have issues installing `vec-noise`, make sure to read the error output, it's usually because you are missing some C/C++ build tools. If you use conda, we highly recommend creating an environment based on the [environment.yml file in this repo](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/environment.yml). If you don't know how conda works, I highly recommend setting it up, see the [install instructions](https://conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation).
 
-To create a conda environment and use it run
+If you don't know how conda works, I highly recommend setting it up, see the [install instructions](https://conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation). You can then setup the environment as follows
+
 ```
-conda env create -f environment.yml
+conda create -n "luxai_s2" "python==3.9"
 conda activate luxai_s2
+pip install --upgrade luxai-s2
 ```
 
 
