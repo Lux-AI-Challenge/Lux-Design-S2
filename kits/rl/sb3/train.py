@@ -63,6 +63,9 @@ class CustomEnvWrapper(gym.Wrapper):
         # we collect stats on teams here. These are useful stats that can be used to help generate reward functions
         stats: StatsStateDict = self.env.state.stats[agent]
 
+
+        # Below is where you get to have some fun with reward design! we provide a simple reward function that rewards digging ice and producing water
+
         info = dict()
         metrics = dict()
         metrics["ice_dug"] = (
@@ -70,7 +73,7 @@ class CustomEnvWrapper(gym.Wrapper):
         )
         metrics["water_produced"] = stats["generation"]["water"]
 
-        # we save these two to see often the agent updates robot action queues and how often enough
+        # we save these two to see how often the agent updates robot action queues and how often the robot has enough
         # power to do so and succeed (less frequent updates = more power is saved)
         metrics["action_queue_updates_success"] = stats["action_queue_updates_success"]
         metrics["action_queue_updates_total"] = stats["action_queue_updates_total"]
@@ -114,13 +117,13 @@ def parse_args():
     parser.add_argument(
         "--max-episode-steps",
         type=int,
-        default=200,
+        default=400,
         help="Max steps per episode before truncating them",
     )
     parser.add_argument(
         "--total-timesteps",
         type=int,
-        default=3_000_000,
+        default=5_000_000,
         help="Total timesteps for training",
     )
 
@@ -249,7 +252,7 @@ def main(args):
         ]
     )
     env.reset()
-    rollout_steps = 4000
+    rollout_steps = 8000
     policy_kwargs = dict(net_arch=(128, 128))
     model = PPO(
         "MlpPolicy",
@@ -261,7 +264,7 @@ def main(args):
         verbose=1,
         n_epochs=2,
         target_kl=0.05,
-        gamma=0.99,
+        gamma=0.995,
         tensorboard_log=osp.join(args.log_path),
     )
     if args.eval:
