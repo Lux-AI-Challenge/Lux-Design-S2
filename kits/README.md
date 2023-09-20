@@ -89,12 +89,12 @@ The general observation given to your bot in the kits will look like below. `Arr
       }
     },
     "board": {
-      "rubble": Array(48, 48),
-      "ice": Array(48, 48),
-      "ore": Array(48, 48),
-      "lichen": Array(48, 48),
-      "lichen_strains": Array(48, 48),
-      "valid_spawns_mask": Array(48, 48),
+      "rubble": Array(64, 64),
+      "ice": Array(64, 64),
+      "ore": Array(64, 64),
+      "lichen": Array(64, 64),
+      "lichen_strains": Array(64, 64),
+      "valid_spawns_mask": Array(64, 64),
       "factories_per_team": int
     },
     "teams": {

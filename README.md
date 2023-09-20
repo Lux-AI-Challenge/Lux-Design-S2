@@ -2,34 +2,33 @@
 
 [![PyPI version](https://badge.fury.io/py/luxai_s2.svg)](https://badge.fury.io/py/luxai_s2)
 
-Welcome to the Lux AI Challenge Season 2! 
+Welcome to the Lux AI Challenge Season 2! (Now at NeurIPS 2023)
 
-The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand.
+The Lux AI Challenge is a competition where competitors design agents to tackle a multi-variable optimization, resource gathering, and allocation problem in a 1v1 scenario against other competitors. In addition to optimization, successful agents must be capable of analyzing their opponents and developing appropriate policies to get the upper hand. The goal of the NeurIPS 2023 edition of the competition is to focus on scaling up solutions to maps and game settings larger than the previous competition. 
 
 Key features this season!
 - GPU/TPU optimized environment via Jax
 - Asymmetric maps and novel mechanics (action efficiency and planning)
-- $55,000 Prize Pool
+- High quality dataset of past episodes of game play from hundreds of human-written agents including the strongest humans have been able to come up with thus far.
 
-Go to our [Getting Started](#getting-started) section to get started programming a bot. The official competition runs until April 24th and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2. There is a **$55,000** prize pool this year thanks to contributions from Kaggle, and our sponsors [QuantCo](https://quantco.com/), [Regression Games](https://www.regression.gg/), and [TSVC](https://tsvcap.com)
+Go to our [Getting Started](#getting-started) section to get started programming a bot. The official NeurIPS 2023 competition runs until November 17th and submissions are due at 11:59PM UTC on the competition page: https://www.kaggle.com/competitions/lux-ai-season-2-neurips-stage-2.
 
 Make sure to join our community discord at https://discord.gg/aWJt3UAcgn to chat, strategize, and learn with other competitors! We will be posting announcements on the Kaggle Forums and on the discord.
 
-Season 2 specifications can be found here: https://lux-ai.org/specs-s2. These detail how the game works and what rules your agent must abide by.
+Environment specifications can be found here: https://lux-ai.org/specs-s2. These detail how the game works and what rules your agent must abide by.
 
 Interested in Season 1? Check out [last year's repository](https://github.com/Lux-AI-Challenge/Lux-Design-2021) where we received 22,000+ submissions from 1,100+ teams around the world ranging from scripted agents to Deep Reinforcement Learning.
 
-If you use the Lux AI Season 2 environment in your work, please cite this repository as so
+ 
+If you use the Lux AI Season 2 competition/environment in your work, please cite as so
 
 ```
-@software{Lux_AI_Challenge_S1,
-  author = {Tao, Stone and Doerschuk-Tiberi, Bovard},
-  doi = {https://doi.org/10.5281/zenodo.7988163},
-  month = {10},
-  title = {{Lux AI Challenge Season 2}},
-  url = {https://github.com/Lux-AI-Challenge/Lux-Design-S2},
-  version = {1.0.0},
-  year = {2023}
+@inproceedings{luxais2_neurips_23,
+  title         =     {Lux AI Challenge Season 2, NeurIPS Edition},
+  author        =     {Stone Tao and Qimai Li and Yuhao Jiang and Jiaxin Chen and Xiaolong Zhu and Bovard Doerschuk-Tiberi and Isabelle Pan and Addison Howard},
+  booktitle     =     {Thirty-seventh Conference on Neural Information Processing Systems: Competition Track},
+  url           =     {https://github.com/Lux-AI-Challenge/Lux-Design-S2},
+  year          =     {2023}
 }
 ```
 
@@ -50,6 +49,9 @@ conda create -n "luxai_s2" "python==3.9"
 conda activate luxai_s2
 pip install --upgrade luxai-s2
 ```
+
+
+This will install the latest version of the Lux AI Season 2 environment. In particular, the latest versions default game configurations are for the NeurIPS 2023 competition. For those looking for the [competition prior to NeurIPS 2023](https://www.kaggle.com/c/lux-ai-season-2/) (smaller mapsizes and scale), see this [commit](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/a96161ad51aaf6ae430b12c14bf81c37ff09dbd7) for code or do `pip install luxai_s2==2.2.0`. 
 
 
 To verify your installation, you can run the CLI tool by replacing `path/to/bot/main.py` with a path to a bot (e.g. the starter kit in `kits/python/main.py`) and run
