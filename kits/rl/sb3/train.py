@@ -92,9 +92,9 @@ class CustomEnvWrapper(gym.Wrapper):
         return obs, reward, termination[agent], truncation[agent], info
 
     def reset(self, **kwargs):
-        obs, reset_info = self.env.reset(**kwargs)["player_0"]
+        obs, reset_info = self.env.reset(**kwargs)
         self.prev_step_metrics = None
-        return obs, reset_info
+        return obs["player_0"], reset_info
 
 
 def parse_args():
@@ -147,8 +147,8 @@ def make_env(env_id: str, rank: int, seed: int = 0, max_episode_steps=100):
     def _init() -> gym.Env:
         # verbose = 0
         # collect stats so we can create reward functions
-        # max factories set to 2 for simplification and keeping returns consistent as we survive longer if there are more initial resources
-        env = gym.make(env_id, verbose=0, collect_stats=True, MAX_FACTORIES=2)
+        # max factories set to 4 for simplification and keeping returns consistent as we survive longer if there are more initial resources
+        env = gym.make(env_id, verbose=0, collect_stats=True, MAX_FACTORIES=4, disable_env_checker=True)
 
         # Add a SB3 wrapper to make it work with SB3 and simplify the action space with the controller
         # this will remove the bidding phase and factory placement phase. For factory placement we use
