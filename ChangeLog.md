@@ -1,5 +1,12 @@
 # ChangeLog
 
+### v3.0.1
+minor bug fix for complete gymnasium compatability
+
+### v3.0.0
+
+Upgraded to NeurIPS 2023 edition configurations
+
 ### v2.2.0
 
 Upgraded to gymnasium format
