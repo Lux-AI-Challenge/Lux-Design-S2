@@ -12,7 +12,7 @@ There are two ways to create the LuxAI environment, of which the recommended way
 from luxai_s2 import LuxAI_S2
 custom_env_cfg = dict()
 env = LuxAI_S2(collect_stats=False, **custom_env_cfg)
-env.reset()
+obs, _ = env.reset()
 ```
 
 where `collect_stats=True` will collect aggregate stats for an episode stored in `env.state.stats` and `custom_env_cfg` can be a custom env configuration to override the default. The custom env configuration may only replace existing keys as defined in [config.py](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/luxai_s2/luxai_s2/config.py).
@@ -23,7 +23,7 @@ The other way to create an environment is to do
 import luxai_s2
 custom_env_cfg = dict()
 env = gym.make("LuxAI_S2-v0", collect_stats=False, **custom_env_cfg)
-env.reset()
+obs, _ = env.reset()
 ```
 
 Upon creation, an empty `State` object is created and the default agent names given are `"player_0", "player_1"`.

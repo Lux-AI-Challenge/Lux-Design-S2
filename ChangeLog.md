@@ -1,5 +1,9 @@
 # ChangeLog
 
+### v2.2.0
+
+Upgraded to gymnasium format
+
 ### v2.1.9
 
 Fix bug where setuptools was causing runtime errors

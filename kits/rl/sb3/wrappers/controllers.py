@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 import numpy as np
 import numpy.typing as npt
-from gym import spaces
+from gymnasium import spaces
 
 
 # Controller class copied here since you won't have access to the luxai_s2 package directly on the competition server

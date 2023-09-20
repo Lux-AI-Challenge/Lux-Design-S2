@@ -44,8 +44,8 @@ class Bot:
             direct_import_python_bots=direct_import_python_bots,
         )
         # timing
-        self.remainingOverageTime = 60
-        self.time_per_step = 3
+        self.remainingOverageTime = 600
+        self.time_per_step = 9
 
         self.log = Logger(
             identifier=f"{self.agent}, {self.main_file_path}", verbosity=verbose

@@ -24,7 +24,7 @@ setup(
     packages=find_packages(exclude="kits"),
     entry_points={"console_scripts": ["luxai-s2 = luxai_runner.cli:main"]},
     version=get_version("luxai_s2/version.py"),
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         "numpy",
         "pygame",
@@ -32,8 +32,7 @@ setup(
         "matplotlib",
         "pettingzoo",
         "vec_noise",
-        "gym==0.21.0",
+        "gymnasium",
         "scipy",
-        "importlib-metadata<5.0" # fixes bug where they deprecated an endpoint that openai gym uses
     ],
 )

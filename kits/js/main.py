@@ -121,7 +121,7 @@ def agent(observation, configuration):
             env.env_steps = env.state.env_steps
             obs_inputs = [obs_inputs]
             for _ in range(FORWARD_SIM):
-                obs, _, _, _ = env.step(dict(player_0=dict(), player_1=dict()))
+                obs, _, _, _, _ = env.step(dict(player_0=dict(), player_1=dict()))
                 obs_inputs.append(to_json(obs[observation.player]))
         # except:
             # pass
