@@ -14,7 +14,7 @@ As the sun set on the world an array of lights dotted the once dark horizon. Wit
 
 In the Lux AI Challenge Season 2, two competing teams control a team of Factory and Robots that collect resources and plant lichen, with the main objective to own as much lichen as possible at the end of the turn-based game. Both teams have complete information about the entire game state and will need to make use of that information to optimize resource collection, compete for scarce resources against the opponent, and grow lichen to score points.
 
-Each competitor must program their own agent in their language of choice. In the NeurIPS edition, each turn, each agent gets 9 seconds to submit their actions, excess time is not saved across turns. In each game, each player is given a pool of 60 seconds that is tapped into each time the agent goes over a turn's 3-second limit. Upon using up all 60 seconds and going over the 9-second limit, the agent freezes and loses automatically.
+Each competitor must program their own agent in their language of choice. In the NeurIPS edition, each turn, each agent gets 9 seconds to submit their actions, excess time is not saved across turns. In each game, each player is given a pool of 60 seconds that is tapped into each time the agent goes over a turn's 9-second limit. Upon using up all 60 seconds and going over the 9-second limit, the agent freezes and loses automatically.
 
 The rest of the document will go through the key features of this game.
 
