@@ -62,12 +62,15 @@ luxai-s2 path/to/bot/main.py path/to/bot/main.py -v 2 -o replay.json
 
 This will turn on logging to level 2, and store the replay file at `replay.json`. For documentation on the luxai-s2 tool, see the [tool's README](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/luxai_s2/luxai_runner/README.md), which also includes details on how to run a local tournament to mass evaluate your agents. To watch the replay, upload `replay.json` to https://s2vis.lux-ai.org/ (or change `-o replay.json` to `-o replay.html`)
 
+### Starter Kits
+
 Each supported programming language/solution type has its own starter kit, you can find general [API documentation here](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits).
 
 The kits folder in this repository holds all of the available starter kits you can use to start competing and building an AI agent. The readme shows you how to get started with your language of choice and run a match. We strongly recommend reading through the documentation for your language of choice in the links below
 
 - [Python](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/python/)
-- [Reinforcement Learning (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl/)
+- [Reinforcement Learning (Python)](https://github.com/RoboEden/Luxai-s2-Baseline) - This is designed for a lot of customization and suitable for doing your own RL research in this competition
+- [Simple Reinforcement Learning tutorial with SB3 (Python)](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl/)
 - [C++](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/cpp/)
 - [Javascript](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/js/)
 - [Java](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/java/)
@@ -77,11 +80,15 @@ The kits folder in this repository holds all of the available starter kits you c
 
 Want to use another language but it's not supported? Feel free to suggest that language to our issues or even better, create a starter kit for the community to use and make a PR to this repository. See our [CONTRIBUTING.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/CONTRIBUTING.md) document for more information on this.
 
-<!-- Finally, if you want to learn how to use the GPU optimized env see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb
+If you want to learn how to use the **GPU optimized environment** see [https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/examples/jax_env_tutorial.ipynb](https://github.com/RoboEden/jux/tree/dev)
 
-For the RL starter kit that trains using the jax env, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/ -->
+<!-- For the RL starter kit that trains using the jax env, see https://github.com/Lux-AI-Challenge/Lux-Design-S2/tree/main/kits/rl-sb3-jax-env/ -->
 
-To stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/ChangeLog.md) for a full change log.
+### Episodes Dataset
+
+See https://github.com/RoboEden/Luxai-s2-Baseline for a simple script to download desired episode data from Kaggle. This repository also provides a strong reinforcement learning baseline solution that is easy to iterate and perform research with.
+
+Finally, to stay up to date on changes and updates to the competition and the engine, watch for announcements on the forums or the [Discord](https://discord.gg/aWJt3UAcgn). See [ChangeLog.md](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/ChangeLog.md) for a full change log.
 
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
@@ -102,3 +109,5 @@ We like to extend thanks to some of our early core contributors: [@duanwilliam](
 We further like to extend thanks to some of our core contributors during the beta period: [@LeFiz](https://github.com/LeFiz) (Game Design/Architecture), [@jmerle](https://github.com/jmerle) (Visualizer)
 
 We further like to thank the following contributors during the official competition: [@aradite](https://github.com/paradite)(JS Kit), [@MountainOrc](https://github.com/MountainOrc)(Java Kit), [@ArturBloch](https://github.com/ArturBloch)(Java Kit), [@rooklift](https://github.com/rooklift)(Go Kit)
+
+Finally, we are grateful for the support provided by Parametrix.ai in the research and development of this challenge.
