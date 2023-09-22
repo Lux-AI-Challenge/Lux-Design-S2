@@ -93,7 +93,8 @@ Finally, to stay up to date on changes and updates to the competition and the en
 ## Community Tools
 As the community builds tools for the competition, we will post them here!
 
-3rd Party Viewer (This has now been merged into the main repo so check out the lux-eye-s2 folder) - https://github.com/jmerle/lux-eye-2022
+- Advanced Submission Stats: http://luxaistats.crabdance.com/ (Code at https://github.com/nikiandr/lux_ai_stats)
+- 3rd Party Viewer (This has now been merged into the main repo so check out the lux-eye-s2 folder) - https://github.com/jmerle/lux-eye-2022
 
 ## Contributing
 See the [guide on contributing](https://github.com/Lux-AI-Challenge/Lux-Design-S2/blob/main/CONTRIBUTING.md)
